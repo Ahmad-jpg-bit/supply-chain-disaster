@@ -1,0 +1,68 @@
+name: Publish Daily Blog Post
+
+on:
+  schedule:
+    # Runs at 09:00 UTC every day
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Publish date override (YYYY-MM-DD). Leave blank for today.'
+        required: false
+        default: ''
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Publish today's post
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then
+            node scripts/publish-today.js
+          else
+            node scripts/publish-today.js "$DATE"
+          fi
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          POST_DATE=$(node -e "
+            const s = JSON.parse(require('fs').readFileSync('blog-schedule.json','utf8'));
+            const today = process.env.DATE || new Date().toISOString().slice(0,10);
+            const p = s.posts.find(x => x.publish_date === today);
+            console.log(p ? p.slug : 'unknown');
+          " DATE="${{ github.event.inputs.date }}")
+          git commit -m "publish: ${POST_DATE} [$(date -u +%Y-%m-%d)]"
+          git push
+
+      - name: Deploy to Vercel
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install -g vercel@latest
+          vercel --prod --token "$VERCEL_TOKEN" --yes

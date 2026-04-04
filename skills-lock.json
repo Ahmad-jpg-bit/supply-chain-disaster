@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "skills": {
+    "alert-manager": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "3b36ddc86140a302a4949bc9c1717af929e53a37d3504019ce4350d190567ea3"
+    },
+    "backlink-analyzer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "49055c00c5cea4e78b642bb261bc6b5b0a793fd1cfae8914cc2de11ea797efe6"
+    },
+    "banner-creator": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "d93d50cfc28fd783879098532f6ec091e51b9e6ce5e6ff87fbaa8fc3a6f9b7b6"
+    },
+    "competitor-analysis": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "791b6111588d770f571728c1c479c5e178ba988315c6091ce9b0dc63b7a7cedc"
+    },
+    "content-gap-analysis": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "7022fd0f748f635afde1920fc8c99ebeccc55216fcf3927e9b06fbd457766150"
+    },
+    "content-quality-auditor": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "bd3fc5f9cb1b29ba5ee2e0f25360cd3dacd0e503e567bb650e77fcb0c3407a78"
+    },
+    "content-refresher": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "ff7ec5a6468b7027019fe129f3736cb5f30e03250fbf40333a3395b4b8576849"
+    },
+    "domain-authority-auditor": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "89671b46754190ac9c907826cb11462c45af0527f2db8a03eca023b16f273d34"
+    },
+    "domain-hunter": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "2e6b7fa9e25e89f9524c19ae090ae7b303fb7a1b0d00305b10151f5ea45e12b7"
+    },
+    "entity-optimizer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "46a0a8f68cbc4a54e76a8da6cd60f535395ad2596bca723ca268de7e3a3c243f"
+    },
+    "geo-content-optimizer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "672d33db1cc8dac5356a2162b9ac8ffcb1009fc2af4e82e4a488d894d91b8105"
+    },
+    "internal-linking-optimizer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "eb9cf9a4cac22754dfded41b1502c218bea89a349db92adda2f1bf2d76031fbb"
+    },
+    "keyword-research": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "f75fcbf60f187eeffd5b7e4a8a1c8329275b8c4fb1d59e293ea3b6a0f69f6fed"
+    },
+    "logo-creator": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "cfb6815ea42686977fb54fe7f6bbd349056a2fcf61f7675fd1becd721029f82b"
+    },
+    "memory-management": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "175ca7af9ab81c1e03e151953e7d6f6c0bf31956b4d482ef3212888690d08221"
+    },
+    "meta-tags-optimizer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "f1ece7850ab19a5a7da8b257d04f94af6ea52e90e447c6ffd78fcf5e1c5b293d"
+    },
+    "nanobanana": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "04b3d7e8b7dc1275c131984c2bbb6229783b186c48e74897fa1cc67a1b8593eb"
+    },
+    "on-page-seo-auditor": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "c59a360d3815ce7f7830789023efa9f1ab170c2f62551167cbc2cac2be95aee1"
+    },
+    "performance-reporter": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "be4c7fe4d0959c06600dc7858f9c5fee3a013b01aa00304138bbbee7c1aa2d3f"
+    },
+    "producthunt": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "a8ae4c7ddfa3eadadf1e73323deac6194acb46f9bce7b5b363aafffe23621344"
+    },
+    "rank-tracker": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "fd0166082f3a9e670ca2336f3fd6e5255517e78e37895aeb4de9ac959de1f794"
+    },
+    "reddit": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "4f9e4d58f831dbc74a60058a07b0240fb6d1cdc30f35225a7724e5de0e35822d"
+    },
+    "requesthunt": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "598f5172df0d2b0b280e04a247b9ac611f7c189bf710f7d5c55a1867b7dba796"
+    },
+    "schema-markup-generator": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "da7957a890f4a7e8b8ef532c6072a18d2fe3bda97c1449a4bb489dec265cbc7d"
+    },
+    "seo-content-writer": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "92e4c80a21b3aeaf355985aa688ab598528bac0505dd0ba21fdd8c99db3456d6"
+    },
+    "seo-geo": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "1d38520f453282af8712874c360e3e34a379827f737fb536bd45055e2d60d964"
+    },
+    "serp-analysis": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "7310c94914c25ec0c6192a5ddcf69414cd898c5ccacfc2bcca6fb7214498b66b"
+    },
+    "skill-name": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "00db8f0c404b638c19eaf7fdb8f85cab56a1fb4f90525b6178c40c1eacaa7208"
+    },
+    "technical-seo-checker": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "computedHash": "e60a17b0b46ca206a5261a73b7ba4f99e806327e607bc5e2954e841ded209d68"
+    },
+    "twitter": {
+      "source": "ReScienceLab/opc-skills",
+      "sourceType": "github",
+      "computedHash": "912bf06f66031cd7b057ac888100177e6261ee3736b4bcc3a2dd07ee8977e385"
+    }
+  }
+}

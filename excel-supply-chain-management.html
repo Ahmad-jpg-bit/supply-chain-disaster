@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Z03B7JFE1"></script>
+  <script>window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2Z03B7JFE1');
+  </script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Excel for Supply Chain Management: 10 High-Impact Use Cases & Formulas | Supply Chain Disaster</title>
+  <meta name="description" content="10 practical Excel use cases for supply chain professionals: demand forecasting, safety stock, ABC-XYZ analysis, supplier scorecards, landed cost modelling, BOM explosion, and scenario planning — with the formulas that make them work." />
+  <meta name="keywords" content="excel supply chain management, supply chain excel formulas, safety stock formula excel, ABC XYZ analysis excel, demand forecasting excel, supplier scorecard excel, landed cost model excel, BOM explosion excel, FORECAST.ETS excel, excel inventory management" />
+  <link rel="canonical" href="https://www.supplychaindisaster.com/excel-supply-chain-management" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Ahmad Faruqi" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://www.supplychaindisaster.com/excel-supply-chain-management" />
+  <meta property="og:title" content="Excel for Supply Chain Management: 10 High-Impact Use Cases & Formulas" />
+  <meta property="og:description" content="Over two-thirds of companies still rely on Excel as a primary supply chain tool — not because they're behind the times, but because a well-built spreadsheet is fast, portable, and powerful. Here are the 10 use cases that prove it." />
+  <meta property="og:image" content="https://www.supplychaindisaster.com/og-image.png" />
+  <meta property="og:site_name" content="Supply Chain Disaster" />
+  <meta property="article:published_time" content="2026-04-01" />
+  <meta property="article:author" content="Ahmad Faruqi" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Excel for Supply Chain Management: 10 High-Impact Use Cases & Formulas" />
+  <meta name="twitter:description" content="Safety stock, ABC-XYZ, landed cost, BOM explosion, scenario planning — and the Excel formulas that make each one work." />
+  <meta name="twitter:image" content="https://www.supplychaindisaster.com/og-image.png" />
+
+  <!-- JSON-LD: BlogPosting + FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Stop Underestimating Excel. It's Your Supply Chain's Secret Weapon.",
+    "description": "10 high-impact Excel use cases for supply chain professionals, with formulas: demand forecasting, safety stock, ABC-XYZ analysis, supplier scorecards, landed cost modelling, S&OP data consolidation, KPI dashboards, BOM explosion, and scenario planning.",
+    "datePublished": "2026-04-01",
+    "dateModified": "2026-04-01",
+    "author": {
+      "@type": "Person",
+      "name": "Ahmad Faruqi",
+      "url": "https://www.linkedin.com/in/ahmad-f-549063193"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Supply Chain Disaster",
+      "url": "https://www.supplychaindisaster.com/"
+    },
+    "url": "https://www.supplychaindisaster.com/excel-supply-chain-management",
+    "mainEntityOfPage": "https://www.supplychaindisaster.com/excel-supply-chain-management",
+    "keywords": ["excel supply chain management", "safety stock formula excel", "ABC XYZ analysis", "demand forecasting excel", "FORECAST.ETS", "landed cost model", "BOM explosion excel", "supplier scorecard excel", "scenario planning excel"],
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Excel good for supply chain management?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes — Excel remains one of the most widely used supply chain tools globally, with over two-thirds of companies relying on it as a primary tool. Its strengths are speed, portability, and accessibility. It handles demand forecasting, safety stock calculation, supplier scorecards, landed cost modelling, BOM explosion, and scenario planning effectively. Its limitations emerge at scale, in multi-user environments, or when real-time ERP integration is required." }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you calculate safety stock in Excel?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Safety stock in Excel uses the formula: Safety Stock = Z × σ_LTD, where Z is the service level factor (1.65 for 95%, 2.05 for 98%) and σ_LTD is the standard deviation of demand during lead time. When both demand and lead time vary, the formula becomes: SQRT((avg_LT × STDEV(demand)²) + (AVERAGE(demand)² × STDEV(lead_time)²)). Set up one SKU per row and use AVERAGE() and STDEV() on your historical sales data to populate the inputs automatically." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is FORECAST.ETS in Excel and how is it used in supply chain?",
+        "acceptedAnswer": { "@type": "Answer", "text": "FORECAST.ETS is Excel's built-in exponential smoothing function, available from Excel 2016 onwards. It uses triple exponential smoothing (Holt-Winters) to handle trends and seasonality automatically. The syntax is: =FORECAST.ETS(target_date, values, timeline, [seasonality], [data_completion]). For supply chain demand forecasting, set seasonality=12 for monthly data or 4 for quarterly. It is the most powerful forecasting function in Excel and can replace basic statistical forecasting tools for most SKU-level planning." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is ABC-XYZ analysis in inventory management?",
+        "acceptedAnswer": { "@type": "Answer", "text": "ABC-XYZ analysis combines two classification dimensions to prioritize inventory management effort. ABC classifies items by value contribution: A-items (top ~20% of SKUs, ~80% of value), B-items (middle tier), and C-items (long tail). XYZ classifies by demand variability using the coefficient of variation: X-items (stable, CV < 0.2), Y-items (seasonal or trending, CV 0.2–0.5), and Z-items (erratic, CV > 0.5). Combining both creates a 3×3 matrix that should drive replenishment strategy, safety stock levels, and review frequency for each SKU category." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can Excel replace supply chain software like SAP IBP?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Excel cannot replace dedicated platforms at scale — it breaks down when multiple users need concurrent access, when datasets exceed millions of rows, or when real-time integration across global networks is required. However, most businesses are using roughly 20% of Excel's actual capability. Tools like Power Query, Power Pivot, FORECAST.ETS, and Python integration (in Microsoft 365) bring Excel closer to dedicated analytics platforms than most practitioners realise. The right answer is usually to master Excel first, then implement dedicated tools from a position of understanding your data and processes." }
+      },
+      {
+        "@type": "Question",
+        "name": "What Excel skills are most important for supply chain analysts?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The highest-impact Excel skills for supply chain analysts are: XLOOKUP and SUMIFS for cross-referencing and conditional aggregation; Power Query for automated data ingestion from ERP exports and databases; PivotTables for rapid summarisation of large datasets; FORECAST.ETS for demand planning; Conditional Formatting for visual exception management; and Data Tables for sensitivity analysis. Named Ranges and structured table references make models maintainable by others — critical in team environments." }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="alternate" type="application/rss+xml" title="Supply Chain Disaster RSS Feed" href="/rss.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+pre {
+  background: rgba(8, 11, 20, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin: 1.25rem 0 1.75rem;
+}
+pre code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.83rem;
+  color: #e2e8f0;
+  line-height: 1.75;
+  white-space: pre;
+}
+.callout {
+  margin: 2rem 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.callout-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.callout-label::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: callout-pulse 1.6s ease-in-out infinite;
+}
+@keyframes callout-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.callout p { margin: 0; font-size: 0.9rem; color: #cbd5e1; line-height: 1.75; }
+.callout-pro {
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-left: 4px solid #3b82f6;
+}
+.callout-pro .callout-label { color: #60a5fa; }
+.callout-pro .callout-label::before { background: #3b82f6; }
+.callout-field {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 4px solid #f59e0b;
+}
+.callout-field .callout-label { color: #f59e0b; }
+.callout-field .callout-label::before { background: #f59e0b; }
+.callout-advanced {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-left: 4px solid #8b5cf6;
+}
+.callout-advanced .callout-label { color: #a78bfa; }
+.callout-advanced .callout-label::before { background: #8b5cf6; }
+.tldr-box {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.5rem 1.75rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+}
+.tldr-box h3 { margin: 0 0 0.875rem; font-size: 0.72rem; font-family: 'Courier New', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: #64748b; }
+.tldr-box ul { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.tldr-box li { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0 2rem;
+  font-size: 0.875rem;
+}
+.data-table th {
+  background: rgba(15, 23, 42, 0.8);
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  color: #cbd5e1;
+  vertical-align: top;
+  line-height: 1.6;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td strong { color: #f1f5f9; }
+.faq-section { margin: 3rem 0 1rem; }
+.faq-section h2 { margin-bottom: 1.5rem; }
+.faq-item { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1); }
+.faq-item:last-child { border-bottom: none; }
+.faq-item h3 { font-size: 1rem; color: #f1f5f9; margin: 0 0 0.6rem; }
+.faq-item p { margin: 0; font-size: 0.9rem; color: #94a3b8; line-height: 1.75; }
+.mission-briefing {
+  margin: 2.5rem 0 1rem;
+  padding: 2rem 2.25rem;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.08), 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+.mission-briefing-label { font-family: 'Courier New', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #f59e0b; margin-bottom: 0.75rem; }
+.mission-briefing h2 { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; margin: 0 0 0.875rem; border: none; padding: 0; }
+.mission-briefing h2::after { display: none; }
+.mission-briefing p { color: #94a3b8; font-size: 0.95rem; line-height: 1.7; margin: 0 0 1.5rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+.mission-btn { display: inline-block; padding: 0.875rem 2.25rem; background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; font-weight: 700; font-size: 1rem; text-decoration: none; border-radius: 8px; letter-spacing: 0.02em; animation: mission-glow 2.2s ease-in-out infinite; transition: transform 0.2s ease; }
+.mission-btn:hover { transform: translateY(-2px); text-decoration: none; }
+@keyframes mission-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.25), 0 3px 10px rgba(0, 0, 0, 0.4); }
+  50%       { box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), 0 3px 10px rgba(0, 0, 0, 0.4); }
+}
+.mission-briefing-note { display: block; margin-top: 0.875rem; font-size: 0.78rem; color: #475569; font-family: 'Courier New', monospace; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="page-content">
+    <header class="article-header">
+      <a href="/blog" class="article-back-link">&#8592; Back to Blog</a>
+      <span class="article-tag">Analytics</span>
+      <h1>Stop Underestimating Excel. It's Your Supply Chain's Secret Weapon.</h1>
+      <p class="article-subtitle">10 high-impact use cases — and the formulas that make them work.</p>
+      <div class="article-meta">
+        <span>April 1, 2026</span>
+        <span class="article-meta-sep">·</span>
+        <span>Ahmad Faruqi</span>
+        <span class="article-meta-sep">·</span>
+        <span>16 min read</span>
+      </div>
+    </header>
+
+    <article class="article-content">
+
+      <p>Let's be upfront: <strong>Excel is not the future of supply chain management</strong>. Modern platforms like SAP IBP, Kinaxis, and o9 Solutions are genuinely transformative. But here's what nobody tells you in those vendor presentations — over two-thirds of companies still consider Excel a primary supply chain tool. Not because they're behind the times, but because a well-built spreadsheet is fast, portable, requires zero procurement cycle, and can be handed to anyone from a factory floor supervisor to a regional category manager.</p>
+
+      <p>The problem isn't Excel. It's the <em>way</em> most supply chain professionals use it — reactive, manual, and built on the fly during a crisis. This guide is about doing it right.</p>
+
+      <div class="tldr-box">
+        <h3>TL;DR — 10 Use Cases</h3>
+        <ul>
+          <li><strong>Demand Forecasting</strong> — SMA, WMA, Exponential Smoothing, and FORECAST.ETS with seasonality</li>
+          <li><strong>Safety Stock &amp; Reorder Points</strong> — Statistical calculation that replaces guesswork with working capital reduction</li>
+          <li><strong>ABC–XYZ Classification</strong> — Coefficient of variation + cumulative revenue to segment your entire SKU portfolio</li>
+          <li><strong>Supplier Scorecards</strong> — Weighted OTD, fill rate, quality, and pricing metrics with traffic-light formatting</li>
+          <li><strong>PO Tracking</strong> — SUMIFS and XLOOKUP to manage 1,000+ open orders with automatic overdue flagging</li>
+          <li><strong>Landed Cost Modelling</strong> — Full economics of a sourcing decision: freight, duty, insurance, financing cost</li>
+          <li><strong>S&amp;OP Data Consolidation</strong> — Power Query for automated ERP ingestion, Power Pivot for modelling</li>
+          <li><strong>KPI Dashboard</strong> — Sparklines, conditional formatting icons, and dynamic chart elements on one page</li>
+          <li><strong>BOM Explosion &amp; Cost Rollup</strong> — XLOOKUP and SUMPRODUCT through multi-level parent-child relationships</li>
+          <li><strong>Scenario Planning</strong> — Scenario Manager, Data Tables, and Monte Carlo simulation for uncertainty quantification</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <ol>
+        <li><a href="#forecasting">Demand Forecasting with Moving Averages &amp; Exponential Smoothing</a></li>
+        <li><a href="#safety-stock">Safety Stock &amp; Reorder Point Calculation</a></li>
+        <li><a href="#abc-xyz">ABC–XYZ Inventory Classification</a></li>
+        <li><a href="#scorecard">Supplier Scorecard &amp; Performance Tracking</a></li>
+        <li><a href="#po-tracking">Purchase Order Tracking &amp; Open Order Management</a></li>
+        <li><a href="#landed-cost">Landed Cost Modelling</a></li>
+        <li><a href="#sop">S&amp;OP / IBP Data Consolidation</a></li>
+        <li><a href="#kpi-dashboard">KPI Dashboard with Conditional Formatting</a></li>
+        <li><a href="#bom">Bill of Materials (BOM) Explosion &amp; Cost Rollup</a></li>
+        <li><a href="#scenario">Scenario Planning &amp; What-If Analysis</a></li>
+      </ol>
+
+      <hr>
+
+      <h2 id="forecasting">1. Demand Forecasting with Moving Averages &amp; Exponential Smoothing</h2>
+
+      <p>Every supply chain starts with one deceptively simple question: <em>How much will we sell?</em> Get it wrong in one direction and you're drowning in inventory. Get it wrong the other way and your customers are buying from your competitor.</p>
+
+      <p>When you're managing demand planning for a business with patchy or irregular sales data — which is more common than any vendor demo will admit — you don't always have a forecasting tool that works reliably out of the box. What you do have is Excel, a solid historical dataset, and a team that needs answers today.</p>
+
+      <p><strong>Here are the three methods that actually work in Excel:</strong></p>
+
+      <h3>Simple Moving Average (SMA)</h3>
+      <p>Your baseline. Average the last N periods. Useful for stable, low-volatility SKUs. The formula is straightforward but surprisingly effective for commodity lines where demand doesn't move much.</p>
+
+<pre><code>=AVERAGE(B2:B4)   // 3-period SMA; drag down the column</code></pre>
+
+      <h3>Weighted Moving Average (WMA)</h3>
+      <p>Better when recent periods matter more — think seasonal FMCG or fashion retail. Assign weights manually (e.g., 50% to last month, 30% to two months ago, 20% to three months ago). It takes 20 minutes to set up properly and will immediately outperform SMA on volatile SKUs.</p>
+
+      <h3>Exponential Smoothing</h3>
+      <p>This is where Excel starts earning its keep as a forecasting tool. With a single alpha parameter (α) between 0 and 1, you let the model decide how much weight to assign to historical data versus recent actuals. Low alpha = slow response, good for stable products. High alpha = fast response, good for trending items.</p>
+
+<pre><code>=alpha*B2+(1-alpha)*C1   // C column is forecast; alpha in a named cell</code></pre>
+
+      <p>Excel's built-in <strong>FORECAST.ETS</strong> function (available from Excel 2016) handles seasonality automatically using triple exponential smoothing. It is the closest thing to a professional forecasting engine you'll find in a spreadsheet, and most supply chain professionals have never touched it.</p>
+
+<pre><code>=FORECAST.ETS(target_date, values, timeline, [seasonality], [data_completion])
+// seasonality=12 for monthly data, 4 for quarterly</code></pre>
+
+      <div class="callout callout-pro">
+        <div class="callout-label">Pro Tip</div>
+        <p>Build a forecast accuracy tab. Track Mean Absolute Percentage Error (MAPE) = <code>ABS(Actual - Forecast) / Actual</code> per SKU, per month. Anything above 30% MAPE is a signal that your model needs tuning — or that the SKU needs a different forecasting method entirely.</p>
+      </div>
+
+      <hr>
+
+      <h2 id="safety-stock">2. Safety Stock &amp; Reorder Point Calculation</h2>
+
+      <p>This is the use case where Excel pays for itself in pure inventory reduction. We've seen businesses carrying 90 days of stock "just in case" when the math — if anyone had bothered to do it — called for 22 days. That's 68 days of working capital sitting on a warehouse floor.</p>
+
+      <p>Safety stock is not guesswork. It is a statistical calculation. And Excel handles it beautifully.</p>
+
+<pre><code>Safety Stock = Z × σ_LTD
+
+Where:
+  Z      = service level factor (1.65 for 95%, 2.05 for 98%)
+  σ_LTD  = standard deviation of demand during lead time
+
+If both demand AND lead time vary:
+  σ_LTD = SQRT( (avg_LT × σ_demand²) + (avg_demand² × σ_LT²) )
+
+Reorder Point = (avg_demand × avg_lead_time) + Safety_Stock</code></pre>
+
+      <p>In Excel, set this up as a structured table with one SKU per row. Pull average weekly demand and its standard deviation using <code>AVERAGE()</code> and <code>STDEV()</code> from your sales history range. Input lead times per supplier. Let the formulas do the rest.</p>
+
+      <div class="callout callout-field">
+        <div class="callout-label">From the Field</div>
+        <p>At a pharmaceutical distributor, reorder points were historically set by "experience" — meaning, whatever the warehouse manager felt comfortable with. After building this model in Excel for 400 SKUs, the business cut average inventory value by 18% while improving fill rates. The CFO asked what new software had been purchased. The answer was: none.</p>
+      </div>
+
+      <hr>
+
+      <h2 id="abc-xyz">3. ABC–XYZ Inventory Classification</h2>
+
+      <p>Not all SKUs deserve equal attention. That sentence should be on the wall of every supply chain office. ABC-XYZ analysis is the tool that makes that principle operational.</p>
+
+      <p><strong>ABC classifies by value contribution:</strong></p>
+      <ul>
+        <li><strong>A-items</strong> are your top ~20% of SKUs by revenue or cost — typically driving 70–80% of total value.</li>
+        <li><strong>B-items</strong> sit in the middle tier.</li>
+        <li><strong>C-items</strong> are the long tail. Most businesses have hundreds of C-items generating 5% of value but consuming 40% of planning effort. That is a management problem you can fix in Excel in an afternoon.</li>
+      </ul>
+
+      <p><strong>XYZ classifies by demand variability:</strong></p>
+      <ul>
+        <li><strong>X-items</strong> have stable, predictable demand (low coefficient of variation).</li>
+        <li><strong>Y-items</strong> have seasonal or trending demand.</li>
+        <li><strong>Z-items</strong> are erratic, intermittent, or difficult to forecast.</li>
+      </ul>
+
+      <p>Combining the two gives you a 3×3 matrix that should drive your entire inventory strategy.</p>
+
+<pre><code>// Step 1: Calculate Coefficient of Variation per SKU
+CV = STDEV(demand_range) / AVERAGE(demand_range)
+
+// Step 2: Assign XYZ category
+=IF(CV&lt;0.2,"X", IF(CV&lt;0.5,"Y","Z"))
+
+// Step 3: Assign ABC using cumulative revenue %
+=IF(cumulative_pct&lt;=0.8,"A", IF(cumulative_pct&lt;=0.95,"B","C"))</code></pre>
+
+      <p>An <strong>AX item</strong> (high value, stable demand) should be managed with tight reorder points and close supplier relationships. A <strong>CZ item</strong> (low value, erratic demand) probably deserves a min-max policy and infrequent review. Excel lets you sort, filter, and visualise this matrix in minutes. Use a PivotTable to count SKUs by category. Use conditional formatting to colour-code the nine cells. Present it in your next S&amp;OP meeting and watch the conversation change.</p>
+
+      <hr>
+
+      <h2 id="scorecard">4. Supplier Scorecard &amp; Performance Tracking</h2>
+
+      <p>Your supply chain is only as good as your suppliers. And most businesses have no systematic way of measuring them. They rely on gut feel, email threads, and whoever complained loudest last quarter. A supplier scorecard built in Excel changes that dynamic entirely.</p>
+
+      <p>The metrics that matter most are: <strong>On-Time Delivery (OTD)</strong>, <strong>Fill Rate / Order Fulfilment Accuracy</strong>, <strong>Quality Rejection Rate</strong>, <strong>Lead Time Consistency</strong>, and <strong>Pricing Compliance</strong>. The exact weighting depends on your business, but a weighted scoring model takes about two hours to build and will immediately surface which suppliers are underperforming and which deserve preferred status.</p>
+
+<pre><code>// Weighted Scorecard Formula per Supplier:
+Score = (OTD_pct × 0.30)
+      + (Fill_Rate × 0.25)
+      + ((1 - Rejection_Rate) × 0.20)
+      + (LT_Consistency × 0.15)
+      + (Price_Compliance × 0.10)
+
+// Normalise to 100:
+Final_Score = Score × 100</code></pre>
+
+      <p>Use conditional formatting to apply a traffic-light system: red below 60, amber from 60–79, green at 80 and above. Update it monthly. Share it with suppliers during quarterly business reviews.</p>
+
+      <p>When suppliers know they're being scored, they perform better. That's not cynicism — it's accountability. And numbers make the conversation constructive instead of confrontational. Opinions don't.</p>
+
+      <hr>
+
+      <h2 id="po-tracking">5. Purchase Order Tracking &amp; Open Order Management</h2>
+
+      <p>This is the unglamorous workhorse of day-to-day supply chain operations. Purchase orders get raised, acknowledged, partially shipped, delayed, amended, cancelled, and re-raised. Without a structured tracking sheet, you are flying blind.</p>
+
+      <p>A well-designed PO tracker covers: PO number, supplier, line item, quantity ordered, quantity confirmed, quantity received, expected delivery date, revised delivery date, status, and a comments field for escalation notes. Pair it with conditional formatting that flags overdue POs in red and POs due within 7 days in amber, and you have an effective daily operations tool.</p>
+
+      <p>The real power comes from using <strong>XLOOKUP</strong> and <strong>SUMIFS</strong> to build a summary view — total open value by supplier, total overdue volume by category, average supplier lead time variance. These summary metrics should flow directly into your S&amp;OP pack.</p>
+
+<pre><code>// Flag overdue POs:
+=IF(AND(Status&lt;&gt;"Received", Expected_Date&lt;TODAY()), "OVERDUE", "")
+
+// Days delayed:
+=IF(Status="Received", "", MAX(0, TODAY()-Expected_Date))
+
+// Total open value by supplier:
+=SUMIFS(Value_Column, Supplier_Column, "Supplier A", Status_Column, "&lt;&gt;Received")</code></pre>
+
+      <div class="callout callout-field">
+        <div class="callout-label">From the Field</div>
+        <p>During a global component shortage, teams have tracked 1,200+ open POs across 80+ suppliers using a shared Excel workbook on SharePoint. Not elegant — but it gave procurement, production planning, and logistics a single source of truth that updated in near real-time. Sometimes pragmatism beats perfection.</p>
+      </div>
+
+      <hr>
+
+      <h2 id="landed-cost">6. Landed Cost Modelling</h2>
+
+      <p>The biggest mistake in procurement is buying on unit price alone. We've seen businesses win on price by sourcing from the cheapest supplier, only to discover that when you factor in freight, insurance, customs duties, port charges, inland haulage, and the cost of extra safety stock needed for longer lead times — the "cheap" option is actually 15% more expensive.</p>
+
+      <p>A landed cost model in Excel captures the full economics of a sourcing decision. Build one per sourcing origin. The components are:</p>
+      <ul>
+        <li>Unit cost</li>
+        <li>Freight cost (per unit, or per kg/cbm)</li>
+        <li>Customs duty (by HS code)</li>
+        <li>Insurance</li>
+        <li>Port and handling fees</li>
+        <li>Inland transport</li>
+        <li>Financing cost of in-transit inventory</li>
+      </ul>
+
+<pre><code>Landed_Cost = Unit_Cost
+            + (Freight_Cost / Units_per_Container)
+            + (Unit_Cost × Customs_Duty_Rate)
+            + (Unit_Cost × Insurance_Rate)
+            + Port_Handling_per_Unit
+            + Inland_Transport_per_Unit
+            + (Unit_Cost × (Lead_Time_Weeks/52) × Cost_of_Capital)</code></pre>
+
+      <p>Build a comparison table across three to five sourcing origins with a final row showing total landed cost per unit. Then layer in a sensitivity analysis — what happens to the decision if freight rates increase by 20%? What if the duty rate changes? Excel's <strong>Data Tables</strong> (under What-If Analysis) let you stress-test two variables simultaneously. Every sourcing decision should go through this model before a contract is signed.</p>
+
+      <hr>
+
+      <h2 id="sop">7. S&amp;OP / IBP Data Consolidation</h2>
+
+      <p>Sales and Operations Planning is where finance, commercial, and supply chain meet — usually armed with conflicting numbers and competing agendas. Excel is, whether your organisation admits it or not, the lingua franca of the S&amp;OP process.</p>
+
+      <p>Even organisations with sophisticated planning tools like SAP IBP or Anaplan use Excel as the interface layer — for data input, executive review packs, gap analysis, and ad hoc modelling. The skill is knowing how to structure it.</p>
+
+      <p>A well-built S&amp;OP Excel template has distinct tabs for:</p>
+      <ul>
+        <li><strong>Sales Forecast</strong> — by SKU and region</li>
+        <li><strong>Supply Plan</strong> — with constrained output</li>
+        <li><strong>Inventory Projection</strong> — forward-looking stock cover</li>
+        <li><strong>Gap Analysis</strong> — where supply cannot meet demand</li>
+        <li><strong>Executive Summary</strong> — one page, auto-populated from working tabs</li>
+      </ul>
+
+      <p>Use <strong>Power Query</strong> to pull data from your ERP or planning system automatically — eliminating the manual cut-and-paste that is both time-consuming and error-prone. If you haven't discovered Power Query yet, it is the single most impactful Excel feature for supply chain analysts. It connects to databases, SharePoint, SAP exports, CSV files, and more. You build the transformation once. After that, one click refreshes everything.</p>
+
+      <div class="callout callout-advanced">
+        <div class="callout-label">Advanced Move</div>
+        <p>Combine Power Query for data ingestion, Power Pivot for data modelling, and pivot charts for visualisation. This is effectively a BI tool inside Excel — without the licensing cost, the IT project, or the six-month implementation timeline.</p>
+      </div>
+
+      <hr>
+
+      <h2 id="kpi-dashboard">8. KPI Dashboard with Conditional Formatting</h2>
+
+      <p>Leadership doesn't want to scroll through 40 tabs of raw data. They want a single page that tells them, at a glance, whether the supply chain is healthy or on fire. Build that page in Excel and you become the person who controls the narrative in every operational review.</p>
+
+      <p>The core supply chain KPIs worth tracking on a single dashboard:</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>What It Tells You</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>OTIF</strong> (On Time In Full)</td>
+            <td>Overall delivery performance to customers</td>
+          </tr>
+          <tr>
+            <td><strong>Inventory Days of Cover</strong></td>
+            <td>How long current stock will last</td>
+          </tr>
+          <tr>
+            <td><strong>Forecast Accuracy (MAPE)</strong></td>
+            <td>Quality of your demand signal</td>
+          </tr>
+          <tr>
+            <td><strong>Supplier Fill Rate</strong></td>
+            <td>How reliably suppliers fulfil your orders</td>
+          </tr>
+          <tr>
+            <td><strong>Stockout Rate</strong></td>
+            <td>How often you fail to fill customer demand</td>
+          </tr>
+          <tr>
+            <td><strong>Freight Cost per Unit Shipped</strong></td>
+            <td>Logistics cost efficiency</td>
+          </tr>
+          <tr>
+            <td><strong>Purchase Price Variance</strong></td>
+            <td>Actual vs. budgeted procurement spend</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Use <strong>sparklines</strong> — the tiny inline charts available in Excel since 2010 — to show trend direction next to each metric. Use conditional formatting icons (traffic lights, arrows, flags) to signal performance versus target at a glance. Add a date-selection dropdown linked to dynamic chart elements, and you have a dashboard that would look at home in a £50,000 analytics platform.</p>
+
+      <div class="callout callout-pro">
+        <div class="callout-label">Pro Tip</div>
+        <p>Every number on a dashboard should answer a question. If you can't articulate the question, remove the metric. Dashboards that try to show everything end up communicating nothing.</p>
+      </div>
+
+      <hr>
+
+      <h2 id="bom">9. Bill of Materials (BOM) Explosion &amp; Cost Rollup</h2>
+
+      <p>For anyone working in manufacturing procurement or operations, the Bill of Materials is the foundation of everything. When raw material prices move, when a component gets substituted, when a new product is being launched — you need to know the cost impact immediately. Excel is remarkably capable here.</p>
+
+      <p>A BOM explosion in Excel uses <strong>XLOOKUP</strong> to match components to their current unit costs, then rolls up through parent-child relationships to arrive at a total material cost per finished good. With a well-structured data table, you can model multi-level BOMs — components with sub-components — and trace costs through the entire tree.</p>
+
+<pre><code>// Cost Rollup for single-level BOM:
+Component_Cost = Qty_per_Unit × XLOOKUP(Component_ID, Cost_Table[ID], Cost_Table[Unit_Cost])
+
+Total_Material_Cost = SUMPRODUCT(Qty_Array, Cost_Array)
+
+// Fully loaded cost per finished good:
+Loaded_BOM_Cost = Material_Cost + Labour_Cost + Overhead_Rate + Packaging_Cost</code></pre>
+
+      <p>Combine this with the landed cost model from Use Case 6 and you have a dynamic product costing tool. Change the raw material price for a key input and the finished good cost updates instantly across every SKU that uses it. This is the kind of analysis that used to require a cost accountant and two days. Now it takes a few minutes.</p>
+
+      <hr>
+
+      <h2 id="scenario">10. Scenario Planning &amp; What-If Analysis</h2>
+
+      <p>Supply chains operate in an uncertain world. Demand can spike. Ports can close. A key supplier can have a fire. Ocean freight rates can triple in six months — ask anyone who managed logistics through 2021. The ability to model "what if" scenarios quickly — <em>before</em> a crisis hits — is one of the most valuable competencies in supply chain, and Excel is perfectly suited for it.</p>
+
+      <p>Excel's <strong>Scenario Manager</strong> (Data tab → What-If Analysis) lets you define named scenarios — "Base," "Optimistic," "Freight Crisis," "Key Supplier Down" — each with different input assumptions. Switch between them with a single click. The entire model recalculates.</p>
+
+      <p>For more dynamic sensitivity analysis, use <strong>Data Tables</strong> (one-variable or two-variable) to see how a key output — say, total landed cost or inventory cover — changes as two input variables shift simultaneously.</p>
+
+<pre><code>// Monte Carlo simulation in Excel (simplified):
+// Simulate demand uncertainty over 1,000 iterations using:
+Simulated_Demand = NORMINV(RAND(), avg_demand, std_demand)
+
+// Run in a data table with 1,000 rows.
+// Analyse percentile outcomes with:
+=PERCENTILE(simulation_range, 0.95)   // 95th percentile worst case</code></pre>
+
+      <div class="callout callout-advanced">
+        <div class="callout-label">Advanced Move</div>
+        <p>With Python now natively integrated into Excel (Microsoft 365), you can run Monte Carlo simulations with tens of thousands of iterations, full optimisation models, and machine learning forecasts — all from within the familiar spreadsheet interface. The boundary between Excel and a dedicated analytics platform is blurring quickly.</p>
+      </div>
+
+      <hr>
+
+      <h2>The Excel Skills That Make These Use Cases Work</h2>
+
+      <p>These 10 use cases don't require you to be a developer. They require genuine proficiency with Excel's core toolkit. Here's what every supply chain professional should prioritise learning:</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>XLOOKUP / VLOOKUP</strong></td>
+            <td>Cross-reference any two datasets instantly</td>
+          </tr>
+          <tr>
+            <td><strong>SUMIFS / COUNTIFS</strong></td>
+            <td>Conditional aggregation for exception management</td>
+          </tr>
+          <tr>
+            <td><strong>Power Query</strong></td>
+            <td>Automate data ingestion — build once, refresh forever</td>
+          </tr>
+          <tr>
+            <td><strong>PivotTables</strong></td>
+            <td>Summarise millions of rows without formulas</td>
+          </tr>
+          <tr>
+            <td><strong>FORECAST.ETS</strong></td>
+            <td>Statistical forecasting with seasonality built in</td>
+          </tr>
+          <tr>
+            <td><strong>Conditional Formatting</strong></td>
+            <td>Visual exception management at a glance</td>
+          </tr>
+          <tr>
+            <td><strong>Data Tables</strong></td>
+            <td>Two-dimensional sensitivity analysis</td>
+          </tr>
+          <tr>
+            <td><strong>Named Ranges</strong></td>
+            <td>Readable, maintainable models others can understand</td>
+          </tr>
+          <tr>
+            <td><strong>IFERROR / ISBLANK</strong></td>
+            <td>Robust formulas that don't break on bad data</td>
+          </tr>
+          <tr>
+            <td><strong>INDEX / MATCH</strong></td>
+            <td>Flexible lookups that VLOOKUP can't handle</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr>
+
+      <h2>Should You Replace Excel?</h2>
+
+      <p>Yes — eventually, for certain processes. No — not yet, not entirely, and probably not as urgently as the software vendors would have you believe.</p>
+
+      <p><strong>Excel breaks down at scale and in collaboration.</strong> When you have 15 people editing the same file, when your dataset has 5 million rows, when you need real-time data integration across a global network — you need dedicated tools. That's not a criticism of Excel; it's just the reality of what spreadsheets were designed for.</p>
+
+      <p>But before signing a multi-year SaaS contract, ask yourself whether your team is actually using Excel to its full potential. In our experience, most teams are using maybe 20% of what the tool can do. Organisations that have mastered Excel tend to implement dedicated tools more successfully too — because they understand their data, their processes, and what "good" looks like <em>before</em> they hand it over to a system.</p>
+
+      <p>Excel will never be dead in supply chain. Not while half the world's warehouses run on it. Not while it's the first tool every analyst learns. And not while it remains the fastest way to answer a specific, urgent question about your inventory, your suppliers, or your costs — before the first meeting of the day, with a decision needed in the next hour.</p>
+
+      <blockquote style="margin:2rem 0;padding:1.25rem 1.5rem;border-left:4px solid rgba(148,163,184,0.3);color:#94a3b8;font-style:italic;font-size:1rem;line-height:1.75;">
+        "Excel is not a legacy tool. It's the most widely deployed supply chain application in the world. Learn to use it like a professional."
+      </blockquote>
+
+      <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+          <h3>Is Excel good for supply chain management?</h3>
+          <p>Yes — Excel remains one of the most widely used supply chain tools globally, with over two-thirds of companies relying on it as a primary tool. Its strengths are speed, portability, and accessibility. It handles demand forecasting, safety stock calculation, supplier scorecards, landed cost modelling, BOM explosion, and scenario planning effectively. Its limitations emerge at scale, in multi-user environments, or when real-time ERP integration is required.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>How do you calculate safety stock in Excel?</h3>
+          <p>Safety stock uses the formula: Z × σ_LTD, where Z is the service level factor (1.65 for 95%, 2.05 for 98%) and σ_LTD is the standard deviation of demand during lead time. When both demand and lead time vary, use: SQRT((avg_LT × STDEV(demand)²) + (AVERAGE(demand)² × STDEV(lead_time)²)). Set up one row per SKU and use AVERAGE() and STDEV() on your historical sales range to populate inputs automatically.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What is FORECAST.ETS and how is it used in supply chain?</h3>
+          <p>FORECAST.ETS is Excel's built-in triple exponential smoothing function (Holt-Winters), available from Excel 2016 onwards. It handles trends and seasonality automatically. Syntax: =FORECAST.ETS(target_date, values, timeline, [seasonality], [data_completion]). Set seasonality=12 for monthly data or 4 for quarterly. It is the most powerful forecasting function in Excel and replaces basic statistical tools for most SKU-level planning work.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What is ABC-XYZ analysis in inventory management?</h3>
+          <p>ABC-XYZ combines two classification dimensions. ABC classifies by value contribution: A-items (top ~20% of SKUs, ~80% of value), B-items (middle tier), C-items (the long tail). XYZ classifies by demand variability using coefficient of variation: X-items (stable, CV &lt; 0.2), Y-items (seasonal, CV 0.2–0.5), Z-items (erratic, CV &gt; 0.5). The resulting 3×3 matrix drives replenishment strategy, safety stock levels, and review frequency for every SKU category.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>Can Excel replace supply chain software like SAP IBP?</h3>
+          <p>Not at scale. Excel breaks down with concurrent multi-user access, datasets over millions of rows, or real-time global network integration. However, most businesses use roughly 20% of Excel's capability. Power Query, Power Pivot, FORECAST.ETS, and native Python integration (Microsoft 365) bring Excel closer to dedicated analytics platforms than most practitioners realise. Master Excel first, then implement dedicated tools from a position of genuine understanding.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3>What Excel skills are most important for supply chain analysts?</h3>
+          <p>The highest-impact skills are: XLOOKUP and SUMIFS for cross-referencing and conditional aggregation; Power Query for automated ERP data ingestion; PivotTables for rapid summarisation; FORECAST.ETS for demand planning; Conditional Formatting for visual exception management; and Data Tables for sensitivity analysis. Named Ranges and structured table references make models maintainable by others — critical in team environments.</p>
+        </div>
+      </div>
+
+      <div class="mission-briefing">
+        <p class="mission-briefing-label">⚡ Mission Briefing — Command Center</p>
+        <h2>Put These Concepts Under Real Pressure</h2>
+        <p>Reading about safety stock formulas and ABC-XYZ matrices is not the same as applying them when your inventory hits zero and your primary supplier just went dark. Supply Chain Disaster puts you inside the crisis — where every decision has a visible cost.</p>
+        <a href="https://www.supplychaindisaster.com" class="mission-btn">Begin Mission: Chapter 1 &rarr;</a>
+        <span class="mission-briefing-note">Free — no account required · Chapters 1 &amp; 2 always free</span>
+      </div>
+
+    </article>
+
+    <footer class="page-footer">
+      <p>&copy; 2026 Supply Chain Disaster. Built to teach supply chain strategy through play. &nbsp;&middot;&nbsp; <a href="/rss.xml" title="RSS Feed">RSS Feed</a></p>
+    </footer>
+
+  </div>
+</div>
+<script type="module" src="/src/blog.js"></script>
+</body>
+</html>

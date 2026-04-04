@@ -1,0 +1,93 @@
+{
+  "buildCommand": "npx vite build",
+  "devCommand": "npx vite dev --port $PORT",
+  "outputDirectory": "dist",
+  "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "supplychaindisaster.com" }],
+      "destination": "https://www.supplychaindisaster.com/$1",
+      "permanent": true
+    },
+
+    {
+      "source": "/best-business-simulation-games-training",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+    {
+      "source": "/simulation-games-guide",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+    {
+      "source": "/simulation-games-strategy-guide",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+    {
+      "source": "/simulation-games-real-life-guide",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+    {
+      "source": "/business-simulation-games-for-students",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+    {
+      "source": "/operations-management-training-game",
+      "destination": "/best-business-simulation-games",
+      "permanent": true
+    },
+
+    {
+      "source": "/sitemap",
+      "destination": "/sitemap.xml",
+      "permanent": true
+    },
+    {
+      "source": "/feed",
+      "destination": "/rss.xml",
+      "permanent": true
+    },
+    {
+      "source": "/rss",
+      "destination": "/rss.xml",
+      "permanent": true
+    },
+    {
+      "source": "/calculators",
+      "destination": "/lead-time-calculator",
+      "permanent": true
+    },
+    {
+      "source": "/tools",
+      "destination": "/lead-time-calculator",
+      "permanent": true
+    },
+    {
+      "source": "/game",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/play",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/premium",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
+      "source": "/upgrade",
+      "destination": "/pricing",
+      "permanent": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+Keystore type: PKCS12
+Keystore provider: SUN
+
+Your keystore contains 1 entry
+
+Alias name: my-key-alias
+Creation date: Dec 24, 2025
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Vercel Admin, OU=Engineering, O=Vercel, C=US
+Issuer: CN=Vercel Admin, OU=Engineering, O=Vercel, C=US
+Serial number: 2b76ccada35c04f4
+Valid from: Wed Dec 24 16:38:30 PKT 2025 until: Thu Sep 26 16:38:30 PKT 2080
+Certificate fingerprints:
+	 SHA1: ED:8C:A1:97:AB:00:45:48:93:0D:11:94:A8:F1:06:51:16:A8:90:84
+	 SHA256: 1B:3F:E0:98:02:79:9F:E9:D5:60:44:CA:51:9C:76:B5:02:12:F6:29:82:9C:54:8D:45:6A:55:8F:E9:3C:CC:AD
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 3
+
+Extensions: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 53 8E CF 45 9F 1D 72 A5   8A D9 AC 55 69 D7 DE F5  S..E..r....Ui...
+0010: B6 3B 91 79                                        .;.y
+]
+]
+
+
+
+*******************************************
+*******************************************
+
+

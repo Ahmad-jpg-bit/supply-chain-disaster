@@ -1,0 +1,359 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Termination Screen — "You've Been Let Go" Modal
+   Dark corporate termination letter + Breaking News ticker
+   Designed to look great as a TikTok screenshot
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay ────────────────────────────────────────────────────────────── */
+
+.term-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1.5rem 1rem 3rem;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.term-overlay.visible {
+    opacity: 1;
+}
+
+.term-overlay.visible .term-modal {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* ── Modal container ────────────────────────────────────────────────────── */
+
+.term-modal {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(28px);
+    opacity: 0;
+    transition:
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity   0.35s var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+    transition-delay: 0.05s;
+}
+
+/* ── Breaking News ticker ───────────────────────────────────────────────── */
+
+.term-breaking-news {
+    display: flex;
+    align-items: stretch;
+    background: #dc2626;
+    height: 34px;
+    border-radius: 6px 6px 0 0;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.term-breaking-tag {
+    background: #fff;
+    color: #dc2626;
+    font-weight: 800;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 0.9rem;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-family: var(--font-mono, monospace);
+}
+
+.term-ticker-wrap {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.term-ticker-text {
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.03em;
+    animation: term-ticker 22s linear infinite;
+    display: inline-block;
+    padding-left: 1rem;
+}
+
+@keyframes term-ticker {
+    0%   { transform: translateX(100%);  }
+    100% { transform: translateX(-200%); }
+}
+
+/* ── Letter panel ───────────────────────────────────────────────────────── */
+
+.term-letter {
+    position: relative;
+    background: #131c2e;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg, 1rem) var(--radius-lg, 1rem);
+    padding: 2rem 2rem 1.75rem;
+    overflow: hidden;
+}
+
+/* Subtle scanline texture for document feel */
+.term-letter::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(255, 255, 255, 0.012) 3px,
+        rgba(255, 255, 255, 0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+.term-letter > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── TERMINATED stamp ───────────────────────────────────────────────────── */
+
+.term-stamp {
+    position: absolute;
+    top: 1.75rem;
+    right: 1.5rem;
+    z-index: 2;
+    border: 2.5px solid #ef4444;
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.22em;
+    padding: 0.3rem 0.55rem;
+    transform: rotate(14deg);
+    opacity: 0.82;
+    font-family: var(--font-mono, monospace);
+    pointer-events: none;
+    text-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+    box-shadow:
+        0 0 0 1px rgba(239, 68, 68, 0.25),
+        inset 0 0 8px rgba(239, 68, 68, 0.08);
+    border-radius: 2px;
+    animation: term-stamp-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+}
+
+@keyframes term-stamp-in {
+    from { opacity: 0; transform: rotate(14deg) scale(1.4); }
+    to   { opacity: 0.82; transform: rotate(14deg) scale(1); }
+}
+
+/* ── Letterhead ─────────────────────────────────────────────────────────── */
+
+.term-letterhead {
+    margin-bottom: 1.25rem;
+    padding-right: 7rem; /* avoid stamp overlap */
+}
+
+.term-company-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main, #f8fafc);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.term-dept {
+    font-size: 0.7rem;
+    color: var(--text-muted, #94a3b8);
+    margin-top: 0.2rem;
+    letter-spacing: 0.02em;
+}
+
+.term-divider {
+    height: 1.5px;
+    background: linear-gradient(
+        90deg,
+        #ef4444 0%,
+        rgba(239, 68, 68, 0.3) 60%,
+        transparent 100%
+    );
+    margin-top: 0.75rem;
+}
+
+/* ── Document meta ──────────────────────────────────────────────────────── */
+
+.term-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.68rem;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-muted, #94a3b8);
+    margin-bottom: 0.9rem;
+}
+
+.term-subject {
+    font-size: 0.82rem;
+    color: var(--text-main, #f8fafc);
+    margin: 0 0 1.1rem 0;
+    line-height: 1.5;
+}
+
+.term-salutation {
+    font-size: 0.85rem;
+    color: var(--text-muted, #94a3b8);
+    margin: 0 0 0.6rem 0;
+}
+
+/* ── Letter body ────────────────────────────────────────────────────────── */
+
+.term-body {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: #c8d4e6;
+    margin: 0 0 1.5rem 0;
+    padding: 0.9rem 1rem;
+    background: rgba(239, 68, 68, 0.06);
+    border-left: 3px solid #ef4444;
+    border-radius: 0 var(--radius-sm, 6px) var(--radius-sm, 6px) 0;
+}
+
+/* ── Stats pills row ────────────────────────────────────────────────────── */
+
+.term-stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.term-stat-pill {
+    flex: 1;
+    min-width: 130px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: var(--radius-sm, 6px);
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.term-stat-pill--danger {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.07);
+}
+
+.term-stat-pill--warn {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(245, 158, 11, 0.07);
+}
+
+.term-stat-label {
+    font-size: 0.62rem;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.term-stat-value {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main, #f8fafc);
+    line-height: 1.35;
+}
+
+.term-stat-pill--danger .term-stat-value { color: #fca5a5; }
+.term-stat-pill--warn   .term-stat-value { color: #fcd34d; }
+
+/* ── Closing / signature ────────────────────────────────────────────────── */
+
+.term-closing {
+    font-size: 0.8rem;
+    color: var(--text-muted, #94a3b8);
+    line-height: 1.7;
+    margin: 0 0 1.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+}
+
+/* ── Action buttons ─────────────────────────────────────────────────────── */
+
+.term-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.term-btn-primary {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.65rem 1.25rem;
+    background: var(--primary-color, #3b82f6);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md, 8px);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-main, sans-serif);
+    transition: background 0.15s, transform 0.1s;
+}
+
+.term-btn-primary:hover  { background: var(--primary-hover, #2563eb); }
+.term-btn-primary:active { transform: scale(0.97); }
+
+.term-btn-secondary {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.65rem 1.25rem;
+    background: transparent;
+    color: var(--text-muted, #94a3b8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md, 8px);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-main, sans-serif);
+    transition: color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.term-btn-secondary:hover {
+    color: var(--text-main, #f8fafc);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.term-btn-secondary:active { transform: scale(0.97); }
+
+/* ── Footnote ───────────────────────────────────────────────────────────── */
+
+.term-footnote {
+    font-size: 0.62rem;
+    font-family: var(--font-mono, monospace);
+    color: rgba(148, 163, 184, 0.35);
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .term-letter { padding: 1.5rem 1.25rem 1.5rem; }
+    .term-stamp  { font-size: 0.8rem; right: 1rem; }
+    .term-letterhead { padding-right: 5rem; }
+    .term-stat-pill { min-width: 100px; }
+    .term-breaking-tag { font-size: 0.6rem; padding: 0 0.6rem; }
+}

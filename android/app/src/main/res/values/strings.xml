@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SCMdisaster</string>
+    <string name="title_activity_main">SCMdisaster</string>
+    <string name="package_name">com.nextrack.scmdisaster</string>
+    <string name="custom_url_scheme">com.nextrack.scmdisaster</string>
+</resources>

@@ -1,0 +1,183 @@
+import { defineConfig } from 'vite'
+import { resolve } from 'path'
+import { normalize } from 'path'
+
+/**
+ * Static nav links injected into every content page at build time.
+ * Googlebot reads these in Wave 1 (raw HTML) before any JS executes,
+ * ensuring internal PageRank flows correctly even if JS rendering is delayed.
+ * Regular users see the full JS-enhanced nav — this block is invisible to them.
+ */
+const STATIC_SEO_NAV = `<noscript id="seo-nav">
+<nav aria-label="Site navigation (static fallback)">
+<a href="/">Play Free</a>
+<a href="/blog">Supply Chain Blog</a>
+<a href="/pricing">Pricing</a>
+<a href="/about">About</a>
+<a href="/contact">Contact</a>
+<a href="/terms">Terms of Service</a>
+<a href="/refund">Refund Policy</a>
+<a href="/what-is-a-supply-chain">What Is a Supply Chain?</a>
+<a href="/best-business-simulation-games">Best Business Simulation Games</a>
+<a href="/supply-chain-simulation-guide">Supply Chain Simulation Guide</a>
+<a href="/scm-fundamentals-5-pillars">SCM Fundamentals</a>
+<a href="/7cs-supply-chain-4pl-logistics">7Cs Supply Chain &amp; 4PL Logistics</a>
+<a href="/six-sigma-kaizen-supply-chain">Six Sigma &amp; Kaizen</a>
+<a href="/supply-chain-management-game">Supply Chain Management Game</a>
+<a href="/supply-chain-disruption-simulation">Supply Chain Disruption Simulation</a>
+<a href="/procurement-simulation-game">Procurement Simulation Game</a>
+<a href="/lead-time-calculator">Lead Time Calculator</a>
+<a href="/bullwhip-effect-calculator">Bullwhip Effect Calculator</a>
+<a href="/automotive-supply-chain-resilience">Automotive Supply Chain Resilience</a>
+<a href="/excel-supply-chain-management">Excel for Supply Chain Management</a>
+</nav>
+</noscript>`;
+
+export default defineConfig({
+    server: {
+        port: 3000,
+    },
+    build: {
+        // Suppress the bundle-size warning — the game SPA is intentionally large
+        chunkSizeWarningLimit: 700,
+
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                about: resolve(__dirname, 'about.html'),
+                blog: resolve(__dirname, 'blog.html'),
+                contact: resolve(__dirname, 'contact.html'),
+                success: resolve(__dirname, 'success.html'),
+                pricing: resolve(__dirname, 'pricing.html'),
+                terms: resolve(__dirname, 'terms.html'),
+                refund: resolve(__dirname, 'refund.html'),
+                'best-business-simulation-games': resolve(__dirname, 'best-business-simulation-games.html'),
+                'what-is-a-supply-chain': resolve(__dirname, 'what-is-a-supply-chain.html'),
+                'supply-chain-simulation-guide': resolve(__dirname, 'supply-chain-simulation-guide.html'),
+                'scm-fundamentals-5-pillars': resolve(__dirname, 'scm-fundamentals-5-pillars.html'),
+                '7cs-supply-chain-4pl-logistics': resolve(__dirname, '7cs-supply-chain-4pl-logistics.html'),
+                'six-sigma-kaizen-supply-chain': resolve(__dirname, 'six-sigma-kaizen-supply-chain.html'),
+                'supply-chain-management-game': resolve(__dirname, 'supply-chain-management-game.html'),
+                'supply-chain-disruption-simulation': resolve(__dirname, 'supply-chain-disruption-simulation.html'),
+                'procurement-simulation-game': resolve(__dirname, 'procurement-simulation-game.html'),
+                'lead-time-calculator': resolve(__dirname, 'lead-time-calculator.html'),
+                'bullwhip-effect-calculator': resolve(__dirname, 'bullwhip-effect-calculator.html'),
+                'automotive-supply-chain-resilience': resolve(__dirname, 'automotive-supply-chain-resilience.html'),
+                'excel-supply-chain-management': resolve(__dirname, 'excel-supply-chain-management.html'),
+                'kitkat-cargo-theft-supply-chain': resolve(__dirname, 'kitkat-cargo-theft-supply-chain.html'),
+                'reactive-risk-management': resolve(__dirname, 'reactive-risk-management.html'),
+                'supply-chain-risk-model-obsolete': resolve(__dirname, 'supply-chain-risk-model-obsolete.html'),
+            },
+
+            output: {
+                /**
+                 * manualChunks — reduces JS file count from ~21 to ~13.
+                 *
+                 * Content pages previously loaded 4-5 separate JS chunks:
+                 *   nav-*.js + particles-lite-*.js + auto-split fragments + page entry
+                 * After this change they load 2:
+                 *   pages-shared-*.js + page-entry-*.js
+                 *
+                 * This directly cuts the JS share of Googlebot's crawl budget
+                 * per content page from ~5 requests to ~2.
+                 */
+                manualChunks(id) {
+                    const n = normalize(id).replace(/\\/g, '/');
+
+                    // All shared content-page infrastructure → one chunk
+                    // (nav, footer, ambient particles — loaded by every blog/article page)
+                    if (
+                        n.includes('/src/shared/nav') ||
+                        n.includes('/src/shared/footer') ||
+                        n.includes('/src/shared/particles-lite')
+                    ) {
+                        return 'pages-shared';
+                    }
+
+                    // Large vendor libs — stable named chunks so browsers cache them
+                    // across deploys when only the app code changes
+                    if (n.includes('node_modules/chart.js') || n.includes('node_modules/chartjs-')) {
+                        return 'vendor-charts';
+                    }
+                    if (n.includes('node_modules/html2canvas')) {
+                        return 'vendor-canvas';
+                    }
+                    if (n.includes('node_modules/dompurify')) {
+                        return 'vendor-purify';
+                    }
+                },
+            },
+        },
+    },
+
+    plugins: [
+        /**
+         * non-blocking-fonts
+         *
+         * Converts every render-blocking Google Fonts <link rel="stylesheet"> to a
+         * preload + onload pattern so the browser can parse HTML without waiting for
+         * the external font CSS network round-trip.
+         *
+         * Before: <link href="https://fonts.googleapis.com/..." rel="stylesheet">
+         * After:  <link rel="preload" as="style" href="..." onload="this.rel='stylesheet'">
+         *         <noscript><link rel="stylesheet" href="..."></noscript>
+         *
+         * Impact: eliminates the Google Fonts render-blocking resource that blocks
+         * First Contentful Paint (FCP) and Largest Contentful Paint (LCP) on mobile.
+         * Also adds a preconnect hint to fonts.gstatic.com (where the font files live)
+         * if not already present, so the TLS handshake is pipelined with the CSS fetch.
+         */
+        {
+            name: 'non-blocking-fonts',
+            transformIndexHtml: {
+                order: 'pre',
+                handler(html) {
+                    // Add fonts.gstatic.com preconnect next to the googleapis one
+                    html = html.replace(
+                        /(<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">)/,
+                        '$1\n  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+                    );
+                    // Convert blocking stylesheet to non-blocking preload
+                    html = html.replace(
+                        /<link href="(https:\/\/fonts\.googleapis\.com[^"]*)" rel="stylesheet">/g,
+                        (_, href) =>
+                            `<link rel="preload" as="style" href="${href}" onload="this.onload=null;this.rel='stylesheet'">` +
+                            `<noscript><link rel="stylesheet" href="${href}"></noscript>`
+                    );
+                    return html;
+                },
+            },
+        },
+
+        /**
+         * inject-static-seo-nav
+         *
+         * At build time, inserts a <noscript> block containing plain anchor
+         * tags for every page on the site into every content HTML file.
+         *
+         * Why: createNav() and createFooter() both run in JavaScript, meaning
+         * Googlebot's Wave 1 (raw HTML) crawl sees ZERO internal links on
+         * content pages. This causes PageRank to not flow through nav/footer
+         * links until Wave 2 JS rendering — sometimes days later.
+         *
+         * The <noscript> block is completely invisible to JS-enabled users
+         * (i.e. everyone) but is part of the raw HTML that Google reads first.
+         *
+         * Skips index.html (the game SPA) — its nav is wired differently.
+         */
+        {
+            name: 'inject-static-seo-nav',
+            transformIndexHtml: {
+                order: 'pre',
+                handler(html, ctx) {
+                    const isGamePage = ctx.filename && (
+                        ctx.filename.endsWith('/index.html') ||
+                        ctx.filename.endsWith('\\index.html')
+                    );
+                    if (isGamePage) return html;
+                    return html.replace('<body>', `<body>\n${STATIC_SEO_NAV}`);
+                },
+            },
+        },
+    ],
+})

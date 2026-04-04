@@ -1,0 +1,324 @@
+{
+  "posts": [
+    {
+      "file": "kitkat-blog-post.md",
+      "slug": "kitkat-cargo-theft-supply-chain",
+      "title": "What the Great KitKat Heist of 2026 Tells Us About the State of Cargo Security",
+      "tag": "Risk",
+      "publish_date": "2026-04-04",
+      "status": "published"
+    },
+    {
+      "file": "Why Reactive Risk Management No Longer Works.md",
+      "slug": "reactive-risk-management",
+      "title": "Why Reactive Risk Management No Longer Works",
+      "tag": "Risk",
+      "publish_date": "2026-04-05",
+      "status": "published"
+    },
+    {
+      "file": "Why Your Supply Chain Risk Model Is Already Obsolete.md",
+      "slug": "supply-chain-risk-model-obsolete",
+      "title": "Why Your Supply Chain Risk Model Is Already Obsolete",
+      "tag": "Risk",
+      "publish_date": "2026-04-06",
+      "status": "published"
+    },
+    {
+      "file": "5 Bayesian Inference Findings Reshaping Supply Chain Risk.md",
+      "slug": "bayesian-inference-supply-chain-risk",
+      "title": "5 Bayesian Inference Findings Reshaping Supply Chain Risk",
+      "tag": "Analytics",
+      "publish_date": "2026-04-07",
+      "status": "pending"
+    },
+    {
+      "file": "Bayesian Inference vs Traditional Methods in Supply Chains.md",
+      "slug": "bayesian-inference-vs-traditional",
+      "title": "Bayesian Inference vs Traditional Methods in Supply Chains",
+      "tag": "Analytics",
+      "publish_date": "2026-04-08",
+      "status": "pending"
+    },
+    {
+      "file": "Why Bayesian Inference Beats Traditional Risk Models.md",
+      "slug": "bayesian-inference-beats-traditional",
+      "title": "Why Bayesian Inference Beats Traditional Risk Models",
+      "tag": "Analytics",
+      "publish_date": "2026-04-09",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build Supply Chain Resilience with Predictive Analytics.md",
+      "slug": "supply-chain-resilience-predictive-analytics",
+      "title": "How to Build Supply Chain Resilience with Predictive Analytics",
+      "tag": "Analytics",
+      "publish_date": "2026-04-10",
+      "status": "pending"
+    },
+    {
+      "file": "Build a Predictive Analytics Framework for JIT Risk Management.md",
+      "slug": "predictive-analytics-jit-risk",
+      "title": "Build a Predictive Analytics Framework for JIT Risk Management",
+      "tag": "Analytics",
+      "publish_date": "2026-04-11",
+      "status": "pending"
+    },
+    {
+      "file": "Build a Predictive Risk System Using Complex Adaptive Systems.md",
+      "slug": "predictive-risk-complex-adaptive-systems",
+      "title": "Build a Predictive Risk System Using Complex Adaptive Systems",
+      "tag": "Analytics",
+      "publish_date": "2026-04-12",
+      "status": "pending"
+    },
+    {
+      "file": "Build a Stochastic Optimization Framework for Supply Chains.md",
+      "slug": "stochastic-optimization-supply-chains",
+      "title": "Build a Stochastic Optimization Framework for Supply Chains",
+      "tag": "Analytics",
+      "publish_date": "2026-04-13",
+      "status": "pending"
+    },
+    {
+      "file": "Build a JIT Vulnerability Framework- Predictive Risk Tutorial.md",
+      "slug": "jit-vulnerability-framework",
+      "title": "Build a JIT Vulnerability Framework: Predictive Risk Tutorial",
+      "tag": "Operations",
+      "publish_date": "2026-04-14",
+      "status": "pending"
+    },
+    {
+      "file": "Just-In-Time vs Agile Supply Chains- Which Approach Wins-.md",
+      "slug": "jit-vs-agile-supply-chains",
+      "title": "Just-In-Time vs Agile Supply Chains: Which Approach Wins?",
+      "tag": "Operations",
+      "publish_date": "2026-04-15",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build Adaptive Inventory Policies for Disruptions.md",
+      "slug": "adaptive-inventory-policies",
+      "title": "How to Build Adaptive Inventory Policies for Disruptions",
+      "tag": "Operations",
+      "publish_date": "2026-04-16",
+      "status": "pending"
+    },
+    {
+      "file": "5 Supply Chain Resilience Strategies That Work in 2025.md",
+      "slug": "supply-chain-resilience-strategies-2026",
+      "title": "5 Supply Chain Resilience Strategies That Work in 2026",
+      "tag": "Resilience",
+      "publish_date": "2026-04-17",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build a Resilient Supply Chain Framework.md",
+      "slug": "resilient-supply-chain-framework",
+      "title": "How to Build a Resilient Supply Chain Framework",
+      "tag": "Resilience",
+      "publish_date": "2026-04-18",
+      "status": "pending"
+    },
+    {
+      "file": "SCRES Strategies- How to Build a Resilient Supply Chain Framework.md",
+      "slug": "scres-strategies-resilient-framework",
+      "title": "SCRES Strategies: How to Build a Resilient Supply Chain Framework",
+      "tag": "Resilience",
+      "publish_date": "2026-04-19",
+      "status": "pending"
+    },
+    {
+      "file": "Why SCRES Strategies Fail Without Built-In Redundancy.md",
+      "slug": "scres-strategies-redundancy",
+      "title": "Why SCRES Strategies Fail Without Built-In Redundancy",
+      "tag": "Resilience",
+      "publish_date": "2026-04-20",
+      "status": "pending"
+    },
+    {
+      "file": "7 Supply Chain Resilience Skills That Separate Leaders from Managers.md",
+      "slug": "supply-chain-resilience-skills",
+      "title": "7 Supply Chain Resilience Skills That Separate Leaders from Managers",
+      "tag": "Resilience",
+      "publish_date": "2026-04-21",
+      "status": "pending"
+    },
+    {
+      "file": "7 Factors Driving Supply Chain Agility in 2026.md",
+      "slug": "supply-chain-agility-factors",
+      "title": "7 Factors Driving Supply Chain Agility in 2026",
+      "tag": "Resilience",
+      "publish_date": "2026-04-22",
+      "status": "pending"
+    },
+    {
+      "file": "Redundancy vs. Agility- Automotive Supply Chain Strategies.md",
+      "slug": "redundancy-vs-agility-automotive",
+      "title": "Redundancy vs. Agility: Automotive Supply Chain Strategies",
+      "tag": "Resilience",
+      "publish_date": "2026-04-23",
+      "status": "pending"
+    },
+    {
+      "file": "7 Automotive Supply Chain Lessons for Manufacturing Resilience.md",
+      "slug": "automotive-supply-chain-lessons",
+      "title": "7 Automotive Supply Chain Lessons for Manufacturing Resilience",
+      "tag": "Resilience",
+      "publish_date": "2026-04-24",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build a Digital Supply Chain Risk Management System.md",
+      "slug": "digital-supply-chain-risk-management",
+      "title": "How to Build a Digital Supply Chain Risk Management System",
+      "tag": "Risk",
+      "publish_date": "2026-04-25",
+      "status": "pending"
+    },
+    {
+      "file": "Cybersecurity vs. Financial Risk in Supply Chains.md",
+      "slug": "cybersecurity-vs-financial-risk",
+      "title": "Cybersecurity vs. Financial Risk in Supply Chains",
+      "tag": "Risk",
+      "publish_date": "2026-04-26",
+      "status": "pending"
+    },
+    {
+      "file": "Digital Automation in Supply Chain- A Decision-Making Guide.md",
+      "slug": "digital-automation-supply-chain",
+      "title": "Digital Automation in Supply Chain: A Decision-Making Guide",
+      "tag": "Technology",
+      "publish_date": "2026-04-27",
+      "status": "pending"
+    },
+    {
+      "file": "How Real-Time Monitoring Transforms Supply Chain Visibility.md",
+      "slug": "real-time-monitoring-supply-chain",
+      "title": "How Real-Time Monitoring Transforms Supply Chain Visibility",
+      "tag": "Technology",
+      "publish_date": "2026-04-28",
+      "status": "pending"
+    },
+    {
+      "file": "7 Signs Your Supply Chain Needs Better Visibility Now.md",
+      "slug": "supply-chain-visibility-signs",
+      "title": "7 Signs Your Supply Chain Needs Better Visibility Now",
+      "tag": "Technology",
+      "publish_date": "2026-04-29",
+      "status": "pending"
+    },
+    {
+      "file": "Why Information Technology in SCM Defines Supply Chain Survival.md",
+      "slug": "information-technology-supply-chain",
+      "title": "Why Information Technology in SCM Defines Supply Chain Survival",
+      "tag": "Technology",
+      "publish_date": "2026-04-30",
+      "status": "pending"
+    },
+    {
+      "file": "How Collaboration Drives Supply Chain Resilience.md",
+      "slug": "collaboration-supply-chain-resilience",
+      "title": "How Collaboration Drives Supply Chain Resilience",
+      "tag": "Strategy",
+      "publish_date": "2026-05-01",
+      "status": "pending"
+    },
+    {
+      "file": "How Collaboration Cuts Costs in Global Supply Chains.md",
+      "slug": "collaboration-costs-supply-chains",
+      "title": "How Collaboration Cuts Costs in Global Supply Chains",
+      "tag": "Strategy",
+      "publish_date": "2026-05-02",
+      "status": "pending"
+    },
+    {
+      "file": "Why Nearshoring Strategies Fail Without Cross-Functional Teams.md",
+      "slug": "nearshoring-cross-functional-teams",
+      "title": "Why Nearshoring Strategies Fail Without Cross-Functional Teams",
+      "tag": "Strategy",
+      "publish_date": "2026-05-03",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build a Supply Chain Decision Making Framework.md",
+      "slug": "supply-chain-decision-making-framework",
+      "title": "How to Build a Supply Chain Decision Making Framework",
+      "tag": "Strategy",
+      "publish_date": "2026-05-04",
+      "status": "pending"
+    },
+    {
+      "file": "7 Supplier Performance Metrics That Predict Resilience.md",
+      "slug": "supplier-performance-metrics",
+      "title": "7 Supplier Performance Metrics That Predict Resilience",
+      "tag": "Strategy",
+      "publish_date": "2026-05-05",
+      "status": "pending"
+    },
+    {
+      "file": "Supply Chain Industry Dynamics- A Guide for New Professionals.md",
+      "slug": "supply-chain-industry-dynamics",
+      "title": "Supply Chain Industry Dynamics: A Guide for New Professionals",
+      "tag": "Fundamentals",
+      "publish_date": "2026-05-06",
+      "status": "pending"
+    },
+    {
+      "file": "7 Signs You Have Strong Data Literacy in Supply Chain.md",
+      "slug": "supply-chain-data-literacy-signs",
+      "title": "7 Signs You Have Strong Data Literacy in Supply Chain",
+      "tag": "Analytics",
+      "publish_date": "2026-05-07",
+      "status": "pending"
+    },
+    {
+      "file": "How to Build Data Literacy Skills for Supply Chain Success.md",
+      "slug": "supply-chain-data-literacy",
+      "title": "How to Build Data Literacy Skills for Supply Chain Success",
+      "tag": "Analytics",
+      "publish_date": "2026-05-08",
+      "status": "pending"
+    },
+    {
+      "file": "7 Supply Chain Company Types That Shape Your Career Path.md",
+      "slug": "supply-chain-company-types",
+      "title": "7 Supply Chain Company Types That Shape Your Career Path",
+      "tag": "Career",
+      "publish_date": "2026-05-09",
+      "status": "pending"
+    },
+    {
+      "file": "Supply Chain Job Titles- Traditional Paths vs. Talent Gap Roles.md",
+      "slug": "supply-chain-job-titles",
+      "title": "Supply Chain Job Titles: Traditional Paths vs. Talent Gap Roles",
+      "tag": "Career",
+      "publish_date": "2026-05-10",
+      "status": "pending"
+    },
+    {
+      "file": "Why Chasing Supply Chain Job Titles Is a Career Dead End.md",
+      "slug": "supply-chain-job-titles-dead-end",
+      "title": "Why Chasing Supply Chain Job Titles Is a Career Dead End",
+      "tag": "Career",
+      "publish_date": "2026-05-11",
+      "status": "pending"
+    },
+    {
+      "file": "Traditional vs Modern Supply Chain Job Search Strategies.md",
+      "slug": "supply-chain-job-search-strategies",
+      "title": "Traditional vs Modern Supply Chain Job Search Strategies",
+      "tag": "Career",
+      "publish_date": "2026-05-12",
+      "status": "pending"
+    },
+    {
+      "file": "The Supply Chain Talent Gap Is a Leadership Problem.md",
+      "slug": "supply-chain-talent-gap",
+      "title": "The Supply Chain Talent Gap Is a Leadership Problem",
+      "tag": "Career",
+      "publish_date": "2026-05-13",
+      "status": "pending"
+    }
+  ]
+}

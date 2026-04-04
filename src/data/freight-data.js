@@ -1,0 +1,47 @@
+// Freight origins and EU destinations for the lead time calculator
+// Mirrors the pSEO tools data — keep in sync if updating either
+
+export const FREIGHT_ORIGINS = [
+  { id: 'shanghai',     name: 'Shanghai',          country: 'China',        euZone: { north: 2100, south: 1850, med: 1650, baltic: 2300, blacksea: 2000 }, baseDays: { north: 32, south: 28, med: 26, baltic: 35, blacksea: 30 } },
+  { id: 'shenzhen',     name: 'Shenzhen',           country: 'China',        euZone: { north: 2050, south: 1800, med: 1600, baltic: 2250, blacksea: 1950 }, baseDays: { north: 32, south: 28, med: 26, baltic: 35, blacksea: 30 } },
+  { id: 'guangzhou',    name: 'Guangzhou',          country: 'China',        euZone: { north: 2000, south: 1750, med: 1600, baltic: 2200, blacksea: 1900 }, baseDays: { north: 33, south: 29, med: 27, baltic: 36, blacksea: 31 } },
+  { id: 'tianjin',      name: 'Tianjin',            country: 'China',        euZone: { north: 2200, south: 1950, med: 1800, baltic: 2400, blacksea: 2100 }, baseDays: { north: 34, south: 30, med: 28, baltic: 37, blacksea: 32 } },
+  { id: 'ningbo',       name: 'Ningbo',             country: 'China',        euZone: { north: 2100, south: 1850, med: 1650, baltic: 2300, blacksea: 2000 }, baseDays: { north: 32, south: 28, med: 26, baltic: 35, blacksea: 30 } },
+  { id: 'hong-kong',    name: 'Hong Kong',          country: 'China SAR',    euZone: { north: 2050, south: 1800, med: 1600, baltic: 2250, blacksea: 1950 }, baseDays: { north: 31, south: 27, med: 25, baltic: 34, blacksea: 29 } },
+  { id: 'busan',        name: 'Busan',              country: 'South Korea',  euZone: { north: 1900, south: 1650, med: 1500, baltic: 2100, blacksea: 1800 }, baseDays: { north: 28, south: 24, med: 22, baltic: 31, blacksea: 26 } },
+  { id: 'tokyo',        name: 'Tokyo',              country: 'Japan',        euZone: { north: 2250, south: 2000, med: 1850, baltic: 2450, blacksea: 2150 }, baseDays: { north: 34, south: 30, med: 28, baltic: 37, blacksea: 32 } },
+  { id: 'taipei',       name: 'Taipei',             country: 'Taiwan',       euZone: { north: 2000, south: 1750, med: 1600, baltic: 2200, blacksea: 1900 }, baseDays: { north: 31, south: 27, med: 25, baltic: 34, blacksea: 29 } },
+  { id: 'ho-chi-minh',  name: 'Ho Chi Minh City',  country: 'Vietnam',      euZone: { north: 1800, south: 1550, med: 1400, baltic: 2000, blacksea: 1700 }, baseDays: { north: 27, south: 23, med: 21, baltic: 30, blacksea: 25 } },
+  { id: 'bangkok',      name: 'Bangkok',            country: 'Thailand',     euZone: { north: 1750, south: 1500, med: 1350, baltic: 1950, blacksea: 1650 }, baseDays: { north: 26, south: 22, med: 20, baltic: 29, blacksea: 24 } },
+  { id: 'singapore',    name: 'Singapore',          country: 'Singapore',    euZone: { north: 1600, south: 1350, med: 1200, baltic: 1800, blacksea: 1500 }, baseDays: { north: 24, south: 20, med: 18, baltic: 27, blacksea: 22 } },
+  { id: 'jakarta',      name: 'Jakarta',            country: 'Indonesia',    euZone: { north: 1700, south: 1450, med: 1300, baltic: 1900, blacksea: 1600 }, baseDays: { north: 26, south: 22, med: 20, baltic: 29, blacksea: 24 } },
+  { id: 'mumbai',       name: 'Mumbai',             country: 'India',        euZone: { north: 1350, south: 1100, med: 950,  baltic: 1550, blacksea: 1250 }, baseDays: { north: 20, south: 16, med: 14, baltic: 23, blacksea: 18 } },
+  { id: 'chennai',      name: 'Chennai',            country: 'India',        euZone: { north: 1400, south: 1150, med: 1000, baltic: 1600, blacksea: 1300 }, baseDays: { north: 21, south: 17, med: 15, baltic: 24, blacksea: 19 } },
+  { id: 'dhaka',        name: 'Dhaka',              country: 'Bangladesh',   euZone: { north: 1550, south: 1300, med: 1150, baltic: 1750, blacksea: 1450 }, baseDays: { north: 24, south: 20, med: 18, baltic: 27, blacksea: 22 } },
+  { id: 'karachi',      name: 'Karachi',            country: 'Pakistan',     euZone: { north: 1250, south: 1000, med: 850,  baltic: 1450, blacksea: 1150 }, baseDays: { north: 19, south: 15, med: 13, baltic: 22, blacksea: 17 } },
+  { id: 'dubai',        name: 'Dubai',              country: 'UAE',          euZone: { north: 1100, south: 900,  med: 800,  baltic: 1300, blacksea: 1000 }, baseDays: { north: 16, south: 13, med: 11, baltic: 19, blacksea: 14 } },
+  { id: 'jeddah',       name: 'Jeddah',             country: 'Saudi Arabia', euZone: { north: 950,  south: 750,  med: 650,  baltic: 1150, blacksea: 850  }, baseDays: { north: 14, south: 11, med: 9,  baltic: 17, blacksea: 12 } },
+  { id: 'istanbul',     name: 'Istanbul',           country: 'Turkey',       euZone: { north: 700,  south: 550,  med: 450,  baltic: 850,  blacksea: 400  }, baseDays: { north: 8,  south: 6,  med: 5,  baltic: 10, blacksea: 4  } },
+  { id: 'new-york',     name: 'New York',           country: 'USA',          euZone: { north: 950,  south: 1100, med: 1250, baltic: 1050, blacksea: 1400 }, baseDays: { north: 12, south: 14, med: 16, baltic: 14, blacksea: 18 } },
+  { id: 'los-angeles',  name: 'Los Angeles',        country: 'USA',          euZone: { north: 1500, south: 1650, med: 1800, baltic: 1600, blacksea: 1950 }, baseDays: { north: 24, south: 26, med: 28, baltic: 26, blacksea: 30 } },
+  { id: 'santos',       name: 'Santos',             country: 'Brazil',       euZone: { north: 1200, south: 1050, med: 1350, baltic: 1300, blacksea: 1500 }, baseDays: { north: 18, south: 16, med: 20, baltic: 20, blacksea: 22 } },
+  { id: 'casablanca',   name: 'Casablanca',         country: 'Morocco',      euZone: { north: 500,  south: 400,  med: 350,  baltic: 650,  blacksea: 420  }, baseDays: { north: 5,  south: 4,  med: 3,  baltic: 7,  blacksea: 5  } },
+  { id: 'cape-town',    name: 'Cape Town',          country: 'South Africa', euZone: { north: 1600, south: 1350, med: 1500, baltic: 1750, blacksea: 1600 }, baseDays: { north: 24, south: 20, med: 22, baltic: 26, blacksea: 25 } },
+  { id: 'lagos',        name: 'Lagos',              country: 'Nigeria',      euZone: { north: 1000, south: 850,  med: 1000, baltic: 1150, blacksea: 1100 }, baseDays: { north: 14, south: 12, med: 14, baltic: 16, blacksea: 16 } },
+];
+
+export const EU_PORTS = [
+  { id: 'hamburg',      name: 'Hamburg',      country: 'Germany',     zone: 'north'    },
+  { id: 'rotterdam',    name: 'Rotterdam',    country: 'Netherlands', zone: 'north'    },
+  { id: 'antwerp',      name: 'Antwerp',      country: 'Belgium',     zone: 'north'    },
+  { id: 'bremerhaven',  name: 'Bremerhaven',  country: 'Germany',     zone: 'north'    },
+  { id: 'le-havre',     name: 'Le Havre',     country: 'France',      zone: 'south'    },
+  { id: 'marseille',    name: 'Marseille',    country: 'France',      zone: 'south'    },
+  { id: 'genoa',        name: 'Genoa',        country: 'Italy',       zone: 'south'    },
+  { id: 'barcelona',    name: 'Barcelona',    country: 'Spain',       zone: 'south'    },
+  { id: 'valencia',     name: 'Valencia',     country: 'Spain',       zone: 'south'    },
+  { id: 'piraeus',      name: 'Piraeus',      country: 'Greece',      zone: 'med'      },
+  { id: 'gdansk',       name: 'Gdansk',       country: 'Poland',      zone: 'baltic'   },
+  { id: 'constanta',    name: 'Constanta',    country: 'Romania',     zone: 'blacksea' },
+  { id: 'trieste',      name: 'Trieste',      country: 'Italy',       zone: 'med'      },
+];
