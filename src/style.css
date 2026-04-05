@@ -4105,6 +4105,41 @@ input[type="number"] {
   font-style: italic;
 }
 
+/* ── Story Context Bar (shown above market conditions during procurement) ── */
+.proc-story-context {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  line-height: 1.4;
+}
+.proc-story-scenario {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.proc-story-arrow {
+  color: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+.proc-story-choice {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
 /* ── 2. Market Conditions Banner ── */
 .market-conditions-banner {
   display: flex;

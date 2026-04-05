@@ -64,6 +64,7 @@ export class GameEngine {
             industry: null,
             currentScenario: null,
             lastTurnResult: null,
+            lastStoryChoice: null,   // { scenarioTitle, optionLabel, alignment }
             history: [],
 
             // Crisis Engine
@@ -201,6 +202,7 @@ export class GameEngine {
         this.state.lastCrisisId       = null;
         this.state.activeCrisis       = null;
         this.state.lastTurnResult     = null;
+        this.state.lastStoryChoice    = null;
 
         this.mastery = new MasteryTracker();
 
@@ -294,6 +296,13 @@ export class GameEngine {
 
         // Apply Modifiers
         this.state.modifiers = { ...choice.modifiers };
+
+        // Store story choice for procurement context banner
+        this.state.lastStoryChoice = {
+            scenarioTitle: scenario.title,
+            optionLabel: choice.label,
+            alignment: choice.conceptAlignment,
+        };
 
         // Record mastery alignment
         if (choice.conceptAlignment && this.state.currentChapter) {

@@ -1071,6 +1071,19 @@ export class Dashboard {
         const suppliers = SUPPLIERS[industryId] || SUPPLIERS.electronics;
         const prevChoices = this.engine.state.procurementChoices;
 
+        // ── Story context bar ──────────────────────────────────────────
+        const lastChoice = this.engine.state.lastStoryChoice;
+        const alignColors = { optimal: '#22c55e', cautious: '#f59e0b', risky: '#ef4444' };
+        const storyContextHtml = (!this.engine.state.isEndless && lastChoice) ? `
+            <div class="proc-story-context">
+                <span class="proc-story-scenario">${lastChoice.scenarioTitle}</span>
+                <span class="proc-story-arrow" aria-hidden="true">→</span>
+                <span class="proc-story-choice" style="color:${alignColors[lastChoice.alignment] || '#94a3b8'}">
+                    ${lastChoice.optionLabel}
+                </span>
+            </div>
+        ` : '';
+
         // ── Market Conditions banner data ──────────────────────────────
         const costMod  = this.engine.state.modifiers.unitCost;
         const leadMod  = this.engine.state.modifiers.leadTime;
@@ -1161,8 +1174,9 @@ export class Dashboard {
                     <h3>${this.engine.state.isEndless ? 'Survival Procurement' : 'Procurement Decisions'}</h3>
                 </div>
                 ${endlessHeaderHtml}
+                ${storyContextHtml}
 
-                <!-- CHANGE 2: Market Conditions Banner -->
+                <!-- Market Conditions Banner -->
                 <div class="market-conditions-banner market-conditions-banner--${bannerMod}" role="alert">
                     <span class="market-conditions-icon" aria-hidden="true">${bannerIcon}</span>
                     <div class="market-conditions-text">

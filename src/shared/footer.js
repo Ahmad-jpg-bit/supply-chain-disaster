@@ -2,9 +2,10 @@ import './footer.css';
 
 /**
  * Shared site footer component.
- * Replaces any existing .page-footer element; or appends to .page-content.
+ * Replaces any existing .page-footer element; or appends to the given container
+ * (defaults to .page-content, then body).
  */
-export function createFooter() {
+export function createFooter(container) {
   const footer = document.createElement('footer');
   footer.className = 'page-footer';
   footer.innerHTML = `
@@ -54,12 +55,13 @@ export function createFooter() {
     </div>
   `;
 
-  // Replace existing static .page-footer; otherwise append to .page-content
+  // Replace existing static .page-footer; otherwise append to provided container,
+  // then .page-content, then body.
   const existing = document.querySelector('.page-footer');
   if (existing) {
     existing.replaceWith(footer);
   } else {
-    const content = document.querySelector('.page-content') || document.body;
+    const content = container || document.querySelector('.page-content') || document.body;
     content.appendChild(footer);
   }
 

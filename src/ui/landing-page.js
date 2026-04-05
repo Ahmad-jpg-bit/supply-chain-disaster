@@ -89,7 +89,7 @@ export class LandingPage {
             this._upgradeHTML();
 
         this.container.appendChild(page);
-        createFooter();
+        createFooter(this.container);
         setNavMinimal(true);
         this._attachListeners(page);
     }
