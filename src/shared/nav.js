@@ -138,6 +138,15 @@ export function createNav(activePage = 'game') {
 }
 
 /**
+ * Toggle minimal mode on the nav (landing page only).
+ * Hides all secondary links, leaving only the logo + two CTAs.
+ */
+export function setNavMinimal(active) {
+  const nav = document.querySelector('.site-nav');
+  if (nav) nav.classList.toggle('site-nav--minimal', active);
+}
+
+/**
  * Update the nav upgrade button to reflect premium status.
  * Call after confirming the user is premium.
  */

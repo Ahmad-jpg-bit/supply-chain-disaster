@@ -126,6 +126,31 @@
   50%       { opacity: 0.4; transform: scale(0.6); }
 }
 
+/* ── Load-order entrance animations (Sprint 2) ─────────────── */
+/* Hero text loads first, terminal second, ticker last         */
+@keyframes lp-section-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lp-hero-left {
+  animation: lp-section-in 0.5s ease-out 0s both;
+}
+
+.lp-hero-right {
+  animation: lp-section-in 0.5s ease-out 0.25s both;
+}
+
+.lp-ticker {
+  animation: lp-section-in 0.4s ease-out 0.55s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero-left,
+  .lp-hero-right,
+  .lp-ticker { animation: none; opacity: 1; }
+}
+
 .lp-hero-headline {
   font-size: clamp(1.75rem, 3.5vw, 2.75rem);
   font-weight: 800;
@@ -346,6 +371,31 @@
   color: var(--text-main);
 }
 
+/* ── Hero load-order animations ───────────────────────── */
+@keyframes lp-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Hero text (left) — visible immediately, no delay */
+.lp-hero-left {
+  animation: lp-fade-in-up 0.5s ease-out both;
+}
+
+/* Terminal panel (right) — loads after text */
+.lp-hero-right {
+  animation: lp-fade-in-up 0.6s ease-out 0.25s both;
+}
+
+/* Crisis ticker — loads last */
+.lp-ticker {
+  animation: lp-fade-in 0.5s ease-out 1.4s both;
+}
+
 /* ── Crisis Ticker ─────────────────────────────────────── */
 .lp-ticker {
   display: flex;
@@ -418,7 +468,7 @@
 
 .lp-roadmap-scroll {
   overflow-x: auto;
-  padding-bottom: 1rem;
+  padding-bottom: 3.5rem; /* room for tooltip below locked-chapter nodes */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -431,7 +481,9 @@
   align-items: flex-start;
   gap: 0;
   min-width: max-content;
-  padding: 1rem 0.5rem;
+  /* Extra bottom padding creates room for the absolute-positioned
+     tooltip on locked nodes so overflow-x:auto doesn't clip it */
+  padding: 1rem 0.5rem 56px;
 }
 
 .lp-roadmap-node {
@@ -556,11 +608,11 @@
   opacity: 0.85;
 }
 
-/* Tooltip on locked chapter hover */
+/* Tooltip on locked chapter hover — appears below node to avoid overflow clipping */
 .lp-roadmap-node--pro::after {
-  content: 'Requires Command Center clearance (Pro Upgrade)';
+  content: 'Unlock with Standard Edition — $14.99 one-time';
   position: absolute;
-  bottom: calc(100% + 10px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(10, 18, 35, 0.97);
@@ -672,8 +724,19 @@
 }
 
 .lp-ind-icon {
-  font-size: 2.25rem;
-  line-height: 1;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--ind-accent-rgb), 0.1);
+  border-radius: var(--radius-md);
+  color: var(--ind-accent);
+}
+
+.lp-ind-icon svg {
+  stroke: var(--ind-accent);
+  flex-shrink: 0;
 }
 
 .lp-ind-name {

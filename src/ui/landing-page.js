@@ -13,6 +13,8 @@ import { CHAPTERS } from '../data/chapters.js';
 import { INDUSTRIES } from '../logic/industries.js';
 import { getIcon } from '../graphics/svg-icons.js';
 import { PremiumManager } from '../logic/premium.js';
+import { createFooter } from '../shared/footer.js';
+import { setNavMinimal } from '../shared/nav.js';
 
 const CHAPTER_OUTCOMES = [
     'Forecast demand to avoid stockouts & overstock',
@@ -27,7 +29,7 @@ const CHAPTER_OUTCOMES = [
 
 const INDUSTRY_CONFIG = {
     electronics: {
-        icon: '⚡',
+        icon: getIcon('factory', 32),
         accent: '#f59e0b',
         accentRgb: '245,158,11',
         label: 'Emergency Alert',
@@ -39,7 +41,7 @@ const INDUSTRY_CONFIG = {
         ],
     },
     fmcg: {
-        icon: '📦',
+        icon: getIcon('store', 32),
         accent: '#3b82f6',
         accentRgb: '59,130,246',
         label: 'High Volume',
@@ -51,7 +53,7 @@ const INDUSTRY_CONFIG = {
         ],
     },
     pharma: {
-        icon: '💊',
+        icon: getIcon('shield', 32),
         accent: '#22c55e',
         accentRgb: '34,197,94',
         label: 'Regulatory',
@@ -87,6 +89,8 @@ export class LandingPage {
             this._upgradeHTML();
 
         this.container.appendChild(page);
+        createFooter();
+        setNavMinimal(true);
         this._attachListeners(page);
     }
 
@@ -102,12 +106,13 @@ export class LandingPage {
                         Live Crisis Simulation
                     </div>
                     <h1 class="lp-hero-headline">
-                        Where Future Supply Chain<br>
-                        <span class="lp-hero-accent">Leaders Are Forged.</span>
+                        Supply Chain Strategy,<br>
+                        <span class="lp-hero-accent">Learned Through Simulation.</span>
                     </h1>
                     <p class="lp-hero-sub">
-                        Don't just study the Bullwhip Effect&mdash;feel it. Navigate complex
-                        mission-based chapters designed to teach you end-to-end supply chain tactics.
+                        Experience real supply chain crises through simulation. Work through
+                        scenario-driven chapters that teach procurement, inventory strategy, and
+                        supplier risk &mdash; the way professionals learn.
                     </p>
                     <div class="lp-hero-ctas">
                         <button class="btn-primary btn-glow lp-begin-btn">
@@ -375,11 +380,11 @@ export class LandingPage {
         <section class="lp-intel" id="lp-intel">
             <div class="lp-intel-inner">
                 <div class="lp-intel-left">
-                    <div class="lp-section-label">Intelligence Briefing</div>
-                    <h2>Secure Your Operational Data</h2>
-                    <p class="lp-intel-sub">Your session data, performance metrics, and strategic decisions are stored in volatile memory. Enter your command-center access to preserve them across sessions.</p>
+                    <div class="lp-section-label">Save Progress</div>
+                    <h2>Save Your Progress</h2>
+                    <p class="lp-intel-sub">Your game progress is stored in your browser. Enter your email to back it up and recover across devices if your browser data is ever cleared.</p>
                     <ul class="lp-intel-benefits">
-                        <li>${getIcon('checkmark', 15)} Session backup after each chapter</li>
+                        <li>${getIcon('checkmark', 15)} Progress backup after each chapter</li>
                         <li>${getIcon('checkmark', 15)} Receive your personalized strategy debrief PDF</li>
                         <li>${getIcon('checkmark', 15)} Get notified when Expansion chapters go live</li>
                     </ul>
@@ -390,24 +395,24 @@ export class LandingPage {
                             <span class="lp-term-dot lp-term-dot--red"></span>
                             <span class="lp-term-dot lp-term-dot--amber"></span>
                             <span class="lp-term-dot lp-term-dot--green"></span>
-                            <span class="lp-term-title">SECURE_BACKUP.exe</span>
+                            <span class="lp-term-title">PROGRESS_BACKUP.exe</span>
                         </div>
                         <div class="lp-intel-form-body">
                             <div class="lp-intel-prompt">
                                 <span class="lp-term-prompt">&gt;</span>
-                                <span class="lp-intel-prompt-text">ENTER COMMAND CENTER ACCESS</span>
+                                <span class="lp-intel-prompt-text">ENTER YOUR EMAIL</span>
                             </div>
                             <div class="lp-intel-input-row">
                                 <input type="email" class="lp-intel-input" id="lp-intel-email"
-                                       placeholder="commander@yourdomain.com"
+                                       placeholder="you@example.com"
                                        autocomplete="email"
                                        value="${captured}" />
                                 <button class="lp-intel-submit" id="lp-intel-submit">
-                                    ${captured ? 'Encrypted ✓' : 'Encrypt &rarr;'}
+                                    ${captured ? 'Saved ✓' : 'Save Progress &rarr;'}
                                 </button>
                             </div>
                             <div class="lp-intel-status" id="lp-intel-status">
-                                ${captured ? `<span class="lp-intel-status--success">&gt; SUCCESS: Session already secured</span>` : ''}
+                                ${captured ? `<span class="lp-intel-status--success">&gt; SUCCESS: Progress already saved</span>` : ''}
                             </div>
                             <div class="lp-intel-note">
                                 <span class="lp-term-prompt">&gt;</span>
@@ -508,6 +513,7 @@ export class LandingPage {
         page.querySelectorAll('.lp-ind-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                setNavMinimal(false);
                 this.onLaunch(btn.dataset.industry, this.selectedChapterIndex);
             });
         });
@@ -516,6 +522,7 @@ export class LandingPage {
         page.querySelectorAll('.lp-ind-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 if (e.target.closest('.lp-ind-btn')) return;
+                setNavMinimal(false);
                 this.onLaunch(card.dataset.industry, this.selectedChapterIndex);
             });
         });
@@ -575,7 +582,7 @@ export class LandingPage {
 
         // Survival mode industry cards → launch endless mode
         page.querySelectorAll('.lp-survival-card').forEach(card => {
-            const launch = () => this.onLaunch(card.dataset.survivalIndustry, 0, 'endless');
+            const launch = () => { setNavMinimal(false); this.onLaunch(card.dataset.survivalIndustry, 0, 'endless'); };
             card.addEventListener('click', launch);
             card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
         });
@@ -856,7 +863,7 @@ export class LandingPage {
         }
 
         btn.disabled    = true;
-        btn.textContent = 'Encrypting...';
+        btn.textContent = 'Saving...';
         status.innerHTML = '';
 
         try {
@@ -868,11 +875,11 @@ export class LandingPage {
             if (!res.ok) throw new Error();
 
             localStorage.setItem('scd_progress_email', email);
-            status.innerHTML = '<span class="lp-intel-status--success">&gt; SUCCESS: Session encrypted. Confirmation sent.</span>';
-            btn.textContent  = 'Encrypted ✓';
+            status.innerHTML = '<span class="lp-intel-status--success">&gt; SUCCESS: Progress saved. Confirmation sent.</span>';
+            btn.textContent  = 'Saved ✓';
         } catch {
             btn.disabled    = false;
-            btn.textContent = 'Encrypt →';
+            btn.textContent = 'Save Progress →';
             status.innerHTML = '<span class="lp-intel-status--error">&gt; ERROR: Backup failed. Try again.</span>';
         }
     }

@@ -1,3 +1,5 @@
+import './footer.css';
+
 /**
  * Shared site footer component.
  * Replaces any existing .page-footer element; or appends to .page-content.
@@ -33,6 +35,7 @@ export function createFooter() {
         <div class="footer-link-group">
           <span class="footer-group-label">Legal</span>
           <a href="/terms" class="footer-link">Terms of Service</a>
+          <a href="/privacy" class="footer-link">Privacy Policy</a>
           <a href="/refund" class="footer-link">Refund Policy</a>
         </div>
       </nav>
@@ -41,13 +44,13 @@ export function createFooter() {
     <div class="footer-bottom">
       <span>&copy; 2026 Supply Chain Disaster. All rights reserved.</span>
       <span class="footer-bottom-sep" aria-hidden="true">·</span>
-      <a href="/pricing" class="footer-link">Pricing</a>
-      <span class="footer-bottom-sep" aria-hidden="true">·</span>
       <a href="/terms" class="footer-link">Terms</a>
+      <span class="footer-bottom-sep" aria-hidden="true">·</span>
+      <a href="/privacy" class="footer-link">Privacy</a>
       <span class="footer-bottom-sep" aria-hidden="true">·</span>
       <a href="/refund" class="footer-link">Refund Policy</a>
       <span class="footer-bottom-sep" aria-hidden="true">·</span>
-      <a href="mailto:hello@nexttracksystems.com" class="footer-link">hello@nexttracksystems.com</a>
+      <a href="mailto:hello@supplychaindisaster.com" class="footer-link">hello@supplychaindisaster.com</a>
     </div>
   `;
 

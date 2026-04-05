@@ -4,17 +4,17 @@
  */
 
 const COLORS = [
-    'rgba(59, 130, 246, 0.7)',   // blue
-    'rgba(34, 197, 94, 0.6)',    // green
-    'rgba(245, 158, 11, 0.5)',   // amber
+    'rgba(59, 130, 246, 0.3)',   // blue
+    'rgba(34, 197, 94, 0.22)',   // green
+    'rgba(245, 158, 11, 0.18)',  // amber
 ];
 
-const HERO_COUNT = 80;
-const AMBIENT_COUNT = 40;
-const AMBIENT_COUNT_MOBILE = 15;  // ≤768px — reduces O(n²) pairs from 780→105
+const HERO_COUNT = 50;           // reduced from 80 — lighter visual weight on landing page
+const AMBIENT_COUNT = 20;
+const AMBIENT_COUNT_MOBILE = 8;  // ≤768px — reduces O(n²) pairs from 780→105
 const LINK_DISTANCE = 120;
 const FPS_CAP_MOBILE = 1000 / 30; // 30fps on mobile (~33ms)
-const LINK_OPACITY = 0.15;
+const LINK_OPACITY = 0.04;        // reduced from 0.06 — subtler background
 const PARTICLE_MIN_R = 1.5;
 const PARTICLE_MAX_R = 3.5;
 const SPEED = 0.3;

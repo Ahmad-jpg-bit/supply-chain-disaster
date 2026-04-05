@@ -5411,7 +5411,15 @@ input[type="number"] {
   transform: translateY(-2px);
 }
 
-.lp-survival-card-icon { font-size: 2rem; }
+.lp-survival-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #ef4444;
+}
+.lp-survival-card-icon svg { stroke: currentColor; }
 .lp-survival-card-label {
   font-weight: 600;
   font-size: 0.9rem;

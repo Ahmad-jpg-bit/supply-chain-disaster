@@ -1,0 +1,100 @@
+/* ── Site Footer ───────────────────────────────────────────── */
+.page-footer {
+  padding: var(--spacing-xl) 0 var(--spacing-lg);
+  margin-top: var(--spacing-2xl, 4rem);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 220px;
+}
+
+.footer-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.footer-chain-icon { flex-shrink: 0; }
+
+.footer-brand-name {
+  font-weight: 800;
+  font-size: var(--text-sm);
+  background: linear-gradient(135deg, #3b82f6, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.footer-tagline {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.footer-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.footer-group-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.2rem;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  transition: color 0.15s;
+}
+
+.footer-link:hover { color: var(--text-main); }
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: var(--text-xs);
+  flex-wrap: wrap;
+}
+
+.footer-bottom-sep { color: rgba(255, 255, 255, 0.35); }
+
+@media (max-width: 768px) {
+  .footer-inner {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+  .footer-brand { max-width: 100%; }
+}
