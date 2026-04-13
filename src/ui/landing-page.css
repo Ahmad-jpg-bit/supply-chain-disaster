@@ -40,6 +40,20 @@
   margin: 0 auto;
 }
 
+/* Beginner guidance line — shown below the section subtitle for first-time players */
+.lp-beginner-hint {
+  margin: 0.75rem auto 0;
+  max-width: 420px;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.lp-beginner-hint strong {
+  color: #6ee7b7;
+  font-weight: 600;
+}
+
 /* ── Terminal shared ───────────────────────────────────────── */
 .lp-terminal-bar {
   display: flex;
@@ -708,6 +722,14 @@
   opacity: 1;
 }
 
+/* Badge row — industry type badge + difficulty badge side by side */
+.lp-ind-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .lp-ind-badge {
   display: inline-block;
   font-family: var(--font-mono);
@@ -721,6 +743,54 @@
   border-radius: 100px;
   padding: 3px 10px;
   width: fit-content;
+}
+
+/* Difficulty badge — colour driven by --diff-rgb inline var */
+.lp-ind-difficulty {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--diff-rgb));
+  background: rgba(var(--diff-rgb), 0.1);
+  border: 1px solid rgba(var(--diff-rgb), 0.3);
+  border-radius: 100px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+
+/* Persona line — one-liner audience hint beneath the stats */
+.lp-ind-persona {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Recommended state — subtle green border + glow shown to first-time players */
+.lp-ind-card--recommended {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 24px rgba(34, 197, 94, 0.07);
+}
+
+/* "Recommended" corner tag */
+.lp-ind-recommended-tag {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 100px;
+  padding: 3px 9px;
 }
 
 .lp-ind-icon {

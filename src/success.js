@@ -35,8 +35,41 @@ window.addEventListener('DOMContentLoaded', async () => {
           ? 'All 10 chapters are now unlocked — including the Global Logistics Expansion. Good luck out there.'
           : 'All 8 chapters are now unlocked. Time to put your skills to the real test.'
       }</p>
+
+      <div class="success-order-box">
+        <p class="success-order-label">Your Order ID — save this</p>
+        <div class="success-order-row">
+          <span class="success-order-id" id="order-id-value">${orderId}</span>
+          <button class="success-order-copy" id="copy-order-btn" title="Copy Order ID">Copy</button>
+        </div>
+        <p class="success-order-hint">
+          Need to restore access on another device or browser? Click
+          <strong>Unlock → Restore access</strong> in the game and enter your purchase
+          email — or contact support with this Order ID.
+        </p>
+      </div>
+
       <a href="/" class="btn-primary success-cta">Start Playing →</a>
     `;
+
+    document.getElementById('copy-order-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(orderId).then(() => {
+        const btn = document.getElementById('copy-order-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('success-order-copy--copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('success-order-copy--copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback for browsers without clipboard API
+        const el = document.getElementById('order-id-value');
+        const range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      });
+    });
   } else {
     document.title = 'Payment Verification Failed — Supply Chain Disaster';
     contentEl.innerHTML = `

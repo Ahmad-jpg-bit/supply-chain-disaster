@@ -316,6 +316,43 @@
 </head>
 
 <body>
+
+  <!-- ── Instant loading screen ─────────────────────────────────────────────
+       Rendered by the browser from raw HTML before any JS is parsed.
+       Appears within the first paint (~100 ms) and fades out once the
+       LandingPage (or game dashboard) has fully mounted.
+  ──────────────────────────────────────────────────────────────────────── -->
+  <div id="loading-screen" style="position:fixed;inset:0;z-index:9999;background:#0a0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0">
+    <div style="margin-bottom:28px">
+      <img src="/logo.png" alt="Supply Chain Disaster" style="height:40px;opacity:0.9">
+    </div>
+    <div style="width:280px;height:3px;background:#1e293b;border-radius:99px;overflow:hidden;margin-bottom:16px">
+      <div style="height:100%;width:40%;background:#f59e0b;border-radius:99px;animation:scd-slide 1.2s ease-in-out infinite"></div>
+    </div>
+    <p id="loading-msg" style="color:#94a3b8;font-size:13px;margin:0;text-align:center;font-family:system-ui,sans-serif">Loading your simulation...</p>
+    <style>
+      @keyframes scd-slide {
+        0%   { transform: translateX(-250%); }
+        100% { transform: translateX(800%); }
+      }
+    </style>
+  </div>
+  <!-- Slow-connection fallback — updates the loading message if JS takes >4 s or >8 s -->
+  <script>
+    setTimeout(function() {
+      var msg = document.getElementById('loading-msg');
+      if (msg && document.getElementById('loading-screen')) {
+        msg.textContent = 'Still loading — this can take a moment on slower connections...';
+      }
+    }, 4000);
+    setTimeout(function() {
+      var msg = document.getElementById('loading-msg');
+      if (msg && document.getElementById('loading-screen')) {
+        msg.textContent = 'Almost there...';
+      }
+    }, 8000);
+  </script>
+
   <div id="app">
     <!-- Start Screen / Onboarding -->
     <div id="start-screen" class="screen">
@@ -422,6 +459,19 @@
   </div>
 
   <script type="module" src="/src/main.js"></script>
+
+  <!-- Navigation transition overlay: fades the page to dark before navigating
+       to /play (which is the root "/"), so the transition feels intentional. -->
+  <script>
+    document.querySelectorAll('a[href="/play"], a[href*="/play"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0a0f1e;opacity:0;transition:opacity 0.2s ease;pointer-events:none';
+        document.body.appendChild(overlay);
+        requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+      });
+    });
+  </script>
 </body>
 
 </html>

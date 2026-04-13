@@ -67,6 +67,8 @@ export default defineConfig({
                 'kitkat-cargo-theft-supply-chain': resolve(__dirname, 'kitkat-cargo-theft-supply-chain.html'),
                 'reactive-risk-management': resolve(__dirname, 'reactive-risk-management.html'),
                 'supply-chain-risk-model-obsolete': resolve(__dirname, 'supply-chain-risk-model-obsolete.html'),
+                'predictive-risk-complex-adaptive-systems': resolve(__dirname, 'predictive-risk-complex-adaptive-systems.html'),
+                'stochastic-optimization-supply-chains': resolve(__dirname, 'stochastic-optimization-supply-chains.html'),
             },
 
             output: {

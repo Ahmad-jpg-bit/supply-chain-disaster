@@ -49,8 +49,9 @@ export class Paywall {
         this.onSuccess = null;
     }
 
-    show(onSuccess) {
+    show(onSuccess, onBeforeCheckout) {
         this.onSuccess = onSuccess;
+        this._onBeforeCheckout = onBeforeCheckout ?? null;
         this._render();
     }
 
@@ -103,10 +104,6 @@ export class Paywall {
                 </div>`;
         }).join('');
 
-        // Footer: on native use "Restore Purchases" label; on web use "Already purchased?"
-        const footerText = BillingManager.isNative
-            ? ''
-            : '<span class="paywall-footer-text">Already purchased?</span>';
         const restoreLabel = BillingManager.isNative ? 'Restore Purchases' : 'Restore access';
 
         this.overlay.innerHTML = `
@@ -129,6 +126,17 @@ export class Paywall {
 
                 <div id="paywall-msg" class="paywall-msg hidden"></div>
 
+                <div class="paywall-restore-box">
+                    <div class="paywall-restore-box-inner">
+                        <span class="paywall-restore-icon">↩</span>
+                        <div>
+                            <p class="paywall-restore-box-title">Already purchased?</p>
+                            <p class="paywall-restore-box-desc">Restore access on this device using your purchase email.</p>
+                        </div>
+                        <button id="paywall-restore-btn" class="paywall-restore-box-btn">${restoreLabel}</button>
+                    </div>
+                </div>
+
                 <div class="paywall-promo">
                     <details class="paywall-promo-details">
                         <summary class="paywall-promo-summary">Have a promo code?</summary>
@@ -147,10 +155,6 @@ export class Paywall {
                     </details>
                 </div>
 
-                <div class="paywall-footer">
-                    ${footerText}
-                    <button id="paywall-restore-btn" class="paywall-restore-link">${restoreLabel}</button>
-                </div>
             </div>
         `;
 
@@ -225,6 +229,7 @@ export class Paywall {
         const separator   = url.includes('?') ? '&' : '?';
         const finalUrl    = `${url}${separator}checkout[redirect_url]=${encodeURIComponent(redirectUrl)}`;
 
+        this._onBeforeCheckout?.();
         window.location.href = finalUrl;
     }
 

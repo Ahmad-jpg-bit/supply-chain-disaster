@@ -67,6 +67,121 @@ export class Dashboard {
         this.init();
     }
 
+    /**
+     * Shows a one-time dismissible banner reminding premium users they can
+     * restore access on another device via their purchase email.
+     * Stores dismissal in localStorage so it only appears once.
+     */
+    _showRestoreNudge() {
+        if (!PremiumManager.isPremium()) return;
+        if (localStorage.getItem('scd_nudge_dismissed')) return;
+
+        const dashboard = document.getElementById('game-dashboard');
+        if (!dashboard) return;
+
+        const nudge = document.createElement('div');
+        nudge.className = 'restore-nudge';
+        nudge.id = 'restore-nudge';
+        nudge.innerHTML = `
+            <span class="restore-nudge-icon">&#9432;</span>
+            <span class="restore-nudge-text">
+                <strong>Access is saved in this browser.</strong>
+                On a new device, click <strong>Unlock → Restore access</strong> and enter your purchase email.
+            </span>
+            <button class="restore-nudge-dismiss" aria-label="Dismiss">✕</button>
+        `;
+
+        nudge.querySelector('.restore-nudge-dismiss').addEventListener('click', () => {
+            nudge.remove();
+            localStorage.setItem('scd_nudge_dismissed', '1');
+        });
+
+        // Insert at the very top of the dashboard, before the header
+        dashboard.insertBefore(nudge, dashboard.firstChild);
+    }
+
+    /**
+     * Saves the current engine state to localStorage before navigating to the
+     * external checkout page, so it can be restored on return.
+     */
+    _savePreCheckoutState() {
+        const s = this.engine.state;
+        if (!s.industry) return;
+        const resume = {
+            industryId:         s.industry.id,
+            chapterIndex:       s.chapterIndex,
+            cash:               s.cash,
+            inventory:          s.inventory,
+            backlog:            s.backlog,
+            inTransit:          s.inTransit,
+            turn:               s.turn,
+            maxTurns:           s.maxTurns,
+            modifiers:          s.modifiers,
+            archetypeModifiers: s.archetypeModifiers,
+            procurementChoices: s.procurementChoices,
+            startingArchetype:  s.startingArchetype,
+            shuffledScenarios:  s.shuffledScenarios,
+            history:            s.history,
+            ts:                 Date.now(),
+        };
+        try { localStorage.setItem('scd_pending_resume', JSON.stringify(resume)); } catch { /* storage full */ }
+    }
+
+    /**
+     * Fades out and removes the inline loading screen injected in index.html.
+     * Safe to call multiple times — a second call is a no-op.
+     */
+    _dismissLoadingScreen() {
+        const ls = document.getElementById('loading-screen');
+        if (!ls) return;
+        ls.style.transition = 'opacity 0.4s ease';
+        ls.style.opacity    = '0';
+        setTimeout(() => ls.remove(), 420);
+    }
+
+    /**
+     * Called on page load. If the user is returning after a successful checkout,
+     * restores their game at the next chapter with their saved financial state.
+     * Returns true if a resume was performed (caller should skip landing page).
+     */
+    _tryResumeFromCheckout() {
+        try {
+            const raw = localStorage.getItem('scd_pending_resume');
+            if (!raw) return false;
+            const resume = JSON.parse(raw);
+            // Expire stale saves (2 h)
+            if (!resume.ts || Date.now() - resume.ts > 2 * 60 * 60 * 1000) {
+                localStorage.removeItem('scd_pending_resume');
+                return false;
+            }
+            // Only restore once premium is confirmed
+            if (!PremiumManager.isPremium()) return false;
+            localStorage.removeItem('scd_pending_resume');
+
+            this.selectedIndustryId = resume.industryId;
+            const nextChapterIndex  = resume.chapterIndex + 1;
+            const patches = {
+                cash:               resume.cash,
+                inventory:          resume.inventory,
+                backlog:            resume.backlog,
+                inTransit:          resume.inTransit,
+                turn:               resume.turn,
+                maxTurns:           resume.maxTurns,
+                modifiers:          resume.modifiers,
+                archetypeModifiers: resume.archetypeModifiers,
+                procurementChoices: resume.procurementChoices,
+                startingArchetype:  resume.startingArchetype,
+                shuffledScenarios:  resume.shuffledScenarios,
+                history:            resume.history,
+            };
+            this.startGame(nextChapterIndex, 'story', patches);
+            return true;
+        } catch {
+            localStorage.removeItem('scd_pending_resume');
+            return false;
+        }
+    }
+
     init() {
         // Update nav if already premium
         if (PremiumManager.isPremium()) markNavPremium();
@@ -91,13 +206,25 @@ export class Dashboard {
         if (_devParams.get('dev') === 'nxt2026') {
             const _devChapter  = Math.max(0, parseInt(_devParams.get('chapter') || '0', 10) - 1);
             const _devIndustry = _devParams.get('industry') || 'electronics';
-            localStorage.setItem('scd_premium', JSON.stringify({ tier: 'expansion' }));
+            localStorage.setItem('scd_premium', JSON.stringify({ active: true, tier: 'expansion' }));
             markNavPremium();
             window.history.replaceState({}, '', '/');
             this.selectedIndustryId = _devIndustry;
             this.ui.startScreen.classList.add('hidden');
             this.ui.dashboard.classList.remove('hidden');
             this.startGame(_devChapter);
+            this._dismissLoadingScreen();
+            return;
+        }
+
+        // Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        });
+
+        // Restore game state for users returning from a checkout redirect
+        if (this._tryResumeFromCheckout()) {
+            this._dismissLoadingScreen();
             return;
         }
 
@@ -107,10 +234,8 @@ export class Dashboard {
             this.startGame(startChapterIndex, mode);
         });
 
-        // Tab Navigation
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
-        });
+        // Landing page is now rendered and visible — dismiss the loading screen.
+        this._dismissLoadingScreen();
     }
 
     switchTab(tabId) {
@@ -243,7 +368,7 @@ export class Dashboard {
             </div>`;
     }
 
-    startGame(startChapterIndex = 0, mode = 'story') {
+    startGame(startChapterIndex = 0, mode = 'story', _statePatches = null) {
         if (!this.selectedIndustryId) return;
 
         this._gameMode = mode;
@@ -251,6 +376,11 @@ export class Dashboard {
             this.engine.initEndless(this.selectedIndustryId);
         } else {
             this.engine.init(this.selectedIndustryId, PremiumManager.isExpansion(), startChapterIndex);
+        }
+
+        // Restore financial/scenario state saved before a checkout redirect
+        if (_statePatches) {
+            Object.assign(this.engine.state, _statePatches);
         }
 
         this.ui.startScreen.classList.add('hidden');
@@ -308,6 +438,7 @@ export class Dashboard {
 
         this.renderChapterProgress();
         this.renderGameState();
+        this._showRestoreNudge();
     }
 
     renderChapterProgress() {
@@ -1585,14 +1716,14 @@ export class Dashboard {
                         this.engine.activateExpansion();
                         this.engine.advanceFromChapterSummary();
                         this.renderGameState();
-                    });
+                    }, () => this._savePreCheckoutState());
                 } else if (nextIsLocked) {
                     // Show paywall for standard premium gate
                     this.paywall.show(() => {
                         markNavPremium();
                         this.engine.advanceFromChapterSummary();
                         this.renderGameState();
-                    });
+                    }, () => this._savePreCheckoutState());
                 } else {
                     this.engine.advanceFromChapterSummary();
                     this.renderGameState();

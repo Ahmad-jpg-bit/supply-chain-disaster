@@ -39,6 +39,11 @@ const INDUSTRY_CONFIG = {
             { val: '±40%', label: 'Demand Swing' },
             { val: '$1M', label: 'Capital' },
         ],
+        difficulty: {
+            label: 'Intermediate',
+            rgb: '245,158,11',
+            persona: "Best if you're familiar with volatile demand",
+        },
     },
     fmcg: {
         icon: getIcon('store', 32),
@@ -51,6 +56,12 @@ const INDUSTRY_CONFIG = {
             { val: '±20%', label: 'Demand Swing' },
             { val: '$500K', label: 'Capital' },
         ],
+        difficulty: {
+            label: 'Start here',
+            rgb: '34,197,94',
+            persona: 'Best for your first playthrough',
+        },
+        recommended: true,
     },
     pharma: {
         icon: getIcon('shield', 32),
@@ -63,8 +74,31 @@ const INDUSTRY_CONFIG = {
             { val: '±15%', label: 'Demand Swing' },
             { val: '$2M', label: 'Capital' },
         ],
+        difficulty: {
+            label: 'Advanced',
+            rgb: '239,68,68',
+            persona: 'Best for students with supply chain experience',
+        },
     },
 };
+
+/**
+ * Returns true if the player has no prior play history in localStorage.
+ * Checks three existing keys: scd_skipped_intros (chapter intros seen),
+ * scd_progress_email (saved progress), and scd_premium (purchased).
+ * Absence of all three is the strongest available proxy for "never played".
+ */
+function isFirstTimePlayer() {
+    try {
+        const skipped = JSON.parse(localStorage.getItem('scd_skipped_intros') || '[]');
+        if (skipped.length > 0) return false;
+        if (localStorage.getItem('scd_progress_email')) return false;
+        if (localStorage.getItem('scd_premium')) return false;
+        return true;
+    } catch {
+        return true; // safe default: show guidance to unknown players
+    }
+}
 
 export class LandingPage {
     constructor(container, onLaunch) {
@@ -277,6 +311,8 @@ export class LandingPage {
     }
 
     _industriesHTML() {
+        const firstTime = isFirstTimePlayer();
+
         const cards = Object.values(INDUSTRIES).map(ind => {
             const cfg = INDUSTRY_CONFIG[ind.id];
             if (!cfg) return '';
@@ -287,15 +323,31 @@ export class LandingPage {
                 </div>`
             ).join('');
 
+            const isRecommended = firstTime && cfg.recommended;
+            const recommendedTag = isRecommended
+                ? `<div class="lp-ind-recommended-tag">&#10022; Recommended</div>`
+                : '';
+            const difficultyBadge = cfg.difficulty
+                ? `<div class="lp-ind-difficulty" style="--diff-rgb:${cfg.difficulty.rgb}">${cfg.difficulty.label}</div>`
+                : '';
+            const personaLine = cfg.difficulty
+                ? `<p class="lp-ind-persona">${cfg.difficulty.persona}</p>`
+                : '';
+
             return `
-            <div class="lp-ind-card" data-industry="${ind.id}"
+            <div class="lp-ind-card${isRecommended ? ' lp-ind-card--recommended' : ''}" data-industry="${ind.id}"
                  style="--ind-accent:${cfg.accent}; --ind-accent-rgb:${cfg.accentRgb}">
-                <div class="lp-ind-badge">${cfg.label}</div>
+                ${recommendedTag}
+                <div class="lp-ind-badge-row">
+                    <div class="lp-ind-badge">${cfg.label}</div>
+                    ${difficultyBadge}
+                </div>
                 <div class="lp-ind-icon">${cfg.icon}</div>
                 <h3 class="lp-ind-name">${ind.name}</h3>
                 <p class="lp-ind-desc">${ind.description}</p>
                 <div class="lp-ind-tagline">${cfg.tagline}</div>
                 <div class="lp-ind-stats">${stats}</div>
+                ${personaLine}
                 <button class="lp-ind-btn" data-industry="${ind.id}">
                     Play ${ind.name} &rarr;
                 </button>
@@ -317,12 +369,17 @@ export class LandingPage {
             </div>`;
         }).join('');
 
+        const beginnerHint = firstTime
+            ? `<p class="lp-beginner-hint">New to supply chain simulation? Start with <strong>Fast-Moving Consumer Goods.</strong></p>`
+            : '';
+
         return `
         <section class="lp-industries" id="lp-industries">
             <div class="lp-section-header">
                 <div class="lp-section-label">Choose Your Battlefield</div>
                 <h2>Three Industries. Three Realities.</h2>
                 <p class="lp-section-sub">Each industry has unique supply chain dynamics, cost structures, and risk profiles. The same decision that saves you in FMCG can be catastrophic in Pharma.</p>
+                ${beginnerHint}
             </div>
             <div class="lp-ind-grid">${cards}</div>
             <div class="lp-chapter-jump">

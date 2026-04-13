@@ -5,8 +5,24 @@
     <link>https://www.supplychaindisaster.com</link>
     <description>Supply chain management simulation game and learning hub. Play 10 chapters of real-world crisis scenarios, earn APICS CSCP prep knowledge, and master procurement, logistics, and risk management.</description>
     <language>en-us</language>
-    <lastBuildDate>Mon, 06 Apr 2026 09:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 13 Apr 2026 09:00:00 +0000</lastBuildDate>
     <atom:link href="https://www.supplychaindisaster.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Build a Stochastic Optimization Framework for Supply Chains</title>
+      <link>https://www.supplychaindisaster.com/stochastic-optimization-supply-chains</link>
+      <guid isPermaLink="true">https://www.supplychaindisaster.com/stochastic-optimization-supply-chains</guid>
+      <pubDate>Mon, 13 Apr 2026 09:00:00 +0000</pubDate>
+      <description>You'll implement a functional stochastic optimization framework for automotive supply chain resilience. The system integrates Bayesian learning with robust optimization to dynamically adjust inventory policies under d...</description>
+    </item>
+
+    <item>
+      <title>Build a Predictive Risk System Using Complex Adaptive Systems</title>
+      <link>https://www.supplychaindisaster.com/predictive-risk-complex-adaptive-systems</link>
+      <guid isPermaLink="true">https://www.supplychaindisaster.com/predictive-risk-complex-adaptive-systems</guid>
+      <pubDate>Sun, 12 Apr 2026 09:00:00 +0000</pubDate>
+      <description>Before starting, confirm you have these elements in place. Missing prerequisites cause 80% of implementation delays.</description>
+    </item>
+
     <item>
       <title>Why Your Supply Chain Risk Model Is Already Obsolete</title>
       <link>https://www.supplychaindisaster.com/supply-chain-risk-model-obsolete</link>

@@ -1,5 +1,32 @@
 # Landing Page Sprint Plan
-> Last updated: 2026-04-04
+> Last updated: 2026-04-12
+
+## URGENT
+
+- **Email existing customer their Lemon Squeezy Order ID before deploying the premium-access hardening.**
+  Niklas Vögl (niklas.voegl@aon.at) purchased the Expansion Bundle (Order ID: **7910695**) on 2026-03-28.
+  He currently has no way to recover access if he clears localStorage.
+  Send the recovery email manually via Resend *today*, before this diff goes to production.
+  *(Email sent 2026-04-12 — Order ID 7910695 delivered to niklas.voegl@aon.at)*
+
+---
+
+## Premium Access Hardening (2026-04-12)
+
+Problem: `scd_premium` in localStorage is the only record of a purchase.
+Clearing browser data, switching devices, or using a different browser silently locks
+the user out of content they paid for.
+
+| # | File | Change |
+|---|------|--------|
+| 1 | `src/success.js` | Show Order ID with one-click copy button on the post-payment page |
+| 2 | `api/ls-webhook.js` | Inject Order ID block into welcome emails (Standard + Expansion) |
+| 3 | `src/ui/paywall.js` | Elevate "Restore access" from a footer link to a prominent bordered box |
+| 4 | `api/verify-subscription.js` | Return `orderId` field; structured error codes `ORDER_NOT_FOUND`, `ORDER_REFUNDED`, `RATE_LIMITED`; filter refunded orders on restore-by-email path |
+| 5 | `src/dashboard.js` | One-time dismissible nudge banner for premium users |
+| 6 | `src/dashboard.js` + `src/ui/paywall.js` | `scd_pending_resume` — save/restore game state across checkout redirect |
+
+---
 
 ## Sprint 1 — Structural Fixes
 
@@ -64,6 +91,33 @@ File: `src/ui/landing-page.js`
 - Schedule: 39 posts Apr 4 – May 13 2026 in `blog-schedule.json`
 - 3 posts published (Apr 4–6). 36 pending.
 - Blog draft humanization: 6/37 files edited. 31 remaining (paused, will retry).
+
+---
+
+## Loading Screen (2026-04-12)
+
+- [x] Loading screen — instant inline CSS render on `/play` (root `index.html`), smooth 0.4 s
+      fade-out on game ready (LandingPage mount / dev bypass / checkout resume paths all covered)
+- [x] 4 s + 8 s slow-connection fallback messages ("Still loading…" / "Almost there…")
+- [x] Homepage → `/play` navigation transition overlay (dark fade before browser navigation)
+- Skeleton pulse skipped — all game panels populate synchronously; no blank panel state exists.
+
+> **Measure this:** Monitor `game_started` rate in GA4 week-on-week after this deploy.
+> The blank black screen was estimated to cause 10–15 % drop-off between `page_view` and
+> `game_started` on `/play`. Expect this metric to improve within 7 days of deployment.
+
+---
+
+## Industry Difficulty Badges (2026-04-12)
+
+- [x] Industry difficulty badges added — Intermediate / Start here / Advanced with persona matching lines
+- [x] FMCG recommended accent (border glow + "Recommended" corner tag) shown to first-time players only
+- [x] "Start with Fast-Moving Consumer Goods" guidance line shown to first-time players only
+- First-time detection uses three existing keys: `scd_skipped_intros`, `scd_progress_email`, `scd_premium`
+
+> **Measure this:** Monitor which industry first-time players select after this change. If FMCG
+> selection increases among new players, the badge guidance is working. A higher Chapter 1
+> completion rate on FMCG vs Electronics would confirm an easier onboarding path.
 
 ---
 

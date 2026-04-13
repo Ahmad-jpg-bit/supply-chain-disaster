@@ -3017,28 +3017,63 @@ input[type="number"] {
 }
 
 /* Footer (restore) */
-.paywall-footer {
+/* Restore access box — replaces the old footer link */
+.paywall-restore-box {
+  margin-top: 1rem;
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  border-radius: 10px;
+  background: rgba(108, 99, 255, 0.05);
+  padding: 14px 18px;
+}
+
+.paywall-restore-box-inner {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+  gap: 12px;
 }
 
-.paywall-restore-link {
-  background: none;
-  border: none;
+.paywall-restore-icon {
+  font-size: 1.4rem;
   color: var(--primary-color);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  flex-shrink: 0;
 }
 
-.paywall-restore-link:hover {
-  color: var(--text-main);
+.paywall-restore-box-title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.paywall-restore-box-desc {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.paywall-restore-box-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(108, 99, 255, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.paywall-restore-box-btn:hover:not(:disabled) {
+  background: rgba(108, 99, 255, 0.22);
+}
+
+.paywall-restore-box-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Promo code section */
@@ -3184,6 +3219,70 @@ input[type="number"] {
 .success-cta {
   margin-top: var(--spacing-sm);
   text-decoration: none;
+}
+
+.success-order-box {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(108, 99, 255, 0.06);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px 24px;
+  text-align: left;
+}
+
+.success-order-label {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.success-order-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.success-order-id {
+  font-family: monospace;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.06em;
+}
+
+.success-order-copy {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(108, 99, 255, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.success-order-copy:hover {
+  background: rgba(108, 99, 255, 0.22);
+}
+
+.success-order-copy--copied {
+  color: var(--success-color);
+  border-color: var(--success-color);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.success-order-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
 }
 
 .success-spinner {
@@ -5469,4 +5568,56 @@ input[type="number"] {
   margin-top: 1.25rem;
   font-size: 0.75rem;
   color: #334155;
+}
+
+/* ── Restore-access nudge banner ──────────────────────────────────────────── */
+.restore-nudge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin: 0 0 0;
+  background: rgba(108, 99, 255, 0.07);
+  border-bottom: 1px solid rgba(108, 99, 255, 0.18);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  animation: nudgeFadeIn 0.4s ease;
+}
+
+@keyframes nudgeFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.restore-nudge-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  color: var(--primary-color);
+}
+
+.restore-nudge-text {
+  flex: 1;
+}
+
+.restore-nudge-text strong {
+  color: var(--text-secondary);
+}
+
+.restore-nudge-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.restore-nudge-dismiss:hover {
+  opacity: 1;
 }

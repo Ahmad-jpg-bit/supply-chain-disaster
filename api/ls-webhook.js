@@ -140,13 +140,15 @@ function featureRow(text, note = '') {
   </tr>`;
 }
 
-function buildStandardEmail(appUrl) {
+function buildStandardEmail(appUrl, orderId) {
   return emailHtml({
     eyebrow:    'Purchase Confirmed',
     heading:    "You're in. Standard Edition unlocked.",
     subheading: 'One-time purchase &mdash; no subscriptions, no expiry.',
     bodyHtml: `
       <p style="margin:0 0 24px;">Welcome to the full game. <strong style="color:#e2e8f0;">All 8 chapters</strong> of Supply Chain Disaster are now unlocked on this device — pick up right where the free chapters left off.</p>
+
+      ${orderIdBlock(orderId)}
 
       <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:24px;">
         <tr>
@@ -166,13 +168,15 @@ function buildStandardEmail(appUrl) {
   });
 }
 
-function buildExpansionEmail(appUrl) {
+function buildExpansionEmail(appUrl, orderId) {
   return emailHtml({
     eyebrow:    'Purchase Confirmed',
     heading:    'Expansion Bundle unlocked. All 10 chapters.',
     subheading: 'One-time purchase &mdash; the complete Supply Chain Disaster experience.',
     bodyHtml: `
       <p style="margin:0 0 24px;">Every chapter is now yours — including the <strong style="color:#e2e8f0;">Global Logistics Expansion</strong>. You have the full arsenal. The board is watching.</p>
+
+      ${orderIdBlock(orderId)}
 
       <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:20px;">
         <tr>
@@ -199,14 +203,30 @@ function buildExpansionEmail(appUrl) {
 
 // ── Webhook handler ──────────────────────────────────────────────────────────
 
-async function sendWelcomeEmail({ toEmail, tier, appUrl, resend }) {
+function orderIdBlock(orderId) {
+  if (!orderId) return '';
+  return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.3);border-radius:10px;margin-bottom:24px;">
+      <tr>
+        <td style="padding:18px 24px;">
+          <p style="margin:0 0 6px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">Your Order ID — save this</p>
+          <p style="margin:0 0 10px;font-size:22px;font-weight:800;color:#f0f2ff;font-family:monospace;letter-spacing:0.06em;">${orderId}</p>
+          <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.7;">
+            If you clear your browser data, switch devices, or use a different browser, you can restore access by going to <strong style="color:#8b8fa8;">Unlock &rarr; Restore access</strong> in the game and entering your purchase email — or by contacting support with this Order ID.
+          </p>
+        </td>
+      </tr>
+    </table>`;
+}
+
+async function sendWelcomeEmail({ toEmail, tier, appUrl, resend, orderId }) {
   const isExpansion = tier === 'expansion';
   const subject     = isExpansion
     ? 'Your Expansion Bundle is ready — Supply Chain Disaster'
     : 'Your Standard Edition is ready — Supply Chain Disaster';
   const html = isExpansion
-    ? buildExpansionEmail(appUrl)
-    : buildStandardEmail(appUrl);
+    ? buildExpansionEmail(appUrl, orderId)
+    : buildStandardEmail(appUrl, orderId);
 
   await resend.emails.send({
     from:    'Supply Chain Disaster <hello@supplychaindisaster.com>',
@@ -263,13 +283,14 @@ export default async function handler(req, res) {
       const toEmail   = attr.user_email;
       const variantId = String(attr.first_order_item?.variant_id ?? '');
       const tier      = deriveTier(variantId);
+      const orderId   = String(event.data?.id ?? '');
 
-      console.log('[LemonSqueezy] Order created:', event.data?.id, toEmail, '— tier:', tier);
+      console.log('[LemonSqueezy] Order created:', orderId, toEmail, '— tier:', tier);
 
       if (toEmail && process.env.RESEND_API_KEY) {
         const resend = new Resend(process.env.RESEND_API_KEY);
         try {
-          await sendWelcomeEmail({ toEmail, tier, appUrl, resend });
+          await sendWelcomeEmail({ toEmail, tier, appUrl, resend, orderId });
           console.log('[LemonSqueezy] Welcome email sent to', toEmail);
         } catch (err) {
           // Log but don't fail the webhook — LS will retry on non-2xx

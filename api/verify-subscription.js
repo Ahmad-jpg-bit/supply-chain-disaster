@@ -1,7 +1,8 @@
 // POST { orderId } → verify a Lemon Squeezy order by its ID (post-payment redirect).
 // POST { email }   → look up all paid orders for an email address (restore access).
 //
-// Returns: { active: boolean, email?, customerId?, tier: 'standard'|'expansion' }
+// Returns (success): { active: true, orderId, email, customerId, tier: 'standard'|'expansion' }
+// Returns (failure): { active: false, code: 'ORDER_NOT_FOUND'|'ORDER_REFUNDED'|'RATE_LIMITED' }
 
 const LS_API = 'https://api.lemonsqueezy.com/v1';
 
@@ -40,20 +41,24 @@ export default async function handler(req, res) {
       const r = await fetch(`${LS_API}/orders/${orderId}`, {
         headers: lsHeaders(apiKey),
       });
-      if (!r.ok) return res.status(200).json({ active: false });
+
+      if (r.status === 429) return res.status(200).json({ active: false, code: 'RATE_LIMITED' });
+      if (!r.ok)            return res.status(200).json({ active: false, code: 'ORDER_NOT_FOUND' });
 
       const json = await r.json();
       const attr = json.data?.attributes;
-      if (!attr || attr.status !== 'paid') {
-        return res.status(200).json({ active: false });
-      }
+
+      if (!attr)          return res.status(200).json({ active: false, code: 'ORDER_NOT_FOUND' });
+      if (attr.refunded)  return res.status(200).json({ active: false, code: 'ORDER_REFUNDED' });
+      if (attr.status !== 'paid') return res.status(200).json({ active: false, code: 'ORDER_NOT_FOUND' });
 
       const variantId = String(attr.first_order_item?.variant_id ?? '');
       return res.status(200).json({
-        active: true,
-        email: attr.user_email,
+        active:     true,
+        orderId:    String(json.data.id),
+        email:      attr.user_email,
         customerId: String(json.data.id),
-        tier: deriveTier(variantId),
+        tier:       deriveTier(variantId),
       });
     }
 
@@ -69,11 +74,14 @@ export default async function handler(req, res) {
       const r = await fetch(`${LS_API}/orders?${params}`, {
         headers: lsHeaders(apiKey),
       });
-      if (!r.ok) return res.status(200).json({ active: false });
+
+      if (r.status === 429) return res.status(200).json({ active: false, code: 'RATE_LIMITED' });
+      if (!r.ok)            return res.status(200).json({ active: false, code: 'ORDER_NOT_FOUND' });
 
       const json   = await r.json();
-      const orders = json.data ?? [];
-      if (orders.length === 0) return res.status(200).json({ active: false });
+      const orders = (json.data ?? []).filter(o => !o.attributes?.refunded);
+
+      if (orders.length === 0) return res.status(200).json({ active: false, code: 'ORDER_NOT_FOUND' });
 
       // If the user has both tiers, prefer expansion.
       let bestOrder = null;
@@ -87,6 +95,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         active:     true,
+        orderId:    String(bestOrder.id),
         email:      bestOrder.attributes.user_email ?? email,
         customerId: String(bestOrder.id),
         tier:       bestTier,
