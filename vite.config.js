@@ -44,6 +44,7 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
+                play: resolve(__dirname, 'play.html'),
                 about: resolve(__dirname, 'about.html'),
                 blog: resolve(__dirname, 'blog.html'),
                 contact: resolve(__dirname, 'contact.html'),
@@ -69,6 +70,7 @@ export default defineConfig({
                 'supply-chain-risk-model-obsolete': resolve(__dirname, 'supply-chain-risk-model-obsolete.html'),
                 'predictive-risk-complex-adaptive-systems': resolve(__dirname, 'predictive-risk-complex-adaptive-systems.html'),
                 'stochastic-optimization-supply-chains': resolve(__dirname, 'stochastic-optimization-supply-chains.html'),
+                'jit-vulnerability-framework': resolve(__dirname, 'jit-vulnerability-framework.html'),
             },
 
             output: {
@@ -172,9 +174,11 @@ export default defineConfig({
             transformIndexHtml: {
                 order: 'pre',
                 handler(html, ctx) {
+                    // Skip the game SPA (play.html) — its nav is wired differently.
+                    // index.html is now the static marketing page and DOES need the nav.
                     const isGamePage = ctx.filename && (
-                        ctx.filename.endsWith('/index.html') ||
-                        ctx.filename.endsWith('\\index.html')
+                        ctx.filename.endsWith('/play.html') ||
+                        ctx.filename.endsWith('\\play.html')
                     );
                     if (isGamePage) return html;
                     return html.replace('<body>', `<body>\n${STATIC_SEO_NAV}`);

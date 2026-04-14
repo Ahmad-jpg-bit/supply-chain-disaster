@@ -5,8 +5,16 @@
     <link>https://www.supplychaindisaster.com</link>
     <description>Supply chain management simulation game and learning hub. Play 10 chapters of real-world crisis scenarios, earn APICS CSCP prep knowledge, and master procurement, logistics, and risk management.</description>
     <language>en-us</language>
-    <lastBuildDate>Mon, 13 Apr 2026 09:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 14 Apr 2026 09:00:00 +0000</lastBuildDate>
     <atom:link href="https://www.supplychaindisaster.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Build a JIT Vulnerability Framework: Predictive Risk Tutorial</title>
+      <link>https://www.supplychaindisaster.com/jit-vulnerability-framework</link>
+      <guid isPermaLink="true">https://www.supplychaindisaster.com/jit-vulnerability-framework</guid>
+      <pubDate>Tue, 14 Apr 2026 09:00:00 +0000</pubDate>
+      <description>You'll construct a working predictive analytics framework that identifies exactly when Just-In-Time manufacturing transitions from cost-saving strategy to operational liability. The framework generates quantifiable ri...</description>
+    </item>
+
     <item>
       <title>Build a Stochastic Optimization Framework for Supply Chains</title>
       <link>https://www.supplychaindisaster.com/stochastic-optimization-supply-chains</link>
