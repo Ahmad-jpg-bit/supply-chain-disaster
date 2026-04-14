@@ -71,12 +71,7 @@
     },
     {
       "source": "/game",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/play",
-      "destination": "/",
+      "destination": "/play",
       "permanent": true
     },
     {

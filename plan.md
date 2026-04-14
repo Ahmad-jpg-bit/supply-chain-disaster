@@ -121,6 +121,24 @@ File: `src/ui/landing-page.js`
 
 ---
 
+## Static Homepage — Option C (2026-04-14) ✅
+
+Separated marketing homepage from the game SPA:
+
+| File | Change |
+|---|---|
+| `index.html` | Rewritten as fully static marketing page (hero, industries, curriculum, pricing, FAQ) — all content in raw HTML, crawlable without JS |
+| `play.html` | New game SPA entry extracted from old `index.html`; canonical `/play` |
+| `src/home.js` | Lightweight module entry: boots `createNav`, `createFooter`, `initAmbientParticles` |
+| `vite.config.js` | Added `play` entry; updated `inject-static-seo-nav` plugin to skip `play.html` instead of `index.html` |
+| `vercel.json` | Removed `/play → /` permanent redirect; updated `/game → /play` |
+
+**Impact:** `index.html` is now 42 kB of static HTML (up from ~0 kB readable content). Googlebot Wave 1 crawl now sees the full marketing page without JS rendering. Game bundle (683 kB) only loads on `/play`, not on the homepage.
+
+> **Measure this:** Monitor Google Search Console Coverage report — pages previously indexed as "Crawled, not indexed" or "Discovered, not indexed" should move to "Indexed" within 2–4 weeks of Googlebot re-crawling. Also check if organic impressions for non-brand keywords improve.
+
+---
+
 ## Remaining Work
 
 - [ ] Edit remaining 31 blog drafts for AI writing patterns (retry after rate limit resets)

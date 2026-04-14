@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Z03B7JFE1"></script>
+  <script>window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2Z03B7JFE1');
+  </script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <title>Play — Supply Chain Disaster | Free Supply Chain Simulation</title>
+  <meta name="description" content="Play Supply Chain Disaster — a free browser-based supply chain simulation. Make quarterly procurement, inventory, and risk decisions across up to 10 scenario-driven chapters. No download, no account required." />
+  <link rel="canonical" href="https://www.supplychaindisaster.com/play" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.supplychaindisaster.com/play" />
+  <meta property="og:title" content="Play Supply Chain Disaster — Free Browser Simulation" />
+  <meta property="og:description" content="Make procurement, inventory, and risk decisions across up to 10 story-driven chapters. Free to start — no download, no account required." />
+  <meta property="og:image" content="https://www.supplychaindisaster.com/og-image.png" />
+  <meta property="og:site_name" content="Supply Chain Disaster" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="alternate" type="application/rss+xml" title="Supply Chain Disaster RSS Feed" href="/rss.xml">
+</head>
+
+<body>
+
+  <!-- ── Instant loading screen ─────────────────────────────────────────────
+       Rendered by the browser from raw HTML before any JS is parsed.
+       Appears within the first paint (~100 ms) and fades out once the
+       LandingPage (or game dashboard) has fully mounted.
+  ──────────────────────────────────────────────────────────────────────── -->
+  <div id="loading-screen" style="position:fixed;inset:0;z-index:9999;background:#0a0f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0">
+    <div style="margin-bottom:28px">
+      <img src="/logo.png" alt="Supply Chain Disaster" style="height:40px;opacity:0.9">
+    </div>
+    <div style="width:280px;height:3px;background:#1e293b;border-radius:99px;overflow:hidden;margin-bottom:16px">
+      <div style="height:100%;width:40%;background:#f59e0b;border-radius:99px;animation:scd-slide 1.2s ease-in-out infinite"></div>
+    </div>
+    <p id="loading-msg" style="color:#94a3b8;font-size:13px;margin:0;text-align:center;font-family:system-ui,sans-serif">Loading your simulation...</p>
+    <style>
+      @keyframes scd-slide {
+        0%   { transform: translateX(-250%); }
+        100% { transform: translateX(800%); }
+      }
+    </style>
+  </div>
+  <!-- Slow-connection fallback — updates the loading message if JS takes >4 s or >8 s -->
+  <script>
+    setTimeout(function() {
+      var msg = document.getElementById('loading-msg');
+      if (msg && document.getElementById('loading-screen')) {
+        msg.textContent = 'Still loading — this can take a moment on slower connections...';
+      }
+    }, 4000);
+    setTimeout(function() {
+      var msg = document.getElementById('loading-msg');
+      if (msg && document.getElementById('loading-screen')) {
+        msg.textContent = 'Almost there...';
+      }
+    }, 8000);
+  </script>
+
+  <div id="app">
+    <!-- Start Screen / Onboarding -->
+    <div id="start-screen" class="screen">
+      <!-- Onboarding wizard injected by JS -->
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="game-dashboard" class="screen hidden">
+      <!-- Ambient stress overlay — color shifts with financial/satisfaction state -->
+      <div id="ambient-overlay" class="ambient-overlay" aria-hidden="true"></div>
+      <header class="dashboard-header glass-panel">
+        <div class="hud-chapter-label" id="hud-chapter-name"></div>
+        <div id="chapter-progress" class="chapter-progress"></div>
+        <div class="hud-right">
+          <button id="audio-toggle" class="hud-audio-btn" aria-pressed="true" title="Mute audio"></button>
+          <div class="turn-indicator">Q<span id="turn-display">1</span></div>
+        </div>
+      </header>
+
+      <!-- Supply Chain Flow Diagram -->
+      <div id="supply-chain-flow" class="supply-chain-flow-container"></div>
+
+      <main class="dashboard-grid">
+        <!-- Metrics -->
+        <section class="metrics-panel">
+          <div class="metric-card glass-panel" data-metric="cash">
+            <span class="label">Cash</span>
+            <span class="value" id="cash-display">$0</span>
+          </div>
+          <div class="metric-card glass-panel" data-metric="inventory">
+            <span class="label">Inventory</span>
+            <span class="value" id="inventory-display">0</span>
+          </div>
+          <div class="metric-card glass-panel" data-metric="in-transit">
+            <span class="label">In Transit</span>
+            <span class="value" id="in-transit-display">0</span>
+          </div>
+          <div class="metric-card glass-panel" data-metric="demand">
+            <span class="label">Last Demand</span>
+            <span class="value" id="demand-display">--</span>
+          </div>
+          <div class="metric-card glass-panel" data-metric="profit">
+            <span class="label">Net Profit</span>
+            <span class="value" id="profit-display">$0</span>
+          </div>
+        </section>
+
+        <!-- Main View -->
+        <section class="main-view glass-panel">
+          <div class="tab-nav">
+            <button class="tab-btn active" data-tab="market">Market Status</button>
+            <button class="tab-btn" data-tab="analytics">Analytics</button>
+          </div>
+
+          <div id="market-view">
+            <h2>Market Status</h2>
+            <div id="event-display" class="event-box">
+              <p>Market is stable.</p>
+            </div>
+            <div class="chart-placeholder">
+              <div id="history-log" class="history-log">
+                <!-- Logs -->
+              </div>
+            </div>
+          </div>
+
+          <div id="analytics-view" class="hidden analytics-view">
+            <div id="bullwhip-ratio-display" class="bullwhip-ratio-card"></div>
+            <div class="chart-container">
+              <canvas id="bullwhipChart"></canvas>
+            </div>
+            <div class="chart-container">
+              <canvas id="cashFlowChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Action Panel -->
+        <section class="action-panel glass-panel">
+          <h3>Quarterly Decisions</h3>
+          <div class="control-group">
+            <label for="order-input">Procurement Order (Units)</label>
+            <input type="number" id="order-input" value="1000" min="0" step="100">
+          </div>
+          <button id="next-turn-btn" class="btn-primary width-full">Execute Decisions</button>
+        </section>
+      </main>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal hidden">
+      <div class="glass-panel modal-content">
+        <!-- Enhanced game over screen injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Crisis News Ticker (fixed bottom bar, shown once game starts) -->
+  <div id="crisis-ticker" class="crisis-ticker" aria-live="polite" aria-label="Supply chain live news feed" role="marquee">
+    <span class="ticker-prefix">⬥ LIVE FEED</span>
+    <div class="ticker-viewport">
+      <div class="ticker-track"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
