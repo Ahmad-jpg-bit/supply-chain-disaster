@@ -71,6 +71,7 @@ export default defineConfig({
                 'predictive-risk-complex-adaptive-systems': resolve(__dirname, 'predictive-risk-complex-adaptive-systems.html'),
                 'stochastic-optimization-supply-chains': resolve(__dirname, 'stochastic-optimization-supply-chains.html'),
                 'jit-vulnerability-framework': resolve(__dirname, 'jit-vulnerability-framework.html'),
+                'jit-vs-agile-supply-chains': resolve(__dirname, 'jit-vs-agile-supply-chains.html'),
             },
 
             output: {
