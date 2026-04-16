@@ -11,6 +11,9 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: write   # required: lets the workflow commit and push the published post
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -55,6 +58,7 @@ jobs:
             console.log(p ? p.slug : 'unknown');
           " DATE="${{ github.event.inputs.date }}")
           git commit -m "publish: ${POST_DATE} [$(date -u +%Y-%m-%d)]"
+          git pull --rebase origin master
           git push
 
       - name: Deploy to Vercel

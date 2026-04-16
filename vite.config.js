@@ -74,6 +74,7 @@ export default defineConfig({
                 'stochastic-optimization-supply-chains': resolve(__dirname, 'stochastic-optimization-supply-chains.html'),
                 'jit-vulnerability-framework': resolve(__dirname, 'jit-vulnerability-framework.html'),
                 'jit-vs-agile-supply-chains': resolve(__dirname, 'jit-vs-agile-supply-chains.html'),
+                'adaptive-inventory-policies': resolve(__dirname, 'adaptive-inventory-policies.html'),
             },
 
             output: {

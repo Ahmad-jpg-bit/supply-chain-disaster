@@ -5,8 +5,16 @@
     <link>https://www.supplychaindisaster.com</link>
     <description>Supply chain management simulation game and learning hub. Play 10 chapters of real-world crisis scenarios, earn APICS CSCP prep knowledge, and master procurement, logistics, and risk management.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 15 Apr 2026 09:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 16 Apr 2026 09:00:00 +0000</lastBuildDate>
     <atom:link href="https://www.supplychaindisaster.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>How to Build Adaptive Inventory Policies for Disruptions</title>
+      <link>https://www.supplychaindisaster.com/adaptive-inventory-policies</link>
+      <guid isPermaLink="true">https://www.supplychaindisaster.com/adaptive-inventory-policies</guid>
+      <pubDate>Thu, 16 Apr 2026 09:00:00 +0000</pubDate>
+      <description>This tutorial walks through building an inventory system that detects supplier risks and adjusts safety stock within 24 hours, covering predictive analytics, dynamic reorder points, and real-time dashboards.</description>
+    </item>
+
     <item>
       <title>Just-In-Time vs Agile Supply Chains: Which Approach Wins?</title>
       <link>https://www.supplychaindisaster.com/jit-vs-agile-supply-chains</link>
