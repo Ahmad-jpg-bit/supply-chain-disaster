@@ -713,6 +713,53 @@ input[type="number"] {
   color: var(--text-main);
 }
 
+/* ===== Turn Progress Text ===== */
+.hud-turn-text {
+  display: none;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 13px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.hud-turn-text.visible { display: flex; }
+
+.hud-tp-label { color: #e2e8f0; font-weight: 600; }
+.hud-tp-sep   { color: #f59e0b; font-weight: 700; }
+.hud-tp-turn  { color: #94a3b8; }
+
+.hud-turn-signal {
+  color: #f59e0b;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .hud-turn-text { font-size: 11px; }
+  .hud-tp-label  { display: none; }
+  .hud-turn-text .hud-tp-sep:first-of-type { display: none; }
+}
+
+/* ===== Global Turn Progress Bar ===== */
+.game-progress-bar {
+  display: none;
+  height: 1px;
+  background: #1e293b;
+  width: 100%;
+  overflow: hidden;
+}
+.game-progress-bar.visible { display: block; }
+
+.game-progress-fill {
+  height: 100%;
+  background: #f59e0b;
+  width: 0%;
+  transition: width 0.4s ease;
+  will-change: width;
+}
+
 /* ===== Chapter Progress Dots ===== */
 .chapter-progress {
   display: flex;
@@ -1312,6 +1359,72 @@ input[type="number"] {
 .chapter-next-teaser h4 {
   font-size: var(--text-base);
   color: var(--text-main);
+}
+
+/* ── Chapter key stats row (cash / profit / missed sales) ── */
+.chapter-key-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: var(--spacing-md);
+  background: rgba(0,0,0,0.18);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: var(--spacing-md) 0;
+}
+
+.cks-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cks-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.cks-value {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.cks-value.positive { color: #22c55e; }
+.cks-value.negative { color: #ef4444; }
+
+/* ── Chapter narrative line ── */
+.chapter-narrative {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+  margin: 0 0 var(--spacing-md);
+  padding: 0 var(--spacing-lg);
+  line-height: 1.5;
+}
+
+/* ── Auto-advance depleting bar on continue button ── */
+.chapter-auto-bar-wrap {
+  margin-top: var(--spacing-sm);
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.chapter-auto-bar {
+  height: 100%;
+  background: #f59e0b;
+  width: 100%;
+  animation: chapterAutoDeplete 6s linear forwards;
+}
+@keyframes chapterAutoDeplete {
+  from { width: 100%; }
+  to   { width: 0%; }
 }
 
 .chapter-continue-btn {

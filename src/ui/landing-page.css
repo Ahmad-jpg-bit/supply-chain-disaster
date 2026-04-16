@@ -484,6 +484,7 @@
   overflow-x: auto;
   padding-bottom: 3.5rem; /* room for tooltip below locked-chapter nodes */
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
 .lp-roadmap-scroll::-webkit-scrollbar { height: 4px; }
@@ -507,6 +508,7 @@
   position: relative;
   width: 148px;
   flex-shrink: 0;
+  scroll-snap-align: start;
 }
 
 .lp-rn-icon {
@@ -1891,6 +1893,8 @@
 
   .lp-stat-divider { display: none; }
   .lp-stat { padding: 0 0.75rem; }
+  /* When dividers disappear, add explicit gap so stats aren't cramped */
+  .lp-hero-stats { gap: 0.5rem; }
 
   .lp-roadmap { padding: 2.5rem 0; }
   .lp-industries { padding: 2.5rem 0; }
@@ -1926,4 +1930,27 @@
   .lp-tier {
     padding: 1.75rem 1.25rem;
   }
+}
+
+/* ── 320 px floor — prevent ticker label dominating on very small viewports ── */
+@media (max-width: 380px) {
+  .lp-ticker-label {
+    padding: 8px 8px;
+    font-size: 7px;
+    letter-spacing: 0.1em;
+  }
+
+  .lp-hero-headline {
+    font-size: 1.45rem;
+  }
+}
+
+/* ── Direct-entry header (shown when ?start=1 skips the hero) ── */
+.lp-direct-entry-header {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  padding: 2.5rem 1.5rem 0;
 }

@@ -101,9 +101,10 @@ function isFirstTimePlayer() {
 }
 
 export class LandingPage {
-    constructor(container, onLaunch) {
+    constructor(container, onLaunch, options = {}) {
         this.container  = container;
         this.onLaunch   = onLaunch;
+        this.skipHero   = options.skipHero || false;
         this.selectedChapterIndex = 0;
         this._render();
     }
@@ -114,21 +115,35 @@ export class LandingPage {
 
         const page = document.createElement('div');
         page.className = 'lp-page';
-        page.innerHTML =
-            this._heroHTML() +
-            this._roadmapHTML() +
-            this._industriesHTML() +
-            this._survivalHTML() +
-            this._intelHTML() +
-            this._upgradeHTML();
+
+        if (this.skipHero) {
+            page.innerHTML =
+                this._directEntryHTML() +
+                this._industriesHTML();
+        } else {
+            page.innerHTML =
+                this._heroHTML() +
+                this._roadmapHTML() +
+                this._industriesHTML() +
+                this._survivalHTML() +
+                this._intelHTML() +
+                this._upgradeHTML();
+        }
 
         this.container.appendChild(page);
-        createFooter(this.container);
+        if (!this.skipHero) createFooter(this.container);
         setNavMinimal(true);
         this._attachListeners(page);
     }
 
     /* ── Section HTML ──────────────────────────────────────── */
+
+    _directEntryHTML() {
+        return `
+        <div class="lp-direct-entry-header">
+            Choose your industry to begin
+        </div>`;
+    }
 
     _heroHTML() {
         return `
@@ -554,7 +569,7 @@ export class LandingPage {
 
     _attachListeners(page) {
         // Hero CTA → smooth scroll to industry section
-        page.querySelector('.lp-begin-btn').addEventListener('click', () => {
+        page.querySelector('.lp-begin-btn')?.addEventListener('click', () => {
             page.querySelector('#lp-industries').scrollIntoView({ behavior: 'smooth' });
         });
 
@@ -621,7 +636,7 @@ export class LandingPage {
         const statusEl   = page.querySelector('#lp-intel-status');
 
         // If already captured, disable the button
-        if (localStorage.getItem('scd_progress_email')) {
+        if (submitBtn && localStorage.getItem('scd_progress_email')) {
             submitBtn.disabled = true;
         }
 

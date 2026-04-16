@@ -2,20 +2,9 @@
 
 ## Redundancy isn't a budget line to minimize—it's the architectural principle that determines whether your resilience strategy survives first contact with disruption
 
-Learn why treating redundancy as an afterthought undermines supply chain resilience. This piece reframes redundancy as measurable insurance and shows how adaptive inventory policies create genuine protection against cascading disruptions.
-
-## TL;DR
-
-* **Redundancy is not waste** - It is measurable insurance that works when predictions fail
-* **Predictive analytics alone is insufficient** - Forecasting a disruption means nothing without backup suppliers and adaptive inventory already in place
-* **Build optionality into architecture** - Backup suppliers, adaptive inventory policies, and geographic diversification create options that have value under uncertainty
-* **Design resilience upfront** - Organizations that weather disruptions built redundancy into their supply chain from the beginning, not after a crisis exposed gaps
-
-## The Redundancy Problem Nobody Wants to Admit
-
 Most supply chain resilience strategies look impressive on paper. They feature detailed risk matrices, supplier scorecards, and quarterly reviews. Then a port closure happens, a key supplier goes offline, or a regional disaster strikes. Suddenly, those strategies reveal themselves for what they are: reactive frameworks dressed up as proactive planning.
 
-The uncomfortable truth? SCRES strategies fail not because organizations lack awareness of risks. They fail because redundancy gets treated as a budget line item to minimize rather than a core architectural principle.
+SCRES strategies fail not because organizations lack awareness of risks. They fail because redundancy gets treated as a budget line item to minimize rather than a core architectural principle.
 
 ## Why Lean Became a Liability
 
@@ -31,9 +20,7 @@ Redundancy in supply chains is not a cost center. It's the only form of risk man
 
 Predictive analytics can identify probable disruptions. They can flag weather patterns, geopolitical tensions, and supplier financial health. But prediction has limits. Black swan events happen. Models miss signals. The question is not whether your predictions will fail, but what happens when they do.
 
-## What Proactive Risk Management Actually Requires
-
-I've seen organizations invest heavily in predictive analytics platforms while maintaining single-source dependencies for critical components. They can forecast a disruption 72 hours in advance but have no alternative supplier qualified to step in. The prediction becomes useless information rather than actionable intelligence.
+Organizations invest heavily in predictive analytics platforms while maintaining single-source dependencies for critical components. They can forecast a disruption 72 hours in advance but have no alternative supplier qualified to step in. The prediction becomes useless information rather than actionable intelligence.
 
 Effective SCRES strategies require three integrated elements working together.
 
@@ -51,9 +38,7 @@ Concentration creates fragility. Whether concentration exists in supplier geogra
 
 ## The Cost of Getting This Wrong
 
-If redundancy remains an afterthought in your SCRES strategies, you are not managing risk. You are hoping risk does not materialize.
-
-Consider what happens when a critical supplier fails and no backup exists. Production stops. Customer commitments break. Revenue disappears. The cost of that single event often exceeds years of redundancy investment. Yet organizations continue treating redundancy as optional because the savings appear on quarterly reports while the risks remain invisible until they materialize.
+When a critical supplier fails and no backup exists, production stops, customer commitments break, and revenue disappears. The cost of that single event often exceeds years of redundancy investment. Yet organizations continue treating redundancy as optional because the savings appear on quarterly reports while the risks remain invisible until they materialize.
 
 Supply chain visibility helps identify these vulnerabilities before they become crises. But visibility without redundancy is just watching the problem unfold in high definition.
 
@@ -67,11 +52,11 @@ A backup supplier is not waste. It is the option to maintain production when you
 
 ## Resilience Is a Design Choice, Not a Response Plan
 
-The organizations that weather disruptions effectively share one characteristic. They built redundancy into their supply chain architecture from the beginning. They did not add it after a crisis exposed their vulnerabilities.
+The organizations that weather disruptions effectively built redundancy into their supply chain architecture from the beginning. They did not add it after a crisis exposed their vulnerabilities.
 
 Predictive analytics makes redundancy smarter. It helps you allocate backup capacity where risk is highest. It triggers adaptive inventory policies before shortages occur. It identifies which suppliers need backup relationships most urgently. But analytics cannot create redundancy that does not exist.
 
-Build the redundancy first. Then use prediction to deploy it intelligently.
+Build the redundancy first. Then use prediction to deploy it intelligently. Put these frameworks to the test in the simulation at supplychaindisaster.com.
 
 ## Frequently Asked Questions
 
@@ -85,7 +70,7 @@ Qualify backup suppliers, implement adaptive inventory policies, and diversify g
 
 ### Which strategies are most effective for enhancing supply chain resilience?
 
-The most effective strategies combine real-time risk visibility with pre-built response options—supplier diversification, dynamic safety stock management, and contingency logistics arrangements established before disruptions occur.
+The most effective strategies combine real-time risk visibility with pre-built response options — supplier diversification, dynamic safety stock management, and contingency logistics arrangements established before disruptions occur.
 
 ### Sources
 

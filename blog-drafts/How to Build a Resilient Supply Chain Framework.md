@@ -2,21 +2,7 @@
 
 ## A step-by-step tutorial for implementing flexibility and redundancy that reduces single-point failures by 40%
 
-Build a practical SCRES framework with supplier diversification assessments, backup sourcing protocols, and disruption response playbooks. Walk away with documented strategies ready for immediate deployment.
-
-## TL;DR
-
-* **Map vulnerabilities first** - Identify components with 70%+ supplier concentration as Priority 1 risks requiring immediate dual-sourcing action
-* **Dual sourcing is now minimum standard** - No critical component should depend on a single supplier; accept 5-15% cost premium for redundancy in supply chains
-* **Flexibility requires contract changes** - Negotiate volume bands, surge capacity commitments, and lead time guarantees with your top suppliers
-* **Visibility without playbooks is useless** - Document specific response procedures for your three highest-probability disruption scenarios before implementing monitoring systems
-* **Measure success by response time** - Target under 4 hours from disruption notification to backup supplier activation for pre-qualified alternatives
-
-## What You Will Build: A Resilient Supply Chain Framework
-
-Complete this tutorial and you'll have a practical flexibility and redundancy framework ready to deploy. That means a supplier diversification assessment, backup sourcing protocols, and response playbooks for three common disruption scenarios.
-
-Success criteria: a documented strategy that reduces single-point-of-failure risks by at least 40% and cuts potential recovery time from disruptions by 25%, with actionable contingency plans ready when threats emerge.
+This tutorial walks through a practical flexibility and redundancy framework ready to deploy — covering supplier diversification assessment, backup sourcing protocols, and response playbooks for three common disruption scenarios. The target outcome: a documented strategy that reduces single-point-of-failure risks by at least 40% and cuts potential recovery time from disruptions by 25%.
 
 This framework aligns with how [86.2% of manufacturers](https://www.deloitte.com/us/en/insights/industry/manufacturing-industrial-products/global-supply-chain-resilience-amid-disruptions.html) have approached de-risking their supply chains over the past two years. The difference: yours will be systematic, measurable, and operational.
 
@@ -38,7 +24,7 @@ Traditional supply chain management optimized for efficiency above all else. Sin
 
 The shift is measurable. Average lead times for production materials sat at 79 days in April 2024, down 21% from the 100-day peak in July 2022 but still 22% higher than 2019's 65-day baseline. This persistent elevation signals that supply chains remain stressed despite recovery efforts.
 
-The old approach—minimize cost, maximize efficiency, accept concentration risk—no longer holds. Modern requirements demand balancing cost competitiveness with agility, building networks that flex without eroding margins.
+The old approach — minimize cost, maximize efficiency, accept concentration risk — no longer holds. Modern requirements demand balancing cost competitiveness with agility, building networks that flex without eroding margins.
 
 ## Step 1: Map Your Current Vulnerability Profile
 
@@ -114,7 +100,7 @@ Evaluate your current technology stack. Identify gaps where you lack visibility.
 
 **Expected result:** A visibility architecture document specifying data sources, integration points, and alert thresholds for your critical supply chain nodes.
 
-**Checkpoint:** You should receive proactive alerts about potential disruptions at least 48 to 72 hours before they impact your operations. Reactive discovery (learning about problems when shipments fail to arrive) indicates inadequate visibility.
+**Checkpoint:** You should receive proactive alerts about potential disruptions at least 48 to 72 hours before they impact your operations. Reactive discovery — learning about problems when shipments fail to arrive — indicates inadequate visibility.
 
 **Common failure:** Implementing visibility tools without defining response protocols. Alerts are worthless without pre-planned actions. Complete Step 7 before going live with monitoring systems.
 
@@ -204,7 +190,7 @@ With your core flexibility and redundancy framework operational, consider these 
 
 The [McKinsey Supply Chain Risk Pulse Survey](https://www.mckinsey.com/capabilities/operations/our-insights/supply-chain-risk-survey) found that 12% of nearshoring decisions were driven entirely by tariff mitigation. Your framework positions you to make strategic location decisions based on comprehensive risk analysis, not reactive policy responses.
 
-Foreign automakers demonstrated this approach by investing [over \$35 billion in US production facilities](https://www.bcg.com/publications/2025/cost-resilience-new-supply-chain-challenge) from 2021 through 2024. This reshoring built redundancy and flexibility against global disruptions while maintaining cost competitiveness through incentive capture.
+Put these frameworks to the test in the simulation at supplychaindisaster.com.
 
 ## Frequently Asked Questions
 

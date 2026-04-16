@@ -229,10 +229,14 @@ export class Dashboard {
         }
 
         // Mount the landing page (replaces the old onboarding wizard)
+        // ?start=1 skips the marketing hero and goes straight to industry selection
+        // (used by all homepage CTAs — direct /play navigation preserves the full landing page)
+        const _skipHero = new URLSearchParams(window.location.search).get('start') === '1';
+        if (_skipHero) window.history.replaceState({}, '', window.location.pathname);
         new LandingPage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story') => {
             this.selectedIndustryId = industryId;
             this.startGame(startChapterIndex, mode);
-        });
+        }, { skipHero: _skipHero });
 
         // Landing page is now rendered and visible — dismiss the loading screen.
         this._dismissLoadingScreen();
@@ -503,6 +507,54 @@ export class Dashboard {
             html += `<div class="${cls}" title="${titlePrefix}Ch ${ch.number}: ${ch.title}"><span>${label}</span></div>`;
         });
         container.innerHTML = html;
+
+        // ── Turn progress text ─────────────────────────────────────────────────
+        const turnTextEl  = document.getElementById('hud-turn-text');
+        const progressBar  = document.getElementById('game-progress-bar');
+        const progressFill = document.getElementById('game-progress-fill');
+
+        if (allChapters[currentChapterIdx] && turnTextEl) {
+            const ch = allChapters[currentChapterIdx];
+            const turnsPerChapter = ch.turnsRange[1] - ch.turnsRange[0] + 1; // always 4
+            // Clamp so CHAPTER_SUMMARY (turn already incremented past range) shows "Turn 4 of 4"
+            const rawOffset  = this.engine.state.turn - ch.turnsRange[0];
+            const displayTurn = Math.max(1, Math.min(rawOffset + 1, turnsPerChapter));
+
+            const phase = this.engine.state.phase;
+            const hideTurn = phase === GAME_PHASES.CHAPTER_SUMMARY ||
+                             phase === GAME_PHASES.GAME_OVER ||
+                             phase === GAME_PHASES.ENDLESS_DEATH;
+
+            if (!hideTurn) {
+                const isFreeGate  = currentChapterIdx === 1;       // Chapter 2 ends free access
+                const isNearEnd   = displayTurn >= turnsPerChapter - 1; // turn 3 or 4 of 4
+                const isLastTurn  = displayTurn >= turnsPerChapter;     // turn 4 of 4
+
+                let signal = '';
+                if (isFreeGate && isLastTurn) {
+                    signal = `<span class="hud-turn-signal"> · Final turn coming</span>`;
+                } else if (isNearEnd) {
+                    signal = `<span class="hud-turn-signal"> · Ending soon</span>`;
+                }
+
+                turnTextEl.innerHTML =
+                    `<span class="hud-tp-label">Chapter&nbsp;${ch.number}</span>` +
+                    `<span class="hud-tp-sep">·</span>` +
+                    `<span class="hud-tp-turn">Turn&nbsp;${displayTurn}&nbsp;of&nbsp;${turnsPerChapter}</span>` +
+                    signal;
+                turnTextEl.classList.add('visible');
+            } else {
+                turnTextEl.classList.remove('visible');
+            }
+        }
+
+        // ── Global progress bar ────────────────────────────────────────────────
+        if (progressBar && progressFill) {
+            const totalTurns     = this.engine.state.maxTurns;
+            const completedTurns = Math.max(0, Math.min(this.engine.state.turn - 1, totalTurns));
+            progressFill.style.width = `${((completedTurns / totalTurns) * 100).toFixed(1)}%`;
+            progressBar.classList.add('visible');
+        }
     }
 
     // --- CORE RENDER LOOP ---
@@ -1742,7 +1794,7 @@ export class Dashboard {
         const chapterId = allChapters[prevChapterIdx]?.id;
         const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback);
 
-        this.chapterTransition.show(prevChapterIdx, summary, {}, withDefinition);
+        this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state }, withDefinition);
 
         // Show waiting state in main view
         this.ui.mainView.innerHTML = `

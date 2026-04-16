@@ -2,15 +2,7 @@
 
 ## Detect supply chain disruptions 48-72 hours early and reduce unplanned downtime by up to 55%
 
-Learn to implement a predictive analytics system that identifies threats to your Just-In-Time manufacturing operations before they strike. This hands-on tutorial walks you through processing supplier data, generating risk scores, and automating contingency alerts.
-
-## TL;DR
-
-* **Map critical dependencies first** - Identify which suppliers, if disrupted, would halt production within 24 to 72 hours; these are your priority targets for monitoring
-* **Build automated data collection** - Connect ERP, supplier systems, and external risk signals into a centralized platform that updates daily at minimum
-* **Train predictive models on historical disruptions** - Use machine learning to identify patterns that precede supply chain failures, achieving 48 to 72 hour advance warning
-* **Configure tiered alerts with pre-approved responses** - Route risk notifications to appropriate decision-makers with contingency recommendations ready to execute
-* **Validate against historical events** - Test your system against past disruptions to verify it would have provided actionable warning before impact occurred
+Traditional reactive approaches fail JIT operations because disruptions cascade faster than manual response times allow. [The global JIT logistics market reached USD 123.6 billion in 2023](https://dataintelo.com/report/global-just-in-time-logistics-market) and continues growing at 8.1% CAGR, meaning more organizations face this vulnerability daily. This tutorial walks you through building a predictive analytics system that identifies threats to your Just-In-Time manufacturing operations before they strike — processing supplier data, generating risk scores, and automating contingency alerts.
 
 ## Prerequisites and Setup Checklist
 
@@ -23,14 +15,6 @@ Before starting, confirm you have the following resources available. Missing ite
 * **Time estimate:** 15 to 20 hours for initial implementation; 2 to 4 weeks for model training and validation
 
 Potential blockers include incomplete supplier data, siloed systems without API access, and unclear risk tolerance definitions. Address these before proceeding.
-
-## Why Predictive Analytics for Flexibility in Supply Chain Management
-
-Traditional reactive approaches fail JIT operations because disruptions cascade faster than manual response times allow. [The global JIT logistics market reached USD 123.6 billion in 2023](https://dataintelo.com/report/global-just-in-time-logistics-market) and continues growing at 8.1% CAGR, meaning more organizations face this vulnerability daily.
-
-Predictive analytics shifts your posture from reactive to proactive. Instead of scrambling when a supplier misses a delivery, you receive alerts when early indicators suggest delays are likely. This approach aligns with what Autodesk's manufacturing research emphasizes: robust data analytics and adaptive supply chain systems are essential for JIT accuracy.
-
-Increasing safety stock defeats JIT benefits. Reactive supplier diversification is slower and more expensive than predictive diversification. Neither replaces the early warning capability this framework provides.
 
 ## Step 1: Map Your Critical Supplier Dependencies
 
@@ -233,6 +217,8 @@ With your predictive analytics framework operational, consider these extensions 
 **Advanced capabilities:** The [predictive maintenance market in manufacturing is expected to grow by 25% annually through 2025](https://www.riministreet.com/blog/7-manufacturing-industry-trends-driving-change-in-2025/), indicating strong momentum for these technologies. Consider extending your framework to include demand forecasting integration, multi-tier supplier visibility (your suppliers' suppliers), and automated contract negotiation triggers based on risk assessments.
 
 Organizations like [Supply Chain Disaster](https://supplychaindisaster.com) provide real-time hazard intelligence and supplier visibility platforms that can accelerate your implementation and provide additional external risk signals.
+
+Put these frameworks to the test in the simulation at supplychaindisaster.com.
 
 ## Frequently Asked Questions
 

@@ -11,14 +11,7 @@ export function createNav(activePage = 'game') {
   nav.innerHTML = `
     <div class="nav-inner">
       <a href="/" class="nav-logo" aria-label="Supply Chain Disaster">
-        <svg class="nav-chain-icon" width="52" height="32" viewBox="0 0 52 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- Blue link – open on the right -->
-          <path d="M22 5 L9 5 Q3 5 3 11 L3 21 Q3 27 9 27 L22 27"
-                stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- Orange link – open on the left -->
-          <path d="M30 5 L43 5 Q49 5 49 11 L49 21 Q49 27 43 27 L30 27"
-                stroke="#f97316" stroke-width="3.5" stroke-linecap="round"/>
-        </svg>
+        <img src="/logo.png" class="nav-logo-img" alt="" aria-hidden="true">
         <span class="nav-logo-text">Supply Chain Disaster</span>
       </a>
       <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">

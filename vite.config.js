@@ -16,6 +16,7 @@ const STATIC_SEO_NAV = `<noscript id="seo-nav">
 <a href="/about">About</a>
 <a href="/contact">Contact</a>
 <a href="/terms">Terms of Service</a>
+<a href="/privacy">Privacy Policy</a>
 <a href="/refund">Refund Policy</a>
 <a href="/what-is-a-supply-chain">What Is a Supply Chain?</a>
 <a href="/best-business-simulation-games">Best Business Simulation Games</a>
@@ -51,6 +52,7 @@ export default defineConfig({
                 success: resolve(__dirname, 'success.html'),
                 pricing: resolve(__dirname, 'pricing.html'),
                 terms: resolve(__dirname, 'terms.html'),
+                privacy: resolve(__dirname, 'privacy.html'),
                 refund: resolve(__dirname, 'refund.html'),
                 'best-business-simulation-games': resolve(__dirname, 'best-business-simulation-games.html'),
                 'what-is-a-supply-chain': resolve(__dirname, 'what-is-a-supply-chain.html'),

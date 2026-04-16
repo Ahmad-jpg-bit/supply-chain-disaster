@@ -9,6 +9,13 @@
   padding: 0.75rem var(--spacing-lg);
   border-radius: 0;
   margin-bottom: 0;
+  /* Match homepage nav — dark navy, high opacity, bottom-only border */
+  background: rgba(10, 15, 30, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
 }
 
 .nav-inner {
@@ -27,30 +34,19 @@
   line-height: 1;
 }
 
-/* Inline SVG chain icon */
-.nav-chain-icon {
-  height: 32px;
-  width: auto;
+/* Logo image */
+.nav-logo-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   flex-shrink: 0;
-  transition: filter 0.2s;
-  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.35));
-}
-
-.nav-logo:hover .nav-chain-icon {
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))
-          drop-shadow(0 0 6px rgba(249, 115, 22, 0.4));
 }
 
 /* Wordmark text */
 .nav-logo-text {
-  font-weight: 800;
+  font-weight: 600;
   font-size: var(--text-sm);
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  color: #f0f2ff;
   white-space: nowrap;
 }
 
@@ -123,21 +119,21 @@
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Enter Simulation — solid primary CTA */
+/* Primary CTA — amber, matching homepage */
 .nav-link--cta {
-  color: #fff !important;
-  background: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.6);
-  font-weight: 600;
+  color: #0a0f1e !important;
+  background: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-weight: 700;
 }
 .nav-link--cta:hover {
-  background: #2563eb;
-  color: #fff !important;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+  background: #fbbf24;
+  color: #0a0f1e !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
 }
 .nav-link--cta.active {
-  background: #2563eb;
-  border-color: #3b82f6;
+  background: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.6);
 }
 
 /* Learn dropdown */

@@ -2,21 +2,11 @@
 
 ## A step-by-step tutorial for implementing flexibility and redundancy that reduces single-point failures by 40%
 
-Build a practical SCRES framework with supplier diversification assessments, backup sourcing protocols, and disruption response playbooks. Walk away with documented strategies ready for immediate deployment.
-
-## TL;DR
-
-* **Map vulnerabilities first** - Identify components with 70%+ supplier concentration as Priority 1 risks requiring immediate dual-sourcing action
-* **Dual sourcing is now minimum standard** - No critical component should depend on a single supplier; accept 5-15% cost premium for redundancy in supply chains
-* **Flexibility requires contract changes** - Negotiate volume bands, surge capacity commitments, and lead time guarantees with your top suppliers
-* **Visibility without playbooks is useless** - Document specific response procedures for your three highest-probability disruption scenarios before implementing monitoring systems
-* **Measure success by response time** - Target under 4 hours from disruption notification to backup supplier activation for pre-qualified alternatives
+This tutorial builds a practical SCRES framework covering supplier diversification assessments, backup sourcing protocols, and disruption response playbooks — with documented strategies ready for immediate deployment.
 
 ## What You Will Build: A Resilient Supply Chain Framework
 
-Complete this tutorial and you'll have a practical flexibility and redundancy framework ready to deploy. That means a supplier diversification assessment, backup sourcing protocols, and response playbooks for three common disruption scenarios.
-
-Success criteria: a documented strategy that reduces single-point-of-failure risks by at least 40% and cuts potential recovery time from disruptions by 25%, with actionable contingency plans ready when threats emerge.
+The target outcome is a documented strategy that reduces single-point-of-failure risks by at least 40% and cuts potential recovery time from disruptions by 25%, with actionable contingency plans ready when threats emerge.
 
 This framework aligns with how [86.2% of manufacturers](https://www.deloitte.com/us/en/insights/industry/manufacturing-industrial-products/global-supply-chain-resilience-amid-disruptions.html) have approached de-risking their supply chains over the past two years. The difference: yours will be systematic, measurable, and operational.
 

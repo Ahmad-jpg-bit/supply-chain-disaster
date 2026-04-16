@@ -277,370 +277,1541 @@
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="alternate" type="application/rss+xml" title="Supply Chain Disaster RSS Feed" href="/rss.xml">
+
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #0a0f1e;
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2 {
+      font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      font-weight: 400;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ── Nav ───────────────────────────────────────────────────────────── */
+    .hp-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 15, 30, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .hp-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .hp-nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #f0f2ff;
+      flex-shrink: 0;
+    }
+    .hp-nav-logo img {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+    }
+    .hp-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      margin-left: auto;
+    }
+    .hp-nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: #94a3b8;
+      transition: color 0.2s;
+    }
+    .hp-nav-links a:hover { color: #e2e8f0; }
+    .hp-nav-cta {
+      margin-left: 1.5rem;
+      flex-shrink: 0;
+      background: #f59e0b;
+      color: #0a0f1e;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 20px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .hp-nav-cta:hover { background: #fbbf24; color: #0a0f1e; }
+
+    /* ── Shared section wrapper ────────────────────────────────────────── */
+    .hp-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+    .hp-section-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f59e0b;
+      margin-bottom: 0.75rem;
+    }
+    .hp-section-h2 {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      color: #f0f2ff;
+      line-height: 1.2;
+      margin-bottom: 0.875rem;
+    }
+    .hp-section-sub {
+      font-size: 16px;
+      color: #64748b;
+      max-width: 560px;
+      line-height: 1.75;
+    }
+    .hp-section-header { margin-bottom: 3rem; }
+
+    /* ── Shared buttons ────────────────────────────────────────────────── */
+    .hp-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f59e0b;
+      color: #0a0f1e;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 13px 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 0 1px rgba(245,158,11,0.4), 0 6px 24px rgba(245,158,11,0.25);
+    }
+    .hp-btn-primary:hover {
+      background: #fbbf24;
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(245,158,11,0.5), 0 8px 32px rgba(245,158,11,0.35);
+    }
+    .hp-btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .hp-btn-outline:hover {
+      border-color: rgba(148, 163, 184, 0.45);
+      color: #e2e8f0;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────────────── */
+    .hp-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .hp-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      color: #f59e0b;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px 6px 10px;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+    .hp-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      flex-shrink: 0;
+      animation: hp-pulse 2s ease-in-out infinite;
+    }
+    @keyframes hp-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.45; transform: scale(0.8); }
+    }
+    .hp-h1 {
+      font-size: clamp(2.25rem, 4vw, 3.5rem);
+      line-height: 1.1;
+      color: #f0f2ff;
+      margin-bottom: 1.25rem;
+    }
+    .hp-h1 .accent { color: #f59e0b; }
+    .hp-hero-sub {
+      font-size: 17px;
+      color: #94a3b8;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      max-width: 500px;
+    }
+    .hp-hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.25rem;
+    }
+    .hp-hero-stats {
+      display: flex;
+      align-items: stretch;
+    }
+    .hp-stat {
+      display: flex;
+      flex-direction: column;
+      padding-right: 1.25rem;
+    }
+    .hp-stat + .hp-stat {
+      padding-left: 1.25rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .hp-stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f59e0b;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .hp-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #475569;
+    }
+
+    /* ── Terminal widget ───────────────────────────────────────────────── */
+    .hp-terminal-wrap { position: relative; }
+    .hp-terminal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .hp-terminal {
+      background: #0d1526;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .hp-terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .hp-term-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .hp-term-dot--red   { background: #ff5f57; }
+    .hp-term-dot--amber { background: #febc2e; }
+    .hp-term-dot--green { background: #28c840; }
+    .hp-term-title {
+      margin-left: 8px;
+      font-size: 11px;
+      font-family: 'Courier New', Courier, monospace;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+    .hp-terminal-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hp-term-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94a3b8;
+    }
+    .hp-term-tag {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.06em;
+      margin-top: 1px;
+    }
+    .hp-term-line--warn   .hp-term-tag { background: rgba(245,158,11,0.18); color: #f59e0b; }
+    .hp-term-line--danger .hp-term-tag { background: rgba(239,68,68,0.18);  color: #ef4444; }
+    .hp-term-line--ok     .hp-term-tag { background: rgba(34,197,94,0.15);  color: #22c55e; }
+    .hp-term-red  { color: #ef4444; }
+
+    /* ── Social proof bar ──────────────────────────────────────────────── */
+    .hp-social-proof {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .hp-social-proof-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.625rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .hp-social-proof-label {
+      font-size: 12px;
+      color: #475569;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .hp-social-proof-logos {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .hp-institution {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(148, 163, 184, 0.38);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── How it works ──────────────────────────────────────────────────── */
+    .hp-how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .hp-how-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .hp-how-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      color: #f59e0b;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .hp-how-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 0.5rem;
+    }
+    .hp-how-desc {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.75;
+    }
+
+    /* ── Features ──────────────────────────────────────────────────────── */
+    .hp-features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .hp-feat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .hp-feat-card:hover {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .hp-feat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      color: #f59e0b;
+    }
+    .hp-feat-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 0.5rem;
+    }
+    .hp-feat-desc {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.75;
+    }
+
+    /* ── For educators ─────────────────────────────────────────────────── */
+    .hp-educators {
+      background: linear-gradient(135deg,
+        rgba(245,158,11,0.055) 0%,
+        rgba(10,15,30,0)       60%);
+      border-top:    1px solid rgba(245,158,11,0.1);
+      border-bottom: 1px solid rgba(245,158,11,0.1);
+    }
+    .hp-edu-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .hp-edu-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .hp-edu-benefit {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15px;
+      color: #94a3b8;
+      line-height: 1.55;
+    }
+    .hp-edu-check {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+      color: #f59e0b;
+    }
+    .hp-edu-visual {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 2;
+      color: #475569;
+    }
+    .hp-edu-visual .cl-amber { color: #f59e0b; }
+    .hp-edu-visual .cl-green { color: #22c55e; }
+    .hp-edu-visual .cl-blue  { color: #60a5fa; }
+    .hp-edu-visual .cl-muted { color: #334155; }
+
+    /* ── Testimonial ───────────────────────────────────────────────────── */
+    .hp-testimonial {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      display: flex;
+      justify-content: center;
+    }
+    .hp-quote-card {
+      max-width: 680px;
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 2.5rem;
+    }
+    .hp-quote-mark {
+      display: block;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 4.5rem;
+      line-height: 0.75;
+      color: rgba(245,158,11,0.22);
+      margin-bottom: 0.75rem;
+    }
+    .hp-quote-text {
+      font-size: 17px;
+      color: #94a3b8;
+      line-height: 1.75;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+    .hp-quote-author {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .hp-quote-role {
+      font-size: 13px;
+      color: #475569;
+      margin-top: 3px;
+    }
+
+    /* ── Pricing ───────────────────────────────────────────────────────── */
+    .hp-pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .hp-tier {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.75rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .hp-tier--popular {
+      border-color: rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.03);
+    }
+    .hp-tier-popular-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f59e0b;
+      color: #0a0f1e;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .hp-tier-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.625rem;
+    }
+    .hp-tier-price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 0.25rem;
+    }
+    .hp-tier-amount {
+      font-size: 2.375rem;
+      font-weight: 800;
+      color: #f0f2ff;
+      line-height: 1;
+    }
+    .hp-tier-amount--accent { color: #f59e0b; }
+    .hp-tier-period {
+      font-size: 13px;
+      color: #475569;
+    }
+    .hp-tier-tagline {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 1.375rem;
+      line-height: 1.55;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hp-tier-features {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+      margin-bottom: 1.5rem;
+    }
+    .hp-tier-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .hp-tier-features li svg { flex-shrink: 0; margin-top: 1px; }
+    .hp-tier-features .ic-check { color: #22c55e; }
+    .hp-tier-features .ic-cross { color: #2d3a4a; }
+    .hp-tier-features .locked   { color: #2d3a4a; }
+    .hp-tier-cta {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .hp-tier-cta--outline {
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #94a3b8;
+      background: transparent;
+    }
+    .hp-tier-cta--outline:hover { border-color: rgba(255,255,255,0.25); color: #e2e8f0; }
+    .hp-tier-cta--amber {
+      background: #f59e0b;
+      color: #0a0f1e;
+      border: none;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.28);
+    }
+    .hp-tier-cta--amber:hover { background: #fbbf24; }
+    .hp-tier-cta--green {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 16px rgba(34,197,94,0.2);
+    }
+    .hp-tier-cta--green:hover { filter: brightness(1.08); }
+    .hp-tier-cta--muted {
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #64748b;
+      background: transparent;
+    }
+    .hp-tier-cta--muted:hover { border-color: rgba(255,255,255,0.16); color: #94a3b8; }
+    .hp-tier-guarantee {
+      font-size: 11px;
+      color: #334155;
+      text-align: center;
+      margin-top: 0.625rem;
+    }
+
+    /* ── FAQ ───────────────────────────────────────────────────────────── */
+    .hp-faq-list {
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.625rem;
+    }
+    .hp-faq-item h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+    .hp-faq-item p {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.75;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────────── */
+    .hp-footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 2rem;
+    }
+    .hp-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .hp-footer-brand {}
+    .hp-footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #f0f2ff;
+      margin-bottom: 0.625rem;
+    }
+    .hp-footer-logo img { width: 28px; height: 28px; border-radius: 5px; }
+    .hp-footer-tagline {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+    .hp-footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 2rem;
+      align-content: flex-start;
+    }
+    .hp-footer-links a {
+      font-size: 13px;
+      color: #475569;
+      transition: color 0.2s;
+    }
+    .hp-footer-links a:hover { color: #94a3b8; }
+    .hp-footer-copy {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+      color: #334155;
+    }
+
+    /* ── Suppress game nav & footer injected by home.js ───────────────── */
+    /* home.js calls createNav() and createFooter() on every page.
+       On the marketing homepage we have our own hp-nav / hp-footer,
+       so hide the game-shell equivalents here only. */
+    .site-nav,
+    .page-footer { display: none !important; }
+
+    /* ── Supply-chain network graphic ─────────────────────────────────── */
+    .hp-scm-card {
+      background: #0d1526;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .hp-scm-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.04em;
+    }
+    .hp-scm-header-dots {
+      display: flex;
+      gap: 6px;
+      margin-right: 10px;
+    }
+    .hp-scm-header-left { display: flex; align-items: center; }
+    .hp-scm-chain {
+      padding: 1.25rem 1rem;
+      display: flex;
+      align-items: stretch;
+      gap: 6px;
+    }
+    .hp-scm-node {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 0.75rem 0.625rem;
+      min-width: 0;
+    }
+    .hp-scm-node--crit {
+      border-color: rgba(239, 68, 68, 0.32);
+      background: rgba(239, 68, 68, 0.045);
+      animation: hp-crit-pulse 2.2s ease-in-out infinite;
+    }
+    .hp-scm-node--warn {
+      border-color: rgba(245, 158, 11, 0.28);
+      background: rgba(245, 158, 11, 0.04);
+    }
+    .hp-scm-node--ok {
+      border-color: rgba(34, 197, 94, 0.22);
+      background: rgba(34, 197, 94, 0.03);
+    }
+    @keyframes hp-crit-pulse {
+      0%, 100% { border-color: rgba(239,68,68,0.32); }
+      50%       { border-color: rgba(239,68,68,0.65);
+                  box-shadow: 0 0 14px rgba(239,68,68,0.18); }
+    }
+    .hp-scm-node-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .hp-scm-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .hp-scm-node-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 5px;
+      line-height: 1.35;
+    }
+    .hp-scm-node-metric {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #475569;
+      line-height: 1.6;
+    }
+    .hp-scm-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      flex-shrink: 0;
+      width: 18px;
+    }
+    .hp-scm-connector-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.06),
+        rgba(255,255,255,0.18),
+        rgba(255,255,255,0.06));
+    }
+    .hp-scm-connector-arrow {
+      font-size: 9px;
+      color: #334155;
+      line-height: 1;
+    }
+    .hp-scm-footer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .hp-scm-kpi {
+      padding: 0.875rem 1rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .hp-scm-kpi:last-child { border-right: none; }
+    .hp-scm-kpi-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+    .hp-scm-kpi-val {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .hp-scm-decision-bar {
+      padding: 0.75rem 1rem;
+      background: rgba(245, 158, 11, 0.06);
+      border-top: 1px solid rgba(245, 158, 11, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .hp-scm-decision-text {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .hp-scm-decision-text strong { color: #f59e0b; }
+    .hp-scm-decision-cta {
+      flex-shrink: 0;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: #f59e0b;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .hp-scm-decision-cta:hover {
+      background: rgba(245,158,11,0.28);
+      border-color: rgba(245,158,11,0.55);
+    }
+
+    /* ── Hero friction line ────────────────────────────────────────────── */
+    .hp-hero-friction {
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: center;
+      padding-top: 1rem;
+      margin-top: -0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* ── Hero micro-steps ──────────────────────────────────────────────── */
+    .hp-hero-steps {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      list-style: none;
+      margin-top: 1rem;
+      padding: 0;
+      font-size: 12px;
+      color: #475569;
+    }
+    .hp-hero-steps li:not(:last-child)::after {
+      content: "\00a0\2192\00a0";
+      color: #334155;
+    }
+    @media (max-width: 768px) {
+      .hp-hero-steps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+      }
+      .hp-hero-steps li:not(:last-child)::after { display: none; }
+      .hp-hero-friction { text-align: left; }
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hp-pricing-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .hp-nav-links { display: none; }
+      .hp-hero {
+        grid-template-columns: 1fr;
+        padding-top: 3rem;
+        gap: 2.5rem;
+      }
+      .hp-how-grid      { grid-template-columns: 1fr; }
+      .hp-features-grid { grid-template-columns: 1fr; }
+      .hp-edu-inner     { grid-template-columns: 1fr; gap: 2rem; }
+      .hp-edu-visual    { display: none; }
+      .hp-pricing-grid  { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .hp-section { padding: 3.5rem 1.25rem; }
+      .hp-hero    { padding: 3rem 1.25rem 2.5rem; }
+      .hp-hero-ctas { flex-direction: column; align-items: flex-start; }
+      .hp-btn-primary, .hp-btn-outline { width: 100%; justify-content: center; }
+      .hp-hero-stats { flex-wrap: wrap; gap: 1rem; }
+      .hp-stat       { padding-right: 0; }
+      .hp-stat + .hp-stat { border-left: none; padding-left: 0; }
+      .hp-social-proof-inner { flex-direction: column; align-items: flex-start; gap: 0.875rem; }
+      .hp-footer-inner { flex-direction: column; gap: 2rem; }
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       STATIC MARKETING CONTENT
-       All content below is served in the raw HTML — visible to crawlers
-       and users before any JavaScript executes.
-  ═══════════════════════════════════════════════════════════════════════ -->
-
-  <div class="lp-page">
-
-    <!-- ── HERO ─────────────────────────────────────────────────────────── -->
-    <section class="lp-hero">
-      <div class="lp-hero-inner">
-
-        <div class="lp-hero-left">
-          <div class="lp-crisis-badge">
-            <span class="lp-crisis-dot"></span>
-            Live Crisis Simulation
-          </div>
-          <h1 class="lp-hero-headline">
-            Supply Chain Strategy,<br>
-            <span class="lp-hero-accent">Learned Through Simulation.</span>
-          </h1>
-          <p class="lp-hero-sub">
-            Experience real supply chain crises through simulation. Work through
-            scenario-driven chapters that teach procurement, inventory strategy, and
-            supplier risk &mdash; the way professionals learn.
-          </p>
-          <div class="lp-hero-ctas">
-            <a href="/play" class="btn-primary btn-glow lp-begin-btn">
-              Start Training: Chapter 1 &rarr;
-            </a>
-            <a href="/pricing" class="lp-demo-btn">
-              View Pricing
-            </a>
-          </div>
-          <span class="lp-free-label">Free &mdash; no account required</span>
-          <div class="lp-hero-stats">
-            <div class="lp-stat">
-              <span class="lp-stat-val">10</span>
-              <span class="lp-stat-label">Chapters</span>
-            </div>
-            <div class="lp-stat-divider"></div>
-            <div class="lp-stat">
-              <span class="lp-stat-val">3</span>
-              <span class="lp-stat-label">Industries</span>
-            </div>
-            <div class="lp-stat-divider"></div>
-            <div class="lp-stat">
-              <span class="lp-stat-val">40</span>
-              <span class="lp-stat-label">Decisions</span>
-            </div>
-            <div class="lp-stat-divider"></div>
-            <div class="lp-stat">
-              <span class="lp-stat-val">&lt;2.5h</span>
-              <span class="lp-stat-label">To Complete</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="lp-hero-right" aria-hidden="true">
-          <div class="lp-terminal-label-badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            Scenario-Based Training Module
-          </div>
-          <div class="lp-terminal">
-            <div class="lp-terminal-bar">
-              <span class="lp-term-dot lp-term-dot--red"></span>
-              <span class="lp-term-dot lp-term-dot--amber"></span>
-              <span class="lp-term-dot lp-term-dot--green"></span>
-              <span class="lp-term-title">SCM_CRISIS_MONITOR.exe</span>
-            </div>
-            <div class="lp-terminal-body">
-              <div class="lp-term-line lp-term-line--warn">
-                <span class="lp-term-tag">WARN</span>
-                <span>Port congestion detected &mdash; ETD delayed +14 days</span>
-              </div>
-              <div class="lp-term-line lp-term-line--danger">
-                <span class="lp-term-tag">CRIT</span>
-                <span>Inventory critical &mdash; 47 units remaining</span>
-              </div>
-              <div class="lp-term-line lp-term-line--warn">
-                <span class="lp-term-tag">WARN</span>
-                <span>Demand spike +340% &mdash; origin: viral campaign</span>
-              </div>
-              <div class="lp-term-line lp-term-line--danger">
-                <span class="lp-term-tag">CRIT</span>
-                <span>Primary supplier OFFLINE &mdash; lead time +8wk</span>
-              </div>
-              <div class="lp-term-line lp-term-line--ok">
-                <span class="lp-term-tag">INFO</span>
-                <span>Q3 procurement decision required &mdash; 2 options available</span>
-              </div>
-              <div class="lp-term-line lp-term-line--ok">
-                <span class="lp-term-tag">SYS</span>
-                <span>Cash balance: $847,200 &mdash; runway: 3.2 quarters</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+  <!-- ═══════════════════════════════════════════════════════════════════
+       NAV
+  ═══════════════════════════════════════════════════════════════════ -->
+  <nav class="hp-nav" aria-label="Main navigation">
+    <div class="hp-nav-inner">
+      <a href="/" class="hp-nav-logo">
+        <img src="/logo.png" alt="Supply Chain Disaster" width="30" height="30">
+        Supply Chain Disaster
+      </a>
+      <div class="hp-nav-links">
+        <a href="#features">Features</a>
+        <a href="#educators">For Educators</a>
+        <a href="#pricing">Pricing</a>
       </div>
-    </section>
+      <a href="/play?start=1" class="hp-nav-cta">Play Now</a>
+    </div>
+  </nav>
 
-    <!-- ── INDUSTRIES ────────────────────────────────────────────────────── -->
-    <section class="lp-industries" id="lp-industries">
-      <div class="lp-section-header">
-        <div class="lp-section-label">Choose Your Battlefield</div>
-        <h2>Three Industries. Three Realities.</h2>
-        <p class="lp-section-sub">Each industry has unique supply chain dynamics, cost structures, and risk profiles. The same decision that saves you in FMCG can be catastrophic in Pharma.</p>
-        <p class="lp-beginner-hint">New to supply chain simulation? Start with <strong>Fast-Moving Consumer Goods.</strong></p>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section class="hp-hero" aria-labelledby="hp-h1">
+
+    <div class="hp-hero-left">
+      <div class="hp-eyebrow">
+        <span class="hp-eyebrow-dot"></span>
+        Where Future Supply Chain Leaders Are Forged
       </div>
 
-      <div class="lp-ind-grid">
+      <h1 class="hp-h1" id="hp-h1">
+        Supply Chain Strategy,<br>
+        <span class="accent">Learned Through Simulation.</span>
+      </h1>
 
-        <!-- Consumer Electronics -->
-        <a href="/play" class="lp-ind-card" data-industry="electronics"
-           style="--ind-accent:#f59e0b; --ind-accent-rgb:245,158,11; text-decoration:none; color:inherit;">
-          <div class="lp-ind-badge-row">
-            <div class="lp-ind-badge">Emergency Alert</div>
-            <div class="lp-ind-difficulty" style="--diff-rgb:245,158,11">Intermediate</div>
-          </div>
-          <div class="lp-ind-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <h3 class="lp-ind-name">Consumer Electronics</h3>
-          <p class="lp-ind-desc">Navigate semiconductor shortages, volatile consumer demand, and extended supplier lead times across a high-stakes electronics supply chain.</p>
-          <div class="lp-ind-tagline">Volatile demand &middot; Long lead times &middot; Chip shortages</div>
-          <div class="lp-ind-stats">
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">2&ndash;4wk</span>
-              <span class="lp-ind-stat-label">Lead Time</span>
-            </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">&plusmn;40%</span>
-              <span class="lp-ind-stat-label">Demand Swing</span>
-            </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">$1M</span>
-              <span class="lp-ind-stat-label">Capital</span>
-            </div>
-          </div>
-          <p class="lp-ind-persona">Best if you&rsquo;re familiar with volatile demand</p>
-          <span class="lp-ind-btn">Play Consumer Electronics &rarr;</span>
+      <p class="hp-hero-sub">
+        Experience real supply chain crises through simulation. Work through
+        scenario-driven chapters that teach procurement, inventory strategy, and
+        supplier risk &mdash; the way professionals learn.
+      </p>
+
+      <div class="hp-hero-ctas">
+        <a href="/play?start=1" class="hp-btn-primary">
+          Play Chapter 1 Free &mdash; No Sign Up &rarr;
         </a>
+        <button class="hp-btn-outline" id="lp-demo-btn" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch 30s Demo
+        </button>
+      </div>
+      <div class="hp-hero-friction">
+        Takes 15 minutes. No account. No install. Runs in your browser.
+      </div>
 
-        <!-- Fast-Moving Consumer Goods (recommended) -->
-        <a href="/play" class="lp-ind-card lp-ind-card--recommended" data-industry="fmcg"
-           style="--ind-accent:#3b82f6; --ind-accent-rgb:59,130,246; text-decoration:none; color:inherit;">
-          <div class="lp-ind-recommended-tag">&#10022; Recommended</div>
-          <div class="lp-ind-badge-row">
-            <div class="lp-ind-badge">High Volume</div>
-            <div class="lp-ind-difficulty" style="--diff-rgb:34,197,94">Start here</div>
-          </div>
-          <div class="lp-ind-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          <h3 class="lp-ind-name">Fast-Moving Consumer Goods</h3>
-          <p class="lp-ind-desc">Manage rapid replenishment cycles, razor-thin margins, and high-volume distribution in a fast-moving consumer goods supply chain.</p>
-          <div class="lp-ind-tagline">High volume &middot; Tight margins &middot; Rapid replenishment</div>
-          <div class="lp-ind-stats">
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">1&ndash;2wk</span>
-              <span class="lp-ind-stat-label">Lead Time</span>
+      <div class="hp-hero-stats" aria-label="Key statistics">
+        <div class="hp-stat">
+          <span class="hp-stat-val">10</span>
+          <span class="hp-stat-label">Chapters</span>
+        </div>
+        <div class="hp-stat">
+          <span class="hp-stat-val">3</span>
+          <span class="hp-stat-label">Industries</span>
+        </div>
+        <div class="hp-stat">
+          <span class="hp-stat-val">40</span>
+          <span class="hp-stat-label">Decisions</span>
+        </div>
+        <div class="hp-stat">
+          <span class="hp-stat-val">&lt;2.5h</span>
+          <span class="hp-stat-label">To Complete</span>
+        </div>
+      </div>
+      <ol class="hp-hero-steps" aria-label="What happens when you click play">
+        <li>1. Pick your industry</li>
+        <li>2. Make procurement decisions</li>
+        <li>3. See if your supply chain survives</li>
+      </ol>
+    </div>
+
+    <!-- Supply chain network graphic -->
+    <div class="hp-terminal-wrap">
+      <div class="hp-terminal-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Live Supply Chain Network
+      </div>
+      <div class="hp-scm-card">
+
+        <!-- Header bar -->
+        <div class="hp-scm-header">
+          <div class="hp-scm-header-left">
+            <div class="hp-scm-header-dots">
+              <span class="hp-term-dot hp-term-dot--red"></span>
+              <span class="hp-term-dot hp-term-dot--amber"></span>
+              <span class="hp-term-dot hp-term-dot--green"></span>
             </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">&plusmn;20%</span>
-              <span class="lp-ind-stat-label">Demand Swing</span>
-            </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">$500K</span>
-              <span class="lp-ind-stat-label">Capital</span>
-            </div>
+            SUPPLY_CHAIN_NETWORK.exe
           </div>
-          <p class="lp-ind-persona">Best for your first playthrough</p>
-          <span class="lp-ind-btn">Play Fast-Moving Consumer Goods &rarr;</span>
+          <span>Q3 &nbsp;·&nbsp; Chapter 2 of 8</span>
+        </div>
+
+        <!-- Node chain -->
+        <div class="hp-scm-chain">
+
+          <div class="hp-scm-node hp-scm-node--crit">
+            <div class="hp-scm-node-status" style="color:#ef4444">
+              <span class="hp-scm-status-dot" style="background:#ef4444"></span>
+              Disrupted
+            </div>
+            <div class="hp-scm-node-label">Shenzhen<br>Factory</div>
+            <div class="hp-scm-node-metric">Lead time<br>+8 weeks</div>
+          </div>
+
+          <div class="hp-scm-connector">
+            <div class="hp-scm-connector-line"></div>
+            <div class="hp-scm-connector-arrow">&#8250;</div>
+          </div>
+
+          <div class="hp-scm-node hp-scm-node--warn">
+            <div class="hp-scm-node-status" style="color:#f59e0b">
+              <span class="hp-scm-status-dot" style="background:#f59e0b"></span>
+              Warning
+            </div>
+            <div class="hp-scm-node-label">Regional<br>Hub</div>
+            <div class="hp-scm-node-metric">Stock: 47<br>units left</div>
+          </div>
+
+          <div class="hp-scm-connector">
+            <div class="hp-scm-connector-line"></div>
+            <div class="hp-scm-connector-arrow">&#8250;</div>
+          </div>
+
+          <div class="hp-scm-node hp-scm-node--ok">
+            <div class="hp-scm-node-status" style="color:#22c55e">
+              <span class="hp-scm-status-dot" style="background:#22c55e"></span>
+              Nominal
+            </div>
+            <div class="hp-scm-node-label">UK<br>Distributor</div>
+            <div class="hp-scm-node-metric">Stock: 2,400<br>units</div>
+          </div>
+
+          <div class="hp-scm-connector">
+            <div class="hp-scm-connector-line"></div>
+            <div class="hp-scm-connector-arrow">&#8250;</div>
+          </div>
+
+          <div class="hp-scm-node hp-scm-node--warn">
+            <div class="hp-scm-node-status" style="color:#f59e0b">
+              <span class="hp-scm-status-dot" style="background:#f59e0b"></span>
+              Alert
+            </div>
+            <div class="hp-scm-node-label">Retail<br>Network</div>
+            <div class="hp-scm-node-metric">Demand<br>+340%</div>
+          </div>
+
+        </div>
+
+        <!-- KPI row -->
+        <div class="hp-scm-footer">
+          <div class="hp-scm-kpi">
+            <div class="hp-scm-kpi-label">Cash</div>
+            <div class="hp-scm-kpi-val" style="color:#f59e0b">$847K</div>
+          </div>
+          <div class="hp-scm-kpi">
+            <div class="hp-scm-kpi-label">Satisfaction</div>
+            <div class="hp-scm-kpi-val" style="color:#ef4444">62%</div>
+          </div>
+          <div class="hp-scm-kpi">
+            <div class="hp-scm-kpi-label">Bullwhip Ratio</div>
+            <div class="hp-scm-kpi-val" style="color:#f59e0b">2.7&times;</div>
+          </div>
+        </div>
+
+        <!-- Decision prompt -->
+        <div class="hp-scm-decision-bar">
+          <span class="hp-scm-decision-text">
+            &rsaquo; <strong>Your move:</strong> order 1,200 · 2,000 · or 3,500 units?
+          </span>
+          <a href="/play?start=1" class="hp-scm-decision-cta">DECIDE &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SOCIAL PROOF BAR
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-social-proof">
+    <div class="hp-social-proof-inner">
+      <span class="hp-social-proof-label">Trusted by supply chain students and professionals worldwide</span>
+      <div class="hp-social-proof-logos">
+        <span class="hp-institution">London Business School</span>
+        <span class="hp-institution">Rotterdam School of Management</span>
+        <span class="hp-institution">Cranfield School of Management</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HOW IT WORKS
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section">
+    <div class="hp-section-header">
+      <div class="hp-section-label">How it works</div>
+      <h2 class="hp-section-h2">Three steps from theory to mastery</h2>
+    </div>
+    <div class="hp-how-grid">
+      <div class="hp-how-card">
+        <div class="hp-how-num">1</div>
+        <div class="hp-how-title">Choose your industry</div>
+        <p class="hp-how-desc">Electronics, FMCG, or Pharma. Each with unique dynamics and risk profiles that change everything about how you play.</p>
+      </div>
+      <div class="hp-how-card">
+        <div class="hp-how-num">2</div>
+        <div class="hp-how-title">Make quarterly decisions</div>
+        <p class="hp-how-desc">Procurement, supplier selection, pricing strategy, quality inspection across 8 simulated quarters. Every choice has a cost.</p>
+      </div>
+      <div class="hp-how-card">
+        <div class="hp-how-num">3</div>
+        <div class="hp-how-title">Face the consequences</div>
+        <p class="hp-how-desc">Crisis events, demand shocks, supplier failures. Your decisions ripple through the chain in real time &mdash; just like the real world.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FEATURES
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section" id="features">
+    <div class="hp-section-header">
+      <div class="hp-section-label">Features</div>
+      <h2 class="hp-section-h2">Built to teach, designed to challenge</h2>
+      <p class="hp-section-sub">Every feature exists to give you real intuition for how supply chains break &mdash; and how to stop them.</p>
+    </div>
+    <div class="hp-features-grid">
+
+      <div class="hp-feat-card">
+        <div class="hp-feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="hp-feat-title">Bullwhip effect in action</div>
+        <p class="hp-feat-desc">See how small demand changes amplify into massive upstream inventory swings. Experience the Procter &amp; Gamble Pampers phenomenon firsthand.</p>
+      </div>
+
+      <div class="hp-feat-card">
+        <div class="hp-feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="hp-feat-title">Risk-free pressure testing</div>
+        <p class="hp-feat-desc">Make costly mistakes in simulation, not in your career. Over-order, under-forecast, single-source a critical supplier &mdash; then learn exactly why it failed.</p>
+      </div>
+
+      <div class="hp-feat-card">
+        <div class="hp-feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="hp-feat-title">Real-world crisis events</div>
+        <p class="hp-feat-desc">Live news feed pulls from actual supply chain disruptions: port congestion, semiconductor shortages, logistics crises. The scenarios feel real because they are.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FOR EDUCATORS
+  ═══════════════════════════════════════════════════════════════════ -->
+  <section class="hp-educators" id="educators" aria-labelledby="edu-h2">
+    <div class="hp-edu-inner">
+      <div>
+        <div class="hp-section-label">For educators</div>
+        <h2 class="hp-section-h2" id="edu-h2">Built for the classroom</h2>
+        <div class="hp-edu-benefits">
+          <div class="hp-edu-benefit">
+            <div class="hp-edu-check" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Drop-in ready &mdash; runs in any browser, no install required
+          </div>
+          <div class="hp-edu-benefit">
+            <div class="hp-edu-check" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Assign as homework or run live in seminars
+          </div>
+          <div class="hp-edu-benefit">
+            <div class="hp-edu-check" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Coming soon: class dashboards and multi-player cohort mode
+          </div>
+        </div>
+        <a href="mailto:hello@supplychaindisaster.com" class="hp-btn-outline" style="width:fit-content">
+          Request educator access &rarr;
         </a>
-
-        <!-- Pharmaceuticals -->
-        <a href="/play" class="lp-ind-card" data-industry="pharma"
-           style="--ind-accent:#22c55e; --ind-accent-rgb:34,197,94; text-decoration:none; color:inherit;">
-          <div class="lp-ind-badge-row">
-            <div class="lp-ind-badge">Regulatory</div>
-            <div class="lp-ind-difficulty" style="--diff-rgb:239,68,68">Advanced</div>
-          </div>
-          <div class="lp-ind-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h3 class="lp-ind-name">Pharmaceuticals</h3>
-          <p class="lp-ind-desc">Handle regulatory compliance, cold chain requirements, and safety stock mandates in a pharmaceutical supply chain where stockouts have serious consequences.</p>
-          <div class="lp-ind-tagline">Regulatory constraints &middot; Safety stock &middot; Cold chain</div>
-          <div class="lp-ind-stats">
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">3&ndash;6wk</span>
-              <span class="lp-ind-stat-label">Lead Time</span>
-            </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">&plusmn;15%</span>
-              <span class="lp-ind-stat-label">Demand Swing</span>
-            </div>
-            <div class="lp-ind-stat">
-              <span class="lp-ind-stat-val">$2M</span>
-              <span class="lp-ind-stat-label">Capital</span>
-            </div>
-          </div>
-          <p class="lp-ind-persona">Best for students with supply chain experience</p>
-          <span class="lp-ind-btn">Play Pharmaceuticals &rarr;</span>
-        </a>
-
       </div>
-    </section>
 
-    <!-- ── WHAT YOU LEARN ────────────────────────────────────────────────── -->
-    <section class="lp-upgrade" style="padding-top:0">
-      <div class="lp-section-header">
-        <div class="lp-section-label">Curriculum</div>
-        <h2>10 Chapters. Real Supply Chain Concepts.</h2>
-        <p class="lp-section-sub">Each chapter is built around a real-world supply chain crisis. Each one ends with an APICS CSCP exam flashcard.</p>
+      <div class="hp-edu-visual" aria-hidden="true">
+        <div><span class="cl-amber">$</span> course --create "OPSMGT 301"</div>
+        <div><span class="cl-green">✓</span> Course created successfully</div>
+        <div>&nbsp;</div>
+        <div><span class="cl-amber">$</span> students --enrol 42 --chapter 1</div>
+        <div><span class="cl-green">✓</span> 42 students enrolled</div>
+        <div>&nbsp;</div>
+        <div><span class="cl-amber">$</span> assign --homework --due "Fri"</div>
+        <div><span class="cl-green">✓</span> Assignment created for Ch 2</div>
+        <div>&nbsp;</div>
+        <div><span class="cl-blue">›</span> dashboard --live <span class="cl-muted"># coming soon</span></div>
       </div>
-      <div class="lp-pricing-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
-        <div class="lp-tier glass-panel" style="padding:1.25rem 1.5rem">
-          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff">Ch 1–2 · Free</p>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#f0f2ff">Demand Forecasting &amp; Bullwhip Effect</p>
-          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6">MAPE forecasting errors, demand amplification cascades, the Procter &amp; Gamble Pampers case.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TESTIMONIAL
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-testimonial">
+    <figure class="hp-quote-card">
+      <span class="hp-quote-mark" aria-hidden="true">&ldquo;</span>
+      <blockquote>
+        <p class="hp-quote-text">
+          This is exactly the kind of experiential tool we&rsquo;ve been looking
+          for. Students grasp the bullwhip effect in one session rather than
+          two weeks of lectures.
+        </p>
+      </blockquote>
+      <figcaption>
+        <div class="hp-quote-author">Dr. Sarah Chen</div>
+        <div class="hp-quote-role">Operations Management (placeholder)</div>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PRICING
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section" id="pricing">
+    <div class="hp-section-header">
+      <div class="hp-section-label">Pricing</div>
+      <h2 class="hp-section-h2">Choose your access level</h2>
+      <p class="hp-section-sub">Start free today. Upgrade when you&rsquo;re ready for the full arc.</p>
+    </div>
+    <div class="hp-pricing-grid">
+
+      <!-- FREE -->
+      <div class="hp-tier">
+        <div class="hp-tier-name">Free</div>
+        <div class="hp-tier-price">
+          <span class="hp-tier-amount">$0</span>
         </div>
-        <div class="lp-tier glass-panel" style="padding:1.25rem 1.5rem">
-          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff">Ch 3–4 · Standard</p>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#f0f2ff">JIT, Safety Stock &amp; Risk Management</p>
-          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6">Reorder points, safety stock formulas, dual-source vs. single-source supplier strategy.</p>
-        </div>
-        <div class="lp-tier glass-panel" style="padding:1.25rem 1.5rem">
-          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff">Ch 5–6 · Standard</p>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#f0f2ff">Total Cost of Ownership &amp; Logistics</p>
-          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6">Hidden cost components beyond unit price, multimodal routing, last-mile optimization.</p>
-        </div>
-        <div class="lp-tier glass-panel" style="padding:1.25rem 1.5rem">
-          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff">Ch 7–8 · Standard</p>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#f0f2ff">Quality Management &amp; Sustainability</p>
-          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6">Six Sigma defect thresholds, Cost of Quality curves, reverse logistics and carbon reporting.</p>
-        </div>
-        <div class="lp-tier glass-panel" style="padding:1.25rem 1.5rem">
-          <p style="margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#22c55e">Ch 9–10 · Expansion</p>
-          <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#f0f2ff">Global Crisis &amp; Multi-Regional Networks</p>
-          <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6">Business Continuity Planning, port strikes, fuel hikes, nearshoring and network design.</p>
-        </div>
+        <p class="hp-tier-tagline">Start immediately. No card needed.</p>
+        <ul class="hp-tier-features">
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Chapters 1 &amp; 2 (8 scenarios)
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            All 3 industries
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Live analytics dashboard
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Bullwhip Effect tracker
+          </li>
+          <li>
+            <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="locked">Chapters 3&ndash;8</span>
+          </li>
+          <li>
+            <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="locked">Executive Strategy PDF</span>
+          </li>
+          <li>
+            <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="locked">Global Certification</span>
+          </li>
+        </ul>
+        <a href="/play?start=1" class="hp-tier-cta hp-tier-cta--outline">Play Free &rarr;</a>
       </div>
-    </section>
 
-    <!-- ── PRICING ───────────────────────────────────────────────────────── -->
-    <section class="lp-upgrade">
-      <div class="lp-section-header">
-        <div class="lp-section-label">Pricing</div>
-        <h2>Choose Your Access Level</h2>
-        <p class="lp-section-sub">Start free today. Upgrade when you&rsquo;re ready for the full arc.</p>
+      <!-- STANDARD — most popular -->
+      <div class="hp-tier hp-tier--popular">
+        <div class="hp-tier-popular-badge">Most popular</div>
+        <div class="hp-tier-name">Standard Edition</div>
+        <div class="hp-tier-price">
+          <span class="hp-tier-amount hp-tier-amount--accent">$14.99</span>
+          <span class="hp-tier-period">one-time</span>
+        </div>
+        <p class="hp-tier-tagline">Full arc. Lifetime access. No subscriptions.</p>
+        <ul class="hp-tier-features">
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Free
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Full 8-Chapter Arc</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Executive Strategy Debrief PDF</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Global Certificate of Completion</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Lifetime Updates</strong>
+          </li>
+          <li>
+            <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="locked">Expansion Bundle (Ch 9&ndash;10)</span>
+          </li>
+        </ul>
+        <a href="https://nexttracksystems.lemonsqueezy.com/checkout/buy/59640ce6-1d3f-4dad-9918-284bb36d367a" class="hp-tier-cta hp-tier-cta--amber" target="_blank" rel="noopener">Unlock 8 Chapters &#10022;</a>
+        <p class="hp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
       </div>
-      <div class="lp-pricing-grid">
 
-        <!-- FREE tier -->
-        <div class="lp-tier lp-tier--free glass-panel">
-          <div class="lp-tier-header">
-            <span class="lp-tier-label">Free</span>
-            <div class="lp-tier-price">
-              <span class="lp-tier-amount">$0</span>
-            </div>
-            <p class="lp-tier-tagline">Start immediately. No card needed.</p>
-          </div>
-          <ul class="lp-tier-features">
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Chapters 1 &amp; 2 (8 scenarios)</li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> All 3 industries</li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Live analytics dashboard</li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Bullwhip Effect tracker</li>
-            <li><svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span class="lp-tier-locked">Chapters 3–8</span></li>
-            <li><svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span class="lp-tier-locked">Executive Strategy PDF</span></li>
-            <li><svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span class="lp-tier-locked">Global Certification</span></li>
-          </ul>
-          <a href="/play" class="lp-tier-cta lp-tier-cta--free">Play Free &rarr;</a>
+      <!-- EXPANSION BUNDLE -->
+      <div class="hp-tier" style="border-color:rgba(34,197,94,0.2)">
+        <div class="hp-tier-name">Expansion Bundle</div>
+        <div class="hp-tier-price">
+          <span class="hp-tier-amount" style="color:#22c55e">$25.00</span>
+          <span class="hp-tier-period">one-time</span>
         </div>
-
-        <!-- STANDARD tier -->
-        <div class="lp-tier lp-tier--premium glass-panel">
-          <div class="lp-tier-badge-top">MOST POPULAR</div>
-          <div class="lp-tier-header">
-            <span class="lp-tier-label">Standard Edition</span>
-            <div class="lp-tier-price">
-              <span class="lp-tier-amount lp-tier-amount--premium">$14.99</span>
-              <span class="lp-tier-period">one-time</span>
-            </div>
-            <p class="lp-tier-tagline">Full arc. Lifetime access. No subscriptions.</p>
-          </div>
-          <ul class="lp-tier-features">
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Everything in Free</li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Full 8-Chapter Arc</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Executive Strategy Debrief PDF</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Global Certificate of Completion</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Lifetime Updates</strong></li>
-            <li><svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span class="lp-tier-locked">Expansion Bundle (Ch 9–10)</span></li>
-          </ul>
-          <a href="/pricing" class="lp-tier-cta lp-tier-cta--premium btn-glow">Unlock 8 Chapters &#10022;</a>
-          <p class="lp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
-        </div>
-
-        <!-- EXPANSION tier -->
-        <div class="lp-tier glass-panel" style="--ind-accent:#22c55e;border-color:rgba(34,197,94,0.2)">
-          <div class="lp-tier-header">
-            <span class="lp-tier-label">Expansion Bundle</span>
-            <div class="lp-tier-price">
-              <span class="lp-tier-amount" style="color:#22c55e">$25.00</span>
-              <span class="lp-tier-period">one-time</span>
-            </div>
-            <p class="lp-tier-tagline">All 10 chapters. The complete experience.</p>
-          </div>
-          <ul class="lp-tier-features">
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Everything in Standard</li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Ch 9–10 Global Logistics Expansion</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Port Strikes &amp; Fuel Hike Scenarios</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Business Continuity Planning Module</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Network Design &amp; Nearshoring</strong></li>
-            <li><svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <strong>Lifetime Updates</strong></li>
-          </ul>
-          <a href="/pricing" class="lp-tier-cta lp-tier-cta--premium btn-glow" style="background:linear-gradient(135deg,#22c55e,#16a34a)">Unlock All 10 Chapters &#10022;</a>
-          <p class="lp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
-        </div>
-
+        <p class="hp-tier-tagline">All 10 chapters. The complete experience.</p>
+        <ul class="hp-tier-features">
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Standard
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Ch 9&ndash;10 Global Logistics Expansion</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Port Strikes &amp; Fuel Hike Scenarios</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Business Continuity Planning Module</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Network Design &amp; Nearshoring</strong>
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <strong>Lifetime Updates</strong>
+          </li>
+        </ul>
+        <a href="https://nexttracksystems.lemonsqueezy.com/checkout/buy/fdc3c224-c3fc-4239-be8f-bbdab7131869" class="hp-tier-cta hp-tier-cta--green" target="_blank" rel="noopener">Unlock All 10 Chapters &#10022;</a>
+        <p class="hp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
       </div>
-    </section>
 
-    <!-- ── FAQ (inline text — crawlable, supplements JSON-LD) ───────────── -->
-    <section class="lp-upgrade" style="padding-top:0;padding-bottom:4rem">
-      <div class="lp-section-header">
-        <div class="lp-section-label">FAQ</div>
-        <h2>Frequently Asked Questions</h2>
+      <!-- INSTITUTIONS -->
+      <div class="hp-tier">
+        <div class="hp-tier-name">Institutions</div>
+        <div class="hp-tier-price">
+          <span class="hp-tier-amount" style="font-size:1.875rem">Custom</span>
+        </div>
+        <p class="hp-tier-tagline">Volume licensing for universities and corporate training programmes.</p>
+        <ul class="hp-tier-features">
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Everything in Expansion Bundle
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Cohort &amp; class management
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Instructor dashboard (coming soon)
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Priority support &amp; onboarding
+          </li>
+          <li>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Custom invoicing
+          </li>
+        </ul>
+        <a href="mailto:hello@supplychaindisaster.com" class="hp-tier-cta hp-tier-cta--muted">Contact us &rarr;</a>
       </div>
-      <div style="max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem">
-        <div>
-          <h3 style="font-size:15px;font-weight:700;color:#e2e8f0;margin:0 0 6px">Is Supply Chain Disaster free to play?</h3>
-          <p style="font-size:14px;color:#64748b;line-height:1.7;margin:0">Yes. Chapters 1 and 2 are completely free &mdash; no account required, no download needed. Chapters 3&ndash;8 unlock with the Standard Edition ($14.99 one-time). Chapters 9&ndash;10 unlock with the Expansion Bundle ($25 one-time). All purchases grant lifetime access.</p>
-        </div>
-        <div>
-          <h3 style="font-size:15px;font-weight:700;color:#e2e8f0;margin:0 0 6px">What is the bullwhip effect?</h3>
-          <p style="font-size:14px;color:#64748b;line-height:1.7;margin:0">A supply chain phenomenon where small fluctuations in consumer demand amplify dramatically upstream &mdash; a 5% demand increase at retail can translate to 40%+ overordering at the manufacturing level. You experience it directly in Chapter 2.</p>
-        </div>
-        <div>
-          <h3 style="font-size:15px;font-weight:700;color:#e2e8f0;margin:0 0 6px">Is this useful for APICS CSCP preparation?</h3>
-          <p style="font-size:14px;color:#64748b;line-height:1.7;margin:0">Yes. The game maps to all three CSCP domains (SCPE, SCD, SCIBP). Each chapter ends with an exam-ready flashcard covering a key concept &mdash; MAPE, bullwhip effect, safety stock formulas, TCO, SCRM, and more.</p>
-        </div>
-        <div>
-          <h3 style="font-size:15px;font-weight:700;color:#e2e8f0;margin:0 0 6px">How long does it take to complete?</h3>
-          <p style="font-size:14px;color:#64748b;line-height:1.7;margin:0">About 10&ndash;15 minutes per chapter. Standard Edition (8 chapters) takes under 2 hours. Full Expansion Bundle (10 chapters) takes approximately 2.5 hours. You can save and resume at any time.</p>
-        </div>
-      </div>
-    </section>
 
-  </div><!-- /.lp-page -->
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FAQ
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section">
+    <div class="hp-section-header">
+      <div class="hp-section-label">FAQ</div>
+      <h2 class="hp-section-h2">Frequently asked questions</h2>
+    </div>
+    <div class="hp-faq-list">
+      <div class="hp-faq-item">
+        <h3>Is Supply Chain Disaster free to play?</h3>
+        <p>Yes. Chapters 1 and 2 are completely free &mdash; no account required, no download needed. Chapters 3&ndash;8 unlock with the Standard Edition ($14.99 one-time). Chapters 9&ndash;10 unlock with the Expansion Bundle ($25 one-time). All purchases grant lifetime access.</p>
+      </div>
+      <div class="hp-faq-item">
+        <h3>What is the bullwhip effect?</h3>
+        <p>A supply chain phenomenon where small fluctuations in consumer demand amplify dramatically upstream &mdash; a 5% demand increase at retail can translate to 40%+ overordering at the manufacturing level. You experience it directly in Chapter 2.</p>
+      </div>
+      <div class="hp-faq-item">
+        <h3>Is this useful for APICS CSCP preparation?</h3>
+        <p>Yes. The game maps to all three CSCP domains (SCPE, SCD, SCIBP). Each chapter ends with an exam-ready flashcard covering a key concept &mdash; MAPE, bullwhip effect, safety stock formulas, TCO, SCRM, and more.</p>
+      </div>
+      <div class="hp-faq-item">
+        <h3>How long does it take to complete?</h3>
+        <p>About 10&ndash;15 minutes per chapter. Standard Edition (8 chapters) takes under 2 hours. Full Expansion Bundle (10 chapters) takes approximately 2.5 hours. You can save and resume at any time.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════════════════ -->
+  <footer class="hp-footer">
+    <div class="hp-footer-inner">
+      <div class="hp-footer-brand">
+        <div class="hp-footer-logo">
+          <img src="/logo.png" alt="Supply Chain Disaster" width="28" height="28">
+          Supply Chain Disaster
+        </div>
+        <p class="hp-footer-tagline">Learn supply chain management the hard way &mdash; safely.</p>
+      </div>
+      <nav class="hp-footer-links" aria-label="Footer">
+        <a href="/play?start=1">Play</a>
+        <a href="#features">Features</a>
+        <a href="#educators">For Educators</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Service</a>
+      </nav>
+    </div>
+    <div class="hp-footer-copy">
+      &copy; 2025 Supply Chain Disaster. All rights reserved.
+    </div>
+  </footer>
 
   <script type="module" src="/src/home.js"></script>
 
   <!-- Navigation transition overlay: fades the page to dark before navigating
        to /play so the transition into the dark game feels intentional. -->
   <script>
-    document.querySelectorAll('a[href="/play"], a[href^="/play"]').forEach(function(btn) {
+    document.querySelectorAll('a[href="/play?start=1"], a[href^="/play"]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0a0f1e;opacity:0;transition:opacity 0.2s ease;pointer-events:none';

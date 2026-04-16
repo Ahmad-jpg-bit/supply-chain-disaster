@@ -2,18 +2,6 @@
 
 ## A step-by-step tutorial for implementing risk assessment frameworks with automated monitoring and real-time alerts
 
-Learn to build a complete digital risk assessment system that maps supplier dependencies, scores risks quantitatively, and generates automated alerts. Replace static spreadsheets with modern tools that identify your top exposures in real time.
-
-## TL;DR
-
-* **Build the framework before buying tools** - Define risk categories, scoring criteria, and weightings specific to your operation before selecting digital monitoring platforms
-* **Map dependencies to Tier 2 and beyond** - Most disruptions originate from sub-tier suppliers you cannot see without deliberate mapping efforts
-* **Automate data collection, not decisions** - Use APIs and scheduled exports to feed risk scores automatically, but keep humans in the escalation loop for response actions
-* **Configure alerts by threshold, not event** - Raw event alerts create noise; trigger notifications only when risk scores cross defined thresholds that require action
-* **Review and recalibrate quarterly** - Threat landscapes shift rapidly; frameworks that worked 12 months ago may miss emerging risks like the threefold increase in software supply chain attacks
-
-## What You Will Build: A Complete Digital Risk Assessment System
-
 This tutorial walks through implementing a functional **supply chain risk management** system that combines established **risk assessment frameworks** with modern **digital risk management tools**. The system maps supplier dependencies, scores risks quantitatively, and generates automated alerts when threat thresholds are breached.
 
 Success criteria: You can identify your top 10 risk exposures by supplier, receive real-time notifications for emerging threats, and produce a risk heat map that updates automatically. This replaces the static spreadsheet approach that leaves [63% of businesses with higher-than-expected losses](https://www.wtwco.com/en-ae/insights/2025/05/wtw-global-supply-chain-risk-report-2025) from supply chain disruptions.
@@ -38,8 +26,6 @@ Potential blockers: Incomplete supplier data extends setup by 2-3 weeks. IT secu
 Many organizations purchase digital tools before establishing assessment criteria. This creates expensive dashboards that display data without context. [Fewer than 8% of businesses believe they have full control](https://www.wtwco.com/en-ae/insights/2025/05/wtw-global-supply-chain-risk-report-2025) over supply chain risks, often because technology implementations lack foundational frameworks.
 
 This tutorial reverses that pattern. Build a risk assessment framework tailored to your operation first, then select and configure digital tools that serve that framework. Technology amplifies human judgment rather than replacing it with unfiltered alerts.
-
-Alternative approaches exist. Pure manual assessment works for organizations with fewer than 50 suppliers. Fully outsourced risk monitoring suits companies without internal analytics capacity. This hybrid method targets mid-to-large manufacturers managing 100-5,000 suppliers who need both control and scalability.
 
 ## Step 1: Map Your Supply Chain Architecture
 
@@ -228,8 +214,6 @@ Implement this review schedule:
 
 ## Configuration Variables You May Need to Adjust
 
-Your organization's risk tolerance differs from others. Customize these parameters based on your operational context.
-
 **Risk category weights:** The example weights favor geopolitical and cyber risks. If your suppliers are primarily domestic, reduce geopolitical weighting and increase financial stability or quality history weights.
 
 **Composite score thresholds:** The 4.0 escalation threshold assumes moderate risk tolerance. Conservative organizations should escalate at 3.5. Companies in volatile industries may tolerate 4.5 before escalation.
@@ -288,7 +272,7 @@ Your foundation is operational. These extensions increase capability without req
 
 **Financial impact quantification:** Connect risk scores to revenue exposure calculations. [Only 12% of organizations quantify their supply chain risk exposure](https://www.aon.com/en/insights/articles/data-in-supply-chains-turning-insights-into-action), despite 28% suffering recent losses. Adding dollar values to risk scores accelerates executive decision-making.
 
-For organizations seeking to accelerate implementation, [platforms specializing in real-time hazard intelligence](https://supplychaindisaster.com) can provide pre-built monitoring capabilities that integrate with the framework you have established.
+Put these frameworks to the test in the simulation at supplychaindisaster.com.
 
 ## Frequently Asked Questions
 

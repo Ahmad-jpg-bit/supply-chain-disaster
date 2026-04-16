@@ -623,6 +623,33 @@
 
 .legal-content ul { padding-left: 1.4rem; }
 
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  margin: 1.25rem 0;
+}
+.legal-table th,
+.legal-table td {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+  vertical-align: top;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.legal-table th {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .legal-table thead { display: none; }
+  .legal-table tr { display: block; margin-bottom: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }
+  .legal-table td { display: block; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .legal-table td::before { content: attr(data-label); display: block; font-weight: 600; color: var(--text-primary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+}
+
 .legal-last-updated {
   font-size: var(--text-xs);
   color: rgba(255,255,255,0.3);

@@ -139,6 +139,80 @@ Separated marketing homepage from the game SPA:
 
 ---
 
+## Marketing Homepage Redesign (2026-04-14)
+
+- [x] Marketing homepage rebuilt as static HTML — navy/amber design,
+      DM Serif Display headlines, full sections including social
+      proof, features, educators CTA, testimonial, 4-tier pricing
+
+> **Homepage is fully static HTML** — crawlable by search engines
+> without JS execution. All SEO meta tags preserved from previous
+> implementation. Google Search Console submission recommended
+> after this deploy.
+
+---
+
+## Chapter Progress Indicator (2026-04-15) ✅
+
+Reduces mid-game abandonment by giving players persistent visibility of where they are in the game before the paywall fires.
+
+- [x] Chapter progress indicator added to game header (`Chapter X · Turn Y of Z`)
+      — `#hud-turn-text` element injected in `play.html` header, populated by `renderChapterProgress()`.
+      Hidden on landing/industry selection; only visible once game is in progress.
+      Mobile: chapter label hidden via CSS, turn info remains (`Turn 3 of 4 · Ending soon`).
+- [x] 1px amber progress bar below header
+      — `#game-progress-bar` / `#game-progress-fill` in `play.html`; width = `(completedTurns / maxTurns) × 100%`;
+      CSS `transition: width 0.4s ease`. Updates every turn via `renderChapterProgress()`.
+- [x] "Ending soon" anticipation signal at Turn 3–4 of 4
+      — Amber 11px text appended to turn indicator at the last 2 turns of any chapter.
+      Free-tier Chapter 2 last turn shows "Final turn coming" instead to prime paywall expectation.
+- [x] Chapter transition summary screen with key stats
+      — `ChapterTransition.show()` now receives `{ engineState }` from `renderChapterSummary()`.
+      Displays Final Cash, Chapter Profit (green/red), and Missed Sales units.
+      Narrative consequence line derived from score + profit + stockouts.
+      Auto-advances after 6 seconds (depleting amber bar animation); cancelled on manual click.
+      Expansion chapters (9–10) resolved from combined `[...CHAPTERS, ...EXPANSION_CHAPTERS]`.
+
+> **Measure this:** Monitor `round_completed` events in GA4 — specifically the drop-off between
+> Turn 4 and Turn 8 within Chapter 1. If players are now completing chapters at a higher rate,
+> the progress indicator is reducing mid-game abandonment.
+> Compare week-on-week after deployment.
+
+---
+
+## Homepage CTA Optimisation (2026-04-15)
+
+- [x] Hero CTA updated — "Play Chapter 1 Free — No Sign Up →"
+- [x] Friction-removal line added below CTAs — "Takes 15 minutes. No account. No install. Runs in your browser."
+- [x] Micro-explainer steps added below stats bar — "1. Pick your industry → 2. Make procurement decisions → 3. See if your supply chain survives"
+- [x] Terminal widget DECIDE button links to /play (with existing fade transition)
+
+> **Measure this:** Watch `cta_clicked` and `game_started` in GA4
+> over the next 7 days. Target: `game_started` rate should move
+> from 10% of visitors to 20%+. If `cta_clicked` increases but
+> `game_started` does not, the problem is the loading screen or
+> /play landing experience, not the homepage CTA.
+
+---
+
+## /play Friction Fix — Skip Marketing Hero (2026-04-15)
+
+- [x] `/play?start=1` parameter skips marketing hero and goes directly to industry selection
+- [x] All homepage CTAs updated to `/play?start=1`
+- [x] Direct `/play` navigation preserved for returning users
+
+> **This was a critical friction fix.** The user flow was:
+> Homepage → /play → second Play Free click → industry selection
+> It is now:
+> Homepage → /play?start=1 → industry selection (direct)
+>
+> **Measure this:** Watch `game_started` rate in GA4 over the next
+> 7 days. Removing the redundant click should meaningfully improve
+> the homepage → game_started conversion rate. Target: `game_started`
+> rate should move from 10% to 25%+ of /play visitors.
+
+---
+
 ## Remaining Work
 
 - [ ] Edit remaining 31 blog drafts for AI writing patterns (retry after rate limit resets)

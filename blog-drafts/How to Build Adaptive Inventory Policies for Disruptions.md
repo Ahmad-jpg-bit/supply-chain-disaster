@@ -2,15 +2,9 @@
 
 ## A step-by-step tutorial for implementing predictive risk management that adjusts stock levels automatically
 
-Learn to build an inventory system that detects supplier risks and adjusts safety stock within 24 hours. This hands-on tutorial covers predictive analytics, dynamic reorder points, and real-time dashboards.
+Traditional inventory management relies on fixed reorder points and static safety stock calculations. These methods fail during volatility because they cannot incorporate emerging risk signals. [35% of companies now use AI to optimize inventory levels](https://www.netsuite.com/portal/resource/articles/inventory-management/supply-chain-trends.shtml), recognizing that **flexibility in supply chain management** requires continuous adjustment rather than periodic review.
 
-## TL;DR
-
-* **Adaptive inventory policies outperform static approaches** by continuously adjusting safety stock and reorder points based on real-time risk signals rather than fixed historical averages
-* **Implementation requires four core components**: risk signal aggregation, dynamic safety stock calculation, probabilistic demand forecasting, and ERP integration for automated execution
-* **Start with conservative parameters** (1.5x risk multiplier, 95% base service level) and adjust based on observed outcomes over 8-12 weeks of operation
-* **Feedback loops are essential** for continuous improvement; track prediction accuracy and retrain models monthly to prevent drift
-* **35% of companies now use AI for inventory optimization**, with early adopters reporting 34% cost reduction in supply chain operations through adaptive planning approaches
+This tutorial walks through building an inventory system that detects supplier risks and adjusts safety stock within 24 hours, covering predictive analytics, dynamic reorder points, and real-time dashboards.
 
 ## What You Will Build: A Predictive Risk Management System
 
@@ -29,14 +23,6 @@ Before starting, verify you have the following in place. Missing items will caus
 * **Stakeholder alignment:** Documented approval from procurement and finance to implement dynamic inventory thresholds
 
 **Time estimate:** 15-25 hours over 2-3 weeks for initial implementation. Ongoing refinement requires 2-4 hours weekly for the first quarter.
-
-## Why Adaptive Policies Outperform Static Approaches
-
-Traditional inventory management relies on fixed reorder points and static safety stock calculations. These methods fail during volatility because they cannot incorporate emerging risk signals. [35% of companies now use AI to optimize inventory levels](https://www.netsuite.com/portal/resource/articles/inventory-management/supply-chain-trends.shtml), recognizing that **flexibility in supply chain management** requires continuous adjustment rather than periodic review.
-
-The 2024-2025 tariff disruptions demonstrated this gap clearly. Companies using static just-in-case buffers accumulated excess inventory and faced warehouse capacity constraints. Organizations with adaptive systems used real-time data to calibrate stock levels dynamically, avoiding both stockouts and costly overstock situations.
-
-This tutorial implements a regret-minimizing approach: your system will adjust order quantities based on observed outcomes, learning from stockouts and overstock events to improve accuracy continuously.
 
 ## Step 1: Establish Your Risk Signal Architecture
 
@@ -347,7 +333,7 @@ With your core adaptive inventory system operational, consider these enhancement
 
 **Financial impact modeling:** Connect inventory recommendations to cost models that quantify the trade-off between carrying costs and stockout risks. Present recommendations with ROI projections to accelerate approval.
 
-For organizations seeking to enhance their disruption detection capabilities, explore integration with specialized risk intelligence platforms that monitor global events, supplier financial health, and logistics network conditions in real time.
+Put these frameworks to the test in the simulation at supplychaindisaster.com.
 
 ## Frequently Asked Questions
 
