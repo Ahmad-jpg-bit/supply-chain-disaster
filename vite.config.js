@@ -75,6 +75,7 @@ export default defineConfig({
                 'jit-vulnerability-framework': resolve(__dirname, 'jit-vulnerability-framework.html'),
                 'jit-vs-agile-supply-chains': resolve(__dirname, 'jit-vs-agile-supply-chains.html'),
                 'adaptive-inventory-policies': resolve(__dirname, 'adaptive-inventory-policies.html'),
+                'supply-chain-resilience-strategies-2026': resolve(__dirname, 'supply-chain-resilience-strategies-2026.html'),
             },
 
             output: {
