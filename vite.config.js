@@ -77,6 +77,7 @@ export default defineConfig({
                 'adaptive-inventory-policies': resolve(__dirname, 'adaptive-inventory-policies.html'),
                 'supply-chain-resilience-strategies-2026': resolve(__dirname, 'supply-chain-resilience-strategies-2026.html'),
                 'resilient-supply-chain-framework': resolve(__dirname, 'resilient-supply-chain-framework.html'),
+                'scres-strategies-resilient-framework': resolve(__dirname, 'scres-strategies-resilient-framework.html'),
             },
 
             output: {
