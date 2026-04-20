@@ -78,6 +78,7 @@ export default defineConfig({
                 'supply-chain-resilience-strategies-2026': resolve(__dirname, 'supply-chain-resilience-strategies-2026.html'),
                 'resilient-supply-chain-framework': resolve(__dirname, 'resilient-supply-chain-framework.html'),
                 'scres-strategies-resilient-framework': resolve(__dirname, 'scres-strategies-resilient-framework.html'),
+                'scres-strategies-redundancy': resolve(__dirname, 'scres-strategies-redundancy.html'),
             },
 
             output: {
