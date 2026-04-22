@@ -80,6 +80,7 @@ export default defineConfig({
                 'scres-strategies-resilient-framework': resolve(__dirname, 'scres-strategies-resilient-framework.html'),
                 'scres-strategies-redundancy': resolve(__dirname, 'scres-strategies-redundancy.html'),
                 'supply-chain-resilience-skills': resolve(__dirname, 'supply-chain-resilience-skills.html'),
+                'supply-chain-agility-factors': resolve(__dirname, 'supply-chain-agility-factors.html'),
             },
 
             output: {
