@@ -1,0 +1,364 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Debrief Screen — Post-game performance overlay
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay backdrop ───────────────────────────────────────────────────── */
+.debrief-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    z-index: 9998;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 3rem;
+    overflow-y: auto;
+    animation: debrief-fade-in 0.25s ease forwards;
+}
+
+@keyframes debrief-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Modal container ─────────────────────────────────────────────────────── */
+.debrief-modal {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 780px;
+    overflow: hidden;
+    animation: debrief-slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes debrief-slide-up {
+    from { transform: translateY(24px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.debrief-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.debrief-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.debrief-header-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #3b82f6;
+    text-transform: uppercase;
+}
+
+.debrief-header-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f0f4ff;
+    margin: 0;
+}
+
+.debrief-header-meta {
+    font-size: 12px;
+    color: #475569;
+}
+
+.debrief-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.debrief-pdf-btn {
+    background: #f59e0b;
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.1rem;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.debrief-pdf-btn:hover  { background: #fbbf24; }
+.debrief-pdf-btn:active { transform: scale(0.97); }
+
+.debrief-premium-hint {
+    font-size: 11px;
+    color: #475569;
+    font-style: italic;
+}
+
+.debrief-close-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #64748b;
+    font-size: 14px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.debrief-close-btn:hover { border-color: rgba(255,255,255,0.25); color: #94a3b8; }
+
+/* ── Score band ─────────────────────────────────────────────────────────── */
+.debrief-score-band {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(15,23,42,1) 0%, rgba(30,41,59,0.9) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-wrap: wrap;
+}
+
+.debrief-score-grade {
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+    text-shadow: 0 0 40px currentColor;
+}
+
+.debrief-score-info {
+    flex: 1;
+    min-width: 120px;
+}
+
+.debrief-score-pct {
+    font-size: 28px;
+    font-weight: 800;
+    color: #f0f4ff;
+    line-height: 1;
+}
+
+.debrief-score-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+.debrief-score-breakdown {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 4px;
+}
+
+.debrief-score-stats {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.debrief-stat-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 72px;
+}
+
+.dsp-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.dsp-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+.debrief-section {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.debrief-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin: 0 0 1rem 0;
+}
+
+/* ── Insights ───────────────────────────────────────────────────────────── */
+.debrief-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.debrief-insight {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid #3b82f6;
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+}
+
+.debrief-insight-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.debrief-insight-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.debrief-insight-head strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.debrief-insight-body {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── Chapter grid ───────────────────────────────────────────────────────── */
+.debrief-chapter-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.debrief-ch-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.15s;
+}
+
+.debrief-ch-card.mastered {
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.debrief-ch-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.5rem;
+}
+
+.debrief-ch-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.debrief-ch-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.debrief-ch-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+}
+
+.badge-mastered { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.badge-learning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+
+.debrief-ch-bar-wrap {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.625rem;
+}
+
+.debrief-ch-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.debrief-ch-metrics {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.debrief-ch-crisis {
+    margin-top: 0.375rem;
+    font-size: 11px;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.07);
+    border-radius: 4px;
+    padding: 3px 8px;
+    display: inline-block;
+}
+
+/* ── Upsell banner ──────────────────────────────────────────────────────── */
+.debrief-upsell {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    background: rgba(59, 130, 246, 0.06);
+    border-top: 1px solid rgba(59, 130, 246, 0.15);
+    font-size: 12.5px;
+    color: #64748b;
+    text-align: center;
+}
+
+.debrief-upsell strong {
+    color: #93c5fd;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .debrief-overlay { padding: 0.75rem 0.5rem 2rem; }
+    .debrief-modal   { border-radius: 10px; }
+    .debrief-header  { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .debrief-score-band { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .debrief-score-grade { font-size: 48px; }
+}

@@ -468,6 +468,17 @@
   color: #93c5fd;
   text-decoration-color: rgba(147, 197, 253, 0.6);
 }
+.article-content a.mission-btn,
+a.mission-btn {
+  color: #0f172a !important;
+  text-decoration: none !important;
+  text-decoration-color: transparent !important;
+}
+.article-content a.mission-btn:hover,
+a.mission-btn:hover {
+  color: #0f172a !important;
+  text-decoration: none !important;
+}
 
 .article-content hr {
   border: none;

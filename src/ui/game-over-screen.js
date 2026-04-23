@@ -32,14 +32,15 @@ export class GameOverScreen {
 
     /**
      * Show the enhanced game over screen.
-     * @param {object} params
-     * @param {number}   params.cash         - Final cash
-     * @param {object}   params.overall      - { totalScore, maxTotal, percentage, masteredCount, totalConcepts }
-     * @param {object[]} params.summaries    - Array from mastery.getAllSummaries()
-     * @param {string}   params.industry     - 'electronics' | 'fmcg' | 'pharma'
-     * @param {boolean}  params.isExpansion  - Whether expansion tier is active
+     * @param {object}    params
+     * @param {number}    params.cash         - Final cash
+     * @param {object}    params.overall      - { totalScore, maxTotal, percentage, masteredCount, totalConcepts }
+     * @param {object[]}  params.summaries    - Array from mastery.getAllSummaries()
+     * @param {string}    params.industry     - 'electronics' | 'fmcg' | 'pharma'
+     * @param {boolean}   params.isExpansion  - Whether expansion tier is active
+     * @param {Function}  [params.onDebrief]  - Optional callback to open the debrief screen
      */
-    show({ cash, overall, summaries, industry = 'electronics', isExpansion = false }) {
+    show({ cash, overall, summaries, industry = 'electronics', isExpansion = false, onDebrief = null }) {
         // Option 8: Blended score = 60% financial + 40% mastery
         const initialCapital = (typeof industry === 'object' ? industry?.metrics?.initialCapital : null) || 500000;
         const financialPct = Math.min(100, Math.max(0, (cash / (initialCapital * 2)) * 100));
@@ -112,6 +113,7 @@ export class GameOverScreen {
                     <button class="btn-primary btn-glow gameover-play-again" onclick="location.reload()">Play Again</button>
                     <button class="btn-secondary gameover-cert-btn">Certificate</button>
                     <button class="btn-secondary gameover-guide-btn">Strategy Guide</button>
+                    ${onDebrief ? `<button class="btn-secondary gameover-debrief-btn">Debrief Report</button>` : ''}
                 </div>
             </div>
         `;
@@ -134,6 +136,12 @@ export class GameOverScreen {
             if (!playerName) return;
             DigitalGuide.generate({ playerName, overall, summaries, cash, industry, isExpansion });
         });
+
+        // Debrief Report button (only rendered when onDebrief callback is provided)
+        const debriefBtn = this.modal.querySelector('.gameover-debrief-btn');
+        if (debriefBtn && onDebrief) {
+            debriefBtn.addEventListener('click', onDebrief);
+        }
     }
 
     _drawRing(percentage, color) {

@@ -288,17 +288,15 @@ export class LandingPage {
 
     _roadmapHTML() {
         const nodes = CHAPTERS.map((ch, i) => {
-            const isFree    = ch.number <= 2;
             const hasNext   = i < CHAPTERS.length - 1;
             const outcome   = CHAPTER_OUTCOMES[i] || '';
             return `
-            <div class="lp-roadmap-node lp-roadmap-node--${isFree ? 'free' : 'pro'}">
+            <div class="lp-roadmap-node lp-roadmap-node--free">
                 <div class="lp-rn-icon">${getIcon(ch.icon, 20)}</div>
                 ${hasNext ? '<div class="lp-rn-connector"></div>' : ''}
                 <div class="lp-rn-body">
                     <div class="lp-rn-header">
                         <span class="lp-rn-num">Ch ${ch.number}</span>
-                        <span class="lp-rn-badge lp-rn-badge--${isFree ? 'free' : 'pro'}">${isFree ? 'Free' : 'Pro'}</span>
                     </div>
                     <div class="lp-rn-title">${ch.title}</div>
                     <div class="lp-rn-outcome">${outcome}</div>
@@ -311,16 +309,14 @@ export class LandingPage {
             <div class="lp-section-header">
                 <div class="lp-section-label">Mission Briefing</div>
                 <h2>Master the Full Supply Chain Arc</h2>
-                <p class="lp-section-sub">8 chapters scaffolding from fundamentals to advanced strategy. Each chapter unlocks new crises, harder decisions, and deeper consequences.</p>
+                <p class="lp-section-sub">8 chapters scaffolding from fundamentals to advanced strategy. All free — no paywall, no account required.</p>
             </div>
             <div class="lp-roadmap-scroll">
                 <div class="lp-roadmap-track">${nodes}</div>
             </div>
             <div class="lp-roadmap-legend">
-                <span class="lp-rn-badge lp-rn-badge--free">Free Entry</span>
-                <span class="lp-roadmap-legend-text">Chapters 1–2 always free</span>
-                <span class="lp-rn-badge lp-rn-badge--pro" style="margin-left:1.25rem;">Pro</span>
-                <span class="lp-roadmap-legend-text">Chapters 3–8 &mdash; $14.99 one-time</span>
+                <span class="lp-rn-badge lp-rn-badge--free">Free</span>
+                <span class="lp-roadmap-legend-text">All 8 chapters &mdash; no account needed</span>
             </div>
         </section>`;
     }
@@ -499,7 +495,6 @@ export class LandingPage {
 
     _upgradeHTML() {
         const check  = `<svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-        const cross  = `<svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
         return `
         <section class="lp-upgrade">
@@ -517,46 +512,40 @@ export class LandingPage {
                         <div class="lp-tier-price">
                             <span class="lp-tier-amount">$0</span>
                         </div>
-                        <p class="lp-tier-tagline">Start immediately. No card needed.</p>
+                        <p class="lp-tier-tagline">The full game. No card needed.</p>
                     </div>
                     <ul class="lp-tier-features">
-                        <li>${check} Chapters 1 &amp; 2 (8 scenarios)</li>
+                        <li>${check} <strong>Full 8-chapter game</strong></li>
                         <li>${check} All 3 industries</li>
                         <li>${check} Live analytics dashboard</li>
                         <li>${check} Bullwhip Effect tracker</li>
-                        <li>${cross} <span class="lp-tier-locked">Chapters 3–8</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Executive Strategy PDF</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Global Certification</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Expansion Bundle Access</span></li>
+                        <li>${check} Core performance summary</li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--free lp-begin-btn-pricing">
                         Play Free &rarr;
                     </button>
                 </div>
 
-                <!-- PREMIUM tier -->
+                <!-- STANDARD tier -->
                 <div class="lp-tier lp-tier--premium glass-panel">
                     <div class="lp-tier-badge-top">MOST POPULAR</div>
                     <div class="lp-tier-header">
-                        <span class="lp-tier-label">Premium</span>
+                        <span class="lp-tier-label">Standard</span>
                         <div class="lp-tier-price">
                             <span class="lp-tier-amount lp-tier-amount--premium">$14.99</span>
                             <span class="lp-tier-period">one-time</span>
                         </div>
-                        <p class="lp-tier-tagline">Full arc. Lifetime access. No subscriptions.</p>
+                        <p class="lp-tier-tagline">Deep post-game analytics. Lifetime access.</p>
                     </div>
                     <ul class="lp-tier-features">
                         <li>${check} Everything in Free</li>
-                        <li>${check} <strong>Full 8-Chapter Arc</strong></li>
-                        <li>${check} <strong>Executive Strategy Debrief PDF</strong></li>
-                        <li>${check} <strong>Global Certificate of Completion</strong></li>
+                        <li>${check} <strong>Full Debrief Report</strong></li>
+                        <li>${check} <strong>Decision Audit (all turns)</strong></li>
+                        <li>${check} <strong>PDF Download</strong></li>
                         <li>${check} <strong>Lifetime Updates</strong></li>
-                        <li>${check} <strong>Expansion Bundle Access</strong></li>
-                        <li>${check} Advanced Cost Breakdown Analytics</li>
-                        <li>${check} Termination Screen &amp; Full Mastery Report</li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--premium btn-glow lp-upgrade-btn">
-                        Unlock All 8 Chapters ✦
+                        Unlock Debrief Report ✦
                     </button>
                     <p class="lp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
                 </div>

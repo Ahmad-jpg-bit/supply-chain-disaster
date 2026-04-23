@@ -23,6 +23,8 @@ import { buildConsequenceData, showConsequenceOverlay } from './ui/consequence-o
 import { STARTING_ARCHETYPES } from './logic/crisis-engine.js';
 import { EndlessDeathScreen } from './ui/endless-death-screen.js';
 import { DefinitionCard } from './ui/definition-card.js';
+import { TurnSummaryCard } from './ui/turn-summary-card.js';
+import { DebriefScreen } from './ui/debrief-screen.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -63,6 +65,8 @@ export class Dashboard {
         this.terminationScreen  = new TerminationScreen();
         this.saveProgressModal  = new SaveProgressModal();
         this.endlessDeathScreen = new EndlessDeathScreen();
+        this.turnSummaryCard    = new TurnSummaryCard();
+        this.debriefScreen      = new DebriefScreen();
 
         this.init();
     }
@@ -569,9 +573,18 @@ export class Dashboard {
 
         const { phase } = this.engine.state;
 
+        // Toggle procurement layout mode on the dashboard grid
+        const grid = document.querySelector('.dashboard-grid');
+        if (phase === GAME_PHASES.PROCUREMENT) {
+            grid?.classList.add('proc-mode');
+        } else {
+            grid?.classList.remove('proc-mode');
+        }
+
         // Clear main view for redraw
         this.ui.mainView.innerHTML = '';
         this.ui.actionPanel.innerHTML = '';
+        this.ui.actionPanel.style.display = '';
 
         switch (phase) {
             case GAME_PHASES.CHAPTER_INTRO:
@@ -1250,238 +1263,403 @@ export class Dashboard {
     }
 
     renderProcurementPhase() {
-        const industryId = this.engine.state.industry.id;
-        const suppliers = SUPPLIERS[industryId] || SUPPLIERS.electronics;
-        const prevChoices = this.engine.state.procurementChoices;
+        const s          = this.engine.state;
+        const industryId = s.industry.id;
+        const suppliers  = SUPPLIERS[industryId] || SUPPLIERS.electronics;
+        const prev       = s.procurementChoices;
 
-        // ── Story context bar ──────────────────────────────────────────
-        const lastChoice = this.engine.state.lastStoryChoice;
-        const alignColors = { optimal: '#22c55e', cautious: '#f59e0b', risky: '#ef4444' };
-        const storyContextHtml = (!this.engine.state.isEndless && lastChoice) ? `
+        const fmtM  = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+        const fmtN  = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
+
+        // ── 1. KPI bar values ──────────────────────────────────────────
+        const cash       = s.cash;
+        const inventory  = s.inventory;
+        const inTransit  = s.inTransit.reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
+        const lastDemand = s.lastTurnResult?.demand ?? null;
+        const lastProfit = s.lastTurnResult?.profit ?? null;
+        const profitNeg  = lastProfit !== null && lastProfit < 0;
+
+        // ── 2. Market conditions alert pill ───────────────────────────
+        const costMod  = s.modifiers.unitCost  ?? 1.0;
+        const leadMod  = s.modifiers.leadTime  ?? 0;
+        const costPct  = Math.round((costMod - 1) * 100);
+        const costText = costPct > 0 ? `Supplier costs +${costPct}%`
+                       : costPct < 0 ? `Supplier costs ${costPct}%`
+                       : 'Supplier costs standard';
+        const leadText = leadMod > 0 ? `Lead times +${leadMod}wk`
+                       : leadMod < 0 ? `Lead times ${leadMod}wk`
+                       : 'Lead times normal';
+        const alertBad  = costMod > 1.05 || leadMod > 0;
+        const alertGood = costMod < 0.95 || leadMod < 0;
+        const alertCls  = alertBad ? 'proc-kpi-alert--warn' : alertGood ? 'proc-kpi-alert--good' : 'proc-kpi-alert--neutral';
+
+        // ── 3. Story context for header ────────────────────────────────
+        const lastChoice   = s.lastStoryChoice;
+        const alignColors  = { optimal: 'var(--success-color)', cautious: 'var(--accent-color)', risky: 'var(--danger-color)' };
+        const storyCtxHtml = (!s.isEndless && lastChoice) ? `
             <div class="proc-story-context">
                 <span class="proc-story-scenario">${lastChoice.scenarioTitle}</span>
-                <span class="proc-story-arrow" aria-hidden="true">→</span>
-                <span class="proc-story-choice" style="color:${alignColors[lastChoice.alignment] || '#94a3b8'}">
+                <span class="proc-story-arrow">→</span>
+                <span class="proc-story-choice" style="color:${alignColors[lastChoice.alignment] || 'var(--text-muted)'}">
                     ${lastChoice.optionLabel}
                 </span>
-            </div>
-        ` : '';
+            </div>` : '';
 
-        // ── Market Conditions banner data ──────────────────────────────
-        const costMod  = this.engine.state.modifiers.unitCost;
-        const leadMod  = this.engine.state.modifiers.leadTime;
-        const costPct  = Math.round(costMod * 100);
-        const isElevated  = costMod > 1.0;
-        const isFavorable = costMod < 1.0;
-        const bannerMod   = isElevated ? 'warn' : isFavorable ? 'good' : 'neutral';
-        const bannerIcon  = isElevated ? '⚠' : isFavorable ? '↗' : '≡';
-        const costDesc    = isElevated
-            ? `Supplier costs are elevated by <strong>${costPct - 100}%</strong>.`
-            : isFavorable
-                ? `Supplier costs are reduced by <strong>${100 - costPct}%</strong>.`
-                : `Supplier costs are at <strong>standard rates</strong>.`;
-        const leadDesc = leadMod === 0
-            ? `Lead times remain <strong>standard</strong>.`
-            : leadMod > 0
-                ? `Lead times are <strong>extended by ${leadMod} wk</strong>.`
-                : `Lead times are <strong>shortened by ${Math.abs(leadMod)} wk</strong>.`;
-
-        const renderOptionCards = (items, groupName, selectedId, displayFn) => {
-            return items.map(item => {
-                const sel = item.id === selectedId ? ' selected' : '';
-                return `<div class="option-card${sel}" data-group="${groupName}" data-id="${item.id}">
-                    ${displayFn(item)}
-                </div>`;
-            }).join('');
-        };
-
-        const supplierCards = renderOptionCards(suppliers, 'supplier', prevChoices.supplierId, s =>
-            `<div class="option-card-tier">${s.tier}</div>
-             <div class="option-card-name">${s.name}</div>
-             <div class="option-card-stats">
-                <span>Cost: ${Math.round(s.costMultiplier * 100)}%</span>
-                <span>Defects: ${(s.defectRate * 100).toFixed(1)}%</span>
-                <span>Lead: ${s.leadTimeModifier > 0 ? '+' : ''}${s.leadTimeModifier}wk</span>
-             </div>`
-        );
-
-        const shippingCards = renderOptionCards(SHIPPING_METHODS, 'shipping', prevChoices.shippingId, s =>
-            `<div class="option-card-name">${s.name}</div>
-             <div class="option-card-stats">
-                <span>$${s.costPerUnit}/unit</span>
-                <span>${s.leadTimeModifier > 0 ? '+' : ''}${s.leadTimeModifier === 0 ? 'Standard' : s.leadTimeModifier + 'wk'}</span>
-             </div>`
-        );
-
-        const pricingCards = renderOptionCards(PRICING_STRATEGIES, 'pricing', prevChoices.pricingId, p =>
-            `<div class="option-card-name">${p.name}</div>
-             <div class="option-card-stats">
-                <span>Price: ${Math.round(p.priceMultiplier * 100)}%</span>
-                <span>Demand: ${Math.round(p.demandMultiplier * 100)}%</span>
-             </div>`
-        );
-
-        const inspectionCards = renderOptionCards(QUALITY_INSPECTIONS, 'inspection', prevChoices.inspectionId, q =>
-            `<div class="option-card-name">${q.name}</div>
-             <div class="option-card-stats">
-                <span>$${q.costPerUnit}/unit</span>
-                <span>Catch: ${Math.round(q.defectCatchRate * 100)}%</span>
-             </div>`
-        );
-
-        // ── STEP 3: Procurement stepper steps ─────────────────────────
-        const PROC_STEPS = ['Supplier', 'Shipping', 'Quantity', 'Pricing', 'Inspection', 'Safety Stock'];
-        const stepperHtml = PROC_STEPS.map((s, i) =>
-            `<button class="proc-step ${i === 0 ? 'proc-step--active' : ''}" data-proc-step="${i}">
-                <span class="proc-step-num">${i + 1}</span>
-                <span class="proc-step-label">${s}</span>
-             </button>`
-        ).join('<span class="proc-step-divider">›</span>');
-
-        // ── Main scrollable form ───────────────────────────────────────
-        const endlessHeaderHtml = this.engine.state.isEndless ? (() => {
-            const s = this.engine.state;
+        // ── Endless header ─────────────────────────────────────────────
+        const endlessHtml = s.isEndless ? (() => {
             const sat = Math.max(0, s.endlessSatisfaction);
-            const satColor = sat > 60 ? '#22c55e' : sat > 30 ? '#f59e0b' : '#ef4444';
-            return `
-            <div class="proc-endless-header">
+            const sc  = sat > 60 ? 'var(--success-color)' : sat > 30 ? 'var(--accent-color)' : 'var(--danger-color)';
+            return `<div class="proc-endless-header">
                 <span class="proc-endless-wave">⚡ WAVE ${s.endlessWave} · TURN ${s.endlessTurn + 1}</span>
-                <span class="proc-endless-sat" style="color:${satColor}">SAT ${Math.round(sat)}%</span>
+                <span class="proc-endless-sat" style="color:${sc}">SAT ${Math.round(sat)}%</span>
                 <span class="proc-endless-score">▲ ${s.endlessScore.toLocaleString()}</span>
             </div>`;
         })() : '';
 
-        const html = `
-            <div class="procurement-panel">
-                <div class="procurement-header">
-                    <h3>${this.engine.state.isEndless ? 'Survival Procurement' : 'Procurement Decisions'}</h3>
-                </div>
-                ${endlessHeaderHtml}
-                ${storyContextHtml}
+        // ── 4. Supplier cards ─────────────────────────────────────────
+        const SPEED_LABELS = { charter: 'FASTEST', express: 'FAST', standard: 'DEFAULT', economy: 'SLOW', intermodal: 'SLOWEST' };
 
-                <!-- Market Conditions Banner -->
-                <div class="market-conditions-banner market-conditions-banner--${bannerMod}" role="alert">
-                    <span class="market-conditions-icon" aria-hidden="true">${bannerIcon}</span>
-                    <div class="market-conditions-text">
-                        <strong>Current Market Conditions:</strong>
-                        ${costDesc} ${leadDesc}
+        const supplierCardsHtml = suppliers.map(sup => {
+            const sel        = sup.id === prev.supplierId ? ' psc--selected' : '';
+            const defPct     = (sup.defectRate * 100).toFixed(1);
+            const defCls     = sup.defectRate > 0.10 ? 'psc-stat--danger'
+                             : sup.defectRate < 0.03 ? 'psc-stat--good'
+                             : 'psc-stat--warn';
+            const costPctVal = Math.round(sup.costMultiplier * 100);
+            const costCls    = sup.costMultiplier > 1.1 ? 'psc-stat--warn'
+                             : sup.costMultiplier < 0.9 ? 'psc-stat--good'
+                             : '';
+            const leadStr    = sup.leadTimeModifier === 0 ? 'Standard'
+                             : (sup.leadTimeModifier > 0 ? '+' : '') + sup.leadTimeModifier + 'wk';
+            const tierCls    = `psc-tier--${sup.tier.toLowerCase()}`;
+            return `
+            <div class="psc${sel}" data-group="supplier" data-id="${sup.id}" role="radio" aria-checked="${sup.id === prev.supplierId}" tabindex="0">
+                <div class="psc-top">
+                    <span class="psc-tier ${tierCls}">${sup.tier}</span>
+                    <span class="psc-name">${sup.name}</span>
+                </div>
+                <div class="psc-stats">
+                    <div class="psc-stat">
+                        <span class="psc-stat-label">COST</span>
+                        <span class="psc-stat-value ${costCls}">${costPctVal}%</span>
+                    </div>
+                    <div class="psc-stat">
+                        <span class="psc-stat-label">DEFECT</span>
+                        <span class="psc-stat-value ${defCls}">${defPct}%</span>
+                    </div>
+                    <div class="psc-stat">
+                        <span class="psc-stat-label">LEAD</span>
+                        <span class="psc-stat-value">${leadStr}</span>
                     </div>
                 </div>
+            </div>`;
+        }).join('');
 
-                <!-- Live Bullwhip Signal Widget -->
-                <div class="bullwhip-live-section">
-                    <div class="bullwhip-live-header">
-                        <span class="bullwhip-live-title">◈ DEMAND vs ORDER SIGNAL</span>
-                        <span id="bullwhip-live-ratio" class="bullwhip-live-ratio blr--neutral">—</span>
-                    </div>
-                    <div class="bullwhip-live-chart-wrap">
-                        <canvas id="bullwhipLive" class="bullwhip-live-canvas"></canvas>
-                    </div>
-                    <p class="bullwhip-live-hint">Orange dot tracks live as you adjust order quantity below</p>
+        // ── 5. Shipping cards (2-col) ─────────────────────────────────
+        const shippingCardsHtml = SHIPPING_METHODS.map(m => {
+            const sel      = m.id === prev.shippingId ? ' shc--selected' : '';
+            const leadStr  = m.leadTimeModifier === 0 ? 'Standard'
+                           : (m.leadTimeModifier > 0 ? '+' : '') + m.leadTimeModifier + 'wk';
+            const speed    = SPEED_LABELS[m.id] || '';
+            const speedCls = m.id === 'charter' ? 'shc-speed--fastest'
+                           : m.id === 'express' ? 'shc-speed--fast'
+                           : m.id === 'economy' || m.id === 'intermodal' ? 'shc-speed--slow'
+                           : 'shc-speed--default';
+            return `
+            <div class="shc${sel}" data-group="shipping" data-id="${m.id}" role="radio" aria-checked="${m.id === prev.shippingId}" tabindex="0">
+                <div class="shc-top">
+                    <span class="shc-name">${m.name}</span>
+                    <span class="shc-speed ${speedCls}">${speed}</span>
                 </div>
-
-                <!-- CHANGE 3: Procurement Step Indicator -->
-                <div class="proc-stepper" role="navigation" aria-label="Procurement steps">
-                    ${stepperHtml}
+                <div class="shc-stats">
+                    <span class="shc-cost">$${m.costPerUnit}/unit</span>
+                    <span class="shc-lead">${leadStr}</span>
                 </div>
+            </div>`;
+        }).join('');
 
-                <div class="procurement-section" data-proc-section="0" id="proc-sec-supplier">
-                    <h4>Supplier Selection</h4>
-                    <div class="option-cards">${supplierCards}</div>
+        // ── 6. Pricing cards ─────────────────────────────────────────
+        const pricingCardsHtml = PRICING_STRATEGIES.map(p => {
+            const sel = p.id === prev.pricingId ? ' option-card selected' : ' option-card';
+            return `
+            <div class="${sel.trim()}" data-group="pricing" data-id="${p.id}">
+                <div class="option-card-name">${p.name}</div>
+                <div class="option-card-stats">
+                    <span>Price ×${p.priceMultiplier.toFixed(1)}</span>
+                    <span>Demand ×${p.demandMultiplier.toFixed(1)}</span>
                 </div>
+            </div>`;
+        }).join('');
 
-                <div class="procurement-section" data-proc-section="1" id="proc-sec-shipping">
-                    <h4>Shipping Method</h4>
-                    <div class="option-cards">${shippingCards}</div>
+        // ── 7. Inspection cards ───────────────────────────────────────
+        const inspectionCardsHtml = QUALITY_INSPECTIONS.map(q => {
+            const sel = q.id === prev.inspectionId ? ' option-card selected' : ' option-card';
+            return `
+            <div class="${sel.trim()}" data-group="inspection" data-id="${q.id}">
+                <div class="option-card-name">${q.name}</div>
+                <div class="option-card-stats">
+                    <span>$${q.costPerUnit}/unit</span>
+                    <span>Catch ${Math.round(q.defectCatchRate * 100)}%</span>
                 </div>
+            </div>`;
+        }).join('');
 
-                <!-- CHANGE 4: Order Quantity +/- stepper -->
-                <div class="procurement-section" data-proc-section="2" id="proc-sec-quantity">
-                    <h4>Order Quantity</h4>
-                    <div class="qty-stepper">
-                        <button class="qty-btn qty-btn--minus" id="qty-minus" aria-label="Decrease quantity">−</button>
-                        <input type="number" id="order-input" value="${prevChoices.orderQuantity}" min="0" step="100" aria-label="Order quantity">
-                        <button class="qty-btn qty-btn--plus" id="qty-plus" aria-label="Increase quantity">+</button>
-                    </div>
-                </div>
+        // ── Build initial summary labels ──────────────────────────────
+        const initSupplier  = suppliers.find(x => x.id === prev.supplierId) || suppliers[1];
+        const initShipping  = SHIPPING_METHODS.find(x => x.id === prev.shippingId) || SHIPPING_METHODS[2];
+        const initPricing   = PRICING_STRATEGIES.find(x => x.id === prev.pricingId) || PRICING_STRATEGIES[1];
+        const initInspect   = QUALITY_INSPECTIONS.find(x => x.id === prev.inspectionId) || QUALITY_INSPECTIONS[1];
 
-                <div class="procurement-section" data-proc-section="3" id="proc-sec-pricing">
-                    <h4>Pricing Strategy</h4>
-                    <div class="option-cards">${pricingCards}</div>
-                </div>
-
-                <div class="procurement-section" data-proc-section="4" id="proc-sec-inspection">
-                    <h4>Quality Inspection</h4>
-                    <div class="option-cards">${inspectionCards}</div>
-                </div>
-
-                <div class="procurement-section" data-proc-section="5" id="proc-sec-safety">
-                    <h4>Safety Stock Target</h4>
-                    <div class="safety-stock-control">
-                        <input type="range" id="safety-stock-slider" min="0" max="2000" step="100" value="${prevChoices.safetyStockTarget}">
-                        <span id="safety-stock-value">${prevChoices.safetyStockTarget} units</span>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.ui.mainView.innerHTML = html;
-        this._initBullwhipLiveChart();
-
-        // ── Sticky Cost + Confirm in right action panel ──────
-        const currentTransit = this.engine.state.inTransit;
-        const inTransitHtml = currentTransit.length > 0 ? `
-            <div class="proc-sidebar-divider"></div>
-            <div class="proc-sidebar-label">IN TRANSIT (${currentTransit.length})</div>
+        // ── In-transit sidebar list ───────────────────────────────────
+        const transitListHtml = s.inTransit.length > 0 ? `
+            <div class="proc-cp-divider"></div>
+            <div class="proc-cp-label">IN TRANSIT (${s.inTransit.length})</div>
             <div class="in-transit-list">
-                ${currentTransit.map(o => {
-                    const turnsLeft = o.arrivesOnTurn - this.engine.state.turn;
-                    const units = (o.usableUnits + o.passedDefects).toLocaleString();
+                ${s.inTransit.map(o => {
+                    const tl = o.arrivesOnTurn - s.turn;
+                    const u  = (o.usableUnits + o.passedDefects).toLocaleString();
                     return `<div class="in-transit-item">
-                        <span>${units} units</span>
-                        <span class="in-transit-eta">T${o.arrivesOnTurn} <span class="in-transit-turns">(+${turnsLeft})</span></span>
+                        <span>${u} units</span>
+                        <span class="in-transit-eta">T${o.arrivesOnTurn}<span class="in-transit-turns"> (+${tl})</span></span>
                     </div>`;
                 }).join('')}
-            </div>
-        ` : '';
+            </div>` : '';
 
-        this.ui.actionPanel.style.display = '';
-        this.ui.actionPanel.innerHTML = `
-            <div class="proc-sidebar-label">ESTIMATED COSTS</div>
-            <div class="cost-estimate" id="cost-estimate">
-                <div class="cost-row"><span>Order Cost</span><span id="est-order">—</span></div>
-                <div class="cost-row"><span>Shipping</span><span id="est-shipping">—</span></div>
-                <div class="cost-row"><span>Inspection</span><span id="est-inspection">—</span></div>
-                <div class="cost-row cost-total"><span>Total</span><span id="est-total">—</span></div>
-            </div>
-            <div class="proc-sidebar-divider"></div>
-            <div class="proc-sidebar-label">DELIVERY TIMELINE</div>
-            <div class="gantt-chart-wrap">
-                <canvas id="leadTimeGantt" class="lead-time-gantt"></canvas>
-            </div>
-            <div class="lead-time-display">
-                <div class="lead-time-row">
-                    <span>Arrives Turn</span>
-                    <span id="est-arrival-turn" class="lead-time-value">—</span>
+        // ── Full layout HTML ──────────────────────────────────────────
+        this.ui.mainView.innerHTML = `
+        <div class="proc-layout">
+
+            ${endlessHtml}
+            ${storyCtxHtml}
+
+            <!-- 1. KPI Bar -->
+            <div class="proc-kpi-bar">
+                <div class="proc-kpi-item">
+                    <span class="proc-kpi-label">CASH</span>
+                    <span class="proc-kpi-value">${fmtM(cash)}</span>
                 </div>
-                <div class="lead-time-row">
-                    <span>Lead Time</span>
-                    <span id="est-lead-turns" class="lead-time-value">—</span>
+                <div class="proc-kpi-div"></div>
+                <div class="proc-kpi-item">
+                    <span class="proc-kpi-label">INVENTORY</span>
+                    <span class="proc-kpi-value">${fmtN(inventory)}</span>
+                </div>
+                <div class="proc-kpi-div"></div>
+                <div class="proc-kpi-item">
+                    <span class="proc-kpi-label">IN TRANSIT</span>
+                    <span class="proc-kpi-value">${fmtN(inTransit)}</span>
+                </div>
+                <div class="proc-kpi-div"></div>
+                <div class="proc-kpi-item">
+                    <span class="proc-kpi-label">LAST DEMAND</span>
+                    <span class="proc-kpi-value">${lastDemand !== null ? fmtN(lastDemand) : '—'}</span>
+                </div>
+                <div class="proc-kpi-div"></div>
+                <div class="proc-kpi-item">
+                    <span class="proc-kpi-label">NET PROFIT</span>
+                    <span class="proc-kpi-value ${profitNeg ? 'proc-kpi-danger' : ''}">${lastProfit !== null ? fmtM(lastProfit) : '—'}</span>
+                </div>
+                <div class="proc-kpi-spacer"></div>
+                <div class="proc-kpi-alert ${alertCls}">
+                    <span class="proc-kpi-alert-dot"></span>
+                    <span class="proc-kpi-alert-text">${costText} · ${leadText}</span>
                 </div>
             </div>
-            ${inTransitHtml}
-            <button id="place-order-btn" class="btn-primary width-full proc-confirm-btn">
-                ✓ Confirm Order
-            </button>
-            <p class="proc-sidebar-note">Review all selections, then confirm to process the quarter.</p>
+
+            <!-- 2. Demand chart -->
+            <div class="proc-chart-block">
+                <div class="proc-chart-head">
+                    <span class="proc-chart-title">DEMAND vs ORDER SIGNAL</span>
+                    <div class="proc-chart-legend">
+                        <span class="pcl-item pcl-demand">—&nbsp;demand</span>
+                        <span class="pcl-item pcl-orders">–&nbsp;–&nbsp;order signal</span>
+                    </div>
+                    <span id="bullwhip-live-ratio" class="bullwhip-live-ratio blr--neutral">—</span>
+                </div>
+                <div class="proc-chart-canvas-wrap">
+                    <canvas id="bullwhipLive"></canvas>
+                </div>
+            </div>
+
+            <!-- 3-8. Two-column body -->
+            <div class="proc-body">
+
+                <!-- LEFT: Accordion decisions -->
+                <div class="proc-decisions">
+
+                    <!-- Section 1: Supplier -->
+                    <div class="proc-acc" data-acc="supplier">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="supplier">
+                            <span class="proc-acc-num">1</span>
+                            <span class="proc-acc-ttl">SUPPLIER</span>
+                            <span class="proc-acc-summary" id="acc-sum-supplier">${initSupplier.tier} · ${initSupplier.name}</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="proc-supplier-grid">${supplierCardsHtml}</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Shipping -->
+                    <div class="proc-acc" data-acc="shipping">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="shipping">
+                            <span class="proc-acc-num">2</span>
+                            <span class="proc-acc-ttl">SHIPPING</span>
+                            <span class="proc-acc-summary" id="acc-sum-shipping">${initShipping.name} · $${initShipping.costPerUnit}/unit</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="proc-ship-grid">${shippingCardsHtml}</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Order Quantity -->
+                    <div class="proc-acc" data-acc="quantity">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="quantity">
+                            <span class="proc-acc-num">3</span>
+                            <span class="proc-acc-ttl">ORDER QUANTITY</span>
+                            <span class="proc-acc-summary" id="acc-sum-quantity">${fmtN(prev.orderQuantity)} units</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="qty-stepper">
+                                <button class="qty-btn qty-btn--minus" id="qty-minus" aria-label="Decrease quantity">−</button>
+                                <input type="number" id="order-input" value="${prev.orderQuantity}" min="0" step="100" aria-label="Order quantity">
+                                <button class="qty-btn qty-btn--plus" id="qty-plus" aria-label="Increase quantity">+</button>
+                            </div>
+                            <p class="qty-hint">Safety stock target: <strong id="qty-hint-safety">${fmtN(prev.safetyStockTarget)}</strong> units &nbsp;·&nbsp; In transit: <strong>${fmtN(inTransit)}</strong> units</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Pricing Strategy -->
+                    <div class="proc-acc" data-acc="pricing">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="pricing">
+                            <span class="proc-acc-num">4</span>
+                            <span class="proc-acc-ttl">PRICING STRATEGY</span>
+                            <span class="proc-acc-summary" id="acc-sum-pricing">${initPricing.name}</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="option-cards">${pricingCardsHtml}</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Quality Inspection -->
+                    <div class="proc-acc" data-acc="inspection">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="inspection">
+                            <span class="proc-acc-num">5</span>
+                            <span class="proc-acc-ttl">QUALITY INSPECTION</span>
+                            <span class="proc-acc-summary" id="acc-sum-inspection">${initInspect.name}</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="option-cards">${inspectionCardsHtml}</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Safety Stock -->
+                    <div class="proc-acc" data-acc="safety">
+                        <button class="proc-acc-hdr proc-acc-hdr--open" data-toggle="safety">
+                            <span class="proc-acc-num">6</span>
+                            <span class="proc-acc-ttl">SAFETY STOCK TARGET</span>
+                            <span class="proc-acc-summary" id="acc-sum-safety">${fmtN(prev.safetyStockTarget)} units</span>
+                            <span class="proc-acc-chevron">&#8963;</span>
+                        </button>
+                        <div class="proc-acc-body proc-acc-body--open">
+                            <div class="safety-stock-control">
+                                <input type="range" id="safety-stock-slider" min="0" max="2000" step="100" value="${prev.safetyStockTarget}">
+                                <span id="safety-stock-value">${prev.safetyStockTarget} units</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /proc-decisions -->
+
+                <!-- RIGHT: Sticky cost panel -->
+                <div class="proc-right">
+                    <div class="proc-cost-panel">
+                        <div class="proc-cp-label">LIVE COST ESTIMATE</div>
+                        <div class="proc-cp-rows">
+                            <div class="proc-cp-row"><span>Order Cost</span><span id="est-order">—</span></div>
+                            <div class="proc-cp-row"><span>Shipping</span><span id="est-shipping">—</span></div>
+                            <div class="proc-cp-row"><span>Inspection</span><span id="est-inspection">—</span></div>
+                            <div class="proc-cp-divider"></div>
+                            <div class="proc-cp-row proc-cp-total"><span>Total This Turn</span><span id="est-total" class="proc-cp-total-val">—</span></div>
+                        </div>
+
+                        <div class="proc-delivery-badge">
+                            <div class="proc-del-row">
+                                <span class="proc-del-label">ARRIVES</span>
+                                <span id="est-arrival-turn" class="proc-del-value">—</span>
+                            </div>
+                            <div class="proc-del-row">
+                                <span class="proc-del-label">LEAD TIME</span>
+                                <span id="est-lead-turns" class="proc-del-value">—</span>
+                            </div>
+                        </div>
+
+                        ${transitListHtml}
+
+                        <button id="place-order-btn" class="proc-confirm-btn">
+                            ✓ Confirm Order
+                        </button>
+                        <p class="proc-sidebar-note">Review all sections, then confirm to advance the quarter.</p>
+                    </div>
+                </div>
+
+            </div><!-- /proc-body -->
+        </div><!-- /proc-layout -->
         `;
 
+        this.ui.actionPanel.style.display = 'none';
+        this._initBullwhipLiveChart();
         this.attachProcurementListeners();
         this.updateCostEstimate();
     }
 
     attachProcurementListeners() {
-        // Option card selection
+        // ── Accordion toggles ─────────────────────────────────────────
+        document.querySelectorAll('.proc-acc-hdr').forEach(hdr => {
+            hdr.addEventListener('click', () => {
+                const key  = hdr.dataset.toggle;
+                const acc  = hdr.closest('.proc-acc');
+                const body = acc.querySelector('.proc-acc-body');
+                const open = hdr.classList.contains('proc-acc-hdr--open');
+                hdr.classList.toggle('proc-acc-hdr--open', !open);
+                body.classList.toggle('proc-acc-body--open', !open);
+            });
+        });
+
+        // ── Supplier cards ─────────────────────────────────────────────
+        document.querySelectorAll('.psc').forEach(card => {
+            const activate = () => {
+                document.querySelectorAll('.psc').forEach(c => {
+                    c.classList.remove('psc--selected');
+                    c.setAttribute('aria-checked', 'false');
+                });
+                card.classList.add('psc--selected');
+                card.setAttribute('aria-checked', 'true');
+                this.updateCostEstimate();
+            };
+            card.addEventListener('click', activate);
+            card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+        });
+
+        // ── Shipping cards ─────────────────────────────────────────────
+        document.querySelectorAll('.shc').forEach(card => {
+            const activate = () => {
+                document.querySelectorAll('.shc').forEach(c => {
+                    c.classList.remove('shc--selected');
+                    c.setAttribute('aria-checked', 'false');
+                });
+                card.classList.add('shc--selected');
+                card.setAttribute('aria-checked', 'true');
+                this.updateCostEstimate();
+            };
+            card.addEventListener('click', activate);
+            card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+        });
+
+        // ── Generic option cards (pricing, inspection) ─────────────────
         document.querySelectorAll('.option-card').forEach(card => {
             card.addEventListener('click', () => {
                 const group = card.dataset.group;
@@ -1491,11 +1669,10 @@ export class Dashboard {
             });
         });
 
-        // Order quantity input + +/- stepper buttons
+        // ── Order quantity ─────────────────────────────────────────────
         const orderInput = document.getElementById('order-input');
         if (orderInput) {
             orderInput.addEventListener('input', () => this.updateCostEstimate());
-
             const step = parseInt(orderInput.step) || 100;
             document.getElementById('qty-minus')?.addEventListener('click', () => {
                 orderInput.value = Math.max(0, (parseInt(orderInput.value) || 0) - step);
@@ -1507,94 +1684,91 @@ export class Dashboard {
             });
         }
 
-        // Safety stock slider
+        // ── Safety stock slider ────────────────────────────────────────
         const slider = document.getElementById('safety-stock-slider');
-        const sliderValue = document.getElementById('safety-stock-value');
         if (slider) {
             slider.addEventListener('input', () => {
-                sliderValue.textContent = `${slider.value} units`;
+                const v = slider.value;
+                const el = document.getElementById('safety-stock-value');
+                if (el) el.textContent = `${parseInt(v).toLocaleString()} units`;
+                const sum = document.getElementById('acc-sum-safety');
+                if (sum) sum.textContent = `${parseInt(v).toLocaleString()} units`;
+                const hint = document.getElementById('qty-hint-safety');
+                if (hint) hint.textContent = parseInt(v).toLocaleString();
+                this.updateCostEstimate();
             });
         }
 
-        // Place order
-        document.getElementById('place-order-btn').addEventListener('click', () => {
-            this.handleProcurement();
-        });
-
-        // Procurement step indicator — click scrolls to section; IntersectionObserver updates active
-        const panel = this.ui.mainView.querySelector('.procurement-panel');
-        const stepBtns = document.querySelectorAll('.proc-step');
-        const sections = document.querySelectorAll('.procurement-section[data-proc-section]');
-
-        stepBtns.forEach(btn => {
+        // ── Confirm order button ───────────────────────────────────────
+        const btn = document.getElementById('place-order-btn');
+        if (btn) {
             btn.addEventListener('click', () => {
-                const idx = parseInt(btn.dataset.procStep);
-                sections[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (btn.disabled) return;
+                btn.disabled = true;
+                btn.textContent = 'Order confirmed ✓';
+                btn.classList.add('proc-confirm-btn--done');
+                this.handleProcurement();
             });
-        });
-
-        if ('IntersectionObserver' in window && sections.length) {
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const secIdx = entry.target.dataset.procSection;
-                        stepBtns.forEach(b => b.classList.toggle('proc-step--active', b.dataset.procStep === secIdx));
-                    }
-                });
-            }, { root: panel, threshold: 0.4 });
-            sections.forEach(s => io.observe(s));
         }
     }
 
     getSelectedProcurementChoices() {
-        const getSelected = (group) => {
-            const el = document.querySelector(`.option-card[data-group="${group}"].selected`);
-            return el ? el.dataset.id : null;
-        };
+        const getSupplier  = () => document.querySelector('.psc.psc--selected')?.dataset.id  || 'standard';
+        const getShipping  = () => document.querySelector('.shc.shc--selected')?.dataset.id  || 'standard';
+        const getOption    = (g) => document.querySelector(`.option-card[data-group="${g}"].selected`)?.dataset.id || null;
 
         return {
-            supplierId: getSelected('supplier') || 'standard',
-            shippingId: getSelected('shipping') || 'standard',
-            orderQuantity: parseInt(document.getElementById('order-input')?.value) || 0,
-            pricingId: getSelected('pricing') || 'standard',
-            inspectionId: getSelected('inspection') || 'standard',
-            safetyStockTarget: parseInt(document.getElementById('safety-stock-slider')?.value) || 500
+            supplierId:       getSupplier(),
+            shippingId:       getShipping(),
+            orderQuantity:    parseInt(document.getElementById('order-input')?.value) || 0,
+            pricingId:        getOption('pricing')    || 'standard',
+            inspectionId:     getOption('inspection') || 'standard',
+            safetyStockTarget: parseInt(document.getElementById('safety-stock-slider')?.value) || 500,
         };
     }
 
     updateCostEstimate() {
-        const choices = this.getSelectedProcurementChoices();
+        const choices    = this.getSelectedProcurementChoices();
         const industryId = this.engine.state.industry.id;
-        const suppliers = SUPPLIERS[industryId] || SUPPLIERS.electronics;
-        const supplier = suppliers.find(s => s.id === choices.supplierId) || suppliers[1];
-        const shipping = SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[1];
+        const suppliers  = SUPPLIERS[industryId] || SUPPLIERS.electronics;
+        const supplier   = suppliers.find(s => s.id === choices.supplierId)  || suppliers[1];
+        const shipping   = SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[2];
         const inspection = QUALITY_INSPECTIONS.find(q => q.id === choices.inspectionId) || QUALITY_INSPECTIONS[1];
+        const pricing    = PRICING_STRATEGIES.find(p => p.id === choices.pricingId)    || PRICING_STRATEGIES[1];
 
-        const baseCost = 100;
-        const storyMod = this.engine.state.modifiers.unitCost || 1.0;
-        const qty = choices.orderQuantity;
-
-        const orderCost = qty * baseCost * supplier.costMultiplier * storyMod;
+        const baseCost     = 100;
+        const storyMod     = this.engine.state.modifiers.unitCost || 1.0;
+        const qty          = choices.orderQuantity;
+        const orderCost    = qty * baseCost * supplier.costMultiplier * storyMod;
         const shippingCost = qty * shipping.costPerUnit;
-        const inspectionCost = qty * inspection.costPerUnit;
-        const total = orderCost + shippingCost + inspectionCost;
+        const inspectCost  = qty * inspection.costPerUnit;
+        const total        = orderCost + shippingCost + inspectCost;
 
-        const fmt = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+        const fmtM = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+        const fmtN = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
         const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-        setEl('est-order', fmt(orderCost));
-        setEl('est-shipping', fmt(shippingCost));
-        setEl('est-inspection', fmt(inspectionCost));
-        setEl('est-total', fmt(total));
+        setEl('est-order',    fmtM(orderCost));
+        setEl('est-shipping', fmtM(shippingCost));
+        setEl('est-inspection', fmtM(inspectCost));
+        setEl('est-total',    fmtM(total));
 
-        // Delivery timeline — live ETA based on current supplier + shipping selection
-        const leadTurns = this.engine._computeLeadTimeTurns(
-            supplier, shipping, this.engine.state.modifiers.leadTime, industryId
-        );
+        // Color total red when large relative to cash
+        const totalEl = document.getElementById('est-total');
+        if (totalEl) totalEl.style.color = 'var(--danger-color)';
+
+        // Delivery timeline
+        const leadTurns   = this.engine._computeLeadTimeTurns(supplier, shipping, this.engine.state.modifiers.leadTime, industryId);
         const arrivalTurn = this.engine.state.turn + leadTurns;
-        const turnLabel = leadTurns === 1 ? '1 turn' : `${leadTurns} turns`;
         setEl('est-arrival-turn', `Turn ${arrivalTurn}`);
-        setEl('est-lead-turns', turnLabel);
+        setEl('est-lead-turns',   leadTurns === 1 ? '1 turn' : `${leadTurns} turns`);
+
+        // Section summary labels
+        setEl('acc-sum-supplier',  `${supplier.tier} · ${supplier.name}`);
+        setEl('acc-sum-shipping',  `${shipping.name} · $${shipping.costPerUnit}/unit`);
+        setEl('acc-sum-quantity',  `${fmtN(qty)} units`);
+        setEl('acc-sum-pricing',   pricing.name);
+        setEl('acc-sum-inspection',inspection.name);
 
         this._renderGanttChart(leadTurns);
         this._updateBullwhipPreview(qty);
@@ -1733,7 +1907,97 @@ export class Dashboard {
             CrisisTicker.inject(crisis.name, alignment, crisis.ticker);
         }
 
-        this.renderGameState();
+        // Show turn summary card before advancing to next phase
+        const result  = this.engine.state.lastTurnResult;
+        const chapter = this.engine.state.currentChapter;
+        this.turnSummaryCard.show(result, chapter, () => {
+            this.renderGameState();
+        });
+    }
+
+    /**
+     * Analyse the player's chapter history and return the most instructive
+     * diagnosis to show on the CSCP definition card.
+     * Returns null if no strong pattern is found.
+     * @param {number} chapterNum
+     * @returns {{ icon, headline, detail, type } | null}
+     */
+    _computePlayerDiagnosis(chapterNum) {
+        const history = this.engine.state.history || [];
+        const turns   = history.filter(h => h.chapter === chapterNum);
+        if (turns.length === 0) return null;
+
+        const fmt = (n) => new Intl.NumberFormat('en-US', {
+            style: 'currency', currency: 'USD', maximumFractionDigits: 0,
+        }).format(Math.abs(n));
+
+        const totalMissed   = turns.reduce((s, h) => s + (h.missedSales  || 0), 0);
+        const totalHolding  = turns.reduce((s, h) => s + (h.holdingCost  || 0), 0);
+        const totalShipping = turns.reduce((s, h) => s + (h.shippingCost || 0), 0);
+        const totalDefects  = turns.reduce((s, h) => s + (h.defectsPassed|| 0), 0);
+        const totalProfit   = turns.reduce((s, h) => s + (h.profit       || 0), 0);
+        const safetyBreaches= turns.filter(h => h.safetyBreach).length;
+
+        // Most impactful pain point wins
+        if (totalMissed > 300) {
+            const lostRevEst = turns.reduce((s, h) => {
+                const perUnit = h.sales > 0 ? h.revenue / h.sales : 120;
+                return s + (h.missedSales || 0) * perUnit;
+            }, 0);
+            return {
+                icon: '⚠',
+                headline: 'Your chapter had recurring stockouts',
+                detail: `${totalMissed.toLocaleString()} units went unfulfilled this chapter — approximately ${fmt(lostRevEst)} in missed revenue. Stockouts happen when your order quantity or safety stock buffer is too low relative to actual demand.`,
+                type: 'warn',
+            };
+        }
+
+        if (totalHolding > totalShipping * 1.8 && totalHolding > 80000) {
+            return {
+                icon: '📦',
+                headline: 'Overstock drove your costs this chapter',
+                detail: `${fmt(totalHolding)} spent on holding costs — more than any other cost category. Excess inventory ties up cash and earns nothing. Tightening your order quantity to match real demand would have recovered a significant margin.`,
+                type: 'warn',
+            };
+        }
+
+        if (totalShipping > 120000) {
+            return {
+                icon: '✈',
+                headline: 'Freight premiums compressed your margin',
+                detail: `${fmt(totalShipping)} in shipping this chapter. Premium freight is useful for emergencies — but as a default setting it turns viable quarters into slim-margin ones. Sea or intermodal shipping cuts this cost by 60–80%.`,
+                type: 'warn',
+            };
+        }
+
+        if (totalDefects > 80) {
+            return {
+                icon: '🔴',
+                headline: 'Defective units reached your customers',
+                detail: `${totalDefects.toLocaleString()} defective units shipped this chapter. Each one erodes satisfaction and triggers costly returns. The fix is upstream — either a higher-quality supplier or rigorous inspection before goods leave the factory.`,
+                type: 'warn',
+            };
+        }
+
+        if (safetyBreaches >= 2) {
+            return {
+                icon: '⚠',
+                headline: 'Safety stock breached in multiple turns',
+                detail: `Your inventory dipped below the safety buffer ${safetyBreaches} times this chapter. A single demand spike or supplier delay during those windows would have caused a full stockout. Raising your safety stock target is the insurance premium against that scenario.`,
+                type: 'warn',
+            };
+        }
+
+        if (totalProfit > 200000) {
+            return {
+                icon: '✦',
+                headline: 'Strong chapter — cost discipline paid off',
+                detail: `${fmt(totalProfit)} net profit across ${turns.length} quarters. Your ordering, shipping, and quality decisions stayed efficient. This is what it looks like when inventory strategy aligns with real demand.`,
+                type: 'good',
+            };
+        }
+
+        return null;
     }
 
     renderChapterSummary() {
@@ -1743,43 +2007,10 @@ export class Dashboard {
             allChapters[prevChapterIdx].id
         );
 
-        const nextChapterIdx = prevChapterIdx + 1;
-        const nextChapter = allChapters[nextChapterIdx] || null;
-        const nextIsExpansionLocked = nextChapter?.expansionOnly && !PremiumManager.isExpansion();
-        const nextIsLocked = nextChapter && !nextIsExpansionLocked
-            ? PremiumManager.isChapterLocked(nextChapter.number)
-            : false;
-
-        // After Chapter 2 (index 1), gate on email capture before continuing.
-        // This is the highest-conversion moment: player is invested, the free
-        // content is done, and they need to "secure" their data to keep going.
+        // All chapters are free — advance directly.
         const continueCallback = () => {
-            if (nextIsExpansionLocked) {
-                    // Show paywall for Expansion Bundle upsell
-                    this.paywall.show(() => {
-                        // Grant expansion tier in local storage after successful auth
-                        const data = PremiumManager.getPremiumData();
-                        PremiumManager.setPremium({
-                            email: data?.email,
-                            customerId: data?.customerId,
-                            tier: 'expansion'
-                        });
-                        markNavPremium();
-                        this.engine.activateExpansion();
-                        this.engine.advanceFromChapterSummary();
-                        this.renderGameState();
-                    }, () => this._savePreCheckoutState());
-                } else if (nextIsLocked) {
-                    // Show paywall for standard premium gate
-                    this.paywall.show(() => {
-                        markNavPremium();
-                        this.engine.advanceFromChapterSummary();
-                        this.renderGameState();
-                    }, () => this._savePreCheckoutState());
-                } else {
-                    this.engine.advanceFromChapterSummary();
-                    this.renderGameState();
-                }
+            this.engine.advanceFromChapterSummary();
+            this.renderGameState();
         };
 
         // Gate: show email capture after Chapter 2 if not yet captured.
@@ -1792,7 +2023,9 @@ export class Dashboard {
         // Wrap gatedCallback with the CSCP definition card.
         // Flow: ChapterTransition → DefinitionCard → gatedCallback (email / paywall / continue)
         const chapterId = allChapters[prevChapterIdx]?.id;
-        const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback);
+        const chapterNum = allChapters[prevChapterIdx]?.number;
+        const playerDiagnosis = this._computePlayerDiagnosis(chapterNum);
+        const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback, playerDiagnosis);
 
         this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state }, withDefinition);
 
@@ -1906,12 +2139,29 @@ export class Dashboard {
         const history   = this.engine.state.history;
 
         const showMainResults = () => {
+            const isPremium  = PremiumManager.isPremium();
+            const industry   = this.engine.state.industry;
+            const isExpansion = PremiumManager.isExpansion();
+
+            // Build the debrief callback once so the closure captures the right state
+            const openDebrief = () => {
+                this.debriefScreen.show({
+                    overall,
+                    summaries,
+                    cash,
+                    industry,
+                    isExpansion,
+                    isPremium,
+                });
+            };
+
             this.gameOverScreen.show({
                 cash,
                 overall,
                 summaries,
-                industry:    this.engine.state.industry,
-                isExpansion: PremiumManager.isExpansion(),
+                industry,
+                isExpansion,
+                onDebrief: openDebrief,
             });
         };
 

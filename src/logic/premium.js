@@ -1,17 +1,15 @@
 /**
  * PremiumManager — client-side premium status management.
  *
- * Chapters 1-2  : free.
- * Chapters 3-8  : require Standard or Expansion premium.
- * Chapters 9-10 : require Expansion Bundle tier.
+ * All chapters are free to play.
+ * Premium unlocks the full Debrief Report (PDF download, decision audit).
+ * Expansion Bundle additionally unlocks Chapters 9–10 content.
  *
  * Premium status is stored in localStorage and optionally verified against the server.
  * Stored shape: { active, email, customerId, tier: 'standard'|'expansion', ts }
  */
 
 const STORAGE_KEY = 'scd_premium';
-const FREE_CHAPTERS = 2;
-const BASE_PREMIUM_CHAPTERS = 8; // chapters 3-8 gated by standard tier
 
 export const PremiumManager = {
   /**
@@ -58,14 +56,12 @@ export const PremiumManager = {
   },
 
   /**
-   * Returns true if the given chapter number is locked for the current user.
-   * Chapters 3-8  → requires any premium.
-   * Chapters 9-10 → requires expansion tier.
+   * All chapters are free to play.
+   * @returns {false} Always false — chapter gating removed.
    */
-  isChapterLocked(chapterNumber) {
-    if (chapterNumber <= FREE_CHAPTERS) return false;
-    if (chapterNumber <= BASE_PREMIUM_CHAPTERS) return !this.isPremium();
-    return !this.isExpansion(); // expansion chapters 9-10
+  // eslint-disable-next-line no-unused-vars
+  isChapterLocked(_chapterNumber) {
+    return false;
   },
 
   /**

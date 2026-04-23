@@ -6,6 +6,7 @@ import { EXPANSION_CHAPTERS } from '../data/expansion-chapters.js';
 import { MasteryTracker } from './mastery.js';
 import { SUPPLIERS, SHIPPING_METHODS, PRICING_STRATEGIES, QUALITY_INSPECTIONS } from '../data/procurement-options.js';
 import { CrisisEngine } from './crisis-engine.js';
+import { DebriefCollector } from '../game/debrief-collector.js';
 
 export const GAME_PHASES = {
     CHAPTER_INTRO: 'PHASE_CHAPTER_INTRO',
@@ -138,6 +139,17 @@ export class GameEngine {
 
         this.mastery = new MasteryTracker();
 
+        // ── Debrief: start a fresh collection session ──
+        DebriefCollector.init({
+            industry:          industry.id,
+            chapterIndex:      clampedStart,
+            startTime:         new Date().toISOString(),
+            initialCash:       this.state.cash,
+            initialInventory:  this.state.inventory,
+            startingArchetype: archetype.id,
+            expansionActive,
+        });
+
         // Start with chapter intro
         this.state.phase = GAME_PHASES.CHAPTER_INTRO;
     }
@@ -205,6 +217,17 @@ export class GameEngine {
         this.state.lastStoryChoice    = null;
 
         this.mastery = new MasteryTracker();
+
+        // ── Debrief: start a fresh collection session (endless mode) ──
+        DebriefCollector.init({
+            industry:          industry.id,
+            chapterIndex:      0,
+            startTime:         new Date().toISOString(),
+            initialCash:       this.state.cash,
+            initialInventory:  this.state.inventory,
+            startingArchetype: archetype.id,
+            isEndless:         true,
+        });
 
         // Begin immediately in procurement — no intros, no stories
         this.state.phase = GAME_PHASES.PROCUREMENT;
@@ -309,6 +332,18 @@ export class GameEngine {
             this.mastery.recordDecision(this.state.currentChapter.id, choice.conceptAlignment);
         }
 
+        // ── Debrief: persist story decision before it is overwritten next turn ──
+        DebriefCollector.recordStoryDecision({
+            turn:          this.state.turn,
+            chapter:       this.state.currentChapter?.number ?? 0,
+            scenarioId:    scenario.id,
+            scenarioTitle: scenario.title,
+            optionIndex,
+            optionLabel:   choice.label,
+            optionText:    choice.outcomeText,
+            alignment:     choice.conceptAlignment,
+        });
+
         this.state.phase = GAME_PHASES.PROCUREMENT;
         return {
             outcome: choice.outcomeText,
@@ -377,6 +412,13 @@ export class GameEngine {
         // Clear last turn's crisis
         this.state.activeCrisis = null;
 
+        // ── Debrief: capture inventory + pipeline BEFORE any receiving ──
+        // These represent what the player saw when making the ordering decision.
+        const _snapInventory = this.state.inventory;
+        const _snapInTransit = this.state.inTransit.reduce(
+            (sum, o) => sum + o.usableUnits + o.passedDefects, 0
+        );
+
         const { industry, modifiers, archetypeModifiers } = this.state;
         const industryId = industry.id;
 
@@ -404,6 +446,16 @@ export class GameEngine {
         if (crisis) {
             this.state.activeCrisis = crisis;
             this.state.lastCrisisId = crisis.id;
+            // ── Debrief: log crisis event ──
+            DebriefCollector.recordCrisisEvent({
+                turn:      this.state.turn,
+                chapter:   this.state.currentChapter?.number ?? 0,
+                id:        crisis.id,
+                name:      crisis.name,
+                severity:  crisis.severity,
+                effects:   { ...crisis.effects },
+                timestamp: new Date().toISOString(),
+            });
         } else {
             this.state.lastCrisisId = null;
         }
@@ -411,7 +463,7 @@ export class GameEngine {
         // Resolve procurement options
         const suppliers = SUPPLIERS[industryId] || SUPPLIERS.electronics;
         const supplier = suppliers.find(s => s.id === choices.supplierId) || suppliers[1];
-        const shippingMethod = SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[1];
+        const shippingMethod = SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[2];
         const pricingStrategy = PRICING_STRATEGIES.find(p => p.id === choices.pricingId) || PRICING_STRATEGIES[1];
         const inspection = QUALITY_INSPECTIONS.find(q => q.id === choices.inspectionId) || QUALITY_INSPECTIONS[1];
         const orderQuantity = choices.orderQuantity || 0;
@@ -579,6 +631,43 @@ export class GameEngine {
         this.state.history.push(result);
         this.state.lastTurnResult = result;
 
+        // ── Debrief: quarter decision record ──
+        // optimalOrder uses the order-up-to formula against the deterministic
+        // demand forecast (no random variance, no crisis multiplier — unknowable
+        // at the time the player places the order).
+        {
+            const _demandForecast = Math.floor(
+                1000 * effectiveMods.demandMultiplier * pricingStrategy.demandMultiplier
+            );
+            const _optimalOrder = Math.max(
+                0,
+                _demandForecast + safetyStockTarget - _snapInventory - _snapInTransit
+            );
+            const _rawDev = _optimalOrder > 0
+                ? (orderQuantity - _optimalOrder) / _optimalOrder * 100
+                : 0;
+            DebriefCollector.recordDecision({
+                quarter:                  result.turn,
+                chapter:                  result.chapter,
+                playerOrder:              orderQuantity,
+                optimalOrder:             _optimalOrder,
+                orderDeviation:           (_rawDev >= 0 ? '+' : '') + _rawDev.toFixed(1) + '%',
+                inventoryLevel:           result.inventory,
+                demandActual:             result.demand,
+                demandForecast:           _demandForecast,
+                serviceLevel:             (result.sales + result.missedSales) > 0
+                                              ? Math.round(result.sales / (result.sales + result.missedSales) * 1000) / 1000
+                                              : 1,
+                cashPosition:             result.cash,
+                supplierSelected:         supplier.name,
+                qualityInspectionEnabled: inspection.id !== 'none',
+                inspectionTier:           inspection.name,
+                shippingMethod:           shippingMethod.name,
+                pricingStrategy:          pricingStrategy.name,
+                timestamp:                new Date().toISOString(),
+            });
+        }
+
         // 9. Advance Turn
         this.state.turn++;
 
@@ -620,6 +709,54 @@ export class GameEngine {
                 this.state.phase = GAME_PHASES.GAME_OVER;
             } else if (wasLastTurnOfChapter) {
                 this.state.phase = GAME_PHASES.CHAPTER_SUMMARY;
+                // ── Debrief: chapter-end aggregate snapshot ──
+                {
+                    const _chNum    = this.state.currentChapter.number;
+                    const _chId     = this.state.currentChapter.id;
+                    const _chTitle  = this.state.currentChapter.title;
+                    const _chTurns  = this.state.history.filter(h => h.chapter === _chNum);
+                    const _cashEnd  = this.state.cash;
+                    const _cashStart = _cashEnd - _chTurns.reduce((s, t) => s + (t.profit || 0), 0);
+                    const _totSales  = _chTurns.reduce((s, t) => s + (t.sales       || 0), 0);
+                    const _totMissed = _chTurns.reduce((s, t) => s + (t.missedSales || 0), 0);
+                    const _avgSvc    = (_totSales + _totMissed) > 0
+                        ? Math.round(_totSales / (_totSales + _totMissed) * 1000) / 1000
+                        : 1;
+                    const _variance = arr => {
+                        const m = arr.reduce((a, b) => a + b, 0) / arr.length;
+                        return arr.reduce((s, x) => s + (x - m) ** 2, 0) / arr.length;
+                    };
+                    const _chOrders  = _chTurns.map(t => t.orderQuantity);
+                    const _chDemands = _chTurns.map(t => t.demand);
+                    const _bwRatio   = _chTurns.length >= 2
+                        ? Math.round(_variance(_chOrders) / (_variance(_chDemands) || 1) * 100) / 100
+                        : null;
+                    const _ms = this.mastery.getChapterSummary(_chId);
+                    const _chCrises = _chTurns
+                        .filter(t => t.crisis)
+                        .map(t => ({ ...t.crisis, turn: t.turn }));
+                    DebriefCollector.recordChapterEnd({
+                        chapter:           _chNum,
+                        chapterId:         _chId,
+                        chapterTitle:      _chTitle,
+                        industry:          this.state.industry.id,
+                        finalScore:        _ms.score,
+                        mastered:          _ms.mastered,
+                        decisionsTotal:    _chTurns.length,
+                        decisionsOptimal:  _ms.decisions.optimal,
+                        decisionsCautious: _ms.decisions.cautious,
+                        decisionsRisky:    _ms.decisions.risky,
+                        avgServiceLevel:   _avgSvc,
+                        totalStockouts:    _chTurns.filter(t => (t.missedSales || 0) > 0).length,
+                        totalOverstock:    _chTurns.filter(t => (t.holdingCost || 0) > (t.revenue || 0) * 0.15).length,
+                        cashStart:         _cashStart,
+                        cashEnd:           _cashEnd,
+                        cashDelta:         _cashEnd - _cashStart,
+                        bullwhipRatio:     _bwRatio,
+                        crisisEvents:      _chCrises,
+                        completedAt:       new Date().toISOString(),
+                    });
+                }
             } else {
                 this.triggerStoryPhase();
             }

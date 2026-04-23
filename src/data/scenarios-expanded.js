@@ -7,7 +7,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'steady_seas',
             title: 'Steady Seas',
-            text: 'It\'s your first quarter. Demand has been predictable, and your suppliers are reliable. This is a chance to establish your baseline ordering pattern. How do you set your initial inventory strategy?',
+            text: 'Q1 just closed with 987 units sold — nearly matching your 1,000-unit forecast. Your Shenzhen-based supplier confirmed on-time delivery for the next 3 months and your warehouse holds 1,450 units. The board wants a documented ordering policy before Q2 begins. How do you set your initial inventory strategy?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -33,7 +33,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'holiday_approaching',
             title: 'Holiday Season Approaching',
-            text: 'Historical data shows demand typically doubles during the holiday quarter. Marketing is already ramping up campaigns. How do you prepare your inventory?',
+            text: 'Three years of POS data shows Q4 demand averaging 2,340 units — 2.1× your Q1–Q3 baseline of 1,100. Marketing just confirmed a $200K Black Friday campaign launching in 6 weeks. Your current inventory sits at 800 units and your Shenzhen supplier needs 6 weeks lead time to fill a large order. Miss the window and you miss the quarter. How do you prepare?',
             highlightNode: 'store',
             options: [
                 {
@@ -59,7 +59,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'new_competitor',
             title: 'New Competitor Enters Market',
-            text: 'A well-funded competitor just launched in your market with aggressive pricing. Early signals suggest they\'re capturing 15% of your customer base. How do you adjust your forecast?',
+            text: 'VeloTech — a Singapore-based competitor backed by $40M in Series B funding — launched last week at pricing 12% below yours. Retail intelligence shows them winning shelf space at Target and Walmart already. Their first-month tracking data suggests they\'re taking roughly 15% of your category. Your forecast was built assuming sole market leadership. How do you adjust?',
             highlightNode: 'store',
             options: [
                 {
@@ -85,7 +85,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'ai_forecast_engine',
             title: 'AI Demand Sensing',
-            text: 'A vendor pitches an AI-powered demand sensing platform that ingests social media, weather, and POS data to predict demand 30 days out. Early pilots show 20% better accuracy — but the model is a black box. How do you deploy it?',
+            text: 'Crisp.co is pitching a demand sensing platform that ingests 3M daily POS signals, social trends, and weather data to forecast demand 30 days out. Their case study: a CPG brand cut forecast error from 22% MAPE to 8% in 6 months. Cost: $8,400/month. Catch: the model has never been trained on your product category and your planners have no idea how it weights signals. How do you deploy it?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -115,7 +115,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'retailer_panic',
             title: 'The Bullwhip Surge',
-            text: 'A viral social media trend has caused a sudden spike in demand for your product category. Retailers are panic-ordering 3x their usual volume. But is real consumer demand actually up that much?',
+            text: 'A TikTok video showing your product used in a DIY hack hit 14M views in 48 hours. Your top 3 retail accounts — Costco, Amazon, and Home Depot — are now submitting a combined 9,200-unit rush order against their normal 3,100-unit quarterly cadence. Your demand planners pulled the actual POS data: consumer sell-through is up only 28%. The retailers are padding safety stock, not selling more product. Do you match the retailer orders or anchor to the consumer data?',
             highlightNode: 'factory',
             options: [
                 {
@@ -141,7 +141,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'control_tower_visibility',
             title: 'Control Tower Visibility',
-            text: 'Your supply chain has dozens of partners but no single view of inventory in motion. An IoT control tower platform promises real-time visibility from factory floor to store shelf — but it requires every partner to share data. How do you roll it out?',
+            text: 'You work with 14 logistics partners across 6 countries, but visibility ends the moment goods leave your factory dock. Last month, a shipment sat in a Busan warehouse for 11 days — you found out when a retail buyer called asking where their order was. A Resilinc control tower integration promises real-time shipment tracking, but every partner must open their WMS data to the platform. Two of your major distributors have already flagged data-sharing concerns. How do you roll it out?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -167,7 +167,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'regional_bullwhip',
             title: 'Regional Panic Buying',
-            text: 'A sudden currency devaluation in Southeast Asia triggers panic-buying in the region. Your centralized ordering system sees the spike and automatically amplifies it globally — warehouses in Europe and the Americas start stockpiling too. The bullwhip is going international.',
+            text: 'The Thai baht fell 18% against the dollar overnight after an emergency rate cut. Your Bangkok distributor immediately placed a 4,200-unit rush order — 3× their normal quarterly volume — to lock in pre-devaluation pricing. Your ERP\'s auto-replenishment logic treated it as a real demand signal and began inflating orders across Europe and North America too. Your warehouse manager is flagging a potential $1.8M overstock exposure if this plays out globally. What do you do?',
             highlightNode: 'ship',
             options: [
                 {
@@ -193,7 +193,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'smoothing_the_wave',
             title: 'Smoothing the Wave',
-            text: 'After three quarters of volatile orders, your factory is struggling with production planning. Your team proposes switching from batch ordering to continuous replenishment. It requires investing in real-time POS data sharing.',
+            text: 'Three consecutive quarters of chaos: 800 units ordered, then 2,400, then 650 — with no change in underlying consumer demand. Your Guangzhou factory alternates between mandatory overtime and 40% idle capacity. The culprit: each distributor is re-ordering based on their own safety stock fear, not actual consumer pull. Your VP of Supply Chain proposes replacing quarterly batch orders with a VMI arrangement backed by real-time POS data sharing. Setup cost: $180,000. Expected bullwhip reduction: 40%. Do you commit?',
             highlightNode: 'factory',
             options: [
                 {
@@ -223,7 +223,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'zero_waste_initiative',
             title: 'Zero Waste Initiative',
-            text: 'The board wants to implement Just-In-Time manufacturing to cut holding costs by 40%. Your suppliers have been reliable lately, but JIT means zero margin for error. How aggressively do you adopt JIT?',
+            text: 'Your CFO dropped a number in last week\'s board meeting: $2.1M in holding costs last fiscal year — 8.4% of total COGS, nearly double the industry benchmark of 4.5%. The COO wants to cut it in half with a full JIT rollout before Q3. Your 3 tier-1 suppliers delivered on time 94% of quarters. Your tier-2 raw material suppliers: 78%. JIT turns that 22% failure rate into a production stoppage. How aggressively do you roll out JIT?',
             highlightNode: 'factory',
             options: [
                 {
@@ -249,7 +249,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'automation_vs_flexibility',
             title: 'Automation vs. Flexibility',
-            text: 'Your JIT line needs faster changeovers to handle smaller, more frequent batches. Engineering proposes robotic cells that can switch products in 10 minutes — but the union workforce fears job losses. Manual changeovers currently take 90 minutes.',
+            text: 'Assembly Line 3 handles 6 different SKUs. Average changeover time: 87 minutes — a figure your Toyota Production System consultant called "career-ending." A Fanuc robotic cell would bring it to 9 minutes, but the $1.4M investment requires reducing headcount on that line by 30%. The union represents 340 workers at this facility and the rumor is already spreading. Your production manager needs a decision before the next union rep meeting in 5 days.',
             highlightNode: 'factory',
             options: [
                 {
@@ -275,7 +275,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'delayed_shipment',
             title: 'Delayed Shipment',
-            text: 'Your primary supplier just informed you that your next shipment will be 2 weeks late due to raw material shortages. Under JIT, you have only 3 days of stock remaining. What\'s your move?',
+            text: 'Friday 4:47pm — an email from Foxlink Technology, your primary PCB supplier and 65% of your component volume: their Zhengzhou facility is under an emergency lockdown. The $340,000 shipment scheduled to arrive Monday is frozen in their warehouse. Under your current JIT policy you have 3 days of production stock left. Your line goes dark Wednesday morning unless something changes. What\'s your move?',
             highlightNode: 'truck',
             options: [
                 {
@@ -301,7 +301,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'finding_sweet_spot',
             title: 'Finding the Sweet Spot',
-            text: 'After experimenting with JIT, your team has data on which components cause the most disruptions. They propose a hybrid model: JIT for 70% of items, strategic safety stock for 30% of critical parts. The question is how much safety stock.',
+            text: 'Six months of JIT data tells a clear story: 73% of your disruptions trace back to just 4 components — the main PCB, the power module, the display unit, and the housing seal. All 4 come from suppliers with the longest lead times and highest delivery variance. A hybrid model — JIT on everything else, strategic safety stock only on these 4 — would cost an additional $85,000/year in holding costs but could eliminate roughly $340,000/year in disruption-related expediting costs. How much safety stock do you hold?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -331,7 +331,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'digital_twin_risk',
             title: 'Digital Twin Warning',
-            text: 'Your team built a digital twin of the supply chain that simulates disruptions. It\'s now flashing red: a port congestion scenario has a 70% probability of occurring within 30 days. The model recommends pre-positioning inventory at alternative ports — but acting on a simulation is expensive if it\'s wrong.',
+            text: 'Your Llamasoft digital twin is running a Monte Carlo simulation on the next 90 days. It\'s flagging a 68% probability of severe congestion at the Port of Los Angeles — vessel backlog is building and labor contract negotiations expire in 6 weeks. Pre-positioning inventory to East Coast ports would cost $420,000 in incremental freight. Staying the course costs nothing — unless the model is right. The last time you ignored a 68% signal, it cost $1.1M in air freight to recover. What do you do?',
             highlightNode: 'ship',
             options: [
                 {
@@ -357,7 +357,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'supplier_collapse',
             title: 'Supplier Insolvency',
-            text: 'Your key component supplier has filed for bankruptcy. Production is halted until you find an alternative source. This supplier provided 60% of your critical components.',
+            text: 'Monday morning: Tian Hao Industrial — your sole-source supplier for precision-stamped chassis components representing 60% of your BOM by cost — has filed for Chapter 11 in the Shenzhen courts. They hold $1.2M of your open purchase orders. Your current inventory of chassis parts will run out in 18 days. After that, the production line stops. Your risk management plan lists two pre-vetted options — but each has a cost.',
             highlightNode: 'supplier',
             options: [
                 {
@@ -383,7 +383,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'nearshore_or_offshore',
             title: 'Nearshore or Offshore?',
-            text: 'Geopolitical tensions are making your Asian supply base increasingly risky. Your team proposes nearshoring production to Mexico — closer, but 15% higher unit costs. You could dual-shore for redundancy, fully transition, or stay the course and hope tensions ease.',
+            text: 'A US trade delegation just announced a Section 301 review of electronics components from your primary manufacturing region — a process that historically precedes 25-45% tariffs within 9 months. Your Shenzhen line produces 78% of your volume at a landed cost of $48/unit. A Monterrey, Mexico facility quotes $56/unit with 2-week lead time (vs. 8 weeks from Asia). The Q3 capital allocation deadline is in 3 weeks. Once you commit capital, reversing course mid-year costs an additional $800,000.',
             highlightNode: 'factory',
             options: [
                 {
@@ -409,7 +409,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'trade_war',
             title: 'Trade War',
-            text: 'New tariffs of 25% have been announced on imports from your primary manufacturing region. They take effect in 60 days. Your competitors are scrambling. How do you respond?',
+            text: 'The White House announced Section 232 tariffs of 25% on consumer electronics components from China, effective in 60 days. At your current run rate of 4,200 units/quarter, this adds $504,000/year to your cost base at today\'s volume. Your stock is down 8% on the news. Competitors are scrambling. The board wants a response strategy before markets open tomorrow.',
             highlightNode: 'ship',
             options: [
                 {
@@ -439,7 +439,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'last_mile_dilemma',
             title: 'The Last Mile Dilemma',
-            text: 'Your delivery costs are skyrocketing. Analysis shows last-mile delivery accounts for 53% of total shipping costs. Customers expect next-day delivery, but your current hub-and-spoke model can\'t keep up without premium freight charges.',
+            text: 'Your 3PL invoice hit $1.4M this quarter — up 31% year-on-year. The breakdown is uncomfortable: last-mile delivery is $742,000, or 53% of total freight spend, averaging 8.3 miles per stop. Amazon\'s same-day delivery guarantee has permanently reset customer expectations. Your Columbus regional hub can\'t match it without going to premium courier rates that wipe out your margin. Three options are modelled out. Which do you choose?',
             highlightNode: 'truck',
             options: [
                 {
@@ -465,7 +465,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'transport_mode_selection',
             title: 'Multi-Modal Decision',
-            text: 'A major order needs to move from your Asian factory to European warehouses. You can ship by sea (6 weeks, cheapest), rail (3 weeks, moderate), or air (1 week, expensive). The product launch is in 5 weeks.',
+            text: 'Your Suzhou factory just finished a 6,400-unit production run for your biggest European retail account — a €2.1M order with a firm shelf date of October 15th. Today is September 1st. Ocean freight: 28-35 days, $4.20/kg. China-Europe rail: 18-22 days, $6.80/kg. Air freight: 5-7 days, $18.40/kg. The order weighs 14,200 kg. Miss the shelf date and you forfeit a €40,000 late penalty. Pick the wrong mode and you burn margin.',
             highlightNode: 'ship',
             options: [
                 {
@@ -491,7 +491,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'trade_compliance_maze',
             title: 'Trade Compliance Maze',
-            text: 'You\'re expanding into three new countries simultaneously. Each has different customs documentation, labeling requirements, and restricted-substance regulations. Your logistics team says they can handle it manually; your compliance officer says that\'s a recipe for seizures and fines.',
+            text: 'Your EU expansion goes live in 90 days: France, Germany, and Italy simultaneously. Each country requires country-specific REACH restricted-substance declarations, CE recertification, and customs broker documentation. Your US compliance team says they can handle it manually. Your EU customs consultant says you need a trade management software platform at €24,000 upfront — or you risk container seizures. A competitor\'s container was held 6 weeks in Hamburg last year over a single incorrect HS code classification, costing €310,000 in delays and penalties.',
             highlightNode: 'truck',
             options: [
                 {
@@ -517,7 +517,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'blockchain_freight',
             title: 'Blockchain Freight Tracking',
-            text: 'Your freight passes through 5 carriers and 3 customs authorities per shipment. Disputes over handoff timing and cargo condition cost you $2M annually. A blockchain consortium promises immutable tracking across all parties — but requires every carrier to adopt the platform.',
+            text: 'Freight disputes cost you $2.1M last year — mostly arguments over damage handoff liability between your 3 ocean carriers, 2 inland truckers, and 3 customs brokers. The TradeLens consortium (backed by Maersk and IBM) promises immutable event timestamps across all parties, cutting dispute resolution from weeks to hours. Your two largest ocean carriers — Maersk and Hapag-Lloyd — are already on the platform. Your inland trucking partners are not. How do you proceed?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -547,7 +547,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'defect_discovery',
             title: 'Defect Discovery',
-            text: 'Your quality team has detected a 4% defect rate in the latest production batch — double the acceptable threshold. The batch is worth $2M and is scheduled to ship tomorrow. Reworking will take 2 weeks; scrapping loses the full amount.',
+            text: '6:00pm Wednesday: your QA lead ran AQL Level II sampling on the latest production batch — 42,000 units scheduled to ship to Home Depot at 8:00am tomorrow. Result: 4.2% defect rate, double the 2.0% AQL threshold. Batch value: $1.8M. Full rework takes 12 days. Home Depot\'s penalty clause for a missed delivery is $45,000 plus potential delisting. Your team has 14 hours and three options.',
             highlightNode: 'factory',
             options: [
                 {
@@ -573,7 +573,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'supplier_audit',
             title: 'Supplier Quality Audit',
-            text: 'Annual audits reveal your primary supplier has been cutting corners on material testing. They\'re 20% cheaper than alternatives, but their process shortcuts could mean latent defects in your products. No customer complaints yet.',
+            text: 'Your annual audit of Dongguan Electronics — 68% of your critical components at $41/unit — flagged a material substitution: they\'ve been using a cheaper capacitor grade in 3 PCB positions without disclosure. No failure in current performance testing, but your reliability engineer projects an 18% reduction in mean-time-to-failure over a 3-year horizon. They\'re 20% cheaper than any alternative. No customer complaint has been filed. Yet.',
             highlightNode: 'supplier',
             options: [
                 {
@@ -599,7 +599,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'iot_quality_sensors',
             title: 'IoT Quality Sensors',
-            text: 'Your quality team proposes installing IoT sensors and ML models on the production line for predictive quality — catching defects before they happen by monitoring vibration, temperature, and torque in real time. Piloting one line costs $200K; full deployment across 8 lines costs $1.2M.',
+            text: 'Line 4 has a 3.8% defect rate — nearly double your factory average. Root cause: a torque variability issue on the press that only manifests during high-run-rate shifts. Human inspectors catch defects after they\'re already made. A Samsara IoT installation with an Azure ML model trained on vibration signatures could catch it in real time — $210,000 for Line 4 alone, $1.26M for all 6 lines. Your quality director has the ROI model ready. How do you proceed?',
             highlightNode: 'factory',
             options: [
                 {
@@ -625,7 +625,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'quality_culture_clash',
             title: 'Quality Culture Clash',
-            text: 'Your factory managers are incentivized on volume output; your quality team is incentivized on defect rates. Investigation reveals managers have been pressuring inspectors to "let borderline units pass" to hit production targets. It\'s a cultural problem, not a technical one.',
+            text: 'An internal audit at your Chengdu facility found that 14 of the last 20 quality rejection reports were overridden by floor managers. When questioned, three managers gave the same answer: "My quarterly bonus is $4,200 for hitting output targets. There\'s nothing in my comp plan for quality." Your quality director wants heads to roll. Your HR lead says the comp plan is the problem. Your operations VP says it\'s both. You have a Monday morning all-hands with the Chengdu team.',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -655,7 +655,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'carbon_reporting',
             title: 'Carbon Reporting Mandate',
-            text: 'New regulations require Scope 3 carbon reporting across your entire supply chain within 12 months. Your current data covers only 30% of emissions. Full compliance requires supplier cooperation, new tracking systems, and process changes.',
+            text: 'The EU Corporate Sustainability Reporting Directive (CSRD) applies to your fiscal year starting January 1st — 9 months away. You must report full Scope 3 emissions, covering your suppliers\' manufacturing footprint. Your current measurement covers Scope 1 and 2 only — about 28% of your actual carbon exposure. Accurate Scope 3 data requires emissions reports from 47 suppliers across 11 countries. Some of your largest suppliers have never measured their own emissions. Clock is ticking.',
             highlightNode: 'factory',
             options: [
                 {
@@ -681,7 +681,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'ethical_sourcing_crisis',
             title: 'Ethical Sourcing Crisis',
-            text: 'An investigative report has exposed labor violations at a tier-2 supplier deep in your supply chain. You didn\'t know, but the public doesn\'t care about that distinction. Social media backlash is building. NGOs are tagging your brand.',
+            text: 'Sunday evening: The Guardian publishes a 3,000-word investigation linking your brand to forced overtime and below-minimum wages at a tier-2 stitching sub-contractor in Bangladesh — a factory you\'ve never audited because your tier-1 supplier manages that relationship. The article has 140,000 shares by Monday morning. Two activist groups are organizing a Twitter boycott. Your PR firm says you have a 6-hour window to set the narrative before the evening news cycle locks in the story.',
             highlightNode: 'supplier',
             options: [
                 {
@@ -707,7 +707,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'green_workforce_transition',
             title: 'Green Workforce Transition',
-            text: 'Your circular economy strategy requires skills your workforce doesn\'t have: reverse logistics, material recovery, refurbishment engineering, and lifecycle analysis. HR presents three approaches to building this capability. The choice shapes your team for years.',
+            text: 'Your circular economy program requires 3 competencies your 420-person supply chain team doesn\'t have: reverse logistics engineering, material recovery grading, and lifecycle cost analysis. LinkedIn market data puts specialists at $85,000–$110,000/year — 35% above your current supply chain average. Retraining existing staff takes 6-9 months. Hiring externally gets you to speed in 2 months but fractures team culture. Outsourcing is fastest but creates dependency on a vendor for a core strategic capability.',
             highlightNode: 'store',
             options: [
                 {
@@ -733,7 +733,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'circular_redesign',
             title: 'Circular Redesign',
-            text: 'Your product design team presents two options for next generation: Design A maintains the current approach with minor efficiency gains. Design B uses modular components, recycled materials, and design-for-disassembly — but costs 15% more to produce.',
+            text: 'Product roadmap decision: Design A is a 3% cost reduction on the current architecture — fast to market in Q2, no surprises. Design B is modular, design-for-disassembly, 40% recycled aluminum — costs 15% more per unit, ships Q4, qualifies for the EU Eco-Design Regulation label, and eliminates a projected $380,000/year in end-of-life disposal costs. The EU label unlocks 3 major retail accounts currently blocked to you. Your board wants a decision today.',
             highlightNode: 'factory',
             options: [
                 {
@@ -763,7 +763,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'perfect_storm',
             title: 'The Perfect Storm',
-            text: 'A supplier delay, a demand spike, and a currency devaluation hit simultaneously. Your supply chain is being tested on every front. This is where all your learning comes together.',
+            text: 'Tuesday morning — three alerts open simultaneously. (1) Kinpo Electronics flagged a 4-week delay on 2,000 units: typhoon damage at Kaohsiung Port. (2) A promotional email sent prematurely by marketing has generated 3,400 pre-orders against a 1,200-unit plan. (3) The yuan weakened 6% overnight, adding ~$62,000 to your open PO values. Your team is looking at you. Every lesson from the past 4 chapters leads to this moment. How do you respond?',
             highlightNode: 'supplier',
             options: [
                 {
@@ -789,7 +789,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'east_or_west',
             title: 'East or West?',
-            text: 'You\'re choosing a new strategic supplier. Eastern Supplier offers 30% lower unit costs but 8-week lead times. Western Supplier costs more but delivers in 2 weeks with better quality scores. Total Cost of Ownership is the key.',
+            text: 'You\'re down-selecting between two suppliers for a 3-year contract worth ~$4.8M in annual spend. Apex Manufacturing (Chengdu): $41/unit, 8-week lead time, 2.1% historical defect rate. Mesa Components (Monterrey): $54/unit, 2-week lead time, 0.4% defect rate. Apex looks cheaper on the invoice — but your TCO model, which folds in inspection costs, holding costs, and average stockout exposure, tells a different story. Which supplier earns the contract?',
             highlightNode: 'supplier',
             options: [
                 {
@@ -815,7 +815,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'currency_hedge_dilemma',
             title: 'The Hidden 12%',
-            text: 'A TCO deep-dive reveals that currency fluctuations have silently added 12% to your procurement costs over the past year. Finance offers hedging contracts that lock exchange rates for 6 months — but they cost 3% upfront and you lose if rates move in your favor.',
+            text: 'Your quarterly TCO review surfaced a number nobody had tracked: currency volatility added $217,000 to your procurement costs last year — 12.4% above your budget. Your CFO has arranged hedging contracts through HSBC that lock the USD/CNY rate for 6 months at a 3% premium (~$52,000). Analyst consensus: 60% probability the yuan weakens further (hedging saves you money), 40% it strengthens (hedging costs you extra). You\'re buying insurance on a coin flip — but the alternative is another $217K surprise.',
             highlightNode: 'supplier',
             options: [
                 {
@@ -841,7 +841,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'change_management_rollout',
             title: 'Change Management Rollout',
-            text: 'Your new TCO-based procurement strategy is ready — but regional procurement managers are resisting. They\'ve optimized for unit price for years, and their bonuses are tied to it. Rolling out TCO thinking requires changing metrics, mindsets, and habits across 4 regions.',
+            text: 'Your new TCO scorecard is built and ready — but in yesterday\'s town hall, the APAC procurement director said it plainly: "My bonus is tied to unit price savings. This scorecard measures 6 metrics I\'ve never been held accountable for." Across 4 regions, 23 procurement managers have compensation tied to the metric you\'re replacing. You need 80% adoption within 90 days to hit the board\'s cost-reduction target. How do you execute the change?',
             highlightNode: 'store',
             options: [
                 {

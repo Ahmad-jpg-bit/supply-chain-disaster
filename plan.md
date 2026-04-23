@@ -213,6 +213,92 @@ Reduces mid-game abandonment by giving players persistent visibility of where th
 
 ---
 
+## Debrief Report
+
+### Data Collector (2026-04-22) ✅
+
+`src/game/debrief-collector.js` — singleton that silently captures all gameplay
+data required for the post-game debrief report. Persists to localStorage under
+`scd_debrief_v1` so data survives page refreshes.
+
+- [x] Debrief data collector implemented
+- [x] Hooked into `engine.init()` — session metadata (industry, archetype, initial state)
+- [x] Hooked into `engine.initEndless()` — endless-mode session metadata
+- [x] Hooked into `engine.makeDecision()` — full story decision log per turn
+      (fixes audit blind spot: `lastStoryChoice` was overwritten each turn)
+- [x] Hooked into `engine.processTurn()` — per-quarter record with:
+      - `playerOrder` vs `optimalOrder` (order-up-to formula against deterministic forecast)
+      - `orderDeviation` percentage
+      - `serviceLevel` per turn
+      - full procurement choices (supplier, inspection, shipping, pricing)
+- [x] Hooked into `engine.processTurn()` — crisis event log (turn, chapter, id, severity, effects)
+- [x] Hooked into `engine.processTurn()` (CHAPTER_SUMMARY branch) — chapter-end snapshot:
+      - `avgServiceLevel`, `totalStockouts`, `totalOverstock`
+      - `cashStart` / `cashEnd` / `cashDelta`
+      - `bullwhipRatio` (Var(orders) / Var(demand) for chapter turns)
+      - mastery score + decision breakdown
+      - crisis events scoped to chapter
+
+| Key | Shape |
+|---|---|
+| `scd_debrief_v1` | `{ industry, startTime, initialCash, initialInventory, startingArchetype, quarters[], storyDecisions[], chapters[], crisisEvents[] }` |
+
+Next: ~~build the debrief report UI~~ ✅ done — see PDF Debrief Report section below.
+
+---
+
+## PDF Debrief Report (2026-04-22) ✅
+
+Added `jspdf-autotable` v5.0.7 (jsPDF v4.2.0 was already installed).
+
+### New files
+| File | Purpose |
+|---|---|
+| `src/ui/debrief-screen.js` | Overlay component + `downloadPDF()` — all PDF logic lives here |
+| `src/ui/debrief-screen.css` | Styles for the in-browser debrief overlay |
+
+### PDF structure (5 pages)
+| Page | Content |
+|---|---|
+| 1 — Cover | Industry, date, blended score ring, grade badge, score breakdown pills |
+| 2 — Performance Summary | 4-stat 2×2 grid (cash, service level, mastery, bullwhip) + diagnostic insights + mastery bars |
+| 3 — Decision Audit | Full `autoTable` — Quarter, Chapter, Your Order, Optimal Order, Deviation (colour-coded), Svc Level, Cash; auto-paginates |
+| 4 — Chapter Breakdown | Per-chapter: score bar, 4 metric pills, decision chips, top crisis strip |
+| 5 — Learning Summary | Data-driven narrative (bullwhip, order accuracy, inventory balance, crisis resilience) + italic disclaimer |
+
+### Design
+- RGB tokens mirror `digital-guide.js` exactly (NAVY/BLUE/AMBER/GREEN/RED)
+- Deviation column: green ≤ 10%, amber >25%, red <−25%
+- File name: `supply-chain-debrief-{industry}-{YYYY-MM-DD}.pdf`
+
+### Integration points (minimal, additive only)
+| File | Change |
+|---|---|
+| `src/dashboard.js` | Import + instantiate `DebriefScreen`; pass `onDebrief` callback in `endGame()` |
+| `src/ui/game-over-screen.js` | Accept `onDebrief` param; render "Debrief Report" button; wire click handler |
+
+### Gate
+"Debrief Report" button always shown on game-over screen.
+`downloadPDF()` button inside the overlay is **only rendered when `isPremium === true`**.
+Non-premium players see the in-browser summary + a locked-state upsell hint instead.
+
+---
+
+## Monetisation Model Pivot (2026-04-22) ✅
+
+All chapters are now free to play. The debrief report is the paid feature.
+
+| # | File | Change |
+|---|------|--------|
+| 1 | `src/logic/premium.js` | `isChapterLocked()` always returns `false`; updated header comment |
+| 2 | `src/dashboard.js` | `renderChapterSummary()` — removed `nextIsExpansionLocked` / `nextIsLocked` paywall intercept; all chapters now call `advanceFromChapterSummary()` directly |
+| 3 | `src/ui/landing-page.js` | Roadmap badges removed (all nodes `lp-roadmap-node--free`); legend updated to "All 8 chapters — no account needed"; pricing tiers updated: Free = full game, Standard = Debrief Report ($14.99) |
+| 4 | `index.html` | Pricing grid updated (Free = full game, Standard = debrief, Expansion = Ch 9–10 + cert); FAQ updated with "Is the full game really free?" entry; JSON-LD + OG/Twitter meta updated |
+
+**Niklas Vögl** (niklas.voegl@aon.at, Order ID 7910695): no action needed. Existing expansion-tier record grants `isPremium() = true`, which now means full debrief access. All chapters becoming free is additive — their paid purchase is now worth more, not less.
+
+---
+
 ## Remaining Work
 
 - [ ] Edit remaining 31 blog drafts for AI writing patterns (retry after rate limit resets)

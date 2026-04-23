@@ -13,10 +13,12 @@ export class DefinitionCard {
 
     /**
      * Show the CSCP definition card for a given chapter.
-     * @param {string} chapterId  — matches key in CSCP_DEFINITIONS
-     * @param {Function} onDismiss — called when the player clicks Continue
+     * @param {string}   chapterId      — matches key in CSCP_DEFINITIONS
+     * @param {Function} onDismiss      — called when the player clicks Continue
+     * @param {Object}   [playerDiagnosis] — optional: { icon, headline, detail, type }
+     *   type: 'warn' | 'good' | 'info'
      */
-    show(chapterId, onDismiss) {
+    show(chapterId, onDismiss, playerDiagnosis) {
         const def = CSCP_DEFINITIONS[chapterId];
         if (!def) {
             // No definition for this chapter — skip silently
@@ -25,6 +27,26 @@ export class DefinitionCard {
         }
 
         const color = DOMAIN_COLORS[def.domain] ?? DOMAIN_COLORS.SCPE;
+
+        // Build optional player diagnosis banner
+        let diagnosisHtml = '';
+        if (playerDiagnosis) {
+            const diagColor = playerDiagnosis.type === 'good'
+                ? { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.22)', label: '#4ade80' }
+                : playerDiagnosis.type === 'warn'
+                ? { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.22)', label: '#f87171' }
+                : { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.22)', label: '#60a5fa' };
+
+            diagnosisHtml = `
+                <div class="defcard-diagnosis" style="background:${diagColor.bg};border-color:${diagColor.border};">
+                    <span class="defcard-diagnosis-icon">${playerDiagnosis.icon}</span>
+                    <div class="defcard-diagnosis-body">
+                        <span class="defcard-diagnosis-headline" style="color:${diagColor.label};">${playerDiagnosis.headline}</span>
+                        <p class="defcard-diagnosis-detail">${playerDiagnosis.detail}</p>
+                        <p class="defcard-diagnosis-bridge">Here's the concept behind it:</p>
+                    </div>
+                </div>`;
+        }
 
         this.overlay = document.createElement('div');
         this.overlay.className = 'defcard-overlay';
@@ -45,6 +67,8 @@ export class DefinitionCard {
 
                 <!-- Body -->
                 <div class="defcard-body">
+
+                    ${diagnosisHtml}
 
                     <div class="defcard-section defcard-section--definition">
                         <div class="defcard-section-label">

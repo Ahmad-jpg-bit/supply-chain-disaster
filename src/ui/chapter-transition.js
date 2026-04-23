@@ -10,7 +10,8 @@ export class ChapterTransition {
 
     show(chapterIndex, masterySummary, gameStats, onContinue) {
         const allChapters = [...CHAPTERS, ...EXPANSION_CHAPTERS];
-        const chapter     = allChapters[chapterIndex] || CHAPTERS[chapterIndex];
+        const chapter     = allChapters[chapterIndex];
+        if (!chapter) { console.error(`ChapterTransition: invalid chapterIndex ${chapterIndex}`); return; }
         const nextChapter = allChapters[chapterIndex + 1] || null;
 
         this.overlay = document.createElement('div');
