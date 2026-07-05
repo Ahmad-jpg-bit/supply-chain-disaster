@@ -102,10 +102,11 @@ function isFirstTimePlayer() {
 
 export class LandingPage {
     constructor(container, onLaunch, options = {}) {
-        this.container  = container;
-        this.onLaunch   = onLaunch;
-        this.skipHero   = options.skipHero || false;
+        this.container         = container;
+        this.onLaunch          = onLaunch;
+        this.skipHero          = options.skipHero || false;
         this.selectedChapterIndex = 0;
+        this._loadedGameState  = null;
         this._render();
     }
 
@@ -288,15 +289,17 @@ export class LandingPage {
 
     _roadmapHTML() {
         const nodes = CHAPTERS.map((ch, i) => {
+            const isFree    = ch.number <= 3;
             const hasNext   = i < CHAPTERS.length - 1;
             const outcome   = CHAPTER_OUTCOMES[i] || '';
             return `
-            <div class="lp-roadmap-node lp-roadmap-node--free">
+            <div class="lp-roadmap-node lp-roadmap-node--${isFree ? 'free' : 'pro'}">
                 <div class="lp-rn-icon">${getIcon(ch.icon, 20)}</div>
                 ${hasNext ? '<div class="lp-rn-connector"></div>' : ''}
                 <div class="lp-rn-body">
                     <div class="lp-rn-header">
                         <span class="lp-rn-num">Ch ${ch.number}</span>
+                        <span class="lp-rn-badge lp-rn-badge--${isFree ? 'free' : 'pro'}">${isFree ? 'Free' : 'Pro'}</span>
                     </div>
                     <div class="lp-rn-title">${ch.title}</div>
                     <div class="lp-rn-outcome">${outcome}</div>
@@ -309,14 +312,16 @@ export class LandingPage {
             <div class="lp-section-header">
                 <div class="lp-section-label">Mission Briefing</div>
                 <h2>Master the Full Supply Chain Arc</h2>
-                <p class="lp-section-sub">8 chapters scaffolding from fundamentals to advanced strategy. All free — no paywall, no account required.</p>
+                <p class="lp-section-sub">8 chapters scaffolding from fundamentals to advanced strategy. Each chapter unlocks new crises, harder decisions, and deeper consequences.</p>
             </div>
             <div class="lp-roadmap-scroll">
                 <div class="lp-roadmap-track">${nodes}</div>
             </div>
             <div class="lp-roadmap-legend">
-                <span class="lp-rn-badge lp-rn-badge--free">Free</span>
-                <span class="lp-roadmap-legend-text">All 8 chapters &mdash; no account needed</span>
+                <span class="lp-rn-badge lp-rn-badge--free">Free Entry</span>
+                <span class="lp-roadmap-legend-text">Chapters 1–3 always free</span>
+                <span class="lp-rn-badge lp-rn-badge--pro" style="margin-left:1.25rem;">Pro</span>
+                <span class="lp-roadmap-legend-text">Chapters 4–10 &mdash; $6.99 one-time, lifetime</span>
             </div>
         </section>`;
     }
@@ -448,13 +453,13 @@ export class LandingPage {
         <section class="lp-intel" id="lp-intel">
             <div class="lp-intel-inner">
                 <div class="lp-intel-left">
-                    <div class="lp-section-label">Save Progress</div>
-                    <h2>Save Your Progress</h2>
-                    <p class="lp-intel-sub">Your game progress is stored in your browser. Enter your email to back it up and recover across devices if your browser data is ever cleared.</p>
+                    <div class="lp-section-label">Save &amp; Resume</div>
+                    <h2>Continue from any device</h2>
+                    <p class="lp-intel-sub">Your game is saved locally. Enter your email to back it up — then pick up exactly where you left off on any device, any time.</p>
                     <ul class="lp-intel-benefits">
-                        <li>${getIcon('checkmark', 15)} Progress backup after each chapter</li>
+                        <li>${getIcon('checkmark', 15)} Progress backed up after each chapter</li>
+                        <li>${getIcon('checkmark', 15)} Resume from any browser or device with your email</li>
                         <li>${getIcon('checkmark', 15)} Receive your personalized strategy debrief PDF</li>
-                        <li>${getIcon('checkmark', 15)} Get notified when Expansion chapters go live</li>
                     </ul>
                 </div>
                 <div class="lp-intel-right">
@@ -463,12 +468,12 @@ export class LandingPage {
                             <span class="lp-term-dot lp-term-dot--red"></span>
                             <span class="lp-term-dot lp-term-dot--amber"></span>
                             <span class="lp-term-dot lp-term-dot--green"></span>
-                            <span class="lp-term-title">PROGRESS_BACKUP.exe</span>
+                            <span class="lp-term-title">SESSION_RESTORE.exe</span>
                         </div>
                         <div class="lp-intel-form-body">
                             <div class="lp-intel-prompt">
                                 <span class="lp-term-prompt">&gt;</span>
-                                <span class="lp-intel-prompt-text">ENTER YOUR EMAIL</span>
+                                <span class="lp-intel-prompt-text">ENTER YOUR EMAIL TO SAVE OR RESUME</span>
                             </div>
                             <div class="lp-intel-input-row">
                                 <input type="email" class="lp-intel-input" id="lp-intel-email"
@@ -476,12 +481,11 @@ export class LandingPage {
                                        autocomplete="email"
                                        value="${captured}" />
                                 <button class="lp-intel-submit" id="lp-intel-submit">
-                                    ${captured ? 'Saved ✓' : 'Save Progress &rarr;'}
+                                    ${captured ? 'Check session &rarr;' : 'Save &amp; Restore &rarr;'}
                                 </button>
                             </div>
-                            <div class="lp-intel-status" id="lp-intel-status">
-                                ${captured ? `<span class="lp-intel-status--success">&gt; SUCCESS: Progress already saved</span>` : ''}
-                            </div>
+                            <div class="lp-intel-status" id="lp-intel-status"></div>
+                            <div id="lp-restore-wrap" style="display:none;margin-top:12px;"></div>
                             <div class="lp-intel-note">
                                 <span class="lp-term-prompt">&gt;</span>
                                 <span>No spam. Used only for session recovery and product updates.</span>
@@ -495,13 +499,14 @@ export class LandingPage {
 
     _upgradeHTML() {
         const check  = `<svg class="lp-tier-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const cross  = `<svg class="lp-tier-cross" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
         return `
         <section class="lp-upgrade">
             <div class="lp-section-header">
                 <div class="lp-section-label">Pricing</div>
-                <h2>Choose Your Access Level</h2>
-                <p class="lp-section-sub">Start free today. Upgrade when you're ready for the full arc.</p>
+                <h2>One Price. Everything Unlocked.</h2>
+                <p class="lp-section-sub">Start free today. One $6.99 purchase unlocks the entire game — for life.</p>
             </div>
             <div class="lp-pricing-grid">
 
@@ -512,40 +517,46 @@ export class LandingPage {
                         <div class="lp-tier-price">
                             <span class="lp-tier-amount">$0</span>
                         </div>
-                        <p class="lp-tier-tagline">The full game. No card needed.</p>
+                        <p class="lp-tier-tagline">Start immediately. No card needed.</p>
                     </div>
                     <ul class="lp-tier-features">
-                        <li>${check} <strong>Full 8-chapter game</strong></li>
+                        <li>${check} Chapters 1–3 (12 scenarios)</li>
                         <li>${check} All 3 industries</li>
                         <li>${check} Live analytics dashboard</li>
                         <li>${check} Bullwhip Effect tracker</li>
-                        <li>${check} Core performance summary</li>
+                        <li>${cross} <span class="lp-tier-locked">Chapters 4–10</span></li>
+                        <li>${cross} <span class="lp-tier-locked">Executive Strategy PDF</span></li>
+                        <li>${cross} <span class="lp-tier-locked">Global Certification</span></li>
+                        <li>${cross} <span class="lp-tier-locked">Advanced Debrief Report</span></li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--free lp-begin-btn-pricing">
                         Play Free &rarr;
                     </button>
                 </div>
 
-                <!-- STANDARD tier -->
+                <!-- FULL ACCESS tier -->
                 <div class="lp-tier lp-tier--premium glass-panel">
-                    <div class="lp-tier-badge-top">MOST POPULAR</div>
+                    <div class="lp-tier-badge-top">LIFETIME ACCESS</div>
                     <div class="lp-tier-header">
-                        <span class="lp-tier-label">Standard</span>
+                        <span class="lp-tier-label">Full Access</span>
                         <div class="lp-tier-price">
-                            <span class="lp-tier-amount lp-tier-amount--premium">$14.99</span>
+                            <span class="lp-tier-amount lp-tier-amount--premium">$6.99</span>
                             <span class="lp-tier-period">one-time</span>
                         </div>
-                        <p class="lp-tier-tagline">Deep post-game analytics. Lifetime access.</p>
+                        <p class="lp-tier-tagline">Everything unlocked. Lifetime access. No subscriptions.</p>
                     </div>
                     <ul class="lp-tier-features">
                         <li>${check} Everything in Free</li>
-                        <li>${check} <strong>Full Debrief Report</strong></li>
-                        <li>${check} <strong>Decision Audit (all turns)</strong></li>
-                        <li>${check} <strong>PDF Download</strong></li>
+                        <li>${check} <strong>All 10 Chapters — 40-Turn Campaign</strong></li>
+                        <li>${check} <strong>Global Crisis &amp; Multi-Regional Chapters</strong></li>
+                        <li>${check} <strong>Advanced Debrief Report (5-page PDF)</strong></li>
+                        <li>${check} <strong>Executive Strategy Debrief PDF</strong></li>
+                        <li>${check} <strong>Global Certificate of Completion</strong></li>
+                        <li>${check} Advanced Cost Breakdown Analytics</li>
                         <li>${check} <strong>Lifetime Updates</strong></li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--premium btn-glow lp-upgrade-btn">
-                        Unlock Debrief Report ✦
+                        Unlock Everything — $6.99 ✦
                     </button>
                     <p class="lp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
                 </div>
@@ -619,21 +630,17 @@ export class LandingPage {
             });
         });
 
-        // Email capture
-        const emailInput = page.querySelector('#lp-intel-email');
-        const submitBtn  = page.querySelector('#lp-intel-submit');
-        const statusEl   = page.querySelector('#lp-intel-status');
-
-        // If already captured, disable the button
-        if (submitBtn && localStorage.getItem('scd_progress_email')) {
-            submitBtn.disabled = true;
-        }
+        // Email save & restore
+        const emailInput  = page.querySelector('#lp-intel-email');
+        const submitBtn   = page.querySelector('#lp-intel-submit');
+        const statusEl    = page.querySelector('#lp-intel-status');
+        const restoreWrap = page.querySelector('#lp-restore-wrap');
 
         submitBtn?.addEventListener('click', () =>
-            this._handleEmailSubmit(emailInput, submitBtn, statusEl)
+            this._handleEmailSubmit(emailInput, submitBtn, statusEl, restoreWrap)
         );
         emailInput?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this._handleEmailSubmit(emailInput, submitBtn, statusEl);
+            if (e.key === 'Enter') this._handleEmailSubmit(emailInput, submitBtn, statusEl, restoreWrap);
         });
 
         // Upgrade button → paywall
@@ -916,31 +923,67 @@ export class LandingPage {
         </div>`;
     }
 
-    async _handleEmailSubmit(input, btn, status) {
+    async _handleEmailSubmit(input, btn, status, restoreWrap) {
+        const INDUSTRY_LABELS = { electronics: 'Electronics', fmcg: 'Consumer Goods', pharma: 'Pharmaceuticals' };
+
         const email = input.value.trim();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             status.innerHTML = '<span class="lp-intel-status--error">&gt; ERROR: Invalid email format</span>';
             return;
         }
 
-        btn.disabled    = true;
-        btn.textContent = 'Saving...';
+        btn.disabled     = true;
+        btn.textContent  = 'Checking...';
         status.innerHTML = '';
 
         try {
-            const res = await fetch('/api/save-progress', {
+            // Check for existing saved game state on the server
+            const loadRes  = await fetch('/api/load-game', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ email, chapter: 0, industry: 'general' }),
+                body:    JSON.stringify({ email }),
             });
-            if (!res.ok) throw new Error();
+            const loadData = loadRes.ok ? await loadRes.json() : { found: false };
 
+            // Always persist email locally
             localStorage.setItem('scd_progress_email', email);
-            status.innerHTML = '<span class="lp-intel-status--success">&gt; SUCCESS: Progress saved. Confirmation sent.</span>';
-            btn.textContent  = 'Saved ✓';
+
+            if (loadData.found && loadData.gameState?.industryId) {
+                // Saved session found — offer to continue
+                this._loadedGameState = loadData.gameState;
+                const chNum    = (loadData.gameState.chapterIndex || 0) + 1;
+                const indLabel = INDUSTRY_LABELS[loadData.gameState.industryId] || 'Unknown';
+
+                status.innerHTML = `<span class="lp-intel-status--success">&gt; SESSION FOUND: Chapter ${chNum} &middot; ${indLabel}</span>`;
+                btn.textContent  = 'Saved ✓';
+
+                if (restoreWrap) {
+                    restoreWrap.innerHTML = `<button
+                        style="width:100%;padding:10px 16px;background:linear-gradient(135deg,#6c63ff,#4facfe);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.03em;"
+                        id="lp-restore-btn">
+                        Continue &mdash; Chapter ${chNum}: ${indLabel} &rarr;
+                    </button>`;
+                    restoreWrap.style.display = 'block';
+                    restoreWrap.querySelector('#lp-restore-btn').addEventListener('click', () => {
+                        const gs = this._loadedGameState;
+                        if (!gs) return;
+                        setNavMinimal(false);
+                        this.onLaunch(gs.industryId, gs.chapterIndex + 1, 'story', gs);
+                    });
+                }
+            } else {
+                // No saved state — register the email
+                await fetch('/api/save-game', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ email, gameState: null, sendEmail: true }),
+                });
+                status.innerHTML = '<span class="lp-intel-status--success">&gt; SUCCESS: Email saved. Confirmation sent.</span>';
+                btn.textContent  = 'Saved ✓';
+            }
         } catch {
             btn.disabled    = false;
-            btn.textContent = 'Save Progress →';
+            btn.textContent = localStorage.getItem('scd_progress_email') ? 'Check session →' : 'Save & Restore →';
             status.innerHTML = '<span class="lp-intel-status--error">&gt; ERROR: Backup failed. Try again.</span>';
         }
     }

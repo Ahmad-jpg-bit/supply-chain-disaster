@@ -25,16 +25,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   const ok = await PremiumManager.verifyOrder(orderId);
 
   if (ok) {
-    const isExpansion = PremiumManager.isExpansion();
     document.title = 'Payment Confirmed — Supply Chain Disaster';
     contentEl.innerHTML = `
       <div class="success-icon success-icon--ok">✓</div>
-      <h2 class="success-title">${isExpansion ? 'Expansion Bundle Unlocked!' : "You're Premium!"}</h2>
-      <p class="muted-text">${
-        isExpansion
-          ? 'All 10 chapters are now unlocked — including the Global Logistics Expansion. Good luck out there.'
-          : 'All 8 chapters are now unlocked. Time to put your skills to the real test.'
-      }</p>
+      <h2 class="success-title">Full Access Unlocked!</h2>
+      <p class="muted-text">All 10 chapters and the 5-page Advanced Report are now yours — for life. Jump back in and play the full campaign.</p>
 
       <div class="success-order-box">
         <p class="success-order-label">Your Order ID — save this</p>

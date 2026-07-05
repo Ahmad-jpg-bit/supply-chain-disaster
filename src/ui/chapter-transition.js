@@ -82,7 +82,7 @@ export class ChapterTransition {
                     <span class="next-label">Coming Next</span>
                     <div class="next-chapter-premium-badge">🔒 PREMIUM</div>
                     <h4>Chapter ${nextChapter.number}: ${nextChapter.title}</h4>
-                    <p class="chapter-next-lock-note">Upgrade to unlock all premium chapters</p>
+                    <p class="chapter-next-lock-note">Full Access unlocks every remaining chapter — $6.99 one-time</p>
                 </div>`;
             } else {
                 nextChapterHtml = `
@@ -95,7 +95,7 @@ export class ChapterTransition {
         }
 
         const ctaBtnLabel = isAnyLocked
-            ? '🔒 Unlock Chapter ' + nextChapter.number + ' — $14.99 one-time'
+            ? '🔒 Unlock Chapter ' + nextChapter.number + ' — $6.99 one-time'
             : nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results';
 
         this.overlay.innerHTML = `

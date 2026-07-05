@@ -232,14 +232,17 @@ export class Dashboard {
             return;
         }
 
+        // Listen for email capture (in-game modal) → auto-save game state
+        document.addEventListener('scd:email-captured', () => this._autoSave(true));
+
         // Mount the landing page (replaces the old onboarding wizard)
         // ?start=1 skips the marketing hero and goes straight to industry selection
         // (used by all homepage CTAs — direct /play navigation preserves the full landing page)
         const _skipHero = new URLSearchParams(window.location.search).get('start') === '1';
         if (_skipHero) window.history.replaceState({}, '', window.location.pathname);
-        new LandingPage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story') => {
+        new LandingPage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null) => {
             this.selectedIndustryId = industryId;
-            this.startGame(startChapterIndex, mode);
+            this.startGame(startChapterIndex, mode, statePatches);
         }, { skipHero: _skipHero });
 
         // Landing page is now rendered and visible — dismiss the loading screen.
@@ -383,7 +386,7 @@ export class Dashboard {
         if (mode === 'endless') {
             this.engine.initEndless(this.selectedIndustryId);
         } else {
-            this.engine.init(this.selectedIndustryId, PremiumManager.isExpansion(), startChapterIndex);
+            this.engine.init(this.selectedIndustryId, true, startChapterIndex);
         }
 
         // Restore financial/scenario state saved before a checkout redirect
@@ -492,9 +495,9 @@ export class Dashboard {
         let html = '';
         allChapters.forEach((ch, idx) => {
             const isExpansionChapter = Boolean(ch.expansionOnly);
-            const expansionLocked = isExpansionChapter && !PremiumManager.isExpansion();
-            const premiumLocked = !isExpansionChapter && PremiumManager.isChapterLocked(ch.number);
-            const isLocked = expansionLocked || premiumLocked;
+            const expansionLocked = false; // all chapters are free
+            const premiumLocked   = false;
+            const isLocked        = false;
 
             let cls = 'chapter-dot';
             if (isExpansionChapter) cls += ' expansion-chapter';
@@ -2000,12 +2003,51 @@ export class Dashboard {
         return null;
     }
 
+    /**
+     * Silently saves the current engine state to the server, tied to the player's
+     * captured email. Fire-and-forget — never blocks the game loop.
+     * @param {boolean} [sendEmail=false] - send a confirmation email to the player
+     */
+    _autoSave(sendEmail = false) {
+        const email = SaveProgressModal.getCapturedEmail();
+        if (!email) return;
+
+        const s = this.engine?.state;
+        if (!s?.industry) return;
+
+        const gameState = {
+            industryId:         s.industry.id,
+            chapterIndex:       s.chapterIndex,
+            cash:               s.cash,
+            inventory:          s.inventory,
+            backlog:            s.backlog,
+            inTransit:          s.inTransit,
+            turn:               s.turn,
+            maxTurns:           s.maxTurns,
+            modifiers:          s.modifiers,
+            archetypeModifiers: s.archetypeModifiers,
+            procurementChoices: s.procurementChoices,
+            startingArchetype:  s.startingArchetype,
+            shuffledScenarios:  s.shuffledScenarios,
+            history:            s.history,
+        };
+
+        fetch('/api/save-game', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email, gameState, sendEmail }),
+        }).catch(() => { /* fail silently */ });
+    }
+
     renderChapterSummary() {
         const prevChapterIdx = this.engine.state.chapterIndex;
         const allChapters = [...CHAPTERS, ...EXPANSION_CHAPTERS];
         const summary = this.engine.mastery.getChapterSummary(
             allChapters[prevChapterIdx].id
         );
+
+        // Auto-save progress to server at every chapter boundary
+        this._autoSave();
 
         // All chapters are free — advance directly.
         const continueCallback = () => {
@@ -2139,9 +2181,9 @@ export class Dashboard {
         const history   = this.engine.state.history;
 
         const showMainResults = () => {
-            const isPremium  = PremiumManager.isPremium();
-            const industry   = this.engine.state.industry;
-            const isExpansion = PremiumManager.isExpansion();
+            const isPremium   = PremiumManager.isPremium();
+            const industry    = this.engine.state.industry;
+            const isExpansion = true; // all chapters always available
 
             // Build the debrief callback once so the closure captures the right state
             const openDebrief = () => {
@@ -2172,6 +2214,9 @@ export class Dashboard {
                 showMainResults();
             }
         };
+
+        // Auto-save final state at game completion
+        this._autoSave();
 
         // Secondary trigger: capture email at game-end if not yet collected.
         // High-emotion moment — player wants their certificate / guide.

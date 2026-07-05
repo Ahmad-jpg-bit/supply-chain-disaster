@@ -6,42 +6,25 @@ const IS_TEST_MODE = import.meta.env.VITE_LS_TEST_MODE === 'true';
 // ── Checkout URLs (web only) ─────────────────────────────────────────────────
 // Used exclusively on web. On native (Android/iOS), RevenueCat handles billing.
 const CHECKOUT_URLS = {
-    standard:  'https://nexttracksystems.lemonsqueezy.com/checkout/buy/59640ce6-1d3f-4dad-9918-284bb36d367a',
-    expansion: 'https://nexttracksystems.lemonsqueezy.com/checkout/buy/fdc3c224-c3fc-4239-be8f-bbdab7131869',
+    standard: 'https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33',
 };
 
-// ── Tier definitions ────────────────────────────────────────────────────────
-const TIERS = [
-    {
-        id:       'standard',
-        name:     'Standard Edition',
-        price:    '$14.99',
-        period:   'one-time',
-        badge:    null,
-        featured: false,
-        btnLabel: 'Buy Standard',
-        features: [
-            { text: 'Full Core Game Access',  inherited: false },
-            { text: '5 Base Scenarios',       inherited: false },
-            { text: 'Lifetime Bug Updates',   inherited: false },
-        ],
-    },
-    {
-        id:       'expansion',
-        name:     'Expansion Bundle',
-        price:    '$25.00',
-        period:   'one-time',
-        badge:    'BEST VALUE',
-        featured: true,
-        btnLabel: 'Get Expansion Bundle',
-        features: [
-            { text: 'Everything in Standard',                            inherited: true  },
-            { text: 'Global Logistics Expansion <em>(Early Access)</em>', inherited: false },
-            { text: 'Advanced Crisis Scenarios — Port Strikes, Fuel Hikes', inherited: false },
-            { text: 'Digital Strategy Guide & Certificate of Completion', inherited: false },
-        ],
-    },
-];
+// ── Product definition ───────────────────────────────────────────────────────
+const REPORT_PRODUCT = {
+    id:       'standard',
+    name:     'Full Access',
+    price:    '$6.99',
+    period:   'one-time · lifetime',
+    btnLabel: 'Unlock Everything — $6.99 ✦',
+    features: [
+        { text: '<strong>All 10 chapters</strong> — full 40-turn campaign' },
+        { text: '<strong>Global Crisis &amp; Multi-Regional chapters</strong> (9–10)' },
+        { text: '<strong>5-page PDF Debrief Report</strong>' },
+        { text: '<strong>Turn-by-turn Decision Audit</strong>' },
+        { text: '<strong>Learning Summary &amp; Chapter Breakdown</strong>' },
+        { text: '<strong>Completion Certificate &amp; Lifetime Updates</strong>' },
+    ],
+};
 
 export class Paywall {
     constructor() {
@@ -76,52 +59,48 @@ export class Paywall {
                 🧪 TEST MODE — test card: <strong>4242 4242 4242 4242</strong> · any future date · any CVC
             </div>` : '';
 
-        const tierCards = TIERS.map(tier => {
-            const badgeHtml = tier.badge
-                ? `<div class="pricing-card-badge">${tier.badge}</div>` : '';
+        const featuresHtml = REPORT_PRODUCT.features.map(f => `
+            <li class="pricing-feature">
+                <span class="pricing-feature-check">✓</span>
+                <span>${f.text}</span>
+            </li>`).join('');
 
-            const featuresHtml = tier.features.map(f => `
-                <li class="pricing-feature ${f.inherited ? 'pricing-feature--inherited' : ''}">
-                    <span class="pricing-feature-check">${f.inherited ? '↳' : '✓'}</span>
-                    <span>${f.text}</span>
-                </li>`).join('');
-
-            return `
-                <div class="pricing-card ${tier.featured ? 'pricing-card--featured' : ''}">
-                    ${badgeHtml}
-                    <div class="pricing-card-header">
-                        <h3 class="pricing-card-name">${tier.name}</h3>
-                        <div class="pricing-card-price">
-                            <span class="pricing-price-amount">${tier.price}</span>
-                            <span class="pricing-price-period">${tier.period}</span>
-                        </div>
+        const reportCard = `
+            <div class="pricing-card pricing-card--featured pricing-card--solo">
+                <div class="pricing-card-header">
+                    <h3 class="pricing-card-name">${REPORT_PRODUCT.name}</h3>
+                    <div class="pricing-card-price">
+                        <span class="pricing-price-amount">${REPORT_PRODUCT.price}</span>
+                        <span class="pricing-price-period">${REPORT_PRODUCT.period}</span>
                     </div>
-                    <ul class="pricing-features">${featuresHtml}</ul>
-                    <button
-                        class="pricing-buy-btn ${tier.featured ? 'pricing-buy-btn--featured' : 'pricing-buy-btn--standard'}"
-                        data-tier="${tier.id}"
-                    >${tier.btnLabel}</button>
-                </div>`;
-        }).join('');
+                    <p class="pricing-card-tagline">One purchase. Every chapter, every feature, forever.</p>
+                </div>
+                <ul class="pricing-features">${featuresHtml}</ul>
+                <button
+                    class="pricing-buy-btn pricing-buy-btn--featured"
+                    data-tier="${REPORT_PRODUCT.id}"
+                >${REPORT_PRODUCT.btnLabel}</button>
+                <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">30-day refund policy &mdash; no questions asked</p>
+            </div>`;
 
         const restoreLabel = BillingManager.isNative ? 'Restore Purchases' : 'Restore access';
 
         this.overlay.innerHTML = `
-            <div class="paywall-modal paywall-modal--wide glass-panel">
+            <div class="paywall-modal glass-panel">
                 ${sandboxBanner}
 
                 <button class="paywall-close-btn" aria-label="Close">✕</button>
 
                 <div class="paywall-header">
-                    <div class="paywall-badge">UNLOCK FULL ACCESS</div>
-                    <h2 class="paywall-title">Choose Your Edition</h2>
+                    <div class="paywall-badge">FULL ACCESS — $6.99 LIFETIME</div>
+                    <h2 class="paywall-title">Unlock the full game.</h2>
                     <p class="paywall-subtitle">
-                        One-time purchase. No subscriptions. Play at your own pace.
+                        One $6.99 purchase unlocks all 10 chapters, the 5-page Advanced Report, and every feature — for life. No subscription.
                     </p>
                 </div>
 
-                <div class="pricing-cards-grid">
-                    ${tierCards}
+                <div class="pricing-cards-grid pricing-cards-grid--solo">
+                    ${reportCard}
                 </div>
 
                 <div id="paywall-msg" class="paywall-msg hidden"></div>
@@ -161,7 +140,7 @@ export class Paywall {
         document.body.appendChild(this.overlay);
         requestAnimationFrame(() => this.overlay.classList.add('visible'));
 
-        // Buy buttons
+        // Buy button
         this.overlay.querySelectorAll('.pricing-buy-btn').forEach(btn => {
             btn.addEventListener('click', () => this._handleBuy(btn.dataset.tier));
         });
@@ -206,7 +185,7 @@ export class Paywall {
             }
 
             btn.disabled = false;
-            btn.textContent = TIERS.find(t => t.id === tier)?.btnLabel ?? 'Buy';
+            btn.textContent = REPORT_PRODUCT.btnLabel;
 
             if (result.reason === 'cancelled') return; // user cancelled — no error message
             this._setMsg(msgEl, 'Purchase failed. Please try again or contact support.', 'error');
@@ -214,13 +193,9 @@ export class Paywall {
         }
 
         // ── Web (Lemon Squeezy) ───────────────────────────────────────────────
-        const url = CHECKOUT_URLS[tier];
+        const url = CHECKOUT_URLS[tier] ?? CHECKOUT_URLS.standard;
         if (!url || url === '#') {
-            this._setMsg(
-                msgEl,
-                `Checkout not yet configured for the "${tier}" tier. Paste your Lemon Squeezy variant link into CHECKOUT_URLS in paywall.js.`,
-                'error',
-            );
+            this._setMsg(msgEl, 'Checkout not configured. Contact support.', 'error');
             return;
         }
 

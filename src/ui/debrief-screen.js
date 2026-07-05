@@ -451,9 +451,9 @@ export class DebriefScreen {
 
                 ${!isPremium ? `
                     <div class="debrief-upsell">
-                        <strong>Unlock the full PDF debrief report</strong> — decision audit table,
+                        <strong>Unlock Full Access</strong> — all 10 chapters, decision audit table,
                         chapter-by-chapter breakdown, and personalised learning narrative.
-                        Available with Standard Edition or Expansion Bundle.
+                        One-time purchase at $6.99. Lifetime access.
                     </div>
                 ` : ''}
             </div>

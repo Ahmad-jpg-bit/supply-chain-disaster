@@ -129,7 +129,7 @@ export class Onboarding {
                     <button class="btn-primary btn-glow onboarding-next-btn">Begin Your Journey</button>
                     <button class="btn-secondary-ghost welcome-demo-btn">&#9654; See a Scenario</button>
                 </div>
-                <button class="btn-premium-cta welcome-upgrade-btn">Unlock Professional Tier ✦<span class="upgrade-feature-hints">Advanced Analytics · Certificate · All 8 Chapters</span></button>
+                <button class="btn-premium-cta welcome-upgrade-btn">Unlock Full Access — $6.99 ✦<span class="upgrade-feature-hints">All 10 Chapters · Advanced Report · Certificate</span></button>
                 <div class="welcome-scroll-hint" role="button" tabindex="0" title="See what you'll learn" aria-label="Explore curriculum">
                     <span class="scroll-hint-label">What You'll Learn</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
