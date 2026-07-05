@@ -30,6 +30,7 @@ Deploy command: `npx vercel --prod` from the project root.
 | Full Access | 1–10 | 1–40 | $6.99 one-time (lifetime) |
 
 - **Single-plan pricing (since 2026-07-05):** one $6.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
+- **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
 - Premium stored in `localStorage` key `scd_premium`
 - Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
 - Paywall triggers at Ch 3→4 (single gate) — any premium unlocks all remaining chapters

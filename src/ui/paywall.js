@@ -6,7 +6,7 @@ const IS_TEST_MODE = import.meta.env.VITE_LS_TEST_MODE === 'true';
 // ── Checkout URLs (web only) ─────────────────────────────────────────────────
 // Used exclusively on web. On native (Android/iOS), RevenueCat handles billing.
 const CHECKOUT_URLS = {
-    standard: 'https://nexttracksystems.lemonsqueezy.com/checkout/buy/59640ce6-1d3f-4dad-9918-284bb36d367a',
+    standard: 'https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33',
 };
 
 // ── Product definition ───────────────────────────────────────────────────────
