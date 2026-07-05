@@ -558,7 +558,7 @@ export class LandingPage {
                     <button class="lp-tier-cta lp-tier-cta--premium btn-glow lp-upgrade-btn">
                         Unlock Everything — $6.99 ✦
                     </button>
-                    <p class="lp-tier-guarantee">30-day refund policy &mdash; no questions asked</p>
+                    <p class="lp-tier-guarantee">7-day refund policy &mdash; no questions asked</p>
                 </div>
 
             </div>

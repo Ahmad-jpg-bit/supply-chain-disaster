@@ -80,7 +80,7 @@ export class Paywall {
                     class="pricing-buy-btn pricing-buy-btn--featured"
                     data-tier="${REPORT_PRODUCT.id}"
                 >${REPORT_PRODUCT.btnLabel}</button>
-                <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">30-day refund policy &mdash; no questions asked</p>
+                <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">7-day refund policy &mdash; no questions asked</p>
             </div>`;
 
         const restoreLabel = BillingManager.isNative ? 'Restore Purchases' : 'Restore access';
