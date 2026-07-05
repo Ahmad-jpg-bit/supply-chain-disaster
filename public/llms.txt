@@ -141,7 +141,7 @@ Six Sigma targets ≤3.4 defects per million opportunities via DMAIC. Kaizen tar
 
 ### Best Business Simulation Games (2026)
 **URL:** https://www.supplychaindisaster.com/best-business-simulation-games
-Ranked guide to 15 top business simulation games for supply chain, MBA, and operations management training. Compares: Supply Chain Disaster, MIT Beer Game, The Fresh Connection, Capsim, Marketplace, GlobStrat.
+Ranked guide to 16 top business simulation games for supply chain, MBA, and operations management training. Compares: Supply Chain Disaster, Markstrat, MIT Beer Game, The Fresh Connection, Capsim, Marketplace, GlobStrat.
 
 ### 7 Strategies for Automotive Supply Chain Resilience
 **URL:** https://www.supplychaindisaster.com/automotive-supply-chain-resilience
