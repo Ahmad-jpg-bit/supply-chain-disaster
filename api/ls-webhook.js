@@ -140,61 +140,32 @@ function featureRow(text, note = '') {
   </tr>`;
 }
 
-function buildStandardEmail(appUrl, orderId) {
+function buildReportEmail(appUrl, orderId) {
   return emailHtml({
     eyebrow:    'Purchase Confirmed',
-    heading:    "You're in. Standard Edition unlocked.",
-    subheading: 'One-time purchase &mdash; no subscriptions, no expiry.',
+    heading:    'Full Access unlocked.',
+    subheading: 'One-time $6.99 purchase &mdash; lifetime access, no subscriptions, no expiry.',
     bodyHtml: `
-      <p style="margin:0 0 24px;">Welcome to the full game. <strong style="color:#e2e8f0;">All 8 chapters</strong> of Supply Chain Disaster are now unlocked on this device — pick up right where the free chapters left off.</p>
+      <p style="margin:0 0 24px;">You now own <strong style="color:#e2e8f0;">everything</strong> — all 10 chapters of the campaign plus the <strong style="color:#e2e8f0;">Advanced Report</strong>. Complete the game and hit <strong style="color:#e2e8f0;">Download Report</strong> on the final screen to generate your full 5-page PDF debrief.</p>
 
       ${orderIdBlock(orderId)}
 
       <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:24px;">
         <tr>
           <td style="padding:20px 24px 14px;">
-            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">What's unlocked</p>
+            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">Everything included in Full Access</p>
             <table cellpadding="0" cellspacing="0" width="100%">
-              ${featureRow('Full Core Game &mdash; Chapters 1&ndash;8')}
-              ${featureRow('All 5 base crisis scenarios')}
-              ${featureRow('Lifetime bug &amp; content updates')}
+              ${featureRow('All 10 chapters &mdash; full 40-turn campaign')}
+              ${featureRow('Global Crisis &amp; Multi-Regional chapters (9&ndash;10)')}
+              ${featureRow('5-page PDF Debrief Report')}
+              ${featureRow('Turn-by-turn Decision Audit')}
+              ${featureRow('Bullwhip Ratio &amp; Service Level Analysis')}
+              ${featureRow('Chapter-by-chapter Breakdown &amp; Learning Summary')}
+              ${featureRow('Completion Certificate &amp; Lifetime updates')}
             </table>
           </td>
         </tr>
       </table>
-    `,
-    ctaUrl:   appUrl,
-    ctaLabel: 'Continue Playing &rarr;',
-  });
-}
-
-function buildExpansionEmail(appUrl, orderId) {
-  return emailHtml({
-    eyebrow:    'Purchase Confirmed',
-    heading:    'Expansion Bundle unlocked. All 10 chapters.',
-    subheading: 'One-time purchase &mdash; the complete Supply Chain Disaster experience.',
-    bodyHtml: `
-      <p style="margin:0 0 24px;">Every chapter is now yours — including the <strong style="color:#e2e8f0;">Global Logistics Expansion</strong>. You have the full arsenal. The board is watching.</p>
-
-      ${orderIdBlock(orderId)}
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:20px;">
-        <tr>
-          <td style="padding:20px 24px 14px;">
-            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">What's unlocked</p>
-            <table cellpadding="0" cellspacing="0" width="100%">
-              ${featureRow('Full Core Game &mdash; Chapters 1&ndash;8')}
-              ${featureRow('Global Logistics Expansion &mdash; Chapters 9&ndash;10', '(Early Access)')}
-              ${featureRow('Advanced Crisis Scenarios &mdash; Port Strikes &amp; Fuel Hikes')}
-              ${featureRow('Digital Strategy Guide (PDF)', '&mdash; unlocks at game end')}
-              ${featureRow('Certificate of Completion', '&mdash; unlocks at game end')}
-              ${featureRow('Lifetime bug &amp; content updates')}
-            </table>
-          </td>
-        </tr>
-      </table>
-
-      <p style="margin:0 0 8px;font-size:13px;color:#4a5568;line-height:1.7;">The Digital Strategy Guide and Certificate unlock on the game-over screen after completing the full run.</p>
     `,
     ctaUrl:   appUrl,
     ctaLabel: 'Start Playing &rarr;',
@@ -219,20 +190,12 @@ function orderIdBlock(orderId) {
     </table>`;
 }
 
-async function sendWelcomeEmail({ toEmail, tier, appUrl, resend, orderId }) {
-  const isExpansion = tier === 'expansion';
-  const subject     = isExpansion
-    ? 'Your Expansion Bundle is ready — Supply Chain Disaster'
-    : 'Your Standard Edition is ready — Supply Chain Disaster';
-  const html = isExpansion
-    ? buildExpansionEmail(appUrl, orderId)
-    : buildStandardEmail(appUrl, orderId);
-
+async function sendWelcomeEmail({ toEmail, appUrl, resend, orderId }) {
   await resend.emails.send({
     from:    'Supply Chain Disaster <hello@supplychaindisaster.com>',
     to:      toEmail,
-    subject,
-    html,
+    subject: 'Full Access unlocked — Supply Chain Disaster',
+    html:    buildReportEmail(appUrl, orderId),
   });
 }
 
@@ -290,7 +253,7 @@ export default async function handler(req, res) {
       if (toEmail && process.env.RESEND_API_KEY) {
         const resend = new Resend(process.env.RESEND_API_KEY);
         try {
-          await sendWelcomeEmail({ toEmail, tier, appUrl, resend, orderId });
+          await sendWelcomeEmail({ toEmail, appUrl, resend, orderId });
           console.log('[LemonSqueezy] Welcome email sent to', toEmail);
         } catch (err) {
           // Log but don't fail the webhook — LS will retry on non-2xx

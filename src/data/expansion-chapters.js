@@ -1,5 +1,5 @@
-// Expansion Bundle chapters (9–10), turns 33–40
-// Only accessible to users with the Expansion Bundle tier.
+// Expansion chapters (9–10), turns 33–40
+// Unlocked with Full Access (any active premium).
 
 export const EXPANSION_CHAPTERS = [
     {

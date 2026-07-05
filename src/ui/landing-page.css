@@ -626,7 +626,7 @@
 
 /* Tooltip on locked chapter hover — appears below node to avoid overflow clipping */
 .lp-roadmap-node--pro::after {
-  content: 'Unlock with Standard Edition — $14.99 one-time';
+  content: 'Unlock Full Access — $6.99 one-time';
   position: absolute;
   top: calc(100% + 8px);
   left: 50%;

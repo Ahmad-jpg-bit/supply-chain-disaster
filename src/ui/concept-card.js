@@ -13,7 +13,7 @@ export class ConceptCard {
         const icon = getIcon(chapter.icon, 48);
 
         const expansionBadge = chapter.isExpansion
-            ? `<div class="concept-expansion-badge">✦ Expansion Bundle</div>`
+            ? `<div class="concept-expansion-badge">✦ Advanced Scenarios</div>`
             : '';
 
         this.overlay.innerHTML = `

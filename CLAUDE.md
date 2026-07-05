@@ -26,13 +26,13 @@ Deploy command: `npx vercel --prod` from the project root.
 ## Tiers & Gating
 | Tier | Chapters | Turns | Price |
 |---|---|---|---|
-| Free | 1–2 | 1–8 | — |
-| Standard | 1–8 | 1–32 | $14.99 one-time |
-| Expansion Bundle | 1–10 | 1–40 | $25.00 one-time |
+| Free | 1–3 | 1–12 | — |
+| Full Access | 1–10 | 1–40 | $6.99 one-time (lifetime) |
 
+- **Single-plan pricing (since 2026-07-05):** one $6.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
 - Premium stored in `localStorage` key `scd_premium`
-- Promo code `SC10Disaster` → 30-day Expansion access, validated server-side via `/api/redeem-promo`
-- Paywall triggers at Ch 2→3 (standard gate) and Ch 8→9 (expansion gate) in `renderChapterSummary()`
+- Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
+- Paywall triggers at Ch 3→4 (single gate) — any premium unlocks all remaining chapters
 - Expired promo grants auto-cleared silently by `PremiumManager._isDataActive()`
 
 ---
@@ -163,11 +163,14 @@ Definitions live in `src/data/cscp-definitions.js`, keyed by chapter ID.
 ---
 
 ## Content Consistency Rules
-The game has **10 chapters total** (8 base + 2 expansion). Always write:
+The game has **10 chapters total**. Single plan since 2026-07-05. Always write:
 - "up to 10 chapters" when describing the game generically
-- "8 chapters" only when referring specifically to the Standard Edition ($14.99)
-- "10 chapters" when referring specifically to the Expansion Bundle ($25)
-- "40 quarterly turns" for the full game; "32 turns" for Standard only
+- "Chapters 1–3 free" for the free tier
+- "Full Access — $6.99 one-time, lifetime" for the paid plan (all 10 chapters + Advanced Report)
+- "40 quarterly turns" for the full game
+- Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers
 
-Files already corrected (2026-03-29): `index.html`, `about.html`, `terms.html`, `pricing.html`,
-`supply-chain-disruption-simulation.html`, `supply-chain-management-game.html`, `procurement-simulation-game.html`.
+Files corrected for single-plan pricing (2026-07-05): `index.html`, `about.html`, `terms.html`, `pricing.html`,
+`refund.html`, `privacy.html`, `public/llms.txt`, `supply-chain-disruption-simulation.html`,
+`supply-chain-management-game.html`, `procurement-simulation-game.html`, `six-sigma-kaizen-supply-chain.html`,
+`7cs-supply-chain-4pl-logistics.html`.

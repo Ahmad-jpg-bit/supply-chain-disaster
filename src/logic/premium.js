@@ -1,15 +1,19 @@
 /**
  * PremiumManager — client-side premium status management.
  *
- * All chapters are free to play.
- * Premium unlocks the full Debrief Report (PDF download, decision audit).
- * Expansion Bundle additionally unlocks Chapters 9–10 content.
+ * Single plan: Full Access — $6.99 one-time, lifetime.
+ * Chapters 1-3  : free.
+ * Chapters 4-10 : require Full Access.
+ * Full Access also unlocks the Advanced Report (PDF debrief).
  *
  * Premium status is stored in localStorage and optionally verified against the server.
- * Stored shape: { active, email, customerId, tier: 'standard'|'expansion', ts }
+ * Stored shape: { active, email, customerId, tier, ts }
+ * Legacy tiers ('standard'/'expansion') from before the single-plan pricing
+ * are honoured as Full Access.
  */
 
 const STORAGE_KEY = 'scd_premium';
+const FREE_CHAPTERS = 3;
 
 export const PremiumManager = {
   /**
@@ -42,26 +46,20 @@ export const PremiumManager = {
   },
 
   /**
-   * Returns true if the user has the Expansion Bundle tier.
+   * Single-plan model: any active premium includes the expansion chapters.
+   * Kept for backwards compatibility with callers that gated on tier.
    */
   isExpansion() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const data = JSON.parse(raw);
-      return this._isDataActive(data) && data?.tier === 'expansion';
-    } catch {
-      return false;
-    }
+    return this.isPremium();
   },
 
   /**
-   * All chapters are free to play.
-   * @returns {false} Always false — chapter gating removed.
+   * Returns true if the given chapter number is locked for the current user.
+   * Chapters 4-10 → require Full Access.
    */
-  // eslint-disable-next-line no-unused-vars
-  isChapterLocked(_chapterNumber) {
-    return false;
+  isChapterLocked(chapterNumber) {
+    if (chapterNumber <= FREE_CHAPTERS) return false;
+    return !this.isPremium();
   },
 
   /**

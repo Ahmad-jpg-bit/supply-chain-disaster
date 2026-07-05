@@ -188,6 +188,9 @@ export class SaveProgressModal {
             // Persist locally
             localStorage.setItem(STORAGE_KEY, email);
 
+            // Notify dashboard so it can auto-save the current game state
+            document.dispatchEvent(new CustomEvent('scd:email-captured', { detail: { email } }));
+
             this._showSuccess(email);
 
         } catch (err) {
