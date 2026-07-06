@@ -25,6 +25,10 @@ import { EndlessDeathScreen } from './ui/endless-death-screen.js';
 import { DefinitionCard } from './ui/definition-card.js';
 import { TurnSummaryCard } from './ui/turn-summary-card.js';
 import { DebriefScreen } from './ui/debrief-screen.js';
+import { PredictionPrompt } from './ui/prediction-prompt.js';
+import { BoardQuestion } from './ui/board-question.js';
+import { RECALL_QUESTIONS } from './data/recall-questions.js';
+import { getConceptInsight } from './logic/concept-insights.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -67,6 +71,12 @@ export class Dashboard {
         this.endlessDeathScreen = new EndlessDeathScreen();
         this.turnSummaryCard    = new TurnSummaryCard();
         this.debriefScreen      = new DebriefScreen();
+        this.predictionPrompt   = new PredictionPrompt();
+        this.boardQuestion      = new BoardQuestion();
+
+        // Predict-before-reveal session stats + spaced-recall bookkeeping
+        this._predictionStats     = { correct: 0, total: 0 };
+        this._askedRecallChapters = new Set();
 
         this.init();
     }
@@ -631,11 +641,16 @@ export class Dashboard {
             isExpansion: Boolean(chapter.expansionOnly)
         };
 
+        // Both intro paths funnel through the board recall question before play
+        const enterChapter = () => this._maybeAskBoardQuestion(chapter, () => {
+            this.engine.advanceFromChapterIntro();
+            this.renderGameState();
+        });
+
         // Show concept card overlay, unless player previously chose to skip it
         const skippedIntros = JSON.parse(localStorage.getItem('scd_skipped_intros') || '[]');
         if (skippedIntros.includes(chapter.number)) {
-            this.engine.advanceFromChapterIntro();
-            this.renderGameState();
+            enterChapter();
             return;
         }
 
@@ -647,8 +662,7 @@ export class Dashboard {
                     localStorage.setItem('scd_skipped_intros', JSON.stringify(updated));
                 }
             }
-            this.engine.advanceFromChapterIntro();
-            this.renderGameState();
+            enterChapter();
         });
 
         // Show a waiting message in the main view
@@ -1899,6 +1913,33 @@ export class Dashboard {
         const choices = this.getSelectedProcurementChoices();
         AudioHapticManager.play('confirm');
         AudioHapticManager.haptic('medium');
+
+        // Endless mode keeps its fast loop — no prediction prompt
+        if (this.engine.state.isEndless) {
+            this._resolveTurn(choices, null);
+            return;
+        }
+
+        // Predict-before-reveal: one-tap forecast call before the quarter resolves
+        const s = this.engine.state;
+        const arriving = s.inTransit
+            .filter(o => o.arrivesOnTurn <= s.turn)
+            .reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
+
+        this.predictionPrompt.show({
+            onHand: s.inventory,
+            arriving,
+            onCall: (call) => this._resolveTurn(choices, call),
+        });
+    }
+
+    /**
+     * Resolve the quarter and show the summary card, decorated with the
+     * forecast-call verdict and the concept-in-action insight.
+     * @param {Object} choices
+     * @param {'cover'|'stockout'|null} predictionCall
+     */
+    _resolveTurn(choices, predictionCall) {
         if (this.charts.gantt) { this.charts.gantt.destroy(); this.charts.gantt = null; }
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
         this.engine.processTurn(choices);
@@ -1910,11 +1951,72 @@ export class Dashboard {
             CrisisTicker.inject(crisis.name, alignment, crisis.ticker);
         }
 
-        // Show turn summary card before advancing to next phase
         const result  = this.engine.state.lastTurnResult;
         const chapter = this.engine.state.currentChapter;
+
+        // Forecast-call verdict
+        if (predictionCall) {
+            const stockedOut = result.missedSales > 0;
+            const correct = (predictionCall === 'stockout') === stockedOut;
+            this._predictionStats.total   += 1;
+            this._predictionStats.correct += correct ? 1 : 0;
+            result._prediction = {
+                call: predictionCall,
+                correct,
+                stats: { ...this._predictionStats },
+            };
+            AudioHapticManager.play(correct ? 'good' : 'bad');
+        }
+
+        // Concept-in-action insight (also shown in endless mode)
+        result._conceptInsight = getConceptInsight(result, this.engine.state.history);
+
         this.turnSummaryCard.show(result, chapter, () => {
             this.renderGameState();
+        });
+    }
+
+    /**
+     * Spaced retrieval: at the start of a chapter, a board member asks one
+     * question about a concept from an earlier chapter the player completed
+     * this session. Correct answer earns a board-confidence cash bonus.
+     * Falls through to proceed() when there is nothing eligible to ask.
+     * @param {Object} chapter   — chapter about to start
+     * @param {Function} proceed — continues into the chapter
+     */
+    _maybeAskBoardQuestion(chapter, proceed) {
+        const BOARD_BONUS = 20000;
+
+        if (this.engine.state.isEndless) { proceed(); return; }
+
+        // Only ask about chapters actually played this session
+        const completedNumbers = new Set(
+            (this.engine.state.history || []).map(h => h.chapter)
+        );
+        const candidates = [...CHAPTERS, ...EXPANSION_CHAPTERS].filter(ch =>
+            ch.number < chapter.number &&
+            completedNumbers.has(ch.number) &&
+            RECALL_QUESTIONS[ch.id] &&
+            !this._askedRecallChapters.has(ch.id)
+        );
+        if (candidates.length === 0) { proceed(); return; }
+
+        // Prefer the oldest un-asked concept — maximum spacing between
+        // learning and retrieval is where the memory benefit lives.
+        const source = candidates[0];
+        this._askedRecallChapters.add(source.id);
+
+        this.boardQuestion.show({
+            question: RECALL_QUESTIONS[source.id],
+            chapterNumber: chapter.number,
+            bonus: BOARD_BONUS,
+            onDone: (correct) => {
+                if (correct) {
+                    this.engine.state.cash += BOARD_BONUS;
+                    AudioHapticManager.play('good');
+                }
+                proceed();
+            },
         });
     }
 

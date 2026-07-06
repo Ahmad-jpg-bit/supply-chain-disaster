@@ -150,6 +150,40 @@ export class TurnSummaryCard {
                           : driver.type === 'warn' ? 'tsc-driver--warn'
                           :                          'tsc-driver--info';
 
+        // Forecast-call verdict (predict-before-reveal), decorated by dashboard
+        const pred = result._prediction;
+        let predictionHtml = '';
+        if (pred) {
+            const calledStockout = pred.call === 'stockout';
+            const callLabel = calledStockout ? 'We’ll stock out' : 'We’ll cover demand';
+            const outcomeLabel = result.missedSales > 0
+                ? `stocked out by ${result.missedSales.toLocaleString()} units`
+                : 'demand covered';
+            const statsLabel = pred.stats
+                ? ` · Forecast record: ${pred.stats.correct}/${pred.stats.total}`
+                : '';
+            predictionHtml = `
+                <div class="tsc-prediction ${pred.correct ? 'tsc-prediction--hit' : 'tsc-prediction--miss'}" data-delay="0">
+                    <span class="tsc-prediction-icon">${pred.correct ? '🎯' : '✗'}</span>
+                    <span class="tsc-prediction-text">
+                        Your call: <strong>${callLabel}</strong> —
+                        ${pred.correct ? 'called it' : `reality: ${outcomeLabel}`}${statsLabel}
+                    </span>
+                </div>`;
+        }
+
+        // Concept-in-action block, decorated by dashboard
+        const insight = result._conceptInsight;
+        const insightHtml = insight ? `
+            <div class="tsc-concept" data-delay="${costRows.length + 5}">
+                <div class="tsc-concept-header">
+                    <span class="tsc-concept-icon">📘</span>
+                    <span class="tsc-concept-label">CONCEPT IN ACTION</span>
+                    <span class="tsc-concept-term">${insight.term}</span>
+                </div>
+                <p class="tsc-concept-text">${insight.text}</p>
+            </div>` : '';
+
         this.overlay = document.createElement('div');
         this.overlay.className = 'tsc-overlay';
         this.overlay.innerHTML = `
@@ -161,6 +195,8 @@ export class TurnSummaryCard {
                 </div>
 
                 <div class="tsc-body">
+
+                    ${predictionHtml}
 
                     <!-- Income Statement -->
                     <div class="tsc-statement">
@@ -200,6 +236,8 @@ export class TurnSummaryCard {
                             <p class="tsc-driver-message">${driver.message}</p>
                         </div>
                     </div>
+
+                    ${insightHtml}
 
                 </div>
 
