@@ -308,7 +308,7 @@ All chapters are now free to play. The debrief report is the paid feature.
 ---
 
 # Engagement & Interactivity Roadmap
-> Saved: 2026-07-08 · Status: approved, implementation deferred ("we'll do it soon")
+> Saved: 2026-07-08 · Wave 3 shipped 2026-07-08 (commit dabafc5) · Wave 4+ remains queued
 
 Goal: move the game beyond click-an-option / MCQ interactions toward **direct
 manipulation with continuous feedback**, in service of the core purpose —
@@ -324,7 +324,7 @@ making supply chain concepts stick.
   re-onboarding premium, quality debt (redeemable), reliability credit — surfaced
   as "THE CHAIN REMEMBERS" in the turn summary.
 
-## Wave 3 — approved, up next
+## Wave 3 — SHIPPED 2026-07-08 (commit dabafc5, all five verified in-browser + 23 Node tests)
 
 ### 1. Demand forecast slider + personal MAPE
 Replace the binary cover/stock-out call in `src/ui/prediction-prompt.js` with a
