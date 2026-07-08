@@ -134,7 +134,9 @@ export class GameEngine {
         this.state.procurementChoices = getDefaultProcurementChoices();
         this.state.lastCrisisId  = null;
         this.state.activeCrisis  = null;
+        this.state.pendingCrisis = undefined;
         this.state.worldMemory   = createWorldMemory();
+        this.state.boardConfidence = 70;
 
         // Shuffle scenarios for this playthrough to ensure uniqueness
         this._shuffleScenarios();
@@ -215,9 +217,11 @@ export class GameEngine {
         this.state.modifiers          = { leadTime: 0, unitCost: 1.0, customerSatisfaction: 100 };
         this.state.lastCrisisId       = null;
         this.state.activeCrisis       = null;
+        this.state.pendingCrisis      = undefined;
         this.state.lastTurnResult     = null;
         this.state.lastStoryChoice    = null;
         this.state.worldMemory        = createWorldMemory();
+        this.state.boardConfidence    = 70;
 
         this.mastery = new MasteryTracker();
 
@@ -400,6 +404,25 @@ export class GameEngine {
         return Math.max(1, total);
     }
 
+    /**
+     * Pre-roll this turn's micro-crisis so the UI can show it as an inbox
+     * interrupt (with mitigation options) BEFORE the quarter resolves.
+     * The event template is cloned so mitigations can safely mutate effects.
+     * Idempotent per turn; processTurn() consumes and clears it.
+     * @returns {Object|null} the pending crisis (cloned), or null
+     */
+    prepareTurnCrisis() {
+        if (this.state.pendingCrisis !== undefined) return this.state.pendingCrisis;
+        const depth = this.state.isEndless
+            ? Math.max(0, this.state.endlessWave - 1)
+            : this.state.chapterIndex;
+        const event = CrisisEngine.rollMicroCrisis(this.state, depth);
+        this.state.pendingCrisis = event
+            ? { ...event, effects: { ...event.effects } }
+            : null;
+        return this.state.pendingCrisis;
+    }
+
     // --- PHASE: PROCUREMENT & RESULTS ---
     processTurn(choices) {
         if (this.state.phase !== GAME_PHASES.PROCUREMENT) throw new Error('Not in Procurement Phase');
@@ -441,12 +464,12 @@ export class GameEngine {
             effectiveMods.unitCost         *= (1 + (wave - 1) * 0.04);  // +4% cost per wave
         }
 
-        // Roll micro-crisis for this turn
-        // In endless mode use wave as an analogue of chapter depth for crisis scaling
-        const crisisChapterDepth = this.state.isEndless
-            ? Math.max(0, this.state.endlessWave - 1)
-            : this.state.chapterIndex;
-        const crisis = CrisisEngine.rollMicroCrisis(this.state, crisisChapterDepth);
+        // Use the crisis pre-rolled for the inbox interrupt if one exists;
+        // otherwise roll now (endless mode, legacy callers).
+        const crisis = this.state.pendingCrisis !== undefined
+            ? this.state.pendingCrisis
+            : this.prepareTurnCrisis();
+        this.state.pendingCrisis = undefined;
         if (crisis) {
             this.state.activeCrisis = crisis;
             this.state.lastCrisisId = crisis.id;

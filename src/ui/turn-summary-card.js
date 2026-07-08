@@ -174,6 +174,21 @@ export class TurnSummaryCard {
                 </div>`;
         }
 
+        // Crisis mitigation record — the player's decisive response
+        const cr = result._crisisResponse;
+        const crisisResponseHtml = (cr && cr.mitigated) ? `
+            <div class="tsc-mitigation" data-delay="${costRows.length + 4}">
+                🛠 <strong>${cr.label}</strong> — you paid ${fmt(cr.cost)} to blunt the crisis before it landed.
+            </div>` : '';
+
+        // Human vignette — a voice from the ground
+        const vg = result._vignette;
+        const vignetteHtml = vg ? `
+            <div class="tsc-vignette" data-delay="${costRows.length + 5}">
+                <p class="tsc-vignette-quote">&ldquo;${vg.quote}&rdquo;</p>
+                <span class="tsc-vignette-source">— ${vg.source}</span>
+            </div>` : '';
+
         // World-memory echoes — past decisions shaping this turn
         const echoes = result.worldEchoes || [];
         const echoesHtml = echoes.length ? `
@@ -280,6 +295,10 @@ export class TurnSummaryCard {
                             <p class="tsc-driver-message">${driver.message}</p>
                         </div>
                     </div>
+
+                    ${crisisResponseHtml}
+
+                    ${vignetteHtml}
 
                     ${echoesHtml}
 

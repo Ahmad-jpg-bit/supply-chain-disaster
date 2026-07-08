@@ -34,6 +34,10 @@ import { checkTurnAchievements, checkChapterAchievements } from './logic/achieve
 import { showAchievementToasts } from './ui/achievement-toast.js';
 import { buildAllocationScenario, applyAllocation } from './logic/allocation.js';
 import { AllocationOverlay } from './ui/allocation-overlay.js';
+import { buildCrisisMessage, applyCrisisResponse } from './logic/crisis-inbox.js';
+import { CrisisInboxOverlay } from './ui/crisis-inbox.js';
+import { assessTurn, adjustConfidence, renderConfidenceMeter } from './logic/board-confidence.js';
+import { pickVignette } from './data/vignettes.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -414,6 +418,11 @@ export class Dashboard {
 
         this.ui.startScreen.classList.add('hidden');
         this.ui.dashboard.classList.remove('hidden');
+
+        // Board confidence meter (campaign mode only)
+        if (mode !== 'endless') {
+            renderConfidenceMeter(document.querySelector('.hud-right'), this.engine.state.boardConfidence);
+        }
 
         // Switch particles to ambient mode
         if (this.particles) {
@@ -1963,7 +1972,35 @@ export class Dashboard {
             onHand: s.inventory,
             arriving,
             recentDemand: s.history.slice(-3).map(h => h.demand),
-            onCall: (forecast) => this._resolveTurn(choices, forecast),
+            onCall: (forecast) => this._maybeCrisisInterrupt(choices, forecast),
+        });
+    }
+
+    /**
+     * After the order and forecast are locked, breaking news may interrupt:
+     * the turn's crisis arrives as a message from a named colleague, with a
+     * mitigation decision, BEFORE the quarter resolves.
+     */
+    _maybeCrisisInterrupt(choices, forecast) {
+        const crisis = this.engine.prepareTurnCrisis();
+        if (!crisis) {
+            this._resolveTurn(choices, forecast, null);
+            return;
+        }
+
+        const industryId = this.engine.state.industry.id;
+        const suppliers  = SUPPLIERS[industryId] || SUPPLIERS.electronics;
+        const supplier   = suppliers.find(sp => sp.id === choices.supplierId) || suppliers[1];
+
+        AudioHapticManager.play('alert');
+        new CrisisInboxOverlay().show({
+            message: buildCrisisMessage(crisis, { supplierName: supplier.name }),
+            turn: this.engine.state.turn,
+            cash: this.engine.state.cash,
+            onDone: (option) => {
+                const response = applyCrisisResponse(this.engine.state, crisis, option);
+                this._resolveTurn(choices, forecast, response);
+            },
         });
     }
 
@@ -1972,8 +2009,9 @@ export class Dashboard {
      * forecast verdict and the concept-in-action insight.
      * @param {Object} choices
      * @param {number|null} forecastCall — player's demand forecast for the quarter
+     * @param {Object|null} crisisResponse — from applyCrisisResponse
      */
-    _resolveTurn(choices, forecastCall) {
+    _resolveTurn(choices, forecastCall, crisisResponse = null) {
         if (this.charts.gantt) { this.charts.gantt.destroy(); this.charts.gantt = null; }
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
         this.engine.processTurn(choices);
@@ -2007,6 +2045,17 @@ export class Dashboard {
         // Concept-in-action insight (also shown in endless mode)
         result._conceptInsight = getConceptInsight(result, this.engine.state.history);
 
+        // Crisis response record + human vignette for the summary card
+        if (crisisResponse) result._crisisResponse = crisisResponse;
+        result._vignette = pickVignette(result);
+
+        // Board confidence (campaign only) — the board watches every quarter
+        if (!this.engine.state.isEndless) {
+            const { delta } = assessTurn(result);
+            adjustConfidence(this.engine.state, delta);
+            renderConfidenceMeter(document.querySelector('.hud-right'), this.engine.state.boardConfidence);
+        }
+
         // Concept-named achievements (turn-level)
         showAchievementToasts(checkTurnAchievements({
             result,
@@ -2015,6 +2064,10 @@ export class Dashboard {
         }));
 
         const showSummary = () => this.turnSummaryCard.show(result, chapter, () => {
+            if (!this.engine.state.isEndless && this.engine.state.boardConfidence <= 0) {
+                this._boardDismissal();
+                return;
+            }
             this.renderGameState();
         });
 
@@ -2034,6 +2087,36 @@ export class Dashboard {
         }
 
         showSummary();
+    }
+
+    /**
+     * The board has seen enough. Confidence hit zero — dismissal scene,
+     * then straight to game over.
+     */
+    _boardDismissal() {
+        const s = this.engine.state;
+        const overlay = document.createElement('div');
+        overlay.className = 'bdis-overlay';
+        overlay.innerHTML = `
+            <div class="bdis-card glass-panel">
+                <div class="bdis-eyebrow">■ EMERGENCY BOARD SESSION — MINUTES</div>
+                <h2 class="bdis-title">The board has voted.</h2>
+                <p class="bdis-body">
+                    Stockouts, losses, and broken promises finally outweighed the excuses.
+                    The vote wasn't close. Security will walk you out; your badge stops
+                    working at Q${s.turn}.
+                </p>
+                <p class="bdis-note">Board confidence reached zero. Every stockout, loss quarter,
+                    and betrayed account moved the needle — it was all on the meter.</p>
+                <button class="btn-primary bdis-btn">Clear Your Desk &rarr;</button>
+            </div>`;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('bdis-overlay--visible'));
+        overlay.querySelector('.bdis-btn').addEventListener('click', () => {
+            overlay.remove();
+            this.engine.state.phase = GAME_PHASES.GAME_OVER;
+            this.renderGameState();
+        });
     }
 
     /**
@@ -2073,6 +2156,7 @@ export class Dashboard {
             onDone: (correct) => {
                 if (correct) {
                     this.engine.state.cash += BOARD_BONUS;
+                    adjustConfidence(this.engine.state, 3);
                     AudioHapticManager.play('good');
                 }
                 proceed();
@@ -2193,6 +2277,7 @@ export class Dashboard {
             shuffledScenarios:  s.shuffledScenarios,
             history:            s.history,
             worldMemory:        s.worldMemory,
+            boardConfidence:    s.boardConfidence,
         };
 
         fetch('/api/save-game', {

@@ -13,6 +13,8 @@
  * modifier, and world-memory echoes that surface next quarter.
  */
 
+import { adjustConfidence } from './board-confidence.js';
+
 const SPLIT = { premium: 0.30, loyal: 0.40, churn: 0.30 };
 const PREMIUM_MARKUP = 0.20;
 
@@ -80,6 +82,7 @@ export function applyAllocation(state, scenario, alloc) {
     // Oldest account — loyalty cuts both ways
     const loyalFill = fill('loyal');
     if (loyalFill < 0.6) {
+        adjustConfidence(state, -5);
         consequences.push({
             icon: '💔', tone: 'bad',
             text: `Hartmann & Co. got ${Math.round(loyalFill * 100)}% of what they ordered. Twenty years of partnership, and you shorted them first.`,
@@ -90,6 +93,7 @@ export function applyAllocation(state, scenario, alloc) {
             text: 'You rationed your oldest account below 60% during the shortage. Their buyer has gone quiet — loyalty you spend takes years to rebuild.',
         });
     } else if (loyalFill >= 0.9) {
+        adjustConfidence(state, 3);
         state.archetypeModifiers.demandMultiplier =
             (state.archetypeModifiers.demandMultiplier ?? 1.0) * 1.02;
         consequences.push({
@@ -101,6 +105,7 @@ export function applyAllocation(state, scenario, alloc) {
     // Churn risk — under-serve and they delist you
     const churnFill = fill('churn');
     if (churnFill < 0.5) {
+        adjustConfidence(state, -5);
         state.archetypeModifiers.demandMultiplier =
             (state.archetypeModifiers.demandMultiplier ?? 1.0) * 0.96;
         consequences.push({
