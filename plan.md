@@ -304,3 +304,100 @@ All chapters are now free to play. The debrief report is the paid feature.
 - [ ] Edit remaining 31 blog drafts for AI writing patterns (retry after rate limit resets)
 - [ ] Verify footer `/privacy` link once Privacy Policy page exists
 - [ ] QA landing page on mobile — check roadmap scroll, ticker overflow, hero stat layout
+
+---
+
+# Engagement & Interactivity Roadmap
+> Saved: 2026-07-08 · Status: approved, implementation deferred ("we'll do it soon")
+
+Goal: move the game beyond click-an-option / MCQ interactions toward **direct
+manipulation with continuous feedback**, in service of the core purpose —
+making supply chain concepts stick.
+
+## Shipped (context)
+
+- **Wave 1 (2026-07-06):** predict-before-reveal forecast call (`src/ui/prediction-prompt.js`),
+  board-meeting spaced-recall MCQ with $20k bonus (`src/ui/board-question.js` +
+  `src/data/recall-questions.js`), concept-in-action lines (`src/logic/concept-insights.js`).
+- **Wave 2 (2026-07-08):** persistent world memory (`src/logic/world-memory.js`,
+  in `engine.state.worldMemory`, included in save payload). Echoes: loyalty shield,
+  re-onboarding premium, quality debt (redeemable), reliability credit — surfaced
+  as "THE CHAIN REMEMBERS" in the turn summary.
+
+## Wave 3 — approved, up next
+
+### 1. Demand forecast slider + personal MAPE
+Replace the binary cover/stock-out call in `src/ui/prediction-prompt.js` with a
+slider: the player forecasts the actual demand number (range ≈ 500–1,500 around
+the 1,000 baseline, with a faint volatility band from history). After the turn,
+score the call: APE = |actual − forecast| / actual. Track a running session MAPE
+in `dashboard._resolveTurn()` (replace `_predictionStats`), render verdict +
+running MAPE in the turn-summary chip (`.tsc-prediction`), grade thresholds:
+<10% excellent, <20% good. The player *becomes* the forecaster — MAPE stops
+being a flashcard and becomes their own score. Smallest effort; do first.
+
+### 2. Live planning workbench (inventory projection)
+In the procurement panel, a live SVG projection that updates as the player drags
+order quantity / safety stock / changes supplier or shipping: projected on-hand
+inventory for the next ~4 turns (arrivals from `state.inTransit` + the new order
+landing at `_computeLeadTimeTurns()`, demand = deterministic forecast), with a
+shaded stockout-risk zone below safety stock and a holding-cost signal when far
+above it. Hook where `updateCostEstimate()` already listens (order-input,
+safety-stock-slider, `.psc` / `.shc` / `.option-card` clicks) in
+`renderProcurementPhase()`. This makes every turn feel like operating a system
+instead of submitting a form. Biggest upgrade to the core loop.
+
+### 3. Counterfactual replay on the turn summary
+"Replay this quarter" button on `TurnSummaryCard`: a slider re-runs the SAME
+quarter (same demand, same crisis — no re-rolls) with a different order
+quantity, showing side-by-side deltas: missed sales, holding cost, profit.
+Implementation: pure recompute function (new `src/logic/counterfactual.js`);
+engine must expose turn-start snapshots on the result — `_snapInventory` /
+`_snapInTransit` already exist in `processTurn()` for the debrief, just attach
+them to `result` (e.g. `result.startingInventory`, `result.startingInTransit`).
+Comparing "what happened" vs "what would have happened" is one of the strongest
+known teaching mechanics.
+
+### 4. Crisis rationing allocator
+When a turn ends in significant shortage (e.g. `missedSales > 300`), before the
+summary card, show an allocation overlay: three customer segments — a premium
+payer, your oldest loyal account, a churn-risk retailer — each with a demand
+bar; the player drags the fulfilled units between them. No "right" answer:
+allocation adjusts satisfaction, next-turn demand modifiers, and writes to
+world memory (favoring/starving the loyal account should echo later). Teaches
+rationing & shortage gaming (a bullwhip cause) by making the player do it.
+Engine addition: `applyAllocation(result, weights)` post-`processTurn` (avoids
+splitting the synchronous turn resolution).
+
+### 5. Concept-named achievements
+localStorage-persisted, awarded at turn/chapter end, toast on unlock:
+- **Bullwhip Tamer** — chapter bullwhip ratio < 1.5
+- **TCO Hawk** — lowest total landed cost (not lowest unit price) chapter
+- **Forecast Oracle** — session MAPE < 10% over 8+ calls (ties into #1)
+- **Loyalty Dividend** — trigger the loyalty shield
+- **Clean Streak** — clear quality debt / 8 clean quarters
+Badges force the vocabulary. Small, do alongside #1.
+
+**Recommended order:** 1 → 2 → 3 → 5 → 4 (allocator has the most new UI).
+**Verification pattern:** Node tests for pure logic (see
+`test-world-memory.mjs` approach), browser playtest via `.claude/launch.json`
+dev server, `npx vite build`, deploy `npx vercel --prod`.
+
+## Wave 4+ — queued (not yet designed in detail)
+
+- **Diegetic crisis inbox** — crises arrive as messages from named characters
+  (supplier reps, CEO), sometimes mid-turn forcing order revisions; includes
+  board-confidence meter with a narrative firing condition, and human vignettes
+  on outcomes ("Store manager, Columbus: third week of empty shelves").
+- **Supplier negotiation** — periodic contract offer/counter-offer exchanges
+  (price vs volume commitment vs flexibility), counterparty behaviour driven by
+  the world-memory relationship score.
+- **Route-drawing map** (Ch 6/9/10) — assemble shipment routes from sea/rail/
+  truck legs with live cost/time/risk totals. Highest effort (map assets).
+- **Spaced-recall emails** — day-3 / day-10 single-question emails via Resend;
+  needs a scheduler (Vercel cron) — infra decision pending.
+- **Weekly seeded Endless challenge + global leaderboard** — **blocked on the
+  Vercel KV store (still not linked)**; linking it also un-degrades the
+  existing cross-device save/restore.
+- **Career/title progression** — Procurement Analyst → CSCO, performance
+  reviews between chapters framed on the three CSCP domains.
