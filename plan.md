@@ -385,10 +385,14 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
 
 ## Wave 4+ — queued (not yet designed in detail)
 
-- **Diegetic crisis inbox** — crises arrive as messages from named characters
-  (supplier reps, CEO), sometimes mid-turn forcing order revisions; includes
-  board-confidence meter with a narrative firing condition, and human vignettes
-  on outcomes ("Store manager, Columbus: third week of empty shelves").
+- **Diegetic crisis inbox — SHIPPED 2026-07-08 (commit eedf080).** Crises are
+  pre-rolled (`engine.prepareTurnCrisis()`, cloned) and arrive as priority
+  messages from six recurring characters (`src/logic/crisis-inbox.js` +
+  `src/ui/crisis-inbox.js`) with paid mitigation options on six crisis types.
+  Board-confidence meter (`src/logic/board-confidence.js`, 0–100 in HUD, saved)
+  moves on results/allocations/crisis handling/board answers; at zero, a
+  dismissal overlay routes into game over. Human vignettes
+  (`src/data/vignettes.js`) render on notable outcomes in the turn summary.
 - **Supplier negotiation** — periodic contract offer/counter-offer exchanges
   (price vs volume commitment vs flexibility), counterparty behaviour driven by
   the world-memory relationship score.
