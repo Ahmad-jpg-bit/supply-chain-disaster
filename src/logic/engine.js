@@ -7,6 +7,7 @@ import { MasteryTracker } from './mastery.js';
 import { SUPPLIERS, SHIPPING_METHODS, PRICING_STRATEGIES, QUALITY_INSPECTIONS } from '../data/procurement-options.js';
 import { CrisisEngine } from './crisis-engine.js';
 import { DebriefCollector } from '../game/debrief-collector.js';
+import { createWorldMemory, computeWorldEchoes, updateWorldMemory } from './world-memory.js';
 
 export const GAME_PHASES = {
     CHAPTER_INTRO: 'PHASE_CHAPTER_INTRO',
@@ -133,6 +134,7 @@ export class GameEngine {
         this.state.procurementChoices = getDefaultProcurementChoices();
         this.state.lastCrisisId  = null;
         this.state.activeCrisis  = null;
+        this.state.worldMemory   = createWorldMemory();
 
         // Shuffle scenarios for this playthrough to ensure uniqueness
         this._shuffleScenarios();
@@ -215,6 +217,7 @@ export class GameEngine {
         this.state.activeCrisis       = null;
         this.state.lastTurnResult     = null;
         this.state.lastStoryChoice    = null;
+        this.state.worldMemory        = createWorldMemory();
 
         this.mastery = new MasteryTracker();
 
@@ -468,6 +471,10 @@ export class GameEngine {
         const inspection = QUALITY_INSPECTIONS.find(q => q.id === choices.inspectionId) || QUALITY_INSPECTIONS[1];
         const orderQuantity = choices.orderQuantity || 0;
 
+        // World memory: past behaviour echoes into this turn's economics.
+        // Evaluated before cost/demand math (reads pre-turn relationship state).
+        const worldFx = computeWorldEchoes(this.state, supplier, crisis);
+
         // 0. Receive any in-transit orders arriving this turn
         const arrivingOrders = this.state.inTransit.filter(o => o.arrivesOnTurn <= this.state.turn);
         this.state.inTransit = this.state.inTransit.filter(o => o.arrivesOnTurn > this.state.turn);
@@ -475,9 +482,12 @@ export class GameEngine {
         this.state.inventory = Math.max(0, this.state.inventory + unitsReceived);
 
         // 1. Calculate Costs with Modifiers (+ crisis overlays)
+        // Loyalty shield softens harmful crisis cost spikes; re-onboarding
+        // premiums from world memory land in worldFx.costMultiplier.
         const baseCost = 100;
+        const crisisCostMult = 1 + ((crisis?.effects?.costMultiplier ?? 1.0) - 1) * worldFx.crisisShield;
         const unitCost = baseCost * supplier.costMultiplier * effectiveMods.unitCost
-            * (crisis?.effects?.costMultiplier ?? 1.0);
+            * crisisCostMult * worldFx.costMultiplier;
         const orderCost = orderQuantity * unitCost;
         const shippingCost = orderQuantity * shippingMethod.costPerUnit
             * (crisis?.effects?.shippingCostBoost ?? 1.0);
@@ -501,6 +511,7 @@ export class GameEngine {
             * effectiveMods.demandMultiplier
             * pricingStrategy.demandMultiplier
             * (crisis?.effects?.demandMultiplier ?? 1.0)
+            * worldFx.demandMultiplier
         );
 
         // 3b. Crisis inventory loss (cold chain failure, recall) — applied before sales
@@ -511,8 +522,10 @@ export class GameEngine {
         }
 
         // 3c. Supplier capacity cut — reduces effective order quantity dispatched
-        const effectiveOrderQty = crisis?.effects?.capacityCut
-            ? Math.floor(orderQuantity * (1 - crisis.effects.capacityCut))
+        // (loyalty shield halves the cut for long-standing supplier relationships)
+        const effectiveCapacityCut = (crisis?.effects?.capacityCut ?? 0) * worldFx.crisisShield;
+        const effectiveOrderQty = effectiveCapacityCut > 0
+            ? Math.floor(orderQuantity * (1 - effectiveCapacityCut))
             : orderQuantity;
 
         // 4. Fulfill Demand (including backlog carry-over from previous turn)
@@ -616,6 +629,8 @@ export class GameEngine {
             shipping: shippingMethod.name,
             pricing: pricingStrategy.name,
             inspection: inspection.name,
+            // World-memory echoes that shaped this turn (empty when none fired)
+            worldEchoes: worldFx.echoes,
             // Active crisis (null if none fired this turn)
             crisis: crisis ? {
                 id:              crisis.id,
@@ -630,6 +645,9 @@ export class GameEngine {
 
         this.state.history.push(result);
         this.state.lastTurnResult = result;
+
+        // World memory: record this turn's behaviour for future echoes
+        updateWorldMemory(this.state, result, supplier);
 
         // ── Debrief: quarter decision record ──
         // optimalOrder uses the order-up-to formula against the deterministic

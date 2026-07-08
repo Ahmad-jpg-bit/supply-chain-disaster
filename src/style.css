@@ -7161,3 +7161,51 @@ input[type="number"] {
   .pp-choices { grid-template-columns: 1fr; }
   .bq-card { padding: 22px 18px 18px; }
 }
+
+/* ── Turn summary: world-memory echoes ("The chain remembers") ── */
+
+.tsc-echoes {
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-top: 10px;
+  background: rgba(34, 211, 238, 0.06);
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tsc-echoes.tsc-row--visible { opacity: 1; transform: translateY(0); }
+
+.tsc-echoes-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #67e8f9;
+  margin-bottom: 8px;
+}
+
+.tsc-echo {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tsc-echo + .tsc-echo { margin-top: 10px; }
+
+.tsc-echo-icon { font-size: 15px; line-height: 1.4; }
+
+.tsc-echo-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0f2ff;
+  margin-bottom: 2px;
+}
+
+.tsc-echo-text {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: 0;
+}

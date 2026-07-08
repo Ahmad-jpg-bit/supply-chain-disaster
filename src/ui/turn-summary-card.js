@@ -172,6 +172,21 @@ export class TurnSummaryCard {
                 </div>`;
         }
 
+        // World-memory echoes — past decisions shaping this turn
+        const echoes = result.worldEchoes || [];
+        const echoesHtml = echoes.length ? `
+            <div class="tsc-echoes" data-delay="${costRows.length + 4}">
+                <div class="tsc-echoes-label">🧠 THE CHAIN REMEMBERS</div>
+                ${echoes.map(e => `
+                    <div class="tsc-echo">
+                        <span class="tsc-echo-icon">${e.icon}</span>
+                        <div class="tsc-echo-body">
+                            <span class="tsc-echo-title">${e.title}</span>
+                            <p class="tsc-echo-text">${e.text}</p>
+                        </div>
+                    </div>`).join('')}
+            </div>` : '';
+
         // Concept-in-action block, decorated by dashboard
         const insight = result._conceptInsight;
         const insightHtml = insight ? `
@@ -236,6 +251,8 @@ export class TurnSummaryCard {
                             <p class="tsc-driver-message">${driver.message}</p>
                         </div>
                     </div>
+
+                    ${echoesHtml}
 
                     ${insightHtml}
 

@@ -2132,6 +2132,7 @@ export class Dashboard {
             startingArchetype:  s.startingArchetype,
             shuffledScenarios:  s.shuffledScenarios,
             history:            s.history,
+            worldMemory:        s.worldMemory,
         };
 
         fetch('/api/save-game', {
