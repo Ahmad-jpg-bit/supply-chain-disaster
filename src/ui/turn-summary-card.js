@@ -1,8 +1,11 @@
 /**
  * TurnSummaryCard — full-screen modal shown after every procurement turn.
  * Displays an animated income statement (revenue → costs → net profit)
- * so the player understands exactly why their cash changed.
+ * so the player understands exactly why their cash changed, plus a
+ * counterfactual replay ("what if you'd had X units available?").
  */
+
+import { buildCounterfactual } from '../logic/counterfactual.js';
 
 const fmt = (n) =>
     new Intl.NumberFormat('en-US', {
@@ -150,24 +153,23 @@ export class TurnSummaryCard {
                           : driver.type === 'warn' ? 'tsc-driver--warn'
                           :                          'tsc-driver--info';
 
-        // Forecast-call verdict (predict-before-reveal), decorated by dashboard
-        const pred = result._prediction;
+        // Forecast verdict (demand slider call), decorated by dashboard
+        const fc = result._forecast;
         let predictionHtml = '';
-        if (pred) {
-            const calledStockout = pred.call === 'stockout';
-            const callLabel = calledStockout ? 'We’ll stock out' : 'We’ll cover demand';
-            const outcomeLabel = result.missedSales > 0
-                ? `stocked out by ${result.missedSales.toLocaleString()} units`
-                : 'demand covered';
-            const statsLabel = pred.stats
-                ? ` · Forecast record: ${pred.stats.correct}/${pred.stats.total}`
-                : '';
+        if (fc) {
+            const hit = fc.apePct <= 10;
+            const near = fc.apePct <= 25;
+            const icon = hit ? '🎯' : near ? '≈' : '✗';
+            const verdict = hit ? 'sharp call' : near ? 'close' : 'wide miss';
+            const grade = fc.mapePct <= 10 ? 'planner-grade' : fc.mapePct <= 20 ? 'solid' : 'noisy';
             predictionHtml = `
-                <div class="tsc-prediction ${pred.correct ? 'tsc-prediction--hit' : 'tsc-prediction--miss'}" data-delay="0">
-                    <span class="tsc-prediction-icon">${pred.correct ? '🎯' : '✗'}</span>
+                <div class="tsc-prediction ${hit ? 'tsc-prediction--hit' : 'tsc-prediction--miss'}" data-delay="0">
+                    <span class="tsc-prediction-icon">${icon}</span>
                     <span class="tsc-prediction-text">
-                        Your call: <strong>${callLabel}</strong> —
-                        ${pred.correct ? 'called it' : `reality: ${outcomeLabel}`}${statsLabel}
+                        Forecast <strong>${fc.forecast.toLocaleString()}</strong> ·
+                        actual <strong>${fc.actual.toLocaleString()}</strong> —
+                        off by ${fc.apePct.toFixed(1)}% (${verdict}) ·
+                        Session MAPE: <strong>${fc.mapePct.toFixed(1)}%</strong> over ${fc.n} call${fc.n !== 1 ? 's' : ''} — ${grade}
                     </span>
                 </div>`;
         }
@@ -197,6 +199,33 @@ export class TurnSummaryCard {
                     <span class="tsc-concept-term">${insight.term}</span>
                 </div>
                 <p class="tsc-concept-text">${insight.text}</p>
+            </div>` : '';
+
+        // Counterfactual replay — same quarter, different availability
+        const cf = buildCounterfactual(result);
+        const cfHtml = cf ? `
+            <div class="tsc-replay" data-delay="${costRows.length + 6}">
+                <button class="tsc-replay-toggle" type="button">
+                    🔁 Replay this quarter — what if you'd had more (or less) stock?
+                </button>
+                <div class="tsc-replay-panel hidden">
+                    <div class="tsc-replay-slider-row">
+                        <input type="range" class="tsc-replay-slider"
+                               min="0" max="${cf.maxX}" step="50" value="${cf.x0}"
+                               aria-label="Units available in replay"/>
+                        <span class="tsc-replay-x">${cf.x0.toLocaleString()} units</span>
+                    </div>
+                    <table class="tsc-replay-table">
+                        <thead><tr><th></th><th>Actual</th><th>Replay</th><th>Δ</th></tr></thead>
+                        <tbody>
+                            <tr data-metric="missed"><td>Missed sales</td><td></td><td></td><td></td></tr>
+                            <tr data-metric="leftover"><td>Units left over</td><td></td><td></td><td></td></tr>
+                            <tr data-metric="holding"><td>Holding cost</td><td></td><td></td><td></td></tr>
+                            <tr data-metric="net"><td>Quarter net</td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>
+                    <p class="tsc-replay-note">Simplified replay — same demand (${cf.demand.toLocaleString()} units) and prices; ignores knock-on effects on later quarters.</p>
+                </div>
             </div>` : '';
 
         this.overlay = document.createElement('div');
@@ -256,6 +285,8 @@ export class TurnSummaryCard {
 
                     ${insightHtml}
 
+                    ${cfHtml}
+
                 </div>
 
                 <div class="tsc-footer">
@@ -278,6 +309,48 @@ export class TurnSummaryCard {
                 this._hide();
                 onDismiss?.();
             });
+
+        if (cf) this._bindReplay(cf);
+    }
+
+    _bindReplay(cf) {
+        const toggle = this.overlay.querySelector('.tsc-replay-toggle');
+        const panel  = this.overlay.querySelector('.tsc-replay-panel');
+        const slider = this.overlay.querySelector('.tsc-replay-slider');
+        const xLabel = this.overlay.querySelector('.tsc-replay-x');
+
+        const actual = cf.evaluate(cf.x0);
+        const money  = (n) => (n < 0 ? '−' : '') + fmt(n);
+
+        const update = () => {
+            const x = parseInt(slider.value, 10);
+            xLabel.textContent = x.toLocaleString() + ' units';
+            const replay = cf.evaluate(x);
+            const rows = {
+                missed:   [actual.missed.toLocaleString(),   replay.missed.toLocaleString(),   replay.missed - actual.missed,   true],
+                leftover: [actual.leftover.toLocaleString(), replay.leftover.toLocaleString(), replay.leftover - actual.leftover, true],
+                holding:  [money(actual.holding),            money(replay.holding),            replay.holding - actual.holding,  true],
+                net:      [money(actual.net),                money(replay.net),                replay.net - actual.net,          false],
+            };
+            for (const [metric, [a, b, delta, lowerIsBetter]] of Object.entries(rows)) {
+                const tr = this.overlay.querySelector(`tr[data-metric="${metric}"]`);
+                if (!tr) continue;
+                const cells = tr.querySelectorAll('td');
+                cells[1].textContent = a;
+                cells[2].textContent = b;
+                const better = lowerIsBetter ? delta < 0 : delta > 0;
+                const isMoney = metric === 'holding' || metric === 'net';
+                cells[3].textContent = delta === 0 ? '—'
+                    : (delta > 0 ? '+' : '−') + (isMoney ? fmt(delta) : Math.abs(delta).toLocaleString());
+                cells[3].className = delta === 0 ? '' : better ? 'tsc-replay-delta--good' : 'tsc-replay-delta--bad';
+            }
+        };
+
+        toggle.addEventListener('click', () => {
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) update();
+        });
+        slider.addEventListener('input', update);
     }
 
     _staggerRows() {

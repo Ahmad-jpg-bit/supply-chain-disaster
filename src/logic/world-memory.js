@@ -32,6 +32,7 @@ export function createWorldMemory() {
         qualityDebtCleared: false,
         serviceStreak: 0,
         stockoutQuarters: 0,
+        pendingEchoes: [],    // queued by allocation etc., surfaced next quarter
     };
 }
 
@@ -48,6 +49,11 @@ export function computeWorldEchoes(state, supplier, crisis) {
     if (!state.worldMemory) state.worldMemory = createWorldMemory();
     const wm = state.worldMemory;
     const fx = { costMultiplier: 1.0, demandMultiplier: 1.0, crisisShield: 1.0, echoes: [] };
+
+    // Deferred echoes queued by earlier events (e.g. shortage allocation)
+    if (Array.isArray(wm.pendingEchoes) && wm.pendingEchoes.length) {
+        fx.echoes.push(...wm.pendingEchoes.splice(0));
+    }
 
     const rec = wm.suppliers[supplier.id];
 

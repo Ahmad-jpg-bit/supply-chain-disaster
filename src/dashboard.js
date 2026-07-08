@@ -29,6 +29,11 @@ import { PredictionPrompt } from './ui/prediction-prompt.js';
 import { BoardQuestion } from './ui/board-question.js';
 import { RECALL_QUESTIONS } from './data/recall-questions.js';
 import { getConceptInsight } from './logic/concept-insights.js';
+import { updateWorkbench } from './ui/planning-workbench.js';
+import { checkTurnAchievements, checkChapterAchievements } from './logic/achievements.js';
+import { showAchievementToasts } from './ui/achievement-toast.js';
+import { buildAllocationScenario, applyAllocation } from './logic/allocation.js';
+import { AllocationOverlay } from './ui/allocation-overlay.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -74,9 +79,12 @@ export class Dashboard {
         this.predictionPrompt   = new PredictionPrompt();
         this.boardQuestion      = new BoardQuestion();
 
-        // Predict-before-reveal session stats + spaced-recall bookkeeping
-        this._predictionStats     = { correct: 0, total: 0 };
+        // Forecast-call session stats (running MAPE) + spaced-recall bookkeeping
+        this._forecastStats       = { sumApe: 0, n: 0 };
         this._askedRecallChapters = new Set();
+
+        // Dev-only hook for playtesting (stripped-dead in production builds)
+        if (import.meta.env.DEV) window.__scd = this;
 
         this.init();
     }
@@ -1603,6 +1611,8 @@ export class Dashboard {
                             <div class="proc-cp-row proc-cp-total"><span>Total This Turn</span><span id="est-total" class="proc-cp-total-val">—</span></div>
                         </div>
 
+                        <div class="proc-workbench" id="proc-workbench"></div>
+
                         <div class="proc-delivery-badge">
                             <div class="proc-del-row">
                                 <span class="proc-del-label">ARRIVES</span>
@@ -1789,6 +1799,29 @@ export class Dashboard {
 
         this._renderGanttChart(leadTurns);
         this._updateBullwhipPreview(qty);
+
+        // Live planning workbench — inventory projection reacting to the
+        // exact decisions the player is dragging right now
+        const s = this.engine.state;
+        const archMods = s.archetypeModifiers || {};
+        const expectedDemand = Math.floor(
+            1000
+            * (s.modifiers.demandMultiplier ?? 1.0)
+            * (archMods.demandMultiplier ?? 1.0)
+            * pricing.demandMultiplier
+        );
+        const usableRate = 1 - supplier.defectRate; // defects removed regardless of catch point
+        updateWorkbench(document.getElementById('proc-workbench'), {
+            inventory:      s.inventory,
+            backlog:        s.backlog,
+            inTransit:      s.inTransit,
+            currentTurn:    s.turn,
+            orderQty:       qty,
+            orderUsable:    Math.floor(qty * usableRate),
+            leadTimeTurns:  leadTurns,
+            expectedDemand,
+            safetyStock:    choices.safetyStockTarget,
+        });
     }
 
     _renderGanttChart(leadTurns) {
@@ -1920,7 +1953,7 @@ export class Dashboard {
             return;
         }
 
-        // Predict-before-reveal: one-tap forecast call before the quarter resolves
+        // Predict-before-reveal: forecast the quarter's demand before it resolves
         const s = this.engine.state;
         const arriving = s.inTransit
             .filter(o => o.arrivesOnTurn <= s.turn)
@@ -1929,17 +1962,18 @@ export class Dashboard {
         this.predictionPrompt.show({
             onHand: s.inventory,
             arriving,
-            onCall: (call) => this._resolveTurn(choices, call),
+            recentDemand: s.history.slice(-3).map(h => h.demand),
+            onCall: (forecast) => this._resolveTurn(choices, forecast),
         });
     }
 
     /**
      * Resolve the quarter and show the summary card, decorated with the
-     * forecast-call verdict and the concept-in-action insight.
+     * forecast verdict and the concept-in-action insight.
      * @param {Object} choices
-     * @param {'cover'|'stockout'|null} predictionCall
+     * @param {number|null} forecastCall — player's demand forecast for the quarter
      */
-    _resolveTurn(choices, predictionCall) {
+    _resolveTurn(choices, forecastCall) {
         if (this.charts.gantt) { this.charts.gantt.destroy(); this.charts.gantt = null; }
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
         this.engine.processTurn(choices);
@@ -1954,26 +1988,52 @@ export class Dashboard {
         const result  = this.engine.state.lastTurnResult;
         const chapter = this.engine.state.currentChapter;
 
-        // Forecast-call verdict
-        if (predictionCall) {
-            const stockedOut = result.missedSales > 0;
-            const correct = (predictionCall === 'stockout') === stockedOut;
-            this._predictionStats.total   += 1;
-            this._predictionStats.correct += correct ? 1 : 0;
-            result._prediction = {
-                call: predictionCall,
-                correct,
-                stats: { ...this._predictionStats },
+        // Forecast verdict — score the call as absolute percentage error
+        if (typeof forecastCall === 'number' && result.demand > 0) {
+            const ape = Math.abs(result.demand - forecastCall) / result.demand;
+            this._forecastStats.sumApe += ape;
+            this._forecastStats.n      += 1;
+            const mapePct = (this._forecastStats.sumApe / this._forecastStats.n) * 100;
+            result._forecast = {
+                forecast: forecastCall,
+                actual:   result.demand,
+                apePct:   ape * 100,
+                mapePct,
+                n:        this._forecastStats.n,
             };
-            AudioHapticManager.play(correct ? 'good' : 'bad');
+            AudioHapticManager.play(ape <= 0.10 ? 'good' : 'bad');
         }
 
         // Concept-in-action insight (also shown in endless mode)
         result._conceptInsight = getConceptInsight(result, this.engine.state.history);
 
-        this.turnSummaryCard.show(result, chapter, () => {
+        // Concept-named achievements (turn-level)
+        showAchievementToasts(checkTurnAchievements({
+            result,
+            forecastStats: this._forecastStats,
+            worldMemory: this.engine.state.worldMemory,
+        }));
+
+        const showSummary = () => this.turnSummaryCard.show(result, chapter, () => {
             this.renderGameState();
         });
+
+        // Significant shortage in campaign mode → ration the scarce units first
+        if (!this.engine.state.isEndless && result.missedSales > 300 && result.sales > 0) {
+            const scenario  = buildAllocationScenario(result);
+            const allocator = new AllocationOverlay();
+            allocator.show({
+                scenario,
+                missed: result.missedSales,
+                onDone: (alloc) => {
+                    const consequences = applyAllocation(this.engine.state, scenario, alloc);
+                    allocator.showConsequences(consequences, showSummary);
+                },
+            });
+            return;
+        }
+
+        showSummary();
     }
 
     /**
@@ -2151,6 +2211,12 @@ export class Dashboard {
 
         // Auto-save progress to server at every chapter boundary
         this._autoSave();
+
+        // Concept-named achievements (chapter-level)
+        const chNumber = allChapters[prevChapterIdx].number;
+        showAchievementToasts(checkChapterAchievements(
+            this.engine.state.history.filter(h => h.chapter === chNumber)
+        ));
 
         // All chapters are free — advance directly.
         const continueCallback = () => {

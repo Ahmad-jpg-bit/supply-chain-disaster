@@ -421,6 +421,7 @@ export class GameEngine {
         const _snapInTransit = this.state.inTransit.reduce(
             (sum, o) => sum + o.usableUnits + o.passedDefects, 0
         );
+        const _snapBacklog = this.state.backlog;
 
         const { industry, modifiers, archetypeModifiers } = this.state;
         const industryId = industry.id;
@@ -629,6 +630,10 @@ export class GameEngine {
             shipping: shippingMethod.name,
             pricing: pricingStrategy.name,
             inspection: inspection.name,
+            // Turn-start snapshots (counterfactual replay + debrief)
+            startingInventory: _snapInventory,
+            backlogBefore: _snapBacklog,
+            industryId,
             // World-memory echoes that shaped this turn (empty when none fired)
             worldEchoes: worldFx.echoes,
             // Active crisis (null if none fired this turn)
