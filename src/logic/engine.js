@@ -139,6 +139,7 @@ export class GameEngine {
         this.state.worldMemory   = createWorldMemory();
         this.state.boardConfidence = 70;
         this.state.activeContract = null;
+        this.state.activeRoute   = null;
         this.state.careerRankIndex = 0;
 
         // Shuffle scenarios for this playthrough to ensure uniqueness
@@ -226,6 +227,7 @@ export class GameEngine {
         this.state.worldMemory        = createWorldMemory();
         this.state.boardConfidence    = 70;
         this.state.activeContract     = null;
+        this.state.activeRoute        = null;
 
         this.mastery = new MasteryTracker();
 
@@ -520,8 +522,10 @@ export class GameEngine {
         const unitCost = baseCost * supplier.costMultiplier * effectiveMods.unitCost
             * crisisCostMult * worldFx.costMultiplier * contractFx.costFactor;
         const orderCost = orderQuantity * unitCost;
+        // Chapter lane (route planner) scales the base shipping cost
+        const routeCostFactor = this.state.activeRoute?.shippingCostFactor ?? 1.0;
         const shippingCost = orderQuantity * shippingMethod.costPerUnit
-            * (crisis?.effects?.shippingCostBoost ?? 1.0);
+            * (crisis?.effects?.shippingCostBoost ?? 1.0) * routeCostFactor;
         const inspectionCost = orderQuantity * inspection.costPerUnit;
 
         // 2. Defect handling — crisis can boost effective defect rate; endless wave scales it further
@@ -591,7 +595,10 @@ export class GameEngine {
             - safetyBreachPenalty;
 
         // 7. Compute lead time and dispatch new order (with crisis capacity cut applied)
-        const leadTimeTurns = this._computeLeadTimeTurns(supplier, shippingMethod, effectiveMods.leadTime, industryId);
+        // The chapter lane (route planner) adds/removes whole turns on top.
+        const leadTimeTurns = Math.max(1,
+            this._computeLeadTimeTurns(supplier, shippingMethod, effectiveMods.leadTime, industryId)
+            + (this.state.activeRoute?.leadTimeMod ?? 0));
         const arrivesOnTurn = this.state.turn + leadTimeTurns;
         if (effectiveOrderQty > 0) {
             this.state.inTransit.push({
@@ -667,6 +674,8 @@ export class GameEngine {
             // Active-contract outcome this quarter (null when no contract applied)
             contractNote: contractFx.note,
             contractHonoured: contractFx.honoured,
+            // Active chapter lane (route planner), null when none
+            routeLabel: this.state.activeRoute?.label ?? null,
             // World-memory echoes that shaped this turn (empty when none fired)
             worldEchoes: worldFx.echoes,
             // Active crisis (null if none fired this turn)
@@ -830,6 +839,11 @@ export class GameEngine {
         if (this.state.activeContract &&
             nextChapterIdx > this.state.activeContract.activeThroughChapter) {
             this.state.activeContract = null;
+        }
+        // Expire the chapter lane too
+        if (this.state.activeRoute &&
+            nextChapterIdx > this.state.activeRoute.activeThroughChapter) {
+            this.state.activeRoute = null;
         }
 
         if (nextChapterIdx < this._allChapters.length) {

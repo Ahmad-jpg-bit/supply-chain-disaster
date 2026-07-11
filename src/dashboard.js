@@ -43,6 +43,8 @@ import { NegotiationOverlay } from './ui/negotiation-overlay.js';
 import { evaluateCareer, careerReview } from './logic/career.js';
 import { renderRankChip, showCareerNotice } from './ui/career-hud.js';
 import { CSCP_DEFINITIONS } from './data/cscp-definitions.js';
+import { routeFromChoice, LOGISTICS_CHAPTERS } from './logic/route-planner.js';
+import { RoutePlannerOverlay } from './ui/route-planner-overlay.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -664,11 +666,13 @@ export class Dashboard {
             isExpansion: Boolean(chapter.expansionOnly)
         };
 
-        // Intro flow: board recall question → maybe a supplier negotiation → play
+        // Intro flow: board recall question → negotiation → route lane → play
         const enterChapter = () => this._maybeAskBoardQuestion(chapter, () => {
             this._maybeOfferNegotiation(chapter, () => {
-                this.engine.advanceFromChapterIntro();
-                this.renderGameState();
+                this._maybePlanRoute(chapter, () => {
+                    this.engine.advanceFromChapterIntro();
+                    this.renderGameState();
+                });
             });
         });
 
@@ -1628,6 +1632,7 @@ export class Dashboard {
                             <div class="proc-cp-row proc-cp-total"><span>Total This Turn</span><span id="est-total" class="proc-cp-total-val">—</span></div>
                         </div>
 
+                        <div class="proc-route" id="proc-route"></div>
                         <div class="proc-contract" id="proc-contract"></div>
                         <div class="proc-workbench" id="proc-workbench"></div>
 
@@ -1784,8 +1789,9 @@ export class Dashboard {
         const baseCost     = 100;
         const storyMod     = this.engine.state.modifiers.unitCost || 1.0;
         const qty          = choices.orderQuantity;
+        const routeFactor  = this.engine.state.activeRoute?.shippingCostFactor ?? 1.0;
         const orderCost    = qty * baseCost * supplier.costMultiplier * storyMod;
-        const shippingCost = qty * shipping.costPerUnit;
+        const shippingCost = qty * shipping.costPerUnit * routeFactor;
         const inspectCost  = qty * inspection.costPerUnit;
         const total        = orderCost + shippingCost + inspectCost;
 
@@ -1802,8 +1808,9 @@ export class Dashboard {
         const totalEl = document.getElementById('est-total');
         if (totalEl) totalEl.style.color = 'var(--danger-color)';
 
-        // Delivery timeline
-        const leadTurns   = this.engine._computeLeadTimeTurns(supplier, shipping, this.engine.state.modifiers.leadTime, industryId);
+        // Delivery timeline (chapter lane adds/removes whole turns)
+        const routeLeadMod = this.engine.state.activeRoute?.leadTimeMod ?? 0;
+        const leadTurns   = Math.max(1, this.engine._computeLeadTimeTurns(supplier, shipping, this.engine.state.modifiers.leadTime, industryId) + routeLeadMod);
         const arrivalTurn = this.engine.state.turn + leadTurns;
         setEl('est-arrival-turn', `Turn ${arrivalTurn}`);
         setEl('est-lead-turns',   leadTurns === 1 ? '1 turn' : `${leadTurns} turns`);
@@ -1817,6 +1824,21 @@ export class Dashboard {
 
         this._renderGanttChart(leadTurns);
         this._updateBullwhipPreview(qty);
+
+        // Active chapter-lane reminder
+        const routeEl = document.getElementById('proc-route');
+        if (routeEl) {
+            const rt = this.engine.state.activeRoute;
+            if (rt) {
+                const cp = Math.round((rt.shippingCostFactor - 1) * 100);
+                const cpLabel = cp === 0 ? 'baseline freight' : cp > 0 ? `+${cp}% freight` : `${cp}% freight`;
+                routeEl.className = 'proc-route proc-route--on';
+                routeEl.innerHTML = `🗺️ Lane: <strong>${rt.label}</strong> · ${cpLabel} · ${rt.leadTimeMod > 0 ? '+' + rt.leadTimeMod + ' turn transit' : rt.leadTimeMod < 0 ? rt.leadTimeMod + ' turn transit' : 'on schedule'}`;
+            } else {
+                routeEl.className = 'proc-route';
+                routeEl.innerHTML = '';
+            }
+        }
 
         // Active supply-contract reminder (only for the contracted supplier)
         const contractEl = document.getElementById('proc-contract');
@@ -2152,6 +2174,28 @@ export class Dashboard {
     }
 
     /**
+     * At the start of a logistics chapter (6/9/10), design the primary
+     * shipping lane for the chapter — an intermodal route whose composition
+     * sets the chapter's shipping cost and lead time. Teaches intermodal
+     * transportation and network design through direct manipulation.
+     * @param {Object} chapter
+     * @param {Function} proceed
+     */
+    _maybePlanRoute(chapter, proceed) {
+        const s = this.engine.state;
+        if (s.isEndless || !LOGISTICS_CHAPTERS.includes(chapter.number)) { proceed(); return; }
+
+        new RoutePlannerOverlay().show({
+            chapterNumber: chapter.number,
+            onCommit: (longId, lastId) => {
+                s.activeRoute = routeFromChoice(longId, lastId, s.chapterIndex);
+                AudioHapticManager.play('confirm');
+                proceed();
+            },
+        });
+    }
+
+    /**
      * The board has seen enough. Confidence hit zero — dismissal scene,
      * then straight to game over.
      */
@@ -2341,6 +2385,7 @@ export class Dashboard {
             worldMemory:        s.worldMemory,
             boardConfidence:    s.boardConfidence,
             activeContract:     s.activeContract,
+            activeRoute:        s.activeRoute,
             careerRankIndex:    s.careerRankIndex,
         };
 
