@@ -393,15 +393,20 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   moves on results/allocations/crisis handling/board answers; at zero, a
   dismissal overlay routes into game over. Human vignettes
   (`src/data/vignettes.js`) render on notable outcomes in the turn summary.
-- **Supplier negotiation** — periodic contract offer/counter-offer exchanges
-  (price vs volume commitment vs flexibility), counterparty behaviour driven by
-  the world-memory relationship score.
+- **Supplier negotiation — SHIPPED 2026-07-11 (commit 140a939).** Chapter-start
+  volume-commitment contracts (`src/logic/negotiation.js` + `src/ui/negotiation-overlay.js`);
+  terms + counter concessions gated on the world-memory relationship score;
+  `engine.state.activeContract` applies a cost discount or shortfall fee, saved,
+  expires at chapter end.
+- **Career/title progression — SHIPPED 2026-07-11 (commit 140a939).** Six-rung
+  ladder (`src/logic/career.js` + `src/ui/career-hud.js`), rank tracks progress
+  nudged by board confidence, between-chapter reviews framed on CSCP domains,
+  HUD rank chip, `careerRankIndex` saved.
 - **Route-drawing map** (Ch 6/9/10) — assemble shipment routes from sea/rail/
   truck legs with live cost/time/risk totals. Highest effort (map assets).
 - **Spaced-recall emails** — day-3 / day-10 single-question emails via Resend;
-  needs a scheduler (Vercel cron) — infra decision pending.
+  needs a scheduler (Vercel cron) + send-on-behalf approval — infra decision pending.
 - **Weekly seeded Endless challenge + global leaderboard** — **blocked on the
-  Vercel KV store (still not linked)**; linking it also un-degrades the
-  existing cross-device save/restore.
-- **Career/title progression** — Procurement Analyst → CSCO, performance
-  reviews between chapters framed on the three CSCP domains.
+  Vercel KV / Upstash store (still not provisioned — the Redis product requires
+  a dashboard plan/region step the CLI can't drive)**; linking it also
+  un-degrades the existing cross-device save/restore.
