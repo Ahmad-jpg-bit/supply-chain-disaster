@@ -7858,3 +7858,258 @@ input[type="number"] {
 }
 
 .tsc-vignette-source { font-size: 10.5px; color: #7c8496; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SUPPLIER NEGOTIATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.nego-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 16, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1059;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(6px);
+}
+
+.nego-overlay--visible { opacity: 1; }
+
+.nego-card {
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  background: #0d1120;
+  padding: 24px 24px 20px;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 60px rgba(108, 99, 255, 0.1), 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+.nego-overlay--visible .nego-card { transform: translateY(0) scale(1); }
+
+.nego-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.nego-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #a89cff;
+}
+
+.nego-tier {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 9px;
+  border-radius: 10px;
+}
+
+.nego-tier--preferred   { background: rgba(34, 197, 94, 0.15);  color: #4ade80; }
+.nego-tier--established  { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.nego-tier--new          { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+.nego-from {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f2ff;
+  margin-bottom: 12px;
+}
+
+.nego-pitch {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.65;
+  font-style: italic;
+  margin: 0 0 16px;
+}
+
+.nego-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.nego-term {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nego-term-label { font-size: 12px; color: #8b93a8; }
+
+.nego-term-value { font-size: 13px; font-weight: 700; color: #f0f2ff; font-family: var(--font-mono, monospace); }
+
+.nego-term-value--good { color: #4ade80; }
+.nego-term-value--warn { color: #fbbf24; }
+
+.nego-fineprint {
+  font-size: 11px;
+  color: #7c8496;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.nego-actions { display: flex; flex-direction: column; gap: 8px; }
+
+.nego-btn {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, filter 0.15s ease, border-color 0.15s ease;
+}
+
+.nego-btn:hover:not(:disabled) { transform: translateY(-1px); }
+
+.nego-btn--accept {
+  background: linear-gradient(135deg, #6c63ff, #4facfe);
+  color: #fff;
+}
+
+.nego-btn--counter {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.nego-btn--counter:disabled { opacity: 0.5; cursor: default; color: #7c8496; border-color: rgba(255,255,255,0.1); }
+
+.nego-btn--decline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+/* ── Turn summary: contract outcome ── */
+
+.tsc-contract {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.tsc-contract.tsc-row--visible { opacity: 1; transform: translateY(0); }
+
+.tsc-contract--ok   { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.28); color: #86efac; }
+.tsc-contract--miss { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); color: #fcd34d; }
+
+/* ── Procurement panel: active-contract reminder ── */
+
+.proc-contract:empty { display: none; }
+
+.proc-contract {
+  padding: 9px 12px;
+  border-radius: 8px;
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.proc-contract--ok   { background: rgba(34, 197, 94, 0.08);  border: 1px solid rgba(34, 197, 94, 0.25); color: #86efac; }
+.proc-contract--miss { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.28); color: #fcd34d; }
+
+/* ── Career: rank chip (HUD) ── */
+
+.rank-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  background: rgba(108, 99, 255, 0.1);
+  border: 1px solid rgba(108, 99, 255, 0.28);
+}
+
+.rank-chip-icon { font-size: 13px; }
+
+.rank-chip-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c8ccf0;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ── Career: promotion / demotion notice ── */
+
+.career-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 16, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1160;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(7px);
+}
+
+.career-overlay--visible { opacity: 1; }
+
+.career-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  background: #0d1120;
+  padding: 30px 30px 24px;
+  text-align: center;
+  transform: translateY(16px) scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.career-overlay--visible .career-card { transform: translateY(0) scale(1); }
+
+.career-overlay--promotion .career-card {
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 70px rgba(34, 197, 94, 0.14);
+}
+
+.career-overlay--demotion .career-card {
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 70px rgba(245, 158, 11, 0.12);
+}
+
+.career-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin-bottom: 14px;
+}
+
+.career-overlay--promotion .career-eyebrow { color: #4ade80; }
+.career-overlay--demotion  .career-eyebrow { color: #fbbf24; }
+
+.career-icon { font-size: 46px; margin-bottom: 8px; }
+
+.career-title { font-size: 1.5rem; color: #f0f2ff; margin: 0 0 10px; }
+
+.career-text { font-size: 13px; color: #cbd5e1; line-height: 1.65; margin: 0 0 22px; }
+
+.career-btn { width: 100%; }

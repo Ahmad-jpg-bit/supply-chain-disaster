@@ -174,6 +174,12 @@ export class TurnSummaryCard {
                 </div>`;
         }
 
+        // Active supply-contract outcome this quarter
+        const contractHtml = result.contractNote ? `
+            <div class="tsc-contract ${result.contractHonoured ? 'tsc-contract--ok' : 'tsc-contract--miss'}" data-delay="${costRows.length + 4}">
+                📑 ${result.contractNote}
+            </div>` : '';
+
         // Crisis mitigation record — the player's decisive response
         const cr = result._crisisResponse;
         const crisisResponseHtml = (cr && cr.mitigated) ? `
@@ -295,6 +301,8 @@ export class TurnSummaryCard {
                             <p class="tsc-driver-message">${driver.message}</p>
                         </div>
                     </div>
+
+                    ${contractHtml}
 
                     ${crisisResponseHtml}
 

@@ -8,6 +8,7 @@ import { SUPPLIERS, SHIPPING_METHODS, PRICING_STRATEGIES, QUALITY_INSPECTIONS } 
 import { CrisisEngine } from './crisis-engine.js';
 import { DebriefCollector } from '../game/debrief-collector.js';
 import { createWorldMemory, computeWorldEchoes, updateWorldMemory } from './world-memory.js';
+import { evaluateContract } from './negotiation.js';
 
 export const GAME_PHASES = {
     CHAPTER_INTRO: 'PHASE_CHAPTER_INTRO',
@@ -137,6 +138,8 @@ export class GameEngine {
         this.state.pendingCrisis = undefined;
         this.state.worldMemory   = createWorldMemory();
         this.state.boardConfidence = 70;
+        this.state.activeContract = null;
+        this.state.careerRankIndex = 0;
 
         // Shuffle scenarios for this playthrough to ensure uniqueness
         this._shuffleScenarios();
@@ -222,6 +225,7 @@ export class GameEngine {
         this.state.lastStoryChoice    = null;
         this.state.worldMemory        = createWorldMemory();
         this.state.boardConfidence    = 70;
+        this.state.activeContract     = null;
 
         this.mastery = new MasteryTracker();
 
@@ -505,13 +509,16 @@ export class GameEngine {
         const unitsReceived = arrivingOrders.reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
         this.state.inventory = Math.max(0, this.state.inventory + unitsReceived);
 
+        // Active supply contract: volume-commitment discount or shortfall fee
+        const contractFx = evaluateContract(this.state.activeContract, supplier.id, orderQuantity);
+
         // 1. Calculate Costs with Modifiers (+ crisis overlays)
         // Loyalty shield softens harmful crisis cost spikes; re-onboarding
         // premiums from world memory land in worldFx.costMultiplier.
         const baseCost = 100;
         const crisisCostMult = 1 + ((crisis?.effects?.costMultiplier ?? 1.0) - 1) * worldFx.crisisShield;
         const unitCost = baseCost * supplier.costMultiplier * effectiveMods.unitCost
-            * crisisCostMult * worldFx.costMultiplier;
+            * crisisCostMult * worldFx.costMultiplier * contractFx.costFactor;
         const orderCost = orderQuantity * unitCost;
         const shippingCost = orderQuantity * shippingMethod.costPerUnit
             * (crisis?.effects?.shippingCostBoost ?? 1.0);
@@ -567,7 +574,7 @@ export class GameEngine {
         const holdingRate = HOLDING_RATES[industryId] ?? 0.05;
         const holdingCost = (this.state.inventory * baseCost) * holdingRate;
 
-        const totalCost = orderCost + shippingCost + inspectionCost + defectDisposalCost + holdingCost;
+        const totalCost = orderCost + shippingCost + inspectionCost + defectDisposalCost + holdingCost + contractFx.fee;
         const profit = revenue - totalCost;
 
         // 6. Customer satisfaction: defects + backlog + safety stock breach
@@ -657,6 +664,9 @@ export class GameEngine {
             startingInventory: _snapInventory,
             backlogBefore: _snapBacklog,
             industryId,
+            // Active-contract outcome this quarter (null when no contract applied)
+            contractNote: contractFx.note,
+            contractHonoured: contractFx.honoured,
             // World-memory echoes that shaped this turn (empty when none fired)
             worldEchoes: worldFx.echoes,
             // Active crisis (null if none fired this turn)
@@ -815,6 +825,13 @@ export class GameEngine {
     advanceFromChapterSummary() {
         // Move to next chapter's intro (supports base + expansion chapters)
         const nextChapterIdx = this.state.chapterIndex + 1;
+
+        // Expire any supply contract that only covered the chapter just finished
+        if (this.state.activeContract &&
+            nextChapterIdx > this.state.activeContract.activeThroughChapter) {
+            this.state.activeContract = null;
+        }
+
         if (nextChapterIdx < this._allChapters.length) {
             this.state.chapterIndex = nextChapterIdx;
             this.state.currentChapter = this._allChapters[nextChapterIdx];

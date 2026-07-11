@@ -38,6 +38,11 @@ import { buildCrisisMessage, applyCrisisResponse } from './logic/crisis-inbox.js
 import { CrisisInboxOverlay } from './ui/crisis-inbox.js';
 import { assessTurn, adjustConfidence, renderConfidenceMeter } from './logic/board-confidence.js';
 import { pickVignette } from './data/vignettes.js';
+import { buildOpeningOffer, contractFromOffer } from './logic/negotiation.js';
+import { NegotiationOverlay } from './ui/negotiation-overlay.js';
+import { evaluateCareer, careerReview } from './logic/career.js';
+import { renderRankChip, showCareerNotice } from './ui/career-hud.js';
+import { CSCP_DEFINITIONS } from './data/cscp-definitions.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -419,9 +424,10 @@ export class Dashboard {
         this.ui.startScreen.classList.add('hidden');
         this.ui.dashboard.classList.remove('hidden');
 
-        // Board confidence meter (campaign mode only)
+        // Board confidence meter + career rank chip (campaign mode only)
         if (mode !== 'endless') {
             renderConfidenceMeter(document.querySelector('.hud-right'), this.engine.state.boardConfidence);
+            renderRankChip(document.querySelector('.hud-right'), this.engine.state.careerRankIndex ?? 0);
         }
 
         // Switch particles to ambient mode
@@ -658,10 +664,12 @@ export class Dashboard {
             isExpansion: Boolean(chapter.expansionOnly)
         };
 
-        // Both intro paths funnel through the board recall question before play
+        // Intro flow: board recall question → maybe a supplier negotiation → play
         const enterChapter = () => this._maybeAskBoardQuestion(chapter, () => {
-            this.engine.advanceFromChapterIntro();
-            this.renderGameState();
+            this._maybeOfferNegotiation(chapter, () => {
+                this.engine.advanceFromChapterIntro();
+                this.renderGameState();
+            });
         });
 
         // Show concept card overlay, unless player previously chose to skip it
@@ -1620,6 +1628,7 @@ export class Dashboard {
                             <div class="proc-cp-row proc-cp-total"><span>Total This Turn</span><span id="est-total" class="proc-cp-total-val">—</span></div>
                         </div>
 
+                        <div class="proc-contract" id="proc-contract"></div>
                         <div class="proc-workbench" id="proc-workbench"></div>
 
                         <div class="proc-delivery-badge">
@@ -1808,6 +1817,20 @@ export class Dashboard {
 
         this._renderGanttChart(leadTurns);
         this._updateBullwhipPreview(qty);
+
+        // Active supply-contract reminder (only for the contracted supplier)
+        const contractEl = document.getElementById('proc-contract');
+        if (contractEl) {
+            const c = this.engine.state.activeContract;
+            if (c && c.supplierId === choices.supplierId) {
+                const meets = qty >= c.minVolume;
+                contractEl.className = 'proc-contract ' + (meets ? 'proc-contract--ok' : 'proc-contract--miss');
+                contractEl.innerHTML = `📑 ${c.supplierName} contract: <strong>−${c.discountPct}%</strong> if you order ≥ <strong>${c.minVolume.toLocaleString()}</strong> · you're at <strong>${qty.toLocaleString()}</strong> ${meets ? '✓' : '— shortfall fee applies'}`;
+            } else {
+                contractEl.className = 'proc-contract';
+                contractEl.innerHTML = '';
+            }
+        }
 
         // Live planning workbench — inventory projection reacting to the
         // exact decisions the player is dragging right now
@@ -2090,6 +2113,45 @@ export class Dashboard {
     }
 
     /**
+     * At chapter start a supplier you have a track record with may propose a
+     * volume-commitment contract for the chapter. Relationship score (world
+     * memory) shapes the terms and how far they'll move on a counter.
+     * Falls through to proceed() when there's nothing to offer.
+     * @param {Object} chapter
+     * @param {Function} proceed
+     */
+    _maybeOfferNegotiation(chapter, proceed) {
+        const s = this.engine.state;
+        if (s.isEndless || s.activeContract) { proceed(); return; }
+
+        // Most-ordered supplier this run, needing an established relationship
+        const recs = s.worldMemory?.suppliers || {};
+        const bestId = Object.keys(recs).sort((a, b) => recs[b].orders - recs[a].orders)[0];
+        if (!bestId || recs[bestId].orders < 2) { proceed(); return; }
+
+        // Offer sometimes, not every chapter
+        if (Math.random() > 0.55 && !this._forceNegotiation) { proceed(); return; }
+        this._forceNegotiation = false;
+
+        const suppliers = SUPPLIERS[s.industry.id] || SUPPLIERS.electronics;
+        const supplier  = suppliers.find(sp => sp.id === bestId);
+        if (!supplier) { proceed(); return; }
+
+        const offer = buildOpeningOffer(s.worldMemory, supplier);
+        new NegotiationOverlay().show({
+            offer,
+            chapterNumber: chapter.number,
+            onAccept: (finalOffer) => {
+                s.activeContract = contractFromOffer(finalOffer, s.chapterIndex);
+                adjustConfidence(s, 2);
+                AudioHapticManager.play('confirm');
+                proceed();
+            },
+            onDecline: () => proceed(),
+        });
+    }
+
+    /**
      * The board has seen enough. Confidence hit zero — dismissal scene,
      * then straight to game over.
      */
@@ -2278,6 +2340,8 @@ export class Dashboard {
             history:            s.history,
             worldMemory:        s.worldMemory,
             boardConfidence:    s.boardConfidence,
+            activeContract:     s.activeContract,
+            careerRankIndex:    s.careerRankIndex,
         };
 
         fetch('/api/save-game', {
@@ -2303,10 +2367,18 @@ export class Dashboard {
             this.engine.state.history.filter(h => h.chapter === chNumber)
         ));
 
-        // All chapters are free — advance directly.
+        // Career review — rank tracks progress, nudged by board confidence
+        const prevRank = this.engine.state.careerRankIndex ?? 0;
+        const nextRank = evaluateCareer(prevChapterIdx + 1, this.engine.state.boardConfidence).rankIndex;
+        const review = careerReview(prevRank, nextRank,
+            CSCP_DEFINITIONS[allChapters[prevChapterIdx].id]?.domainFull || '');
+        this.engine.state.careerRankIndex = nextRank;
+        if (review) renderRankChip(document.querySelector('.hud-right'), nextRank);
+
+        // All chapters are free — advance directly (through the career notice).
         const continueCallback = () => {
-            this.engine.advanceFromChapterSummary();
-            this.renderGameState();
+            const advance = () => { this.engine.advanceFromChapterSummary(); this.renderGameState(); };
+            showCareerNotice(review, advance);
         };
 
         // Gate: show email capture after Chapter 2 if not yet captured.
