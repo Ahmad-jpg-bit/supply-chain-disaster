@@ -402,8 +402,11 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   ladder (`src/logic/career.js` + `src/ui/career-hud.js`), rank tracks progress
   nudged by board confidence, between-chapter reviews framed on CSCP domains,
   HUD rank chip, `careerRankIndex` saved.
-- **Route-drawing map** (Ch 6/9/10) — assemble shipment routes from sea/rail/
-  truck legs with live cost/time/risk totals. Highest effort (map assets).
+- **Route-drawing map — SHIPPED 2026-07-11 (commit 08698b2).** SVG intermodal
+  lane builder at logistics-chapter start (`src/logic/route-planner.js` +
+  `src/ui/route-planner-overlay.js`); `engine.state.activeRoute` applies a
+  shipping cost factor + lead-time mod for the chapter, saved, expires at
+  chapter end. (Built with SVG, no external map assets.)
 - **Spaced-recall emails** — day-3 / day-10 single-question emails via Resend;
   needs a scheduler (Vercel cron) + send-on-behalf approval — infra decision pending.
 - **Weekly seeded Endless challenge + global leaderboard** — **blocked on the
