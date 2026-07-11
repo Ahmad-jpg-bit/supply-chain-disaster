@@ -407,8 +407,12 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   `src/ui/route-planner-overlay.js`); `engine.state.activeRoute` applies a
   shipping cost factor + lead-time mod for the chapter, saved, expires at
   chapter end. (Built with SVG, no external map assets.)
-- **Spaced-recall emails** — day-3 / day-10 single-question emails via Resend;
-  needs a scheduler (Vercel cron) + send-on-behalf approval — infra decision pending.
+- **Spaced-recall emails — SHIPPED 2026-07-12 (commit c3c9477), dormant until KV.**
+  Daily Vercel cron (`vercel.json` crons @ 14:00 UTC → `api/recall-cron.js`) sends
+  day-3 / day-10 single-question retrieval emails to saved players via Resend.
+  `CRON_SECRET`-guarded (set in prod). Verified live: 401 without bearer, 200
+  `{skipped:'kv-not-configured'}` with it. **Activates when the KV store is
+  created** — no saved players to email until then. `?dry=1` counts without sending.
 - **Weekly seeded Endless challenge + global leaderboard** — **blocked on the
   Vercel KV / Upstash store (still not provisioned — the Redis product requires
   a dashboard plan/region step the CLI can't drive)**; linking it also
