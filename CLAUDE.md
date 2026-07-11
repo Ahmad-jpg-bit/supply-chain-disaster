@@ -75,6 +75,8 @@ Deploy command: `npx vercel --prod` from the project root.
 | `/api/redeem-promo` | Validates promo codes server-side; `SC10Disaster` → 30-day expansion |
 | `/api/ls-webhook` | Handles LS webhook events; sends tier-specific purchase welcome emails |
 | `/api/save-progress` | Sends "operational data secured" email to player + internal notification |
+| `/api/save-game` / `/api/load-game` | Store/restore game state in Vercel KV by email (no-op without KV env) |
+| `/api/recall-cron` | Daily Vercel cron (`vercel.json` crons, 14:00 UTC): sends day-3/day-10 spaced-recall emails to saved players. `CRON_SECRET`-guarded; no-op until KV is configured |
 | `/api/send-email` | Contact form handler |
 
 ---
