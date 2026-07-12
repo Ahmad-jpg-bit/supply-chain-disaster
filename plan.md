@@ -413,7 +413,11 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   `CRON_SECRET`-guarded (set in prod). Verified live: 401 without bearer, 200
   `{skipped:'kv-not-configured'}` with it. **Activates when the KV store is
   created** — no saved players to email until then. `?dry=1` counts without sending.
-- **Weekly seeded Endless challenge + global leaderboard** — NOW UNBLOCKED
-  (Upstash KV store connected 2026-07-12; `KV_REST_API_URL`/`KV_REST_API_TOKEN`
-  live in prod, save/restore + recall emails verified working). Last remaining
-  buildable feature: shared weekly crisis seed, scores posted to a KV-backed board.
+- **Weekly seeded Endless challenge + global leaderboard — SHIPPED 2026-07-12
+  (commits ec9edf2, f61eb60).** Seeded RNG (`src/logic/seeded-rng.js` mulberry32
+  + ISO-week config; `engine._rng` threaded through demand variance + crisis
+  rolls, seeded only for weekly so all players face the same run — verified
+  byte-identical). KV sorted-set board (`api/leaderboard.js`: GET top 25 /
+  POST submit+rank / DELETE admin-clear guarded by CRON_SECRET). UI
+  (`src/ui/leaderboard.js` + landing banner + endless death-screen submit).
+  Live round-trip verified against prod KV. **This was the final roadmap item.**
