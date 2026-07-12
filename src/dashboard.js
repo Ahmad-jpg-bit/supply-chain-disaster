@@ -14,7 +14,7 @@ import { GameOverScreen } from './ui/game-over-screen.js';
 import { TerminationScreen } from './ui/termination-screen.js';
 import { Paywall } from './ui/paywall.js';
 import { PremiumManager } from './logic/premium.js';
-import { markNavPremium } from './shared/nav.js';
+import { markNavPremium, setNavMinimal } from './shared/nav.js';
 import { updateCardSparkline } from './ui/sparkline.js';
 import { SaveProgressModal } from './ui/save-progress-modal.js';
 import { CrisisTicker } from './ui/crisis-ticker.js';
@@ -45,6 +45,8 @@ import { renderRankChip, showCareerNotice } from './ui/career-hud.js';
 import { CSCP_DEFINITIONS } from './data/cscp-definitions.js';
 import { routeFromChoice, LOGISTICS_CHAPTERS } from './logic/route-planner.js';
 import { RoutePlannerOverlay } from './ui/route-planner-overlay.js';
+import { getWeeklyChallenge } from './logic/seeded-rng.js';
+import { showLeaderboard, promptScoreSubmit } from './ui/leaderboard.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -225,6 +227,16 @@ export class Dashboard {
                 markNavPremium();
                 this.renderChapterProgress();
             });
+        });
+
+        // Weekly challenge: start a seeded run, or view the leaderboard
+        document.addEventListener('scd:start-weekly', () => {
+            setNavMinimal(false);
+            this.startGame(0, 'weekly');
+        });
+        document.addEventListener('scd:show-leaderboard', () => {
+            const wc = getWeeklyChallenge();
+            showLeaderboard({ weekId: wc.weekId, industryId: wc.industryId });
         });
 
         // Handle ?upgrade=1 query param (e.g. clicking Upgrade from another page)
@@ -409,12 +421,18 @@ export class Dashboard {
     }
 
     startGame(startChapterIndex = 0, mode = 'story', _statePatches = null) {
-        if (!this.selectedIndustryId) return;
-
         this._gameMode = mode;
-        if (mode === 'endless') {
+        if (mode === 'weekly') {
+            // Weekly challenge: fixed industry + shared seed for a comparable run
+            const wc = getWeeklyChallenge();
+            this._weekly = wc;
+            this.selectedIndustryId = wc.industryId;
+            this.engine.initEndless(wc.industryId, { seed: wc.seed, weekId: wc.weekId });
+        } else if (mode === 'endless') {
+            if (!this.selectedIndustryId) return;
             this.engine.initEndless(this.selectedIndustryId);
         } else {
+            if (!this.selectedIndustryId) return;
             this.engine.init(this.selectedIndustryId, true, startChapterIndex);
         }
 
@@ -427,7 +445,7 @@ export class Dashboard {
         this.ui.dashboard.classList.remove('hidden');
 
         // Board confidence meter + career rank chip (campaign mode only)
-        if (mode !== 'endless') {
+        if (mode !== 'endless' && mode !== 'weekly') {
             renderConfidenceMeter(document.querySelector('.hud-right'), this.engine.state.boardConfidence);
             renderRankChip(document.querySelector('.hud-right'), this.engine.state.careerRankIndex ?? 0);
         }
@@ -2602,6 +2620,8 @@ export class Dashboard {
 
     _showEndlessDeath() {
         const s = this.engine.state;
+        const isWeekly = this._gameMode === 'weekly';
+        const weeklyScore = s.endlessScore;
         this.endlessDeathScreen.show({
             cause:        s.endlessDeathCause,
             wave:         s.endlessWave,
@@ -2610,8 +2630,15 @@ export class Dashboard {
             cash:         s.cash,
             satisfaction: s.endlessSatisfaction,
             industryId:   s.industry?.id || 'electronics',
+            onLeaderboard: isWeekly ? () => {
+                promptScoreSubmit({
+                    weekId: this._weekly.weekId,
+                    score: weeklyScore,
+                    industryId: this._weekly.industryId,
+                });
+            } : null,
             onRestart: () => {
-                this.startGame(0, 'endless');
+                this.startGame(0, isWeekly ? 'weekly' : 'endless');
             },
             onMenu: () => {
                 // Reset to landing page

@@ -207,9 +207,9 @@ export const MICRO_CRISES = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Weighted random selection from an array of { weight, ... } objects. */
-function weightedRandom(items) {
+function weightedRandom(items, rng = Math.random) {
     const total = items.reduce((s, i) => s + i.weight, 0);
-    let r = Math.random() * total;
+    let r = rng() * total;
     for (const item of items) {
         r -= item.weight;
         if (r <= 0) return item;
@@ -227,8 +227,8 @@ export const CrisisEngine = {
      * Roll a starting archetype for this playthrough.
      * Returns the archetype object (including cash/inventory multipliers).
      */
-    rollStartingConditions() {
-        return weightedRandom(STARTING_ARCHETYPES);
+    rollStartingConditions(rng = Math.random) {
+        return weightedRandom(STARTING_ARCHETYPES, rng);
     },
 
     /**
@@ -238,7 +238,7 @@ export const CrisisEngine = {
      * @param {object} gameState  — engine.state
      * @param {number} chapterIndex
      */
-    rollMicroCrisis(gameState, chapterIndex = 0) {
+    rollMicroCrisis(gameState, chapterIndex = 0, rng = Math.random) {
         const industryId = gameState.industry?.id;
 
         // Scale event likelihood with chapter progression (later = more chaotic)
@@ -259,7 +259,7 @@ export const CrisisEngine = {
         const eventTotalWeight = eligible.reduce((s, e) => s + e.weight, 0) * chapterScaling;
         const noEventWeight    = eventTotalWeight * (0.65 / 0.35) / chapterScaling;
 
-        const roll = Math.random() * (eventTotalWeight + noEventWeight);
+        const roll = rng() * (eventTotalWeight + noEventWeight);
         if (roll >= eventTotalWeight) return null; // blank turn
 
         // Select which event fires

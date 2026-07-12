@@ -9,6 +9,7 @@ import { CrisisEngine } from './crisis-engine.js';
 import { DebriefCollector } from '../game/debrief-collector.js';
 import { createWorldMemory, computeWorldEchoes, updateWorldMemory } from './world-memory.js';
 import { evaluateContract } from './negotiation.js';
+import { mulberry32 } from './seeded-rng.js';
 
 export const GAME_PHASES = {
     CHAPTER_INTRO: 'PHASE_CHAPTER_INTRO',
@@ -88,6 +89,9 @@ export class GameEngine {
         this._allChapters = CHAPTERS;
         this._expansionActivated = false;
         this.mastery = new MasteryTracker();
+        // RNG used for crises + demand variance. Math.random for normal play;
+        // a seeded stream for the weekly challenge so runs are comparable.
+        this._rng = Math.random;
     }
 
     /**
@@ -100,6 +104,7 @@ export class GameEngine {
 
         this._expansionActivated = false;
         this._allChapters = CHAPTERS;
+        this._rng = Math.random; // campaign play uses real randomness
 
         if (expansionActive) {
             this.activateExpansion();
@@ -186,12 +191,19 @@ export class GameEngine {
     /**
      * Initialise an Endless Survival session.
      * No chapters, no story — pure procurement loop until cash < 0 or satisfaction reaches 0.
+     * @param {string} industryId
+     * @param {object} [opts] - { seed, weekId } for a deterministic weekly challenge
      */
-    initEndless(industryId) {
+    initEndless(industryId, opts = {}) {
         const industry = Object.values(INDUSTRIES).find(i => i.id === industryId);
         if (!industry) throw new Error('Invalid Industry');
 
-        const archetype = CrisisEngine.rollStartingConditions();
+        // Weekly challenge: seed the RNG so all players face the same run.
+        this._rng = (opts.seed != null) ? mulberry32(opts.seed) : Math.random;
+        this.state.isWeekly = opts.seed != null;
+        this.state.weekId   = opts.weekId ?? null;
+
+        const archetype = CrisisEngine.rollStartingConditions(this._rng);
         const baseCash      = Math.round(industry.metrics.initialCapital);
         const baseInventory = 1500;
 
@@ -374,20 +386,21 @@ export class GameEngine {
      * Pharma:      ±5%   baseline, but 15% chance of +40–60% regulatory demand spike
      */
     _generateDemandVariance(industryId) {
+        const rng = this._rng || Math.random;
         switch (industryId) {
             case 'electronics':
-                return { multiplier: 1 + (Math.random() * 0.5 - 0.25), event: null };
+                return { multiplier: 1 + (rng() * 0.5 - 0.25), event: null };
             case 'fmcg':
-                return { multiplier: 1 + (Math.random() * 0.16 - 0.08), event: null };
+                return { multiplier: 1 + (rng() * 0.16 - 0.08), event: null };
             case 'pharma': {
-                if (Math.random() < 0.15) {
+                if (rng() < 0.15) {
                     // Regulatory/emergency demand spike: +40% to +60%
-                    return { multiplier: 1 + 0.4 + Math.random() * 0.2, event: 'regulatory_spike' };
+                    return { multiplier: 1 + 0.4 + rng() * 0.2, event: 'regulatory_spike' };
                 }
-                return { multiplier: 1 + (Math.random() * 0.1 - 0.05), event: null };
+                return { multiplier: 1 + (rng() * 0.1 - 0.05), event: null };
             }
             default:
-                return { multiplier: 1 + (Math.random() * 0.2 - 0.1), event: null };
+                return { multiplier: 1 + (rng() * 0.2 - 0.1), event: null };
         }
     }
 
@@ -422,7 +435,7 @@ export class GameEngine {
         const depth = this.state.isEndless
             ? Math.max(0, this.state.endlessWave - 1)
             : this.state.chapterIndex;
-        const event = CrisisEngine.rollMicroCrisis(this.state, depth);
+        const event = CrisisEngine.rollMicroCrisis(this.state, depth, this._rng || Math.random);
         this.state.pendingCrisis = event
             ? { ...event, effects: { ...event.effects } }
             : null;

@@ -54,7 +54,7 @@ export class EndlessDeathScreen {
      * @param {Function} params.onRestart  - called when "Restart Survival" clicked
      * @param {Function} params.onMenu     - called when "Main Menu" clicked
      */
-    show({ cause, wave, turns, score, cash, satisfaction, industryId, onRestart, onMenu }) {
+    show({ cause, wave, turns, score, cash, satisfaction, industryId, onRestart, onMenu, onLeaderboard }) {
         this.hide();
 
         const prev   = getBestScore(industryId);
@@ -102,8 +102,9 @@ export class EndlessDeathScreen {
                 </div>
 
                 <div class="eds-actions">
-                    <button class="eds-btn eds-btn--primary" id="eds-restart">
-                        ↺ Restart Survival
+                    ${onLeaderboard ? `<button class="eds-btn eds-btn--primary" id="eds-leaderboard">🏆 Post to Weekly Leaderboard</button>` : ''}
+                    <button class="eds-btn ${onLeaderboard ? 'eds-btn--ghost' : 'eds-btn--primary'}" id="eds-restart">
+                        ↺ ${onLeaderboard ? 'Play Again' : 'Restart Survival'}
                     </button>
                     <button class="eds-btn eds-btn--ghost" id="eds-menu">
                         ← Main Menu
@@ -118,6 +119,10 @@ export class EndlessDeathScreen {
         // Animate in after paint
         requestAnimationFrame(() => el.classList.add('eds-overlay--visible'));
 
+        el.querySelector('#eds-leaderboard')?.addEventListener('click', () => {
+            this.hide();
+            onLeaderboard?.();
+        });
         el.querySelector('#eds-restart').addEventListener('click', () => {
             this.hide();
             onRestart?.();

@@ -443,6 +443,15 @@ export class LandingPage {
                     ${industryCards}
                 </div>
                 <p class="lp-survival-disclaimer">High score tracked per industry in your browser.</p>
+
+                <div class="lp-weekly">
+                    <div class="lp-weekly-badge">🏆 WEEKLY CHALLENGE</div>
+                    <p class="lp-weekly-copy">Every player faces the <strong>same crisis sequence</strong> this week. One seed, one shot — climb the global leaderboard.</p>
+                    <div class="lp-weekly-actions">
+                        <button class="lp-weekly-play">Play This Week's Challenge &rarr;</button>
+                        <button class="lp-weekly-board">View Leaderboard</button>
+                    </div>
+                </div>
             </div>
         </section>`;
     }
@@ -653,6 +662,14 @@ export class LandingPage {
             const launch = () => { setNavMinimal(false); this.onLaunch(card.dataset.survivalIndustry, 0, 'endless'); };
             card.addEventListener('click', launch);
             card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launch(); });
+        });
+
+        // Weekly challenge → dispatch to the dashboard (seeded run / leaderboard)
+        page.querySelector('.lp-weekly-play')?.addEventListener('click', () => {
+            document.dispatchEvent(new CustomEvent('scd:start-weekly'));
+        });
+        page.querySelector('.lp-weekly-board')?.addEventListener('click', () => {
+            document.dispatchEvent(new CustomEvent('scd:show-leaderboard'));
         });
     }
 
