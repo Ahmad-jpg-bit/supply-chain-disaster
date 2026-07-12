@@ -8402,11 +8402,47 @@ input[type="number"] {
 
 body {
   background-color: #0a0e1a;
-  background-image:
-    radial-gradient(1100px 620px at 6% -8%, rgba(108, 99, 255, 0.20), transparent 62%),
-    radial-gradient(950px 700px at 106% 110%, rgba(59, 130, 246, 0.16), transparent 58%),
-    radial-gradient(680px 460px at 94% 2%, rgba(34, 211, 238, 0.07), transparent 60%),
-    linear-gradient(180deg, #0b1022 0%, #0a0e1a 52%, #080b14 100%);
+  background-image: linear-gradient(180deg, #0b1022 0%, #0a0e1a 52%, #080b14 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
+}
+
+/* Two glow layers that slowly drift out of lockstep, so the backdrop
+   breathes. Transform-only animation → GPU-composited, no repaint cost. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -15%;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  will-change: transform;
+}
+
+body::before {
+  background-image:
+    radial-gradient(1100px 620px at 12% 6%, rgba(108, 99, 255, 0.22), transparent 62%),
+    radial-gradient(680px 460px at 88% 10%, rgba(34, 211, 238, 0.08), transparent 60%);
+  animation: bgDriftA 30s ease-in-out infinite alternate;
+}
+
+body::after {
+  background-image:
+    radial-gradient(980px 720px at 92% 96%, rgba(59, 130, 246, 0.18), transparent 58%);
+  animation: bgDriftB 38s ease-in-out infinite alternate;
+}
+
+@keyframes bgDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(3%, 2.5%, 0) scale(1.09); }
+}
+
+@keyframes bgDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1.06); }
+  to   { transform: translate3d(-2.5%, -3%, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { animation: none; }
 }
