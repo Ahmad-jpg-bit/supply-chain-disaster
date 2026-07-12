@@ -90,5 +90,26 @@ export default async function handler(req, res) {
         }
     }
 
+    // ── Admin: clear a week's board (CRON_SECRET-guarded) ─────────────────
+    if (req.method === 'DELETE') {
+        const secret = process.env.CRON_SECRET;
+        const auth = req.headers['authorization'] || '';
+        if (!secret || auth !== `Bearer ${secret}`) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const weekId = req.query?.weekId;
+        if (!weekId || !WEEK_RE.test(weekId)) {
+            return res.status(400).json({ error: 'Valid weekId required.' });
+        }
+        if (!kvOk()) return res.status(200).json({ ok: true, skipped: 'kv-not-configured' });
+        try {
+            await kv.del(KEY(weekId));
+            return res.status(200).json({ ok: true, cleared: weekId });
+        } catch (err) {
+            console.error('[leaderboard] delete error:', err);
+            return res.status(500).json({ error: 'Failed to clear board.' });
+        }
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
 }
