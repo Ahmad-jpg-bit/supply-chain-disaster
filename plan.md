@@ -413,7 +413,7 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   `CRON_SECRET`-guarded (set in prod). Verified live: 401 without bearer, 200
   `{skipped:'kv-not-configured'}` with it. **Activates when the KV store is
   created** — no saved players to email until then. `?dry=1` counts without sending.
-- **Weekly seeded Endless challenge + global leaderboard** — **blocked on the
-  Vercel KV / Upstash store (still not provisioned — the Redis product requires
-  a dashboard plan/region step the CLI can't drive)**; linking it also
-  un-degrades the existing cross-device save/restore.
+- **Weekly seeded Endless challenge + global leaderboard** — NOW UNBLOCKED
+  (Upstash KV store connected 2026-07-12; `KV_REST_API_URL`/`KV_REST_API_TOKEN`
+  live in prod, save/restore + recall emails verified working). Last remaining
+  buildable feature: shared weekly crisis seed, scores posted to a KV-backed board.
