@@ -8446,3 +8446,191 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   body::before, body::after { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   2026 REFRESH — modern, calmer in-game UI (decision screen + dashboard)
+   Overrides earlier "data-terminal" styling: more air, rounder cards
+   with depth + hover lift, gradient accent states, friendlier type,
+   and a bold action button. Appended last so it wins on source order.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Panels: softer, rounder, with real depth ── */
+.proc-decisions { gap: 12px; padding: 22px 18px 40px 22px; }
+
+.proc-acc {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: rgba(20, 27, 46, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.proc-acc-hdr { padding: 15px 18px; border-radius: 16px; }
+.proc-acc-inner { padding: 4px 18px 18px; }
+.proc-acc-body--open { max-height: 1100px; }
+
+/* Section titles: modern uppercase (sans, not squinty mono) */
+.proc-acc-ttl {
+  font-family: var(--font-main);
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #aeb8ca;
+}
+.proc-acc-hdr--open .proc-acc-ttl { color: #f1f5ff; }
+.proc-acc-summary { font-size: 0.8rem; color: #8b93a8; }
+.proc-acc-num {
+  width: 26px; height: 26px;
+  border-width: 1.5px;
+  font-family: var(--font-main);
+  font-size: 0.72rem;
+}
+.proc-acc-hdr--open .proc-acc-num {
+  border-color: #6c63ff;
+  color: #6c63ff;
+  background: rgba(108, 99, 255, 0.1);
+}
+
+/* ── Decision cards: bigger, rounder, hover lift ── */
+.psc, .shc, .proc-opt {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
+  background: rgba(30, 41, 59, 0.4);
+  transition: transform 0.16s var(--ease-smooth), border-color 0.16s ease,
+              background 0.16s ease, box-shadow 0.16s ease;
+}
+.psc { padding: 13px; }
+.shc { padding: 13px; }
+.proc-opt { padding: 13px 15px; }
+
+.psc:hover, .shc:hover, .proc-opt:hover {
+  transform: translateY(-2px);
+  border-color: rgba(108, 99, 255, 0.5);
+  background: rgba(108, 99, 255, 0.06);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+}
+
+.psc-name, .shc-name, .proc-opt-name { font-size: 0.85rem; }
+
+/* Modern selected state: gradient tint + ring + soft glow */
+.psc--selected, .shc--selected, .proc-opt--selected {
+  border-color: rgba(108, 99, 255, 0.85) !important;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.16), rgba(59, 130, 246, 0.10)) !important;
+  box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.35), 0 8px 22px rgba(108, 99, 255, 0.16) !important;
+}
+
+/* Tier / speed badges → rounded pills */
+.psc-tier, .shc-speed { border-radius: 999px; padding: 3px 9px; }
+
+/* ── Quantity stepper + inputs ── */
+.proc-qty-btn {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  font-size: 1.3rem;
+}
+.proc-qty-input, #order-input {
+  width: 132px; height: 40px;
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5ff;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.proc-qty-input:focus, #order-input:focus {
+  outline: none;
+  border-color: rgba(108, 99, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+}
+.qty-hint { font-style: normal; font-size: 0.72rem; }
+
+/* Sliders */
+#safety-stock-slider, .safety-stock-control input[type="range"] { accent-color: #6c63ff; }
+
+/* ── Cost panel: airy, prominent total ── */
+.proc-cost-panel {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(22, 29, 49, 0.72), rgba(13, 17, 32, 0.72));
+  padding: 20px;
+  gap: 14px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.26);
+}
+.proc-cp-label {
+  font-family: var(--font-main);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  color: #9aa6bd;
+}
+.proc-cp-row { font-size: 0.82rem; }
+.proc-cp-total-val { font-size: 1.4rem; letter-spacing: -0.01em; }
+.proc-delivery-badge {
+  border-radius: 13px;
+  padding: 12px 14px;
+  background: rgba(108, 99, 255, 0.07);
+  border-color: rgba(108, 99, 255, 0.18);
+}
+.proc-del-label { font-family: var(--font-main); font-size: 0.66rem; letter-spacing: 0.05em; }
+
+/* ── Confirm button: bold gradient pill (kills the mono-uppercase look) ── */
+.proc-confirm-btn {
+  border-radius: 14px;
+  padding: 15px 0;
+  font-family: var(--font-main);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6c63ff, #4facfe);
+  box-shadow: 0 10px 24px rgba(79, 140, 254, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.proc-confirm-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6c63ff, #4facfe);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(79, 140, 254, 0.38);
+  filter: brightness(1.06);
+}
+.proc-sidebar-note { font-size: 0.72rem; }
+
+/* ── KPI bar + chart block: breathe, larger numbers ── */
+.proc-kpi-bar { padding: 14px 22px; background: rgba(15, 23, 42, 0.5); }
+.proc-kpi-item { padding: 0 18px; }
+.proc-kpi-label { font-family: var(--font-main); font-size: 0.64rem; letter-spacing: 0.06em; }
+.proc-kpi-value { font-size: 1.12rem; }
+.proc-chart-block { padding: 18px 22px 12px; }
+.proc-chart-title { font-family: var(--font-main); font-size: 0.7rem; letter-spacing: 0.06em; color: #9aa6bd; }
+
+/* ── Dashboard header + metric cards ── */
+.dashboard-header { border-radius: 18px; padding: 13px 20px; }
+.metric-card { border-radius: 18px; }
+.metric-card .value { font-size: 1.6rem; letter-spacing: -0.01em; }
+.metric-card .label { font-size: 0.68rem; letter-spacing: 0.06em; }
+
+/* ── Story decision surface: modern option cards ── */
+.story-option-btn {
+  border-radius: 15px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  transition: transform 0.16s var(--ease-smooth), border-color 0.16s ease,
+              background 0.16s ease, box-shadow 0.16s ease;
+}
+.story-option-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(59, 130, 246, 0.08));
+  border-color: rgba(108, 99, 255, 0.5);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
+}
+.story-text { border-radius: 14px; border-left: 3px solid #6c63ff; }
+.risk-tag { border-radius: 999px; }
+
+/* In-card data labels: soften the last "terminal" remnant (sans, roomier) */
+.psc-stat-label, .proc-del-label, .proc-transit-label {
+  font-family: var(--font-main);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  color: #8b93a8;
+}
+.psc-stat-value { font-size: 0.72rem; }
+.shc-cost, .shc-lead, .proc-opt-detail { font-size: 0.7rem; }
+.proc-story-title { font-family: var(--font-main); font-size: 0.66rem; letter-spacing: 0.05em; }
