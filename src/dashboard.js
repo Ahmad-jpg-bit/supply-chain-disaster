@@ -1680,6 +1680,16 @@ export class Dashboard {
 
         this.ui.actionPanel.style.display = 'none';
         this._initBullwhipLiveChart();
+        // Calmer default view: only the two every-turn decisions open.
+        // Collapsed sections keep their live summary in the header, and one
+        // click reopens them — sensible defaults are pre-selected anyway.
+        const DEFAULT_OPEN_SECTIONS = ['supplier', 'quantity'];
+        document.querySelectorAll('.proc-acc').forEach(acc => {
+            if (DEFAULT_OPEN_SECTIONS.includes(acc.dataset.acc)) return;
+            acc.querySelector('.proc-acc-hdr')?.classList.remove('proc-acc-hdr--open');
+            acc.querySelector('.proc-acc-body')?.classList.remove('proc-acc-body--open');
+        });
+
         this.attachProcurementListeners();
         this.updateCostEstimate();
     }
