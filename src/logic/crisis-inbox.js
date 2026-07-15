@@ -7,13 +7,14 @@
  * supports it, one paid mitigation that mutates the (cloned) crisis effects.
  */
 
-const SENDERS = {
+export const SENDERS = {
     logistics: { name: 'Dana Okafor',    role: 'Logistics Director' },
     cfo:       { name: 'Priya Nair',     role: 'Chief Financial Officer' },
     sales:     { name: 'Marcus Bell',    role: 'VP of Sales' },
     quality:   { name: 'Dr. Amara Diallo', role: 'Quality Assurance Lead' },
     legal:     { name: 'Ellen Ruiz',     role: 'General Counsel' },
     supplier:  { name: 'Chen Wei',       role: 'Supplier Account Manager' },
+    ops:       { name: 'Sofia Reyes',    role: 'Operations Manager' },
 };
 
 const MESSAGES = {

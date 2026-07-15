@@ -207,12 +207,26 @@ export function leaf(size = 24) {
     </svg>`;
 }
 
+export function box(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+        <path d="m3.3 7 8.7 5 8.7-5"/>
+        <path d="M12 22V12"/>
+    </svg>`;
+}
+
+export function spinner(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+    </svg>`;
+}
+
 // Icon lookup by name
 const ICON_MAP = {
     factory, warehouse, truck, ship, store, supplier,
     chartUp, chartDown, warning, lightbulb, checkmark, clock,
     globe, rocket, trophy, supplyChainLogo,
-    shield, coins, leaf
+    shield, coins, leaf, box, spinner
 };
 
 export function getIcon(name, size = 24) {

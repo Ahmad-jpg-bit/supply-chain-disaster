@@ -421,3 +421,90 @@ dev server, `npx vite build`, deploy `npx vercel --prod`.
   POST submit+rank / DELETE admin-clear guarded by CRON_SECRET). UI
   (`src/ui/leaderboard.js` + landing banner + endless death-screen submit).
   Live round-trip verified against prod KV. **This was the final roadmap item.**
+
+---
+
+## UI Modernization — in-game screens (2026-07-14)
+
+Finding from a live desktop review: the "old-school dashboard" feel no longer
+comes from surface styling (backdrop/glows already refreshed) — it comes from
+the **layout skeleton, uniform panel chrome, and hard state swaps**. Ordered by
+impact-per-effort:
+
+### Structural
+1. **Story-mode layout.** `.dashboard-grid` is `250px 1fr 300px`; during STORY
+   the action panel is `display:none` but its 300px column is still reserved —
+   measured: story card 666px wide inside a 1248px grid with a dead right
+   gutter. Add a `story-mode` grid class (mirror of `proc-mode`) so decision
+   moments fill the stage.
+2. **Retire the left rail of five stacked metric boxes** (`play.html`
+   `.metrics-panel`) in favor of one compact horizontal KPI strip used across
+   all phases — the procurement `proc-kpi-bar` is already the right pattern.
+   Two competing KPI systems means players re-learn the screen every phase.
+   Keep `cash-display` etc. IDs so AnimatedCounter/sparkline wiring survives.
+3. **Fewer boxes, fewer borders.** Nearly every element is the same
+   `glass-panel` (1px white-10% border + blur), and they nest. Reserve
+   borders/elevation for the active interactive surface; let secondary content
+   sit on the backdrop separated by spacing and type weight.
+
+### Narrative presentation
+4. **Render scenarios as communications, not a text blob in tabs.** Copy
+   already has characters ("your Bangkok distributor…"). Sender-tagged message
+   blocks, fast skippable typewriter reveal; Intelligence/Financials as
+   slide-in sheets instead of enterprise tabs. Same visual language as the
+   shipped crisis inbox.
+5. **View transitions.** `renderGameState()` does `innerHTML = ''` hard swaps.
+   Wrap phase changes in `document.startViewTransition()` (feature-detected,
+   honors `prefers-reduced-motion`). Also replaces the `⚙ EXECUTING…` spinner
+   moment.
+
+### Detail polish (cheap, each one dates the UI)
+6. **Emoji-as-icons** (📊 🔗 📡 intel labels, 📦 ⚠ 🛡 banners, ⚙ spinner) →
+   `svg-icons.js` set.
+7. **White default scrollbar** in dark modals → `color-scheme: dark` + thin
+   styled scrollbars in `base.css`.
+8. **ALL-CAPS microlabels everywhere** → keep caps for the KPI strip as
+   flavor, sentence case elsewhere (intel/financials section labels).
+9. **Chart.js stock look** → faint/no gridlines, gradient area fill, rounded
+   caps, dark tooltip, animated draw-in.
+10. **Stock Tailwind palette** (`#0f172a`/`#3b82f6`/`#f59e0b`) → tint the
+    near-black toward a signature hue; move raw hexes scattered in
+    `dashboard.js` into CSS tokens. (Careful: `base.css` is shared with
+    marketing pages.)
+11. **Numbered chapter circles read as pagination** → slim segmented progress
+    rail, current chapter as labeled pill.
+
+**Keep:** the bottom crisis ticker (diegetic trading-floor feed) — just add
+edge fade masks + pause-on-hover so it reads deliberate.
+
+**Status (2026-07-14):** SHIPPED — 1 (story-mode grid class, story card 760px
+on a full-width stage), 2 (`.metrics-panel` moved out of the grid into a
+horizontal KPI strip shared by all phases; procurement's duplicate
+`proc-kpi-bar` reduced to just the market-conditions pill in
+`.proc-alert-row`), 5 (`startViewTransition` wraps phase changes +
+outcome reveal via `_withViewTransition`; HUD/strip/ticker excluded from the
+root fade), 6 (intel/banner/spinner emoji → `svg-icons.js`, added `box` +
+`spinner` icons), 7 (`color-scheme: dark` + thin scrollbars in `base.css`),
+9 (bullwhip live chart: gradient demand fill, no x-grid, dark tooltip,
+600ms draw-in — qty preview still updates with `update('none')`),
+11 (chapter circles → segmented rail with labeled current-chapter pill).
+Ticker fades/pause already existed. Verified in-browser (story → outcome →
+procurement cycle, no console errors) + `npx vite build` clean.
+**Wave 2 (2026-07-15):** SHIPPED — 4 (comms-style narrative: scenarios arrive
+as briefings from crisis-inbox characters — `SENDERS` exported from
+`crisis-inbox.js` + new `ops` sender Sofia Reyes, mapped by
+`_scenarioSender()` on `highlightNode`; skippable ~185 chars/s typewriter
+honoring `prefers-reduced-motion`; options fade in when the text lands;
+Mission/Intelligence/Financials tabs replaced by slide-in side sheets with
+backdrop + Escape close), 3 (flattened box-in-box chrome: story text,
+intel sources, and fin sections sit on the surface with spacing/type only;
+fin total keeps its accounting rule line), 8 (intel/fin labels
+sentence-cased, uppercase transform removed; KPI strip keeps caps as
+flavor), 10 (inline hexes in `dashboard.js` template strings → CSS tokens;
+Chart.js canvas colors and the `${accent}55` hex-alpha risk accents stay
+literal by necessity; the site-wide `--bg-color` hue shift was deliberately
+skipped — `base.css` is shared with marketing pages and the in-game
+backdrop already has its own layered-gradient treatment). Verified
+in-browser (typewriter caught mid-stream at 108/472 chars, skip-click,
+both sheets, Escape, full decision cycle, zero console errors) +
+`npx vite build` clean. **Roadmap complete.**

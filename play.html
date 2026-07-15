@@ -63,31 +63,31 @@
       <!-- Supply Chain Flow Diagram -->
       <div id="supply-chain-flow" class="supply-chain-flow-container"></div>
 
-      <main class="dashboard-grid">
-        <!-- Metrics -->
-        <section class="metrics-panel">
-          <div class="metric-card glass-panel" data-metric="cash">
-            <span class="label">Cash</span>
-            <span class="value" id="cash-display">$0</span>
-          </div>
-          <div class="metric-card glass-panel" data-metric="inventory">
-            <span class="label">Inventory</span>
-            <span class="value" id="inventory-display">0</span>
-          </div>
-          <div class="metric-card glass-panel" data-metric="in-transit">
-            <span class="label">In Transit</span>
-            <span class="value" id="in-transit-display">0</span>
-          </div>
-          <div class="metric-card glass-panel" data-metric="demand">
-            <span class="label">Last Demand</span>
-            <span class="value" id="demand-display">--</span>
-          </div>
-          <div class="metric-card glass-panel" data-metric="profit">
-            <span class="label">Net Profit</span>
-            <span class="value" id="profit-display">$0</span>
-          </div>
-        </section>
+      <!-- KPI strip — single horizontal band shared by all phases -->
+      <section class="metrics-panel glass-panel">
+        <div class="metric-card" data-metric="cash">
+          <span class="label">Cash</span>
+          <span class="value" id="cash-display">$0</span>
+        </div>
+        <div class="metric-card" data-metric="inventory">
+          <span class="label">Inventory</span>
+          <span class="value" id="inventory-display">0</span>
+        </div>
+        <div class="metric-card" data-metric="in-transit">
+          <span class="label">In Transit</span>
+          <span class="value" id="in-transit-display">0</span>
+        </div>
+        <div class="metric-card" data-metric="demand">
+          <span class="label">Last Demand</span>
+          <span class="value" id="demand-display">--</span>
+        </div>
+        <div class="metric-card" data-metric="profit">
+          <span class="label">Net Profit</span>
+          <span class="value" id="profit-display">$0</span>
+        </div>
+      </section>
 
+      <main class="dashboard-grid">
         <!-- Main View -->
         <section class="main-view glass-panel">
           <div class="tab-nav">

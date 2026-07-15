@@ -34,7 +34,7 @@ import { checkTurnAchievements, checkChapterAchievements } from './logic/achieve
 import { showAchievementToasts } from './ui/achievement-toast.js';
 import { buildAllocationScenario, applyAllocation } from './logic/allocation.js';
 import { AllocationOverlay } from './ui/allocation-overlay.js';
-import { buildCrisisMessage, applyCrisisResponse } from './logic/crisis-inbox.js';
+import { buildCrisisMessage, applyCrisisResponse, SENDERS as INBOX_SENDERS } from './logic/crisis-inbox.js';
 import { CrisisInboxOverlay } from './ui/crisis-inbox.js';
 import { assessTurn, adjustConfidence, renderConfidenceMeter } from './logic/board-confidence.js';
 import { pickVignette } from './data/vignettes.js';
@@ -513,11 +513,11 @@ export class Dashboard {
         if (this.engine.state.isEndless) {
             const s   = this.engine.state;
             const sat = Math.max(0, s.endlessSatisfaction);
-            const satColor = sat > 60 ? '#22c55e' : sat > 30 ? '#f59e0b' : '#ef4444';
+            const satColor = sat > 60 ? 'var(--success-color)' : sat > 30 ? 'var(--accent-color)' : 'var(--danger-color)';
             const chapterLabel = document.getElementById('hud-chapter-name');
             if (chapterLabel) {
                 chapterLabel.innerHTML =
-                    `<span class="hud-ch-num" style="color:#ef4444">∞</span>` +
+                    `<span class="hud-ch-num" style="color:var(--danger-color)">∞</span>` +
                     `<span class="hud-ch-sep">·</span>` +
                     `<span class="hud-ch-title">Endless Survival</span>`;
             }
@@ -562,9 +562,12 @@ export class Dashboard {
                 cls += ' active';
             }
 
-            const label = isLocked ? '🔒' : ch.number;
+            // Segmented rail: only the active chapter carries a label,
+            // the rest are slim segments (tooltip keeps the full title)
+            const isActive = idx === currentChapterIdx && !isLocked;
             const titlePrefix = expansionLocked ? '✦ Expansion — ' : premiumLocked ? '🔒 Premium — ' : '';
-            html += `<div class="${cls}" title="${titlePrefix}Ch ${ch.number}: ${ch.title}"><span>${label}</span></div>`;
+            const labelHtml = isActive ? `<span>Ch ${ch.number}</span>` : '';
+            html += `<div class="${cls}" title="${titlePrefix}Ch ${ch.number}: ${ch.title}">${labelHtml}</div>`;
         });
         container.innerHTML = html;
 
@@ -617,8 +620,34 @@ export class Dashboard {
         }
     }
 
+    /**
+     * Run a DOM update inside a View Transition (soft cross-fade) when the
+     * browser supports it and the user hasn't asked for reduced motion.
+     */
+    _withViewTransition(update) {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduceMotion && document.startViewTransition) {
+            document.startViewTransition(update);
+        } else {
+            update();
+        }
+    }
+
     // --- CORE RENDER LOOP ---
     renderGameState() {
+        // Cross-fade between phases; re-renders within a phase stay instant
+        const { phase } = this.engine.state;
+        const phaseChanged = phase !== this._lastRenderedPhase;
+        this._lastRenderedPhase = phase;
+
+        if (phaseChanged) {
+            this._withViewTransition(() => this._renderGameStateNow());
+        } else {
+            this._renderGameStateNow();
+        }
+    }
+
+    _renderGameStateNow() {
         this.updateMetrics();
         this.renderChapterProgress();
 
@@ -636,6 +665,11 @@ export class Dashboard {
         } else {
             grid?.classList.remove('proc-mode');
         }
+
+        // Story-mode: these phases hide the legacy action panel, so collapse
+        // its reserved 300px grid column and let content use the full stage
+        const storyModePhases = [GAME_PHASES.CHAPTER_INTRO, GAME_PHASES.STORY, GAME_PHASES.CHAPTER_SUMMARY];
+        grid?.classList.toggle('story-mode', storyModePhases.includes(phase));
 
         // Clear main view for redraw
         this.ui.mainView.innerHTML = '';
@@ -749,22 +783,22 @@ export class Dashboard {
         const demandTrend = recentDemands.length >= 2
             ? (recentDemands[recentDemands.length - 1] > recentDemands[0] ? '↑ Rising' : '↓ Falling')
             : '— Insufficient data';
-        const trendColor = demandTrend.includes('Rising') ? '#22c55e' : demandTrend.includes('Falling') ? '#ef4444' : '#94a3b8';
+        const trendColor = demandTrend.includes('Rising') ? 'var(--success-color)' : demandTrend.includes('Falling') ? 'var(--danger-color)' : 'var(--text-muted)';
 
         // Lead time signal
         const leadMod = s.modifiers?.leadTime ?? 0;
         const leadSignal = leadMod > 1 ? `+${leadMod} turns delay (disrupted)` : leadMod === 0 ? 'Normal — no delays' : `+${leadMod} turn caution`;
-        const leadColor = leadMod > 1 ? '#ef4444' : leadMod > 0 ? '#f59e0b' : '#22c55e';
+        const leadColor = leadMod > 1 ? 'var(--danger-color)' : leadMod > 0 ? 'var(--accent-color)' : 'var(--success-color)';
 
         // Service level signal
         const satisfaction = s.customerSatisfaction ?? 0;
         const svcSignal = satisfaction >= 10 ? 'High — customers satisfied' : satisfaction >= 0 ? 'Moderate — watch inventory' : 'Low — stockouts risk churn';
-        const svcColor = satisfaction >= 10 ? '#22c55e' : satisfaction >= 0 ? '#f59e0b' : '#ef4444';
+        const svcColor = satisfaction >= 10 ? 'var(--success-color)' : satisfaction >= 0 ? 'var(--accent-color)' : 'var(--danger-color)';
 
         return `
             <div class="intel-grid">
                 <div class="intel-source">
-                    <div class="intel-source-label">📊 DEMAND FORECAST MODEL</div>
+                    <div class="intel-source-label">${getIcon('chartUp', 14)} Demand forecast model</div>
                     <div class="intel-source-body">
                         <div class="intel-row">
                             <span>3-Turn Avg Demand</span>
@@ -778,7 +812,7 @@ export class Dashboard {
                     </div>
                 </div>
                 <div class="intel-source">
-                    <div class="intel-source-label">🔗 SUPPLIER NETWORK REPORT</div>
+                    <div class="intel-source-label">${getIcon('supplier', 14)} Supplier network report</div>
                     <div class="intel-source-body">
                         <div class="intel-row">
                             <span>Lead Time Status</span>
@@ -792,7 +826,7 @@ export class Dashboard {
                     </div>
                 </div>
                 <div class="intel-source">
-                    <div class="intel-source-label">📡 MARKET ANALYST BRIEF</div>
+                    <div class="intel-source-label">${getIcon('globe', 14)} Market analyst brief</div>
                     <div class="intel-source-body">
                         <div class="intel-row">
                             <span>Service Level</span>
@@ -816,11 +850,11 @@ export class Dashboard {
             return `<div class="fin-empty">No financial data yet — complete your first procurement round to unlock cost analytics.</div>`;
         }
         const fmt = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
-        const profitColor = last.profit >= 0 ? '#22c55e' : '#ef4444';
+        const profitColor = last.profit >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
         return `
             <div class="fin-grid">
                 <div class="fin-section">
-                    <div class="fin-section-label">COST BREAKDOWN — Last Turn</div>
+                    <div class="fin-section-label">Cost breakdown — last turn</div>
                     <div class="fin-row"><span>Order Cost</span><span>${fmt(last.orderCost)}</span></div>
                     <div class="fin-row"><span>Shipping Cost</span><span>${fmt(last.shippingCost)}</span></div>
                     <div class="fin-row"><span>Inspection</span><span>${fmt(last.inspectionCost)}</span></div>
@@ -828,9 +862,9 @@ export class Dashboard {
                     <div class="fin-row fin-row--total"><span>Total Cost</span><span>${fmt(last.totalCost)}</span></div>
                 </div>
                 <div class="fin-section">
-                    <div class="fin-section-label">REVENUE & PROFIT</div>
+                    <div class="fin-section-label">Revenue & profit</div>
                     <div class="fin-row"><span>Revenue</span><span>${fmt(last.revenue)}</span></div>
-                    <div class="fin-row"><span>Missed Sales</span><span style="color:#f59e0b">${last.missedSales?.toLocaleString() ?? 0} units</span></div>
+                    <div class="fin-row"><span>Missed Sales</span><span style="color:var(--accent-color)">${last.missedSales?.toLocaleString() ?? 0} units</span></div>
                     <div class="fin-row fin-row--total" style="color:${profitColor}"><span>Net Profit</span><span>${fmt(last.profit)}</span></div>
                 </div>
                 <div class="fin-tip">
@@ -857,10 +891,23 @@ export class Dashboard {
 
         const svcStr = satisfaction > 5 ? '↑ Improves' : satisfaction < -5 ? '↓ Degrades' : 'Neutral';
         const riskStr = opt.conceptAlignment === 'optimal' ? 'Low' : opt.conceptAlignment === 'cautious' ? 'Medium' : 'High';
-        const riskColor = opt.conceptAlignment === 'optimal' ? '#22c55e' : opt.conceptAlignment === 'cautious' ? '#f59e0b' : '#ef4444';
+        const riskColor = opt.conceptAlignment === 'optimal' ? 'var(--success-color)' : opt.conceptAlignment === 'cautious' ? 'var(--accent-color)' : 'var(--danger-color)';
         const leadStr = leadTime === 0 ? 'No delay' : `+${leadTime} turn${leadTime > 1 ? 's' : ''} lead time`;
 
         return { costStr, svcStr, riskStr, riskColor, leadStr };
+    }
+
+    /** Pick a briefing sender for a scenario based on the node it stresses. */
+    _scenarioSender(scenario) {
+        const byNode = {
+            supplier:  'supplier',
+            factory:   'ops',
+            warehouse: 'ops',
+            ship:      'logistics',
+            truck:     'logistics',
+            store:     'sales',
+        };
+        return INBOX_SENDERS[byNode[scenario.highlightNode]] || INBOX_SENDERS.ops;
     }
 
     renderStoryPhase() {
@@ -904,36 +951,90 @@ export class Dashboard {
             `;
         }).join('');
 
+        // Sender chip — the scenario arrives as a briefing from a named person
+        const sender = this._scenarioSender(scenario);
+        const initials = sender.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
         storyCard.innerHTML = `
             ${chapterLabel}
             <div class="story-title">${scenario.title}</div>
-            <nav class="story-tabs" role="tablist">
-                <button class="story-tab-btn story-tab-btn--active" data-tab="mission" role="tab">Mission</button>
-                <button class="story-tab-btn" data-tab="intel" role="tab">Intelligence</button>
-                <button class="story-tab-btn" data-tab="financials" role="tab">Financials</button>
-            </nav>
-            <div class="story-tab-panels">
-                <div class="story-tab-panel story-tab-panel--active" data-panel="mission">
-                    <div class="story-text">${scenario.text}</div>
-                    <div class="story-options">${optionsHTML}</div>
+            <div class="story-brief-head">
+                <span class="story-sender-avatar" aria-hidden="true">${initials}</span>
+                <div class="story-sender-meta">
+                    <span class="story-sender-name">${sender.name}</span>
+                    <span class="story-sender-role">${sender.role}</span>
                 </div>
-                <div class="story-tab-panel" data-panel="intel">
-                    ${this._buildIntelContent(scenario)}
-                </div>
-                <div class="story-tab-panel" data-panel="financials">
-                    ${this._buildFinancialsContent()}
+                <div class="story-sheet-btns">
+                    <button class="story-sheet-btn" data-sheet="intel">${getIcon('globe', 13)} Intelligence</button>
+                    <button class="story-sheet-btn" data-sheet="financials">${getIcon('coins', 13)} Financials</button>
                 </div>
             </div>
+            <div class="story-text" aria-live="polite"></div>
+            <div class="story-options story-options--pending">${optionsHTML}</div>
         `;
 
-        // Tab switching
-        storyCard.querySelectorAll('.story-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                storyCard.querySelectorAll('.story-tab-btn').forEach(b => b.classList.remove('story-tab-btn--active'));
-                storyCard.querySelectorAll('.story-tab-panel').forEach(p => p.classList.remove('story-tab-panel--active'));
-                btn.classList.add('story-tab-btn--active');
-                storyCard.querySelector(`.story-tab-panel[data-panel="${btn.dataset.tab}"]`).classList.add('story-tab-panel--active');
-            });
+        // Typewriter reveal — fast, skippable, instant under reduced motion
+        const textEl    = storyCard.querySelector('.story-text');
+        const optionsEl = storyCard.querySelector('.story-options');
+        const fullText  = scenario.text;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const finishReveal = () => {
+            if (this._briefTimer) { clearInterval(this._briefTimer); this._briefTimer = null; }
+            textEl.textContent = fullText;
+            textEl.classList.remove('story-text--typing');
+            optionsEl.classList.remove('story-options--pending');
+        };
+
+        if (reduceMotion || document.hidden) {
+            finishReveal();
+        } else {
+            let shown = 0;
+            const STEP = 3; // ~185 chars/s — newsroom pace, ~2.5s for a scenario
+            textEl.classList.add('story-text--typing');
+            this._briefTimer = setInterval(() => {
+                if (!textEl.isConnected) { clearInterval(this._briefTimer); this._briefTimer = null; return; }
+                shown += STEP;
+                textEl.textContent = fullText.slice(0, shown);
+                if (shown >= fullText.length) finishReveal();
+            }, 16);
+            // Any click on the card skips straight to the full briefing
+            storyCard.addEventListener('click', finishReveal, { once: true });
+        }
+
+        // Intelligence / Financials as slide-in side sheets
+        const sheetBackdrop = document.createElement('div');
+        sheetBackdrop.className = 'story-sheet-backdrop';
+        const sheet = document.createElement('aside');
+        sheet.className = 'story-sheet';
+        sheet.innerHTML = `
+            <div class="story-sheet-head">
+                <span class="story-sheet-title"></span>
+                <button class="story-sheet-close" aria-label="Close panel">✕</button>
+            </div>
+            <div class="story-sheet-body"></div>
+        `;
+
+        const closeSheet = () => {
+            sheet.classList.remove('story-sheet--open');
+            sheetBackdrop.classList.remove('story-sheet-backdrop--open');
+            document.removeEventListener('keydown', onSheetKey);
+        };
+        const onSheetKey = (e) => { if (e.key === 'Escape') closeSheet(); };
+        const openSheet = (kind) => {
+            sheet.querySelector('.story-sheet-title').textContent =
+                kind === 'intel' ? 'Field intelligence' : 'Financials';
+            sheet.querySelector('.story-sheet-body').innerHTML =
+                kind === 'intel' ? this._buildIntelContent(scenario) : this._buildFinancialsContent();
+            sheet.classList.add('story-sheet--open');
+            sheetBackdrop.classList.add('story-sheet-backdrop--open');
+            document.addEventListener('keydown', onSheetKey);
+        };
+
+        sheet.querySelector('.story-sheet-close').addEventListener('click', closeSheet);
+        sheetBackdrop.addEventListener('click', closeSheet);
+        storyCard.querySelectorAll('.story-sheet-btn').forEach(btn => {
+            btn.addEventListener('click', () => openSheet(btn.dataset.sheet));
         });
 
         // Option click handlers
@@ -950,7 +1051,7 @@ export class Dashboard {
             const banner = document.createElement('div');
             banner.className = 'demand-event-banner demand-event--spike';
             banner.innerHTML = `
-                <span class="demand-event-icon">⚠</span>
+                <span class="demand-event-icon">${getIcon('warning', 20)}</span>
                 <div class="demand-event-body">
                     <strong>Regulatory Demand Spike</strong>
                     <span>Emergency procurement mandates drove a +${spikeAmt}% demand surge last quarter. Safety stock is now critical.</span>
@@ -963,7 +1064,7 @@ export class Dashboard {
             const backlogBanner = document.createElement('div');
             backlogBanner.className = 'demand-event-banner demand-event--backlog';
             backlogBanner.innerHTML = `
-                <span class="demand-event-icon">📦</span>
+                <span class="demand-event-icon">${getIcon('box', 20)}</span>
                 <div class="demand-event-body">
                     <strong>Unfulfilled Backlog: ${lastResult.backlog.toLocaleString()} units</strong>
                     <span>Customers are waiting. Increase order quantity or replenish faster to clear the queue.</span>
@@ -976,7 +1077,7 @@ export class Dashboard {
             const safetyBanner = document.createElement('div');
             safetyBanner.className = 'demand-event-banner demand-event--safety';
             safetyBanner.innerHTML = `
-                <span class="demand-event-icon">🛡</span>
+                <span class="demand-event-icon">${getIcon('shield', 20)}</span>
                 <div class="demand-event-body">
                     <strong>Safety Stock Breach</strong>
                     <span>Post-sale inventory fell below your target of ${lastResult.safetyStockTarget?.toLocaleString()} units. Increase orders to rebuild your buffer.</span>
@@ -986,6 +1087,8 @@ export class Dashboard {
         }
 
         this.ui.mainView.appendChild(storyCard);
+        this.ui.mainView.appendChild(sheetBackdrop);
+        this.ui.mainView.appendChild(sheet);
         this.ui.actionPanel.style.display = 'none';
 
         // Consequence overlay — surfaces last turn's key financial outcome
@@ -1024,7 +1127,7 @@ export class Dashboard {
             btn.disabled = true;
             if (i === index) {
                 btn.classList.add('option-executing');
-                btn.innerHTML = `<span class="executing-spinner">⚙</span> EXECUTING…`;
+                btn.innerHTML = `<span class="executing-spinner">${getIcon('spinner', 14)}</span> Executing…`;
             } else {
                 btn.style.opacity = '0.3';
             }
@@ -1039,18 +1142,20 @@ export class Dashboard {
             };
             const feedback = alignmentConfig[alignment] || alignmentConfig.cautious;
 
-            this.ui.mainView.innerHTML = `
-                <div class="outcome-panel glass-panel" style="animation: fadeIn 0.4s ease-out;">
-                    <div class="outcome-alignment" style="color: ${feedback.color}">
-                        ${getIcon(feedback.icon, 28)}
-                        <span>${feedback.label}</span>
+            this._withViewTransition(() => {
+                this.ui.mainView.innerHTML = `
+                    <div class="outcome-panel glass-panel">
+                        <div class="outcome-alignment" style="color: ${feedback.color}">
+                            ${getIcon(feedback.icon, 28)}
+                            <span>${feedback.label}</span>
+                        </div>
+                        <h2 class="outcome-text">Decision Executed</h2>
+                        <p style="margin-bottom: 2rem; font-size: 1.2rem;">${outcome}</p>
+                        <button id="continue-btn" class="btn-primary">Continue to Procurement →</button>
                     </div>
-                    <h2 class="outcome-text">Decision Executed</h2>
-                    <p style="margin-bottom: 2rem; font-size: 1.2rem;">${outcome}</p>
-                    <button id="continue-btn" class="btn-primary">Continue to Procurement →</button>
-                </div>
-            `;
-            document.getElementById('continue-btn').onclick = () => this.renderGameState();
+                `;
+                document.getElementById('continue-btn').onclick = () => this.renderGameState();
+            });
         }, 480);
     }
 
@@ -1196,7 +1301,16 @@ export class Dashboard {
 
         const monoFont = { family: "'Roboto Mono', monospace", size: 9 };
         const monoTicks = { color: '#475569', font: monoFont };
-        const monoGrid  = { color: 'rgba(255,255,255,0.05)' };
+
+        // Gradient area fill under the demand line (amber → transparent)
+        const demandFill = (ctx) => {
+            const { ctx: c, chartArea } = ctx.chart;
+            if (!chartArea) return 'rgba(245,158,11,0.08)';
+            const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            g.addColorStop(0, 'rgba(245,158,11,0.22)');
+            g.addColorStop(1, 'rgba(245,158,11,0)');
+            return g;
+        };
 
         this.charts.bullwhipLive = new Chart(canvas, {
             type: 'line',
@@ -1207,11 +1321,14 @@ export class Dashboard {
                         label: 'Demand',
                         data: demandData,
                         borderColor: '#f59e0b',
+                        backgroundColor: demandFill,
                         tension: 0.35,
-                        pointRadius: 3,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
                         pointBackgroundColor: '#f59e0b',
                         borderWidth: 2,
-                        fill: false,
+                        borderCapStyle: 'round',
+                        fill: true,
                         order: 2,
                     },
                     {
@@ -1219,9 +1336,11 @@ export class Dashboard {
                         data: ordersData,
                         borderColor: '#3b82f6',
                         tension: 0.35,
-                        pointRadius: 3,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
                         pointBackgroundColor: '#3b82f6',
                         borderWidth: 2,
+                        borderCapStyle: 'round',
                         fill: false,
                         order: 3,
                     },
@@ -1245,7 +1364,8 @@ export class Dashboard {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: { duration: 0 },
+                // One-time draw-in; live qty updates use chart.update('none')
+                animation: { duration: 600, easing: 'easeOutQuart' },
                 plugins: {
                     legend: {
                         display: true,
@@ -1261,21 +1381,37 @@ export class Dashboard {
                         }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(10, 14, 26, 0.92)',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        titleColor: '#94a3b8',
+                        bodyColor: '#e2e8f0',
+                        titleFont: monoFont,
+                        bodyFont: monoFont,
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
                         callbacks: {
                             label: (item) => `${item.dataset.label}: ${item.parsed.y != null ? item.parsed.y.toLocaleString() : '—'}`
                         }
                     }
                 },
+                interaction: { mode: 'index', intersect: false },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: monoGrid,
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        border: { display: false },
                         ticks: {
                             ...monoTicks,
                             callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v
                         },
                     },
-                    x: { grid: monoGrid, ticks: monoTicks }
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: monoTicks
+                    }
                 }
             }
         });
@@ -1335,13 +1471,8 @@ export class Dashboard {
         const fmtM  = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
         const fmtN  = (n) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n);
 
-        // ── 1. KPI bar values ──────────────────────────────────────────
-        const cash       = s.cash;
-        const inventory  = s.inventory;
+        // ── 1. In-transit total (KPI values now live in the global strip) ──
         const inTransit  = s.inTransit.reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
-        const lastDemand = s.lastTurnResult?.demand ?? null;
-        const lastProfit = s.lastTurnResult?.profit ?? null;
-        const profitNeg  = lastProfit !== null && lastProfit < 0;
 
         // ── 2. Market conditions alert pill ───────────────────────────
         const costMod  = s.modifiers.unitCost  ?? 1.0;
@@ -1496,33 +1627,8 @@ export class Dashboard {
             ${endlessHtml}
             ${storyCtxHtml}
 
-            <!-- 1. KPI Bar -->
-            <div class="proc-kpi-bar">
-                <div class="proc-kpi-item">
-                    <span class="proc-kpi-label">CASH</span>
-                    <span class="proc-kpi-value">${fmtM(cash)}</span>
-                </div>
-                <div class="proc-kpi-div"></div>
-                <div class="proc-kpi-item">
-                    <span class="proc-kpi-label">INVENTORY</span>
-                    <span class="proc-kpi-value">${fmtN(inventory)}</span>
-                </div>
-                <div class="proc-kpi-div"></div>
-                <div class="proc-kpi-item">
-                    <span class="proc-kpi-label">IN TRANSIT</span>
-                    <span class="proc-kpi-value">${fmtN(inTransit)}</span>
-                </div>
-                <div class="proc-kpi-div"></div>
-                <div class="proc-kpi-item">
-                    <span class="proc-kpi-label">LAST DEMAND</span>
-                    <span class="proc-kpi-value">${lastDemand !== null ? fmtN(lastDemand) : '—'}</span>
-                </div>
-                <div class="proc-kpi-div"></div>
-                <div class="proc-kpi-item">
-                    <span class="proc-kpi-label">NET PROFIT</span>
-                    <span class="proc-kpi-value ${profitNeg ? 'proc-kpi-danger' : ''}">${lastProfit !== null ? fmtM(lastProfit) : '—'}</span>
-                </div>
-                <div class="proc-kpi-spacer"></div>
+            <!-- 1. Market conditions pill (KPI values live in the global strip) -->
+            <div class="proc-alert-row">
                 <div class="proc-kpi-alert ${alertCls}">
                     <span class="proc-kpi-alert-dot"></span>
                     <span class="proc-kpi-alert-text">${costText} · ${leadText}</span>

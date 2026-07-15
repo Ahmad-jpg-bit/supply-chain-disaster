@@ -67,6 +67,35 @@
   padding: 0;
 }
 
+/* Dark-theme form controls + scrollbars (kills the white default scrollbar
+   inside modals/overlays on the dark backdrop) */
+:root {
+  color-scheme: dark;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+}
+
 body {
   font-family: var(--font-main);
   background-color: var(--bg-color);
