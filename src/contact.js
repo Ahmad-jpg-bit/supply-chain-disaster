@@ -13,6 +13,14 @@ window.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('contact-form');
   const statusEl = document.getElementById('form-status');
 
+  // Prefill subject from ?subject=… so site buttons can deep-link
+  // (e.g. /contact?subject=Feature%20Request)
+  const prefillSubject = new URLSearchParams(window.location.search).get('subject');
+  if (prefillSubject) {
+    form.subject.value = prefillSubject;
+    form.name.focus();
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     statusEl.className = 'form-status';
