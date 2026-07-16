@@ -587,6 +587,27 @@ a.mission-btn:hover {
   margin-bottom: var(--spacing-md);
 }
 
+/* CTA button — amber gradient, same visual weight as the mission button */
+.cta-button {
+  display: inline-block;
+  padding: 0.875rem 2.25rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0f172a !important;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.35);
+  text-decoration: none;
+}
+
 /* Article responsive */
 @media (max-width: 860px) {
   .article-content {
