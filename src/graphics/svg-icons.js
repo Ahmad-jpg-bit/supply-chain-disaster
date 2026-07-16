@@ -221,15 +221,160 @@ export function spinner(size = 24) {
     </svg>`;
 }
 
+export function search(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+    </svg>`;
+}
+
+export function plane(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
+    </svg>`;
+}
+
+export function target(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="6"/>
+        <circle cx="12" cy="12" r="2"/>
+    </svg>`;
+}
+
+export function bolt(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+    </svg>`;
+}
+
+export function alertCircle(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>`;
+}
+
+export function xCircle(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="m15 9-6 6"/>
+        <path d="m9 9 6 6"/>
+    </svg>`;
+}
+
+export function fileText(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+        <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+        <path d="M10 9H8"/>
+        <path d="M16 13H8"/>
+        <path d="M16 17H8"/>
+    </svg>`;
+}
+
+export function wrench(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>`;
+}
+
+export function history(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+        <path d="M12 7v5l4 2"/>
+    </svg>`;
+}
+
+export function book(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+    </svg>`;
+}
+
+export function refresh(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+    </svg>`;
+}
+
+export function mail(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="20" height="16" x="2" y="4" rx="2"/>
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+    </svg>`;
+}
+
+export function handshake(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m11 17 2 2a1 1 0 1 0 3-3"/>
+        <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/>
+        <path d="m21 3 1 11h-2"/>
+        <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/>
+        <path d="M3 4h8"/>
+    </svg>`;
+}
+
+export function map(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/>
+        <path d="M15 5.764v15"/>
+        <path d="M9 3.236v15"/>
+    </svg>`;
+}
+
+export function lock(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>`;
+}
+
+export function download(size = 24) {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>`;
+}
+
 // Icon lookup by name
 const ICON_MAP = {
     factory, warehouse, truck, ship, store, supplier,
     chartUp, chartDown, warning, lightbulb, checkmark, clock,
     globe, rocket, trophy, supplyChainLogo,
-    shield, coins, leaf, box, spinner
+    shield, coins, leaf, box, spinner,
+    search, plane, target, bolt, alertCircle, xCircle, fileText,
+    wrench, history, book, refresh, mail, handshake, map, lock, download
 };
 
 export function getIcon(name, size = 24) {
     const fn = ICON_MAP[name];
     return fn ? fn(size) : '';
+}
+
+// Emoji → icon-name map for data-driven icon fields (world-memory echoes,
+// debrief insights, archetypes, …). Typographic glyphs (✓ ✗ → ★ ✦ ≈) and
+// the colored rank medals are intentionally NOT mapped — they pass through.
+const EMOJI_ICON_MAP = {
+    '⚡': 'bolt',      '⚠': 'warning',   '📦': 'box',       '✈': 'plane',
+    '🔴': 'alertCircle', '💰': 'coins',  '💸': 'coins',     '🏭': 'factory',
+    '🚢': 'ship',      '🔍': 'search',   '❌': 'xCircle',   '📈': 'chartUp',
+    '📉': 'chartDown', '🎯': 'target',   '📑': 'fileText',  '🧾': 'fileText',
+    '🛠': 'wrench',    '🧠': 'history',  '📘': 'book',      '🔁': 'refresh',
+    '📨': 'mail',      '🤝': 'handshake', '🗺': 'map',      '🔒': 'lock',
+    '🏆': 'trophy',    '⬇': 'download',  '✅': 'checkmark', '↺': 'refresh',
+};
+
+/**
+ * Resolve a glyph coming from data to an SVG icon when a mapping exists;
+ * unknown strings (typographic glyphs, saved-state emoji) pass through as-is.
+ */
+export function iconify(glyph, size = 16) {
+    if (!glyph) return '';
+    const name = EMOJI_ICON_MAP[glyph.trim().replace(/️/g, '')];
+    return name ? getIcon(name, size) : glyph;
 }

@@ -80,7 +80,7 @@ export class ChapterTransition {
                 nextChapterHtml = `
                 <div class="chapter-next-teaser chapter-next-teaser--locked">
                     <span class="next-label">Coming Next</span>
-                    <div class="next-chapter-premium-badge">🔒 PREMIUM</div>
+                    <div class="next-chapter-premium-badge">${getIcon('lock', 11)} PREMIUM</div>
                     <h4>Chapter ${nextChapter.number}: ${nextChapter.title}</h4>
                     <p class="chapter-next-lock-note">Full Access unlocks every remaining chapter — $6.99 one-time</p>
                 </div>`;
@@ -95,7 +95,7 @@ export class ChapterTransition {
         }
 
         const ctaBtnLabel = isAnyLocked
-            ? '🔒 Unlock Chapter ' + nextChapter.number + ' — $6.99 one-time'
+            ? getIcon('lock', 13) + ' Unlock Chapter ' + nextChapter.number + ' — $6.99 one-time'
             : nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results';
 
         this.overlay.innerHTML = `

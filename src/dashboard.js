@@ -7,7 +7,7 @@ import { SUPPLIERS, SHIPPING_METHODS, PRICING_STRATEGIES, QUALITY_INSPECTIONS } 
 import { ConceptCard } from './ui/concept-card.js';
 import { ChapterTransition } from './ui/chapter-transition.js';
 import { SupplyChainFlow } from './graphics/supply-chain-flow.js';
-import { getIcon } from './graphics/svg-icons.js';
+import { getIcon, iconify } from './graphics/svg-icons.js';
 import { LandingPage } from './ui/landing-page.js';
 import { AnimatedCounter, showTrendBadge } from './ui/animated-counter.js';
 import { GameOverScreen } from './ui/game-over-screen.js';
@@ -751,7 +751,7 @@ export class Dashboard {
         const archetypeHtml = (archetype && archetype.id !== 'balanced' && this.engine.state.chapterIndex === 0) ? `
             <div class="archetype-briefing">
                 <div class="archetype-briefing-header">
-                    <span class="archetype-icon">${archetype.icon}</span>
+                    <span class="archetype-icon">${iconify(archetype.icon, 18)}</span>
                     <span class="archetype-label">WORLD STATE: ${archetype.label.toUpperCase()}</span>
                 </div>
                 <p class="archetype-desc">${archetype.briefing}</p>

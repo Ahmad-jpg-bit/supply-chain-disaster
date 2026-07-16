@@ -4,19 +4,21 @@
  * Persists high score per industry in localStorage.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const BEST_KEY = (industryId) => `scd_endless_best_${industryId}`;
 
 const CAUSE_COPY = {
     bankruptcy: {
         headline: 'BANKRUPT',
         sub: 'Cash reserves hit zero — the business has collapsed.',
-        icon: '💸',
+        icon: getIcon('coins', 26),
         color: '#ef4444',
     },
     satisfaction: {
         headline: 'CUSTOMER REVOLT',
         sub: 'Satisfaction reached zero — customers abandoned the brand.',
-        icon: '🔴',
+        icon: getIcon('alertCircle', 26),
         color: '#f59e0b',
     },
 };
@@ -102,7 +104,7 @@ export class EndlessDeathScreen {
                 </div>
 
                 <div class="eds-actions">
-                    ${onLeaderboard ? `<button class="eds-btn eds-btn--primary" id="eds-leaderboard">🏆 Post to Weekly Leaderboard</button>` : ''}
+                    ${onLeaderboard ? `<button class="eds-btn eds-btn--primary" id="eds-leaderboard">${getIcon('trophy', 14)} Post to Weekly Leaderboard</button>` : ''}
                     <button class="eds-btn ${onLeaderboard ? 'eds-btn--ghost' : 'eds-btn--primary'}" id="eds-restart">
                         ↺ ${onLeaderboard ? 'Play Again' : 'Restart Survival'}
                     </button>

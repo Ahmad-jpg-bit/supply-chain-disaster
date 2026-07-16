@@ -2,6 +2,8 @@
  * Weekly leaderboard UI — the board overlay and the score-submit prompt.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const INDUSTRY_LABEL = { electronics: 'Electronics', fmcg: 'Consumer Goods', pharma: 'Pharmaceuticals' };
 const NAME_KEY = 'scd_leaderboard_name';
 
@@ -38,7 +40,7 @@ export async function showLeaderboard({ weekId, industryId, highlight = null, ca
     overlay.className = 'lb-overlay';
     overlay.innerHTML = `
         <div class="lb-card glass-panel">
-            <div class="lb-eyebrow">🏆 WEEKLY CHALLENGE — ${weekId}</div>
+            <div class="lb-eyebrow">${getIcon('trophy', 13)} WEEKLY CHALLENGE — ${weekId}</div>
             <h3 class="lb-title">Global Leaderboard</h3>
             <p class="lb-sub">This week's arena: <strong>${INDUSTRY_LABEL[industryId] || 'Endless'}</strong> · everyone faces the same crises.</p>
             <div class="lb-board" id="lb-board"><div class="lb-loading">Loading scores…</div></div>
@@ -77,7 +79,7 @@ export function promptScoreSubmit({ weekId, score, industryId }) {
     overlay.className = 'lb-overlay';
     overlay.innerHTML = `
         <div class="lb-card glass-panel">
-            <div class="lb-eyebrow">🏆 POST YOUR SCORE — ${weekId}</div>
+            <div class="lb-eyebrow">${getIcon('trophy', 13)} POST YOUR SCORE — ${weekId}</div>
             <h3 class="lb-title">${score.toLocaleString()} points</h3>
             <p class="lb-sub">Put your name on this week's board.</p>
             <div class="lb-submit-row">

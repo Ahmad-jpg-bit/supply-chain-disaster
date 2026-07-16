@@ -3,6 +3,8 @@
  * after the order is locked but before the quarter resolves.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const fmtMoney = (n) =>
     new Intl.NumberFormat('en-US', {
         style: 'currency', currency: 'USD', maximumFractionDigits: 0,
@@ -38,7 +40,7 @@ export class CrisisInboxOverlay {
         this.overlay.innerHTML = `
             <div class="ci-card glass-panel">
                 <div class="ci-topbar">
-                    <span class="ci-topbar-label">📨 INCOMING — PRIORITY MESSAGE</span>
+                    <span class="ci-topbar-label">${getIcon('mail', 13)} INCOMING — PRIORITY MESSAGE</span>
                     <span class="ci-sev ${sev.cls}">${sev.label}</span>
                 </div>
 

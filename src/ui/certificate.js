@@ -5,6 +5,8 @@
  * on a high-DPI canvas. Player can download as PNG.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const GRADES = [
     { min: 90, grade: 'S', title: 'Supply Chain Master',  color: '#f59e0b' },
     { min: 75, grade: 'A', title: 'Expert Strategist',    color: '#22c55e' },
@@ -52,7 +54,7 @@ export class CertificateGenerator {
                 <button class="cert-close-btn" aria-label="Close">✕</button>
 
                 <div class="cert-name-prompt" id="cert-name-prompt">
-                    <div class="cert-prompt-icon">🏆</div>
+                    <div class="cert-prompt-icon">${getIcon('trophy', 42)}</div>
                     <h3>Your Certificate of Completion</h3>
                     <p>Enter your name as you'd like it to appear on the certificate.</p>
                     <input
@@ -72,7 +74,7 @@ export class CertificateGenerator {
                     <canvas id="cert-canvas"></canvas>
                     <div class="cert-preview-actions">
                         <button class="btn-secondary cert-back-btn">← Enter Different Name</button>
-                        <button class="btn-primary cert-download-btn">⬇ Download PNG</button>
+                        <button class="btn-primary cert-download-btn">${getIcon('download', 14)} Download PNG</button>
                     </div>
                 </div>
             </div>
@@ -313,7 +315,7 @@ export class CertificateGenerator {
 
             ctx.font = 'bold 9px "Inter", "Segoe UI", Arial, sans-serif';
             ctx.fillStyle = grade.color;
-            ctx.fillText('★  EXPANSION BUNDLE COMPLETE  —  ALL 10 CHAPTERS  ★', W / 2, by + 15.5);
+            ctx.fillText('★  FULL RUN COMPLETE  —  ALL 10 CHAPTERS  ★', W / 2, by + 15.5);
         }
 
         // ── Bottom divider & footer ───────────────────────────────────────────

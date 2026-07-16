@@ -6175,6 +6175,43 @@ input[type="number"] {
    PROCUREMENT REDESIGN
    ============================================================ */
 
+/* -- Wave-3: SVG icons inside overlay icon slots and eyebrow labels -- */
+.tsc-row-icon,
+.tsc-driver-icon,
+.tsc-prediction-icon,
+.tsc-echo-icon,
+.tsc-concept-icon,
+.cq-icon,
+.debrief-insight-icon,
+.eds-cause-icon,
+.archetype-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tsc-echoes-label svg,
+.tsc-contract svg,
+.tsc-mitigation svg,
+.tsc-replay-toggle svg,
+.ci-topbar-label svg,
+.nego-eyebrow svg,
+.route-eyebrow svg,
+.lb-eyebrow svg,
+.bq-feedback-concept svg,
+.next-chapter-premium-badge svg,
+.debrief-ch-crisis svg,
+.btn-primary svg,
+.eds-btn svg {
+  vertical-align: -2px;
+}
+
+.cert-prompt-icon {
+  display: flex;
+  justify-content: center;
+  color: var(--accent-color);
+}
+
 /* -- View transitions between game phases --
    Keep persistent chrome (HUD, KPI strip, ticker) out of the root
    cross-fade so only the stage content appears to change */

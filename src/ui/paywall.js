@@ -176,7 +176,7 @@ export class Paywall {
             const result = await BillingManager.purchaseTier(tier);
 
             if (result.success) {
-                this._setMsg(msgEl, '✅ Purchase successful! Loading content…', 'success');
+                this._setMsg(msgEl, '✓ Purchase successful! Loading content…', 'success');
                 setTimeout(() => {
                     this.hide();
                     if (this.onSuccess) this.onSuccess();
@@ -221,7 +221,7 @@ export class Paywall {
             const result = await BillingManager.restorePurchases();
 
             if (result.success) {
-                this._setMsg(msgEl, '✅ Purchases restored! Loading content…', 'success');
+                this._setMsg(msgEl, '✓ Purchases restored! Loading content…', 'success');
                 setTimeout(() => {
                     this.hide();
                     if (this.onSuccess) this.onSuccess();
@@ -250,7 +250,7 @@ export class Paywall {
         const ok = await PremiumManager.restoreByEmail(email.trim());
 
         if (ok) {
-            this._setMsg(msgEl, '✅ Access restored! Loading next chapter…', 'success');
+            this._setMsg(msgEl, '✓ Access restored! Loading next chapter…', 'success');
             setTimeout(() => {
                 this.hide();
                 if (this.onSuccess) this.onSuccess();
@@ -283,7 +283,7 @@ export class Paywall {
         btn.textContent = 'Apply';
 
         if (result.ok) {
-            this._setMsg(msgEl, `✅ ${result.message}`, 'success');
+            this._setMsg(msgEl, `✓ ${result.message}`, 'success');
             setTimeout(() => {
                 this.hide();
                 if (this.onSuccess) this.onSuccess();

@@ -5,6 +5,8 @@
  * inline, contextual consequence messaging.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const fmt = (n) =>
     new Intl.NumberFormat('en-US', {
         style: 'currency', currency: 'USD', maximumFractionDigits: 0
@@ -25,9 +27,9 @@ export function buildConsequenceData(result) {
                    : c.severity === 'high'     ? 'negative'
                    :                             'neutral';
         const icon = c.severity === 'positive' ? '✓'
-                   : c.severity === 'critical' ? '🔴'
-                   : c.severity === 'high'     ? '⚠'
-                   :                             '⚡';
+                   : c.severity === 'critical' ? getIcon('alertCircle', 18)
+                   : c.severity === 'high'     ? getIcon('warning', 18)
+                   :                             getIcon('bolt', 18);
         return {
             type,
             icon,
@@ -41,7 +43,7 @@ export function buildConsequenceData(result) {
         const lostRev = fmt(result.missedSales * (result.revenue / (result.sales || 1)));
         return {
             type: 'critical',
-            icon: '⚠',
+            icon: getIcon('warning', 18),
             headline: `Stock-out: ${result.missedSales.toLocaleString()} units unmet`,
             detail: `≈${lostRev} in missed revenue — replenish faster next quarter.`,
         };
@@ -63,7 +65,7 @@ export function buildConsequenceData(result) {
     if (result.shippingCost > 0 && result.shippingCost > result.orderCost * 0.35) {
         return {
             type: 'negative',
-            icon: '✈',
+            icon: getIcon('plane', 18),
             headline: `Freight premium: ${fmt(result.shippingCost)} in shipping`,
             detail: 'Air/express lanes consumed margin — consider sea freight if lead time allows.',
         };
@@ -73,7 +75,7 @@ export function buildConsequenceData(result) {
     if (result.defectsPassed > 50) {
         return {
             type: 'negative',
-            icon: '🔴',
+            icon: getIcon('alertCircle', 18),
             headline: `Quality escape: ${result.defectsPassed.toLocaleString()} defective units shipped`,
             detail: 'Customer satisfaction hit. Upgrade inspection tier to contain future escapes.',
         };
@@ -83,7 +85,7 @@ export function buildConsequenceData(result) {
     if (result.holdingCost > 45000) {
         return {
             type: 'neutral',
-            icon: '📦',
+            icon: getIcon('box', 18),
             headline: `Overstock penalty: ${fmt(result.holdingCost)} in holding costs`,
             detail: 'Excess inventory is eroding margins — reduce order quantity or increase safety stock precision.',
         };

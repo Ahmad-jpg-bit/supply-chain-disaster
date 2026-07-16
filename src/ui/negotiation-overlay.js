@@ -4,6 +4,7 @@
  */
 
 import { resolveCounter } from '../logic/negotiation.js';
+import { getIcon } from '../graphics/svg-icons.js';
 
 const fmtN = (n) => n.toLocaleString();
 const fmtMoney = (n) =>
@@ -47,7 +48,7 @@ export class NegotiationOverlay {
         return `
             <div class="nego-card glass-panel">
                 <div class="nego-head">
-                    <span class="nego-eyebrow">🤝 CONTRACT PROPOSAL</span>
+                    <span class="nego-eyebrow">${getIcon('handshake', 13)} CONTRACT PROPOSAL</span>
                     <span class="nego-tier ${tier.cls}">${tier.text}</span>
                 </div>
                 <div class="nego-from">${offer.supplierName} &mdash; supply agreement for Chapter ${chapterNumber}</div>

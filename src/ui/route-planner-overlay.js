@@ -5,6 +5,7 @@
  */
 
 import { LONG_HAUL_LEGS, LAST_MILE_LEGS, computeRoute, DEFAULT_ROUTE } from '../logic/route-planner.js';
+import { getIcon } from '../graphics/svg-icons.js';
 
 export class RoutePlannerOverlay {
     constructor() {
@@ -24,7 +25,7 @@ export class RoutePlannerOverlay {
         this.overlay.className = 'route-overlay';
         this.overlay.innerHTML = `
             <div class="route-card glass-panel">
-                <div class="route-eyebrow">🗺️ DESIGN YOUR LANE — CHAPTER ${chapterNumber}</div>
+                <div class="route-eyebrow">${getIcon('map', 13)} DESIGN YOUR LANE — CHAPTER ${chapterNumber}</div>
                 <h3 class="route-title">Build the primary route for this chapter.</h3>
                 <p class="route-sub">Cheaper lanes run slower — and late arrivals cause stockouts. Balance cost against transit time.</p>
 

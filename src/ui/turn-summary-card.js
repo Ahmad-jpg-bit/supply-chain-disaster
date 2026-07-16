@@ -6,6 +6,7 @@
  */
 
 import { buildCounterfactual } from '../logic/counterfactual.js';
+import { getIcon, iconify } from '../graphics/svg-icons.js';
 
 const fmt = (n) =>
     new Intl.NumberFormat('en-US', {
@@ -26,7 +27,7 @@ function buildKeyDriver(r) {
                    : r.crisis.severity === 'critical'  ? 'warn'
                    : 'warn';
         return {
-            icon: r.crisis.severity === 'positive' ? '✦' : '⚡',
+            icon: r.crisis.severity === 'positive' ? '✦' : getIcon('bolt', 16),
             label: `Crisis: ${r.crisis.name}`,
             message: r.crisis.ticker,
             type,
@@ -39,7 +40,7 @@ function buildKeyDriver(r) {
             ? Math.round(r.missedSales * (r.revenue / r.sales))
             : 0;
         return {
-            icon: '⚠',
+            icon: getIcon('warning', 16),
             label: 'Stock-out',
             message: `${r.missedSales.toLocaleString()} units went unfulfilled — ≈${fmt(lostRev)} in lost revenue. Raise your order quantity or safety stock target.`,
             type: 'warn',
@@ -49,7 +50,7 @@ function buildKeyDriver(r) {
     // Holding cost overload
     if (r.holdingCost > r.shippingCost * 1.5 && r.holdingCost > 30000) {
         return {
-            icon: '📦',
+            icon: getIcon('box', 16),
             label: 'Overstock penalty',
             message: `${fmt(r.holdingCost)} tied up in holding costs — your inventory exceeds demand. Lean down your order quantity.`,
             type: 'warn',
@@ -59,7 +60,7 @@ function buildKeyDriver(r) {
     // Shipping dominated margin
     if (r.shippingCost > r.orderCost * 0.30 && r.shippingCost > 20000) {
         return {
-            icon: '✈',
+            icon: getIcon('plane', 16),
             label: 'Freight premium',
             message: `${fmt(r.shippingCost)} in shipping ate ${Math.round((r.shippingCost / r.totalCost) * 100)}% of your total cost. Shift to sea or rail if lead time allows.`,
             type: 'warn',
@@ -69,7 +70,7 @@ function buildKeyDriver(r) {
     // Defects escaped to customers
     if (r.defectsPassed > 30) {
         return {
-            icon: '🔴',
+            icon: getIcon('alertCircle', 16),
             label: 'Quality escape',
             message: `${r.defectsPassed.toLocaleString()} defective units shipped to customers — satisfaction took a hit. Step up to Standard or Rigorous inspection.`,
             type: 'warn',
@@ -79,7 +80,7 @@ function buildKeyDriver(r) {
     // Safety stock breach
     if (r.safetyBreach) {
         return {
-            icon: '⚠',
+            icon: getIcon('warning', 16),
             label: 'Safety stock breach',
             message: `Inventory dipped below your ${r.safetyStockTarget.toLocaleString()}-unit safety buffer. A demand spike next quarter could trigger a stock-out.`,
             type: 'warn',
@@ -142,11 +143,11 @@ export class TurnSummaryCard {
             : `Wave ${result.endlessWave || 1} · Turn ${result.turn - 1}`;
 
         const costRows = [
-            { label: 'Procurement',   value: result.orderCost,         icon: '🏭' },
-            { label: 'Shipping',       value: result.shippingCost,      icon: '🚢' },
-            { label: 'Inspection',     value: result.inspectionCost,    icon: '🔍' },
-            { label: 'Defect disposal',value: result.defectDisposalCost,icon: '❌' },
-            { label: 'Holding',        value: result.holdingCost,       icon: '📦' },
+            { label: 'Procurement',   value: result.orderCost,         icon: getIcon('factory', 15) },
+            { label: 'Shipping',       value: result.shippingCost,      icon: getIcon('ship', 15) },
+            { label: 'Inspection',     value: result.inspectionCost,    icon: getIcon('search', 15) },
+            { label: 'Defect disposal',value: result.defectDisposalCost,icon: getIcon('xCircle', 15) },
+            { label: 'Holding',        value: result.holdingCost,       icon: getIcon('box', 15) },
         ].filter(row => row.value > 0);
 
         const driverClass = driver.type === 'good' ? 'tsc-driver--good'
@@ -159,7 +160,7 @@ export class TurnSummaryCard {
         if (fc) {
             const hit = fc.apePct <= 10;
             const near = fc.apePct <= 25;
-            const icon = hit ? '🎯' : near ? '≈' : '✗';
+            const icon = hit ? getIcon('target', 15) : near ? '≈' : '✗';
             const verdict = hit ? 'sharp call' : near ? 'close' : 'wide miss';
             const grade = fc.mapePct <= 10 ? 'planner-grade' : fc.mapePct <= 20 ? 'solid' : 'noisy';
             predictionHtml = `
@@ -177,14 +178,14 @@ export class TurnSummaryCard {
         // Active supply-contract outcome this quarter
         const contractHtml = result.contractNote ? `
             <div class="tsc-contract ${result.contractHonoured ? 'tsc-contract--ok' : 'tsc-contract--miss'}" data-delay="${costRows.length + 4}">
-                📑 ${result.contractNote}
+                ${getIcon('fileText', 14)} ${result.contractNote}
             </div>` : '';
 
         // Crisis mitigation record — the player's decisive response
         const cr = result._crisisResponse;
         const crisisResponseHtml = (cr && cr.mitigated) ? `
             <div class="tsc-mitigation" data-delay="${costRows.length + 4}">
-                🛠 <strong>${cr.label}</strong> — you paid ${fmt(cr.cost)} to blunt the crisis before it landed.
+                ${getIcon('wrench', 14)} <strong>${cr.label}</strong> — you paid ${fmt(cr.cost)} to blunt the crisis before it landed.
             </div>` : '';
 
         // Human vignette — a voice from the ground
@@ -199,10 +200,10 @@ export class TurnSummaryCard {
         const echoes = result.worldEchoes || [];
         const echoesHtml = echoes.length ? `
             <div class="tsc-echoes" data-delay="${costRows.length + 4}">
-                <div class="tsc-echoes-label">🧠 THE CHAIN REMEMBERS</div>
+                <div class="tsc-echoes-label">${getIcon('history', 13)} THE CHAIN REMEMBERS</div>
                 ${echoes.map(e => `
                     <div class="tsc-echo">
-                        <span class="tsc-echo-icon">${e.icon}</span>
+                        <span class="tsc-echo-icon">${iconify(e.icon, 15)}</span>
                         <div class="tsc-echo-body">
                             <span class="tsc-echo-title">${e.title}</span>
                             <p class="tsc-echo-text">${e.text}</p>
@@ -215,7 +216,7 @@ export class TurnSummaryCard {
         const insightHtml = insight ? `
             <div class="tsc-concept" data-delay="${costRows.length + 5}">
                 <div class="tsc-concept-header">
-                    <span class="tsc-concept-icon">📘</span>
+                    <span class="tsc-concept-icon">${getIcon('book', 14)}</span>
                     <span class="tsc-concept-label">CONCEPT IN ACTION</span>
                     <span class="tsc-concept-term">${insight.term}</span>
                 </div>
@@ -227,7 +228,7 @@ export class TurnSummaryCard {
         const cfHtml = cf ? `
             <div class="tsc-replay" data-delay="${costRows.length + 6}">
                 <button class="tsc-replay-toggle" type="button">
-                    🔁 Replay this quarter — what if you'd had more (or less) stock?
+                    ${getIcon('refresh', 13)} Replay this quarter — what if you'd had more (or less) stock?
                 </button>
                 <div class="tsc-replay-panel hidden">
                     <div class="tsc-replay-slider-row">
@@ -268,7 +269,7 @@ export class TurnSummaryCard {
 
                         <!-- Revenue row -->
                         <div class="tsc-row tsc-row--revenue" data-delay="0">
-                            <span class="tsc-row-icon">💰</span>
+                            <span class="tsc-row-icon">${getIcon('coins', 15)}</span>
                             <span class="tsc-row-label">Revenue</span>
                             <span class="tsc-row-value tsc-row-value--revenue">+${fmt(result.revenue)}</span>
                         </div>
@@ -286,7 +287,7 @@ export class TurnSummaryCard {
 
                         <!-- Net profit -->
                         <div class="tsc-row tsc-row--profit ${profitClass}" data-delay="${costRows.length + 3}">
-                            <span class="tsc-row-icon">${isProfitable ? '📈' : '📉'}</span>
+                            <span class="tsc-row-icon">${getIcon(isProfitable ? 'chartUp' : 'chartDown', 15)}</span>
                             <span class="tsc-row-label">Net Profit</span>
                             <span class="tsc-row-value tsc-profit-value">${profitSign}${fmt(result.profit)}</span>
                         </div>

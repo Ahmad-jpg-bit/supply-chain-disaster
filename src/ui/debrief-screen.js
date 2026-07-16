@@ -18,6 +18,7 @@ import './debrief-screen.css';
 import { jsPDF }    from 'jspdf';
 import autoTable    from 'jspdf-autotable';
 import { DebriefCollector } from '../game/debrief-collector.js';
+import { getIcon, iconify } from '../graphics/svg-icons.js';
 
 // ── Design tokens (mirror digital-guide.js) ──────────────────────────────────
 const NAVY   = [15,  23,  42];
@@ -404,7 +405,7 @@ export class DebriefScreen {
                             ${insights.map(ins => `
                                 <div class="debrief-insight" style="border-left-color: rgb(${ins.accent.join(',')})">
                                     <div class="debrief-insight-head">
-                                        <span class="debrief-insight-icon">${ins.icon}</span>
+                                        <span class="debrief-insight-icon">${iconify(ins.icon, 15)}</span>
                                         <strong>${ins.headline}</strong>
                                     </div>
                                     <p class="debrief-insight-body">${ins.detail}</p>
@@ -441,7 +442,7 @@ export class DebriefScreen {
                                             <span>Bullwhip ${bw}</span>
                                             <span>ΔCash ${ch.cashDelta >= 0 ? '+' : ''}${fmtMoney(ch.cashDelta)}</span>
                                         </div>
-                                        ${top ? `<div class="debrief-ch-crisis">⚡ ${top.name}</div>` : ''}
+                                        ${top ? `<div class="debrief-ch-crisis">${getIcon('bolt', 11)} ${top.name}</div>` : ''}
                                     </div>
                                 `;
                             }).join('')}

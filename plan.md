@@ -508,3 +508,46 @@ backdrop already has its own layered-gradient treatment). Verified
 in-browser (typewriter caught mid-stream at 108/472 chars, skip-click,
 both sheets, Escape, full decision cycle, zero console errors) +
 `npx vite build` clean. **Roadmap complete.**
+
+---
+
+## UI Modernization — wave 3: overlay surfaces (2026-07-16)
+
+The decision screen is done; the second wave extends the same visual language
+to the overlays players see every turn/chapter. Survey found ~60 pictorial
+emoji used as UI icons across `src/ui/*` (turn-summary 23, consequence 11,
+debrief 11, plus chapter-transition, board-question, crisis-inbox,
+negotiation, route-planner, paywall, leaderboard, endless-death, certificate).
+Typographic glyphs (✓ ✗ → ★ ✦ ≈ ✕) and the colored 🥇🥈🥉 rank medals stay.
+
+1. **`iconify(glyph, size)` helper in `svg-icons.js`** — maps known emoji to
+   SVG icons, passes unknown strings through. Used at render sites whose icon
+   values come from data (world-memory echoes, debrief insights, endless-death
+   causes, crisis-engine archetypes) so saved states and the jsPDF export
+   (which needs raw text) keep working.
+2. **New icons:** search, plane, target, bolt, alertCircle, xCircle, fileText,
+   wrench, history, book, refresh, mail, handshake, map, lock, download.
+3. **Direct `getIcon` swaps** for hardcoded emoji in: turn-summary-card
+   (income statement rows, key driver, forecast target, contract, mitigation,
+   echoes label, concept book, replay), consequence-overlay, chapter-transition
+   (🔒), board-question (📘), crisis-inbox (📨), negotiation (🤝),
+   route-planner eyebrow (🗺), leaderboard eyebrows (🏆), endless-death,
+   certificate (🏆/⬇), dashboard archetype briefing.
+4. **Paywall:** ✅ status prefixes → typographic ✓ (styled by the success
+   class); the dev-only 🧪 test-mode banner stays.
+5. **Content fix found in passing:** certificate canvas still draws
+   "EXPANSION BUNDLE COMPLETE" — retired tier name, must not appear.
+6. **Out of scope this wave:** onboarding.js + landing-page.js (marketing
+   surfaces, separate pass), route-planner leg icons inside SVG `<text>`,
+   jsPDF internals.
+
+**Status (2026-07-16): SHIPPED.** 16 icons + `iconify()` added; swaps landed
+in turn-summary-card, consequence-overlay, debrief (DOM only — PDF keeps raw
+glyphs by design), chapter-transition, board-question, crisis-inbox,
+negotiation, route-planner, leaderboard, endless-death, certificate,
+dashboard archetype chip; paywall ✅→✓; certificate canvas now says "FULL RUN
+COMPLETE" (was the retired "EXPANSION BUNDLE" tier name). Verified live: full
+turn played through prediction prompt → crisis inbox (mail SVG) → turn summary
+(all statement rows SVG, zero pictorial emoji, ✦/✓ pass-throughs intact) →
+consequence banner; `iconify` unit-checked for variation-selector emoji,
+pass-through, and null. No console errors; `npx vite build` clean.

@@ -7,6 +7,8 @@
  * which is what makes it stick.
  */
 
+import { getIcon } from '../graphics/svg-icons.js';
+
 const fmtMoney = (n) =>
     new Intl.NumberFormat('en-US', {
         style: 'currency', currency: 'USD', maximumFractionDigits: 0,
@@ -48,7 +50,7 @@ export class BoardQuestion {
                 <div class="bq-feedback hidden">
                     <div class="bq-feedback-verdict"></div>
                     <p class="bq-feedback-explanation">${q.explanation}</p>
-                    <div class="bq-feedback-concept">📘 ${q.concept}</div>
+                    <div class="bq-feedback-concept">${getIcon('book', 13)} ${q.concept}</div>
                     <button class="btn-primary bq-continue-btn">Enter Chapter ${chapterNumber} &rarr;</button>
                 </div>
             </div>
