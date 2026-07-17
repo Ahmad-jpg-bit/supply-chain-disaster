@@ -541,6 +541,22 @@ Typographic glyphs (✓ ✗ → ★ ✦ ≈ ✕) and the colored 🥇🥈🥉 ra
    surfaces, separate pass), route-planner leg icons inside SVG `<text>`,
    jsPDF internals.
 
+**Third pass (2026-07-16): landing page done.** Hero crisis-feed ticker
+(6 items), chapter-select lock chip, weekly-challenge badge, and demo
+"scenario alert" label now use the SVG set; industry cards already did.
+Verified live: zero pictorial emoji anywhere on the rendered landing page,
+12 ticker SVGs (6 × loop), trophy + warning badges confirmed; lock chip is
+the same verified getIcon pattern (couldn't stage a free-player view — an
+auto-restore path re-grants `scd_premium` in the test browser).
+**Dead onboarding code removed (2026-07-17):** `src/ui/onboarding.js`
+deleted (nothing imported it — the landing page replaced it) along with
+124 orphaned style.css rules (~880 lines). Deletion was class-audited:
+every removed selector requires a class used exclusively by onboarding.js;
+shared classes the landing page reuses (`ch-select-*`, `btn-primary`,
+`btn-glow`…) and the `gameover-grade-*` rules that shared a media block
+were preserved and verified live (landing renders, chapter-select cards
+styled, industry launch works, build clean, zero console errors).
+
 **Status (2026-07-16): SHIPPED.** 16 icons + `iconify()` added; swaps landed
 in turn-summary-card, consequence-overlay, debrief (DOM only — PDF keeps raw
 glyphs by design), chapter-transition, board-question, crisis-inbox,
