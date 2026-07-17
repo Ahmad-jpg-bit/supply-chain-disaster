@@ -266,12 +266,12 @@ export class LandingPage {
 
     _tickerHTML() {
         const items = [
-            '🔴 LIVE &nbsp;·&nbsp; Suez Canal congestion delays 340 vessels — estimated clearance: 4 days',
-            '⚠ Port of Los Angeles strike enters Day 3 — container dwell time up 280%',
-            '📦 Taiwan semiconductor lead times extend to 26 weeks — Q3 allocations frozen',
-            '🚢 Red Sea diversions add $2,400/TEU surcharge — shippers absorbing costs',
-            '⚡ Cold chain disruption across EU pharma network — safety stock at critical level',
-            '⚠ Demand spike +180% for consumer electronics — double-ordering detected upstream',
+            `${getIcon('alertCircle', 12)} LIVE &nbsp;·&nbsp; Suez Canal congestion delays 340 vessels — estimated clearance: 4 days`,
+            `${getIcon('warning', 12)} Port of Los Angeles strike enters Day 3 — container dwell time up 280%`,
+            `${getIcon('box', 12)} Taiwan semiconductor lead times extend to 26 weeks — Q3 allocations frozen`,
+            `${getIcon('ship', 12)} Red Sea diversions add $2,400/TEU surcharge — shippers absorbing costs`,
+            `${getIcon('bolt', 12)} Cold chain disruption across EU pharma network — safety stock at critical level`,
+            `${getIcon('warning', 12)} Demand spike +180% for consumer electronics — double-ordering detected upstream`,
         ];
         const sep = '<span class="lp-ticker-sep">◆</span>';
         // Duplicate for seamless loop
@@ -381,7 +381,7 @@ export class LandingPage {
                     <div class="ch-select-title">${ch.title}</div>
                     <div class="ch-select-outcome">${CHAPTER_OUTCOMES[i] || ''}</div>
                 </div>
-                ${isLocked ? '<div class="ch-select-lock">🔒</div>' : ''}
+                ${isLocked ? `<div class="ch-select-lock">${getIcon('lock', 14)}</div>` : ''}
             </div>`;
         }).join('');
 
@@ -445,7 +445,7 @@ export class LandingPage {
                 <p class="lp-survival-disclaimer">High score tracked per industry in your browser.</p>
 
                 <div class="lp-weekly">
-                    <div class="lp-weekly-badge">🏆 WEEKLY CHALLENGE</div>
+                    <div class="lp-weekly-badge">${getIcon('trophy', 13)} WEEKLY CHALLENGE</div>
                     <p class="lp-weekly-copy">Every player faces the <strong>same crisis sequence</strong> this week. One seed, one shot — climb the global leaderboard.</p>
                     <div class="lp-weekly-actions">
                         <button class="lp-weekly-play">Play This Week's Challenge &rarr;</button>
@@ -802,7 +802,7 @@ export class LandingPage {
                 </div>
             </div>
             <div class="lp-demo-scenario">
-                <div class="lp-demo-scenario-label">⚠ SCENARIO ALERT</div>
+                <div class="lp-demo-scenario-label">${getIcon('warning', 12)} SCENARIO ALERT</div>
                 <h3 class="lp-demo-scenario-title">The Retailer Panic</h3>
                 <p class="lp-demo-scenario-text">Your three largest retail accounts have each doubled their orders after a competitor stockout made headlines. Demand signal jumped 84% in a single quarter — is this real demand or the Bullwhip Effect?</p>
             </div>

@@ -466,6 +466,17 @@
   letter-spacing: 0.01em;
 }
 
+/* Inline SVG icons in ticker items, badges, and lock chips */
+.lp-ticker-item svg,
+.lp-weekly-badge svg,
+.lp-demo-scenario-label svg {
+  vertical-align: -2px;
+}
+
+.ch-select-lock svg {
+  display: block;
+}
+
 .lp-ticker-sep {
   font-size: 8px;
   color: rgba(239, 68, 68, 0.4);
