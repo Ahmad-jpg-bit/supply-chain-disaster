@@ -1930,13 +1930,25 @@ input[type="number"] {
 #app {
   position: relative;
   z-index: 1;
-}
+}/* ========================================
+   ONBOARDING WIZARD
+   ======================================== */
+
+/* ──── Step 1: Welcome ──── */
+
+/* Hero logo wrapper */
+
+/* New PNG logo in hero */
+
+
 
 .welcome-icon {
   position: relative;
   z-index: 2;
   color: var(--primary-color);
-}
+}/* Pulsing glow ring behind logo */
+
+
 
 @keyframes glowPulse {
 
@@ -1997,7 +2009,9 @@ input[type="number"] {
   bottom: 15%;
   left: 5%;
   background: #f59e0b;
-}
+}/* Version / type badge */
+
+
 
 .welcome-title {
   font-size: 3.5rem;
@@ -2032,7 +2046,11 @@ input[type="number"] {
   display: inline-block;
   opacity: 0;
   animation: charReveal 0.5s var(--ease-bounce) forwards;
-}
+}/* Stat highlight pills */
+
+/* Scroll hint arrow */
+
+
 
 @keyframes scrollHintBounce {
 
@@ -2044,11 +2062,26 @@ input[type="number"] {
   50% {
     transform: translateY(6px);
   }
-}
+}/* ──── Step 2: What You'll Learn ──── */
+
+/* ──── Step 3: Industry Selection ──── */
+/* ── Combined Setup Step ───────────────────────────── */
+
+/* Chapter accordion */
+
+
 
 .setup-chapter-toggle--open {
   color: var(--text-main);
-}
+}/* ── Old standalone step classes (kept for safety) ─ */
+
+/* ──── Step 4: Launch ──── */
+
+/* ========================================
+   CHAPTER SELECT STEP (Onboarding Step 4)
+   ======================================== */
+
+
 
 .ch-select-list {
   display: flex;
@@ -3188,39 +3221,13 @@ input[type="number"] {
 
   .option-cards {
     grid-template-columns: 1fr;
-  }
+  }/* Onboarding Adjustments */
 
-  /* Onboarding Adjustments */
-  .onboarding-step {
-    padding: var(--spacing-md);
-    align-items: flex-start;
-    overflow-y: auto;
-  }
+/* Logo image: 60% screen width on mobile */
 
-  .onboarding-welcome, 
-  .onboarding-learn, 
-  .onboarding-industry {
-    padding-top: var(--spacing-xl);
-    padding-bottom: var(--spacing-xl);
-  }
+/* Stack both CTA buttons full-width on mobile */
 
-  .welcome-hero-logo {
-    margin-bottom: 0;
-  }
 
-  /* Logo image: 60% screen width on mobile */
-  .welcome-logo-img {
-    max-width: 60vw;
-    max-height: 140px;
-  }
-
-  /* Stack both CTA buttons full-width on mobile */
-  .onboarding-welcome .onboarding-next-btn,
-  .onboarding-welcome .welcome-upgrade-btn {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
 
   /* Modals */
   .modal-content {
@@ -3242,12 +3249,21 @@ input[type="number"] {
   .story-text {
     font-size: 1rem;
   }
-}
+}/* ========================================
+   PREMIUM VISUAL HIERARCHY — DESIGN SYSTEM
+   ======================================== */
+/* ── Hero: authority sub-headline ── */
+
+/* ── Hero: "Unlock Professional Tier ✦" secondary CTA ── */
+
+
 
 @keyframes premiumBorderPulse {
   0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.2), 0 0 0 0 rgba(245, 158, 11, 0); }
   50%       { box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), 0 0 0 4px rgba(245, 158, 11, 0.06); }
-}
+}/* ── Chapter curriculum progress bar ── */
+
+
 
 .chapter-curriculum-bar__track {
   flex: 1;
@@ -3270,13 +3286,19 @@ input[type="number"] {
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
-}
+}/* ── Difficulty pip indicators (top-right of learn-card) ── */
+
+
 
 .diff-pip--filled[data-level="1"],
 .diff-pip--filled[data-level="2"] { background: #22c55e; }
 .diff-pip--filled[data-level="3"] { background: #f59e0b; }
 .diff-pip--filled[data-level="4"] { background: #f97316; }
-.diff-pip--filled[data-level="5"] { background: #ef4444; }
+.diff-pip--filled[data-level="5"] { background: #ef4444; }/* ── Learn-card learning outcome footer ── */
+
+/* ── Frosted-glass lock overlay for premium chapters ── */
+
+
 
 .learn-card--locked {
   cursor: pointer;
@@ -3377,7 +3399,11 @@ input[type="number"] {
 .mastery-badge {
   font-family: var(--font-mono);
   letter-spacing: 0.04em;
-}
+}/* Welcome stat pills: the orange bold numbers */
+
+/* Option card diff text: "Easy / Medium / Hard" */
+
+
 
 /* Procurement paywall price note */
 .paywall-price-note {
@@ -4024,43 +4050,32 @@ input[type="number"] {
 @media (max-width: 900px) {
   .qty-stepper { max-width: 100%; }
   .proc-stepper { gap: 0; }
-}
-//* ========================================
-   HOMEPAGE v2 — CTAs,
-Industry Preview,
-Scenario Demo Modal {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeIn 1s ease-out 1.4s both;
-}
-.ind-preview--electronics { border-color: rgba(245, 158, 11, 0.2); }
-.ind-preview--electronics:hover { background: rgba(245, 158, 11, 0.06); border-color: rgba(245, 158, 11, 0.4); }
-.ind-preview--fmcg { border-color: rgba(34, 197, 94, 0.2); }
-.ind-preview--fmcg:hover { background: rgba(34, 197, 94, 0.06); border-color: rgba(34, 197, 94, 0.4); }
-.ind-preview--pharma { border-color: rgba(168, 85, 247, 0.2); }
-.ind-preview--pharma:hover { background: rgba(168, 85, 247, 0.06); border-color: rgba(168, 85, 247, 0.4); }
+}/* ========================================
+   HOMEPAGE v2 — CTAs, Industry Preview,
+   Scenario Demo Modal, Skills Grid
+   ======================================== */
+/* ── Dual-CTA row ── */
+
+/* ── Secondary ghost button ── */
+
+/* ── Upgrade button: feature hint sub-line ── */
+
+/* ── Welcome: mini industry preview cards ── */
+
+/* ── Scenario demo overlay ── */
+
+
 @keyframes slideUpModal {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
-}
+}/* ── Risk tag colours ── */
+
+/* ── "What You'll Learn" — 6-skill mastery grid ── */
+
+/* ── Blog lead magnet ── */
 
 /* ── Mobile stacking ── */
-@media (max-width: 560px) {
-  .hero-cta-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .hero-cta-row .btn-primary,
-  .hero-cta-row .btn-secondary-ghost {
-    width: 100%;
-    text-align: center;
-  }
-  .welcome-industry-preview { gap: 0.4rem; }
-  .ind-preview-card { min-width: 90px; padding: 0.5rem 0.6rem; }
-  .skills-mastery-grid { grid-template-columns: repeat(2, 1fr); }
-}
+
 
 /* ========================================
    OPTION 4 & 5 — DEMAND VOLATILITY &
