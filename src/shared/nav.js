@@ -11,7 +11,7 @@ export function createNav(activePage = 'game') {
   nav.innerHTML = `
     <div class="nav-inner">
       <a href="/" class="nav-logo" aria-label="Supply Chain Disaster">
-        <img src="/logo.png" class="nav-logo-img" alt="" aria-hidden="true">
+        <img src="/logo-nav.png" class="nav-logo-img" alt="" aria-hidden="true">
         <span class="nav-logo-text">Supply Chain Disaster</span>
       </a>
       <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
