@@ -3,8 +3,9 @@
  * staggered mastery bars, and final stats.
  */
 import { getIcon } from '../graphics/svg-icons.js';
-import { CertificateGenerator } from './certificate.js';
-import { DigitalGuide } from './digital-guide.js';
+// CertificateGenerator and DigitalGuide are imported lazily in the button
+// handlers below — they pull in jsPDF/html2canvas, which would otherwise
+// sit in the eager play bundle for a screen most players reach once.
 
 const GRADES = [
     { min: 90, grade: 'S', title: 'Supply Chain Master',  color: '#f59e0b' },
@@ -126,14 +127,16 @@ export class GameOverScreen {
         });
 
         // Certificate button
-        this.modal.querySelector('.gameover-cert-btn').addEventListener('click', () => {
+        this.modal.querySelector('.gameover-cert-btn').addEventListener('click', async () => {
+            const { CertificateGenerator } = await import('./certificate.js');
             CertificateGenerator.show({ overall, cash, industry, isExpansion });
         });
 
         // Strategy Guide button — prompts for name first, then generates PDF
-        this.modal.querySelector('.gameover-guide-btn').addEventListener('click', () => {
+        this.modal.querySelector('.gameover-guide-btn').addEventListener('click', async () => {
             const playerName = prompt('Enter your name for the strategy guide:')?.trim();
             if (!playerName) return;
+            const { DigitalGuide } = await import('./digital-guide.js');
             DigitalGuide.generate({ playerName, overall, summaries, cash, industry, isExpansion });
         });
 

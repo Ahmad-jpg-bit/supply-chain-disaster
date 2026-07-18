@@ -61,9 +61,8 @@ Deploy command: `npx vercel --prod` from the project root.
 | `src/ui/concept-card.js` | Chapter intro card (shown before chapter begins) |
 
 ### Old/unused files — do not edit
-- `src/data/scenarios.js` — superseded by `scenarios-expanded.js`
-- `src/data/industries.js` — duplicate of `src/logic/industries.js`
 - `api/polar-webhook.js` — deprecated, returns 410
+- (deleted 2026-07-18 after import audits: `src/data/scenarios.js`, `src/data/industries.js`, `src/ui/onboarding.js`)
 
 ---
 

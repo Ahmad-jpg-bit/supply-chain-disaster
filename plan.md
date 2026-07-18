@@ -567,3 +567,50 @@ turn played through prediction prompt → crisis inbox (mail SVG) → turn summa
 (all statement rows SVG, zero pictorial emoji, ✦/✓ pass-throughs intact) →
 consequence banner; `iconify` unit-checked for variation-selector emoji,
 pass-through, and null. No console errors; `npx vite build` clean.
+
+---
+
+## Perf: Code-Split the Play Bundle + Dead-File Cleanup (2026-07-18)
+
+**Code splitting — SHIPPED.** The eager `/play` JS graph was ~1.23MB because
+`dashboard.js → debrief-screen.js` statically imported jsPDF/autotable, and
+`game-over-screen.js` statically imported certificate + digital-guide
+(jsPDF/html2canvas/dompurify). All three now dynamic-import at their click
+sites (`openDebrief` caches the instance on `this.debriefScreen`). Result:
+`play-*.js` 849.6KB → 400KB (gzip 267KB → 118KB); eager JS on play.html
+404KB total (modulepreload audit of dist); jsPDF (159KB), html2canvas
+(201KB), dompurify (22KB), debrief (54KB), certificate (8KB), digital-guide
+(10KB) load only on demand. Chunk-size build warning gone. Verified live:
+full run → forced game over → email-gate skip → termination screen → results
+modal → Certificate button rendered `cert-overlay`, Debrief button rendered
+`.debrief-overlay`, zero console errors.
+
+**Dead data files deleted** after import audit found zero importers:
+`src/data/scenarios.js` (superseded by scenarios-expanded) and
+`src/data/industries.js` (duplicate of logic/industries). CLAUDE.md's
+old/unused list updated accordingly.
+
+---
+
+## Perf: Page-Load Fixes (2026-07-18)
+
+1. **1.8MB logo.png off the hot path.** It was the favicon + apple-touch-icon
+   on all ~60 pages and the 30px nav logo everywhere. Generated center-cropped
+   variants via System.Drawing: `favicon-32.png` (3KB, 63 pages),
+   `apple-touch-icon.png` (72KB, 59 pages), `logo-nav.png` (9.5KB — nav.js +
+   the two small homepage imgs). Original `logo.png` kept solely for the
+   schema.org organization logo. ~99% transfer cut on the logo path.
+2. **Immutable caching for hashed assets** — vercel.json `headers` rule:
+   `/assets/(.*)` → `public, max-age=31536000, immutable` (was
+   `max-age=0, must-revalidate` because `framework: null` skips Vercel's
+   default policy). Verify live headers after next deploy.
+3. **Chart.js: render-blocking CDN → lazy npm import.** Removed the
+   synchronous jsdelivr `<script>` from play.html head; added
+   `chart.js@4.5.1` as a dependency, loaded via `Dashboard._getChart()`
+   (dynamic `import('chart.js/auto')`, cached). All four chart sites
+   (`renderCharts`, `_initBullwhipLiveChart`, `_renderGanttChart`) are async
+   and bind the local Chart; the pre-existing `vendor-charts` manualChunks
+   rule now actually fires: 207KB chunk, not preloaded, fetched on first
+   chart draw. Also fixes the Capacitor Android build silently depending on
+   CDN reachability for charts. Verified: procurement chart renders, qty
+   preview live-updates, `window.Chart` undefined, zero console errors.

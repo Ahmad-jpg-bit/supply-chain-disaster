@@ -24,7 +24,6 @@ import { STARTING_ARCHETYPES } from './logic/crisis-engine.js';
 import { EndlessDeathScreen } from './ui/endless-death-screen.js';
 import { DefinitionCard } from './ui/definition-card.js';
 import { TurnSummaryCard } from './ui/turn-summary-card.js';
-import { DebriefScreen } from './ui/debrief-screen.js';
 import { PredictionPrompt } from './ui/prediction-prompt.js';
 import { BoardQuestion } from './ui/board-question.js';
 import { RECALL_QUESTIONS } from './data/recall-questions.js';
@@ -88,7 +87,7 @@ export class Dashboard {
         this.saveProgressModal  = new SaveProgressModal();
         this.endlessDeathScreen = new EndlessDeathScreen();
         this.turnSummaryCard    = new TurnSummaryCard();
-        this.debriefScreen      = new DebriefScreen();
+        this.debriefScreen      = null; // lazy — pulls in jsPDF, loaded on first open
         this.predictionPrompt   = new PredictionPrompt();
         this.boardQuestion      = new BoardQuestion();
 
@@ -304,8 +303,9 @@ export class Dashboard {
         }
     }
 
-    renderCharts() {
+    async renderCharts() {
         if (!this.analytics) return;
+        const Chart = await this._getChart();
 
         const bullwhipData = this.analytics.getBullwhipData();
         const cashData = this.analytics.getCashFlowData();
@@ -618,6 +618,19 @@ export class Dashboard {
             progressFill.style.width = `${((completedTurns / totalTurns) * 100).toFixed(1)}%`;
             progressBar.classList.add('visible');
         }
+    }
+
+    /**
+     * Lazy Chart.js loader — the library (in the vendor-charts chunk) only
+     * downloads the first time a chart is actually drawn, keeping it out of
+     * the render-blocking path. Replaces the old synchronous CDN <script>.
+     */
+    async _getChart() {
+        if (!this._ChartLib) {
+            const mod = await import('chart.js/auto');
+            this._ChartLib = mod.default;
+        }
+        return this._ChartLib;
     }
 
     /**
@@ -1282,9 +1295,11 @@ export class Dashboard {
 
     // ── Live Bullwhip Widget ───────────────────────────────────────────────
 
-    _initBullwhipLiveChart() {
+    async _initBullwhipLiveChart() {
         const canvas = document.getElementById('bullwhipLive');
         if (!canvas) return;
+        const Chart = await this._getChart();
+        if (!canvas.isConnected) return; // view re-rendered while the lib loaded
 
         const history     = this.engine.state.history;
         const currentTurn = this.engine.state.turn;
@@ -2012,9 +2027,11 @@ export class Dashboard {
         });
     }
 
-    _renderGanttChart(leadTurns) {
+    async _renderGanttChart(leadTurns) {
         const canvas = document.getElementById('leadTimeGantt');
         if (!canvas) return;
+        const Chart = await this._getChart();
+        if (!canvas.isConnected) return; // view re-rendered while the lib loaded
 
         const currentTurn = this.engine.state.turn;
         const inTransit = this.engine.state.inTransit;
@@ -2691,7 +2708,11 @@ export class Dashboard {
             const isExpansion = true; // all chapters always available
 
             // Build the debrief callback once so the closure captures the right state
-            const openDebrief = () => {
+            const openDebrief = async () => {
+                if (!this.debriefScreen) {
+                    const { DebriefScreen } = await import('./ui/debrief-screen.js');
+                    this.debriefScreen = new DebriefScreen();
+                }
                 this.debriefScreen.show({
                     overall,
                     summaries,
