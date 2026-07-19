@@ -3,6 +3,25 @@
    Hero, content cards, blog grid, forms
    ======================================== */
 
+/* Content-page backdrop — deeper navy with soft directional glows so the
+   marketing/blog pages read with the same depth as the homepage instead of
+   flat slate. Scoped to content pages (this file never loads in the game). */
+body {
+  background-color: #0a0f1e;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px circle at 85% -5%, rgba(245, 158, 11, 0.10), transparent 55%),
+    radial-gradient(1100px circle at 5% 8%, rgba(59, 130, 246, 0.10), transparent 50%),
+    radial-gradient(1000px circle at 50% 110%, rgba(99, 102, 241, 0.08), transparent 55%);
+}
+
 .page-wrapper {
   position: relative;
   z-index: 1;
@@ -150,26 +169,51 @@
 .blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
 }
 
 .blog-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-amount));
-  -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  transition: transform 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth);
-  animation: fadeIn 0.6s ease-out forwards;
+  position: relative;
   display: flex;
   flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    rgba(17, 24, 42, 0.72);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 24px rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  overflow: hidden;
+  transition: transform 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth), border-color 0.3s var(--ease-smooth);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Amber accent bar along the top — subtle at rest, full-width on hover */
+.blog-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0.65;
+  transition: transform 0.35s var(--ease-smooth), opacity 0.35s ease;
 }
 
 .blog-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(245, 158, 11, 0.12);
+}
+
+.blog-card:hover::before {
+  transform: scaleX(1);
+  opacity: 1;
 }
 
 .blog-card .blog-tag {
@@ -177,10 +221,11 @@
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--primary-color);
+  color: #fcd34d;
   font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 0.28rem 0.8rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
   border-radius: 999px;
   margin-bottom: var(--spacing-md);
   width: fit-content;
@@ -191,6 +236,11 @@
   color: var(--text-main);
   margin-bottom: var(--spacing-sm);
   line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.blog-card:hover h2 {
+  color: #fef3c7;
 }
 
 .blog-card .blog-date {
@@ -207,11 +257,20 @@
 }
 
 .blog-card .read-more {
-  display: inline-block;
-  margin-top: var(--spacing-md);
-  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: var(--spacing-lg);
+  color: var(--accent-color);
   font-weight: 600;
   font-size: var(--text-sm);
+  width: fit-content;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.blog-card .read-more:hover {
+  color: #fbbf24;
+  gap: 0.6rem;
 }
 
 /* Contact Form */

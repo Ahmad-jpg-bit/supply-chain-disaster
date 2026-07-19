@@ -67,13 +67,14 @@
 }
 
 .nav-link {
+  position: relative;
   color: var(--text-muted);
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
   font-weight: 500;
   font-size: var(--text-sm);
-  transition: all 0.2s var(--ease-smooth);
+  transition: color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth);
 }
 
 .nav-link:hover {
@@ -81,10 +82,21 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.nav-link.active {
+/* Active indicator — amber underline pill under non-CTA links */
+.nav-link.active:not(.nav-link--cta):not(.nav-upgrade-btn) {
   color: var(--text-main);
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nav-link.active:not(.nav-link--cta):not(.nav-upgrade-btn)::after,
+.nav-dropdown-toggle.active::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0.15rem;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent-color), #fbbf24);
 }
 
 /* Hamburger button */
@@ -179,8 +191,10 @@
 .nav-dropdown.open { display: block; }
 
 .nav-dropdown-link {
-  display: block;
-  padding: 0.5rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.85rem;
   color: var(--text-muted);
   text-decoration: none;
   font-size: var(--text-sm);
@@ -191,8 +205,12 @@
 }
 .nav-dropdown-link:hover,
 .nav-dropdown-link.active {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(245, 158, 11, 0.1);
   color: var(--text-main);
+}
+.nav-dropdown-link:hover .nav-dropdown-icon,
+.nav-dropdown-link.active .nav-dropdown-icon {
+  color: var(--accent-color);
 }
 
 /* Upgrade — demoted to subtle text link, doesn't compete with primary CTA */
@@ -305,9 +323,14 @@
 
 /* Dropdown icon labels */
 .nav-dropdown-icon {
-  font-style: normal;
-  margin-right: 0.35rem;
-  font-size: 0.85em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+.nav-dropdown-icon svg {
+  display: block;
 }
 
 /* Responsive */

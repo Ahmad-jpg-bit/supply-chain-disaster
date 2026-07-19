@@ -26,13 +26,13 @@ export function createNav(activePage = 'game') {
           </button>
           <ul class="nav-dropdown" role="menu">
             <li role="none"><a href="/blog" class="nav-dropdown-link${activePage === 'blog' ? ' active' : ''}" role="menuitem">
-              <span class="nav-dropdown-icon">📖</span> Supply Chain Blog
+              <span class="nav-dropdown-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Supply Chain Blog
             </a></li>
             <li role="none"><a href="/about" class="nav-dropdown-link${activePage === 'about' ? ' active' : ''}" role="menuitem">
-              <span class="nav-dropdown-icon">🎮</span> About the Game
+              <span class="nav-dropdown-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg></span> About the Game
             </a></li>
             <li role="none"><a href="/pricing" class="nav-dropdown-link${activePage === 'pricing' ? ' active' : ''}" role="menuitem">
-              <span class="nav-dropdown-icon">✦</span> Pricing
+              <span class="nav-dropdown-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg></span> Pricing
             </a></li>
           </ul>
         </li>
