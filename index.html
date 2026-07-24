@@ -696,6 +696,65 @@
       line-height: 1.75;
     }
 
+    /* ── From the blog ─────────────────────────────────────────────────── */
+    .hp-blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .hp-blog-card {
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 1.75rem;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .hp-blog-card:hover {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(245, 158, 11, 0.25);
+      transform: translateY(-3px);
+    }
+    .hp-blog-tag {
+      align-self: flex-start;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin-bottom: 1rem;
+    }
+    .hp-blog-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #e2e8f0;
+      line-height: 1.35;
+      margin-bottom: 0.625rem;
+    }
+    .hp-blog-card:hover .hp-blog-title { color: #f0f2ff; }
+    .hp-blog-desc {
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .hp-blog-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 0.5rem;
+    }
+    .hp-blog-date { font-size: 12px; color: #475569; }
+    .hp-blog-more { font-size: 13px; font-weight: 600; color: #f59e0b; }
+    .hp-blog-cta { text-align: center; margin-top: 2.5rem; }
+
     /* ── For educators ─────────────────────────────────────────────────── */
     .hp-educators {
       background: linear-gradient(135deg,
@@ -1357,11 +1416,20 @@
       .hp-section    { padding: 3.5rem 1.5rem; }
       .hp-how-grid      { grid-template-columns: 1fr; }
       .hp-features-grid { grid-template-columns: 1fr; }
+      .hp-blog-grid { grid-template-columns: 1fr; }
       .hp-edu-inner     { grid-template-columns: 1fr; gap: 2rem; }
       .hp-edu-visual    { display: none; }
       .hp-pricing-grid  { grid-template-columns: 1fr; }
       .hp-social-proof-inner { flex-wrap: wrap; gap: 1rem; }
       .hp-scm-decision-bar  { flex-wrap: wrap; gap: 0.5rem; }
+      /* Keep the stacked hero grid tracks from being stretched by the SCM demo
+         card (the cause of horizontal page scroll on phones). Instead of
+         crushing the network nodes, let the chain scroll left-to-right with
+         readable, fixed-width nodes. */
+      .hp-hero > *   { min-width: 0; }
+      .hp-scm-card   { max-width: 100%; overflow: hidden; }
+      .hp-scm-chain  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .hp-scm-node   { flex: 0 0 128px; }
     }
     @media (max-width: 480px) {
       .hp-section { padding: 3rem 1.25rem; }
@@ -1879,6 +1947,44 @@
         <h3>How long does it take to complete?</h3>
         <p>About 10&ndash;15 minutes per chapter. The full 10-chapter campaign takes approximately 2.5 hours. You can save and resume at any time.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FROM THE BLOG
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section" id="blog">
+    <div class="hp-section-header">
+      <div class="hp-section-label">From the blog</div>
+      <h2 class="hp-section-h2">Latest supply chain insights</h2>
+      <p class="hp-section-sub">Deep dives into the strategies, concepts, and real-world lessons behind the game &mdash; updated regularly.</p>
+    </div>
+    <div class="hp-blog-grid">
+
+      <a class="hp-blog-card" href="/supply-chain-gadgets">
+        <span class="hp-blog-tag">Tools</span>
+        <div class="hp-blog-title">10 Best Gadgets for Supply Chain Professionals in 2026</div>
+        <p class="hp-blog-desc">The biggest bottleneck in your day isn't the data &mdash; it's the friction of moving it from the loading dock into your Excel models. Ten gadgets that close the gap.</p>
+        <div class="hp-blog-meta"><span class="hp-blog-date">July 19, 2026</span><span class="hp-blog-more">Read &rarr;</span></div>
+      </a>
+
+      <a class="hp-blog-card" href="/supply-chain-talent-gap">
+        <span class="hp-blog-tag">Career</span>
+        <div class="hp-blog-title">The Supply Chain Talent Gap Is a Leadership Problem</div>
+        <p class="hp-blog-desc">Why filling open roles won't close the talent gap &mdash; and how strategic leadership and intentional skills development create the capabilities that actually matter.</p>
+        <div class="hp-blog-meta"><span class="hp-blog-date">May 13, 2026</span><span class="hp-blog-more">Read &rarr;</span></div>
+      </a>
+
+      <a class="hp-blog-card" href="/supply-chain-job-search-strategies">
+        <span class="hp-blog-tag">Career</span>
+        <div class="hp-blog-title">Traditional vs Modern Supply Chain Job Search Strategies</div>
+        <p class="hp-blog-desc">Which job search tactics work for different supply chain roles &mdash; when traditional methods beat modern strategies, and how to combine both for faster results.</p>
+        <div class="hp-blog-meta"><span class="hp-blog-date">May 12, 2026</span><span class="hp-blog-more">Read &rarr;</span></div>
+      </a>
+
+    </div>
+    <div class="hp-blog-cta">
+      <a href="/blog" class="hp-btn-outline">View all articles &rarr;</a>
     </div>
   </div>
 

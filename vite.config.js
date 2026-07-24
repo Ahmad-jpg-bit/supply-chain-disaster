@@ -31,6 +31,7 @@ const STATIC_SEO_NAV = `<noscript id="seo-nav">
 <a href="/bullwhip-effect-calculator">Bullwhip Effect Calculator</a>
 <a href="/automotive-supply-chain-resilience">Automotive Supply Chain Resilience</a>
 <a href="/excel-supply-chain-management">Excel for Supply Chain Management</a>
+<a href="/supply-chain-gadgets">Best Gadgets for Supply Chain Professionals</a>
 </nav>
 </noscript>`;
 
@@ -107,6 +108,7 @@ export default defineConfig({
                 'supply-chain-job-titles-dead-end': resolve(__dirname, 'supply-chain-job-titles-dead-end.html'),
                 'supply-chain-job-search-strategies': resolve(__dirname, 'supply-chain-job-search-strategies.html'),
                 'supply-chain-talent-gap': resolve(__dirname, 'supply-chain-talent-gap.html'),
+                'supply-chain-gadgets': resolve(__dirname, 'supply-chain-gadgets.html'),
             },
 
             output: {

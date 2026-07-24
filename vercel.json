@@ -56,6 +56,12 @@
     },
 
     {
+      "source": "/supply-chain-gadgets-2026",
+      "destination": "/supply-chain-gadgets",
+      "permanent": true
+    },
+
+    {
       "source": "/sitemap",
       "destination": "/sitemap.xml",
       "permanent": true

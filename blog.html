@@ -46,6 +46,7 @@
     "@type": "Blog",
     "name": "Supply Chain Insights",
     "url": "https://www.supplychaindisaster.com/blog",
+    "dateModified": "2026-07-24",
     "description": "Deep dives into supply chain management strategy: the bullwhip effect, inventory optimization, risk management, and procurement best practices.",
     "publisher": {
       "@type": "Organization",
@@ -489,9 +490,81 @@
     <div class="page-content">
 
       <section class="hero-section">
-        <h1>Supply Chain Insights</h1>
-        <p class="hero-subtitle">Deep dives into the strategies, concepts, and real-world lessons behind the game.</p>
+        <h1 style="background:linear-gradient(135deg,#3b82f6 0%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content;">Supply Chain Insights</h1>
+        <p class="hero-subtitle">Deep dives into the strategies, concepts, and real-world lessons behind the game — from the bullwhip effect to supply chain risk, updated for 2026.</p>
       </section>
+
+      <style>
+        .topic-toc { margin: 0 0 2.75rem; }
+        .topic-toc__label { font-size: .75rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-muted,#94a3b8); margin: 0 0 .95rem; }
+        .topic-toc__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .6rem; }
+        .topic-chip { display: block; width: 100%; text-align: left; cursor: pointer; padding: .7rem .9rem; border-radius: 12px; border: 1px solid rgba(148,163,184,.18); background: rgba(148,163,184,.05); color: var(--text-main,#f1f5f9); font-family: inherit; transition: border-color .15s ease, background .15s ease; }
+        .topic-chip:hover { border-color: rgba(59,130,246,.5); background: rgba(59,130,246,.08); }
+        .topic-chip[aria-pressed="true"] { border-color: #3b82f6; background: rgba(59,130,246,.14); }
+        .topic-chip__row { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+        .topic-chip__name { font-size: .92rem; font-weight: 600; }
+        .topic-chip__count { font-size: .72rem; color: var(--text-muted,#94a3b8); font-variant-numeric: tabular-nums; }
+        .topic-chip__desc { margin: .3rem 0 0; font-size: .78rem; line-height: 1.45; color: var(--text-muted,#94a3b8); }
+        .blog-card.is-hidden { display: none; }
+      </style>
+
+      <nav class="topic-toc" aria-label="Browse posts by topic">
+        <p class="topic-toc__label">Browse by topic</p>
+        <div class="topic-toc__grid" id="topicToc">
+          <button type="button" class="topic-chip" data-cat="all" aria-pressed="true">
+            <span class="topic-chip__row"><span class="topic-chip__name">All topics</span><span class="topic-chip__count">52</span></span>
+            <span class="topic-chip__desc">Every post — strategy, risk, analytics, operations, and careers.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Resilience" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Resilience</span><span class="topic-chip__count">11</span></span>
+            <span class="topic-chip__desc">Building chains that absorb shocks and recover fast — redundancy, agility, and resilience frameworks.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Analytics" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Analytics</span><span class="topic-chip__count">9</span></span>
+            <span class="topic-chip__desc">Predictive, Bayesian, and stochastic methods for forecasting risk and deciding under uncertainty.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Career" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Career</span><span class="topic-chip__count">8</span></span>
+            <span class="topic-chip__desc">Roles, skills, and job-search strategy for supply chain professionals — and the talent gap.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Operations" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Operations</span><span class="topic-chip__count">7</span></span>
+            <span class="topic-chip__desc">Execution on the ground — visibility, real-time monitoring, automation, and collaboration.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Strategy" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Strategy</span><span class="topic-chip__count">6</span></span>
+            <span class="topic-chip__desc">High-level design and orchestration — simulation, 4PL/3PL, procurement, and learning by playing.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Risk" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Risk</span><span class="topic-chip__count">5</span></span>
+            <span class="topic-chip__desc">Spotting, modeling, and mitigating disruption before it hits — from cargo security to obsolete risk models.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Fundamentals" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Fundamentals</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Core SCM concepts — the 5 pillars, the SCOR model, and how supply chains actually work.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Optimization" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Optimization</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Efficiency methods — Six Sigma, Kaizen, and DMAIC applied to the supply chain.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Training" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Training</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Running effective simulation-based disruption training for teams.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Tools" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Tools</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Practical calculators and gadgets that close the physical-to-digital gap.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Supply Chain Basics" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Supply Chain Basics</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Start-here explainers — what a supply chain is and every stage it moves through.</span>
+          </button>
+          <button type="button" class="topic-chip" data-cat="Rankings" aria-pressed="false">
+            <span class="topic-chip__row"><span class="topic-chip__name">Rankings</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__desc">Curated, ranked roundups of the best simulation games and professional gadgets.</span>
+          </button>
+        </div>
+      </nav>
 
       <div class="blog-grid">
 
@@ -903,6 +976,14 @@
           <a href="/supply-chain-talent-gap" class="read-more">Read more &rarr;</a>
         </article>
 
+        <article class="blog-card">
+          <span class="blog-tag">Tools</span>
+          <h2><a href="/supply-chain-gadgets" style="color:inherit;text-decoration:none;">10 Best Gadgets for Supply Chain Professionals in 2026</a></h2>
+          <p class="blog-date">July 19, 2026</p>
+          <p>The biggest bottleneck in your day isn't the data — it's the friction of moving it from the loading dock into your Excel models. Ten gadgets that close the physical-to-digital gap, from macro keypads and ring scanners to Bluetooth laser measures and live E-ink dashboards.</p>
+          <a href="/supply-chain-gadgets" class="read-more">Read more &rarr;</a>
+        </article>
+
       </div>
 
       <!-- Tools cross-link banner -->
@@ -926,6 +1007,28 @@
     </div>
   </div>
   <script type="module" src="/src/blog.js"></script>
+  <script>
+    // "Browse by topic" table of contents — filters cards by their blog-tag.
+    document.addEventListener("DOMContentLoaded", function () {
+      var toc = document.getElementById("topicToc");
+      if (!toc) return;
+      var chips = toc.querySelectorAll(".topic-chip");
+      var cards = document.querySelectorAll(".blog-card");
+      toc.addEventListener("click", function (e) {
+        var chip = e.target.closest(".topic-chip");
+        if (!chip) return;
+        var cat = chip.getAttribute("data-cat");
+        chips.forEach(function (c) {
+          c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+        });
+        cards.forEach(function (card) {
+          var tagEl = card.querySelector(".blog-tag");
+          var tag = tagEl ? tagEl.textContent.trim() : "";
+          card.classList.toggle("is-hidden", cat !== "all" && tag !== cat);
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>
