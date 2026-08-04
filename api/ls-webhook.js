@@ -144,7 +144,7 @@ function buildReportEmail(appUrl, orderId) {
   return emailHtml({
     eyebrow:    'Purchase Confirmed',
     heading:    'Full Access unlocked.',
-    subheading: 'One-time $6.99 purchase &mdash; lifetime access, no subscriptions, no expiry.',
+    subheading: 'One-time $49.99 purchase &mdash; lifetime access, no subscriptions, no expiry.',
     bodyHtml: `
       <p style="margin:0 0 24px;">You now own <strong style="color:#e2e8f0;">everything</strong> — all 10 chapters of the campaign plus the <strong style="color:#e2e8f0;">Advanced Report</strong>. Complete the game and hit <strong style="color:#e2e8f0;">Download Report</strong> on the final screen to generate your full 5-page PDF debrief.</p>
 

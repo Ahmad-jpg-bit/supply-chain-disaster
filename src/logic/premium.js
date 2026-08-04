@@ -1,7 +1,7 @@
 /**
  * PremiumManager — client-side premium status management.
  *
- * Single plan: Full Access — $6.99 one-time, lifetime.
+ * Single plan: Full Access — $49.99 one-time, lifetime.
  * Chapters 1-3  : free.
  * Chapters 4-10 : require Full Access.
  * Full Access also unlocks the Advanced Report (PDF debrief).

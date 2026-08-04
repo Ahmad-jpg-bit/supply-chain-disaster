@@ -13,9 +13,9 @@ const CHECKOUT_URLS = {
 const REPORT_PRODUCT = {
     id:       'standard',
     name:     'Full Access',
-    price:    '$6.99',
+    price:    '$49.99',
     period:   'one-time · lifetime',
-    btnLabel: 'Unlock Everything — $6.99 ✦',
+    btnLabel: 'Unlock Everything — $49.99 ✦',
     features: [
         { text: '<strong>All 10 chapters</strong> — full 40-turn campaign' },
         { text: '<strong>Global Crisis &amp; Multi-Regional chapters</strong> (9–10)' },
@@ -92,10 +92,10 @@ export class Paywall {
                 <button class="paywall-close-btn" aria-label="Close">✕</button>
 
                 <div class="paywall-header">
-                    <div class="paywall-badge">FULL ACCESS — $6.99 LIFETIME</div>
+                    <div class="paywall-badge">FULL ACCESS — $49.99 LIFETIME</div>
                     <h2 class="paywall-title">Unlock the full game.</h2>
                     <p class="paywall-subtitle">
-                        One $6.99 purchase unlocks all 10 chapters, the 5-page Advanced Report, and every feature — for life. No subscription.
+                        One $49.99 purchase unlocks all 10 chapters, the 5-page Advanced Report, and every feature — for life. No subscription.
                     </p>
                 </div>
 

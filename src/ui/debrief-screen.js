@@ -454,7 +454,7 @@ export class DebriefScreen {
                     <div class="debrief-upsell">
                         <strong>Unlock Full Access</strong> — all 10 chapters, decision audit table,
                         chapter-by-chapter breakdown, and personalised learning narrative.
-                        One-time purchase at $6.99. Lifetime access.
+                        One-time purchase at $49.99. Lifetime access.
                     </div>
                 ` : ''}
             </div>

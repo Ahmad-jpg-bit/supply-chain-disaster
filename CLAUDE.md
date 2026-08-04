@@ -27,9 +27,9 @@ Deploy command: `npx vercel --prod` from the project root.
 | Tier | Chapters | Turns | Price |
 |---|---|---|---|
 | Free | 1–3 | 1–12 | — |
-| Full Access | 1–10 | 1–40 | $6.99 one-time (lifetime) |
+| Full Access | 1–10 | 1–40 | $49.99 one-time (lifetime) |
 
-- **Single-plan pricing (since 2026-07-05):** one $6.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
+- **Single-plan pricing (since 2026-07-05):** one $49.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
 - **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
 - Premium stored in `localStorage` key `scd_premium`
 - Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
@@ -168,7 +168,7 @@ Definitions live in `src/data/cscp-definitions.js`, keyed by chapter ID.
 The game has **10 chapters total**. Single plan since 2026-07-05. Always write:
 - "up to 10 chapters" when describing the game generically
 - "Chapters 1–3 free" for the free tier
-- "Full Access — $6.99 one-time, lifetime" for the paid plan (all 10 chapters + Advanced Report)
+- "Full Access — $49.99 one-time, lifetime" for the paid plan (all 10 chapters + Advanced Report)
 - "40 quarterly turns" for the full game
 - Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers
 

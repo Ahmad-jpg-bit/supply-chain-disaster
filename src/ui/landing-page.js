@@ -321,7 +321,7 @@ export class LandingPage {
                 <span class="lp-rn-badge lp-rn-badge--free">Free Entry</span>
                 <span class="lp-roadmap-legend-text">Chapters 1–3 always free</span>
                 <span class="lp-rn-badge lp-rn-badge--pro" style="margin-left:1.25rem;">Pro</span>
-                <span class="lp-roadmap-legend-text">Chapters 4–10 &mdash; $6.99 one-time, lifetime</span>
+                <span class="lp-roadmap-legend-text">Chapters 4–10 &mdash; $49.99 one-time, lifetime</span>
             </div>
         </section>`;
     }
@@ -515,7 +515,7 @@ export class LandingPage {
             <div class="lp-section-header">
                 <div class="lp-section-label">Pricing</div>
                 <h2>One Price. Everything Unlocked.</h2>
-                <p class="lp-section-sub">Start free today. One $6.99 purchase unlocks the entire game — for life.</p>
+                <p class="lp-section-sub">Start free today. One $49.99 purchase unlocks the entire game — for life.</p>
             </div>
             <div class="lp-pricing-grid">
 
@@ -549,7 +549,7 @@ export class LandingPage {
                     <div class="lp-tier-header">
                         <span class="lp-tier-label">Full Access</span>
                         <div class="lp-tier-price">
-                            <span class="lp-tier-amount lp-tier-amount--premium">$6.99</span>
+                            <span class="lp-tier-amount lp-tier-amount--premium">$49.99</span>
                             <span class="lp-tier-period">one-time</span>
                         </div>
                         <p class="lp-tier-tagline">Everything unlocked. Lifetime access. No subscriptions.</p>
@@ -565,7 +565,7 @@ export class LandingPage {
                         <li>${check} <strong>Lifetime Updates</strong></li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--premium btn-glow lp-upgrade-btn">
-                        Unlock Everything — $6.99 ✦
+                        Unlock Everything — $49.99 ✦
                     </button>
                     <p class="lp-tier-guarantee">7-day refund policy &mdash; no questions asked</p>
                 </div>
