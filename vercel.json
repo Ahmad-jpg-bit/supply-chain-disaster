@@ -18,6 +18,11 @@
   ],
   "redirects": [
     {
+      "source": "/play",
+      "destination": "https://scd-game.vercel.app/levels",
+      "permanent": false
+    },
+    {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "supplychaindisaster.com" }],
       "destination": "https://www.supplychaindisaster.com/$1",
