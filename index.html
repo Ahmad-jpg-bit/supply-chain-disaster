@@ -1444,6 +1444,39 @@
       .hp-scm-decision-text { font-size: 10px; }
       .hp-scm-chain { overflow-x: auto; }
     }
+    /* ── Limited-time launch offer bar ─────────────────────────── */
+    .offer-bar {
+      background: linear-gradient(90deg, #0a0f1e 0%, #16203a 50%, #0a0f1e 100%);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.35);
+      font-family: 'Inter', sans-serif;
+    }
+    .offer-bar-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.9rem; flex-wrap: wrap; padding: 0.55rem 1.25rem;
+      font-size: 0.9rem; color: #e2e8f0; text-align: center;
+    }
+    .offer-pill { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .offer-flame { filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5)); }
+    .offer-old { color: #94a3b8; text-decoration: line-through; }
+    .offer-new { color: #fbbf24; font-weight: 800; }
+    .offer-timer {
+      font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0.04em;
+      background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35);
+      color: #fde68a; border-radius: 8px; padding: 0.15rem 0.55rem; min-width: 96px;
+      display: inline-block; text-align: center;
+    }
+    .offer-timer b { color: #fff; }
+    .offer-cta {
+      background: #fbbf24; color: #0a0f1e; font-weight: 700; text-decoration: none;
+      padding: 0.4rem 0.95rem; border-radius: 8px; white-space: nowrap;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .offer-cta:hover { background: #fcd34d; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .offer-bar-inner { gap: 0.55rem; font-size: 0.8rem; padding: 0.5rem 0.75rem; }
+      .offer-label-long { display: none; }
+    }
   </style>
 </head>
 
@@ -1452,6 +1485,16 @@
   <!-- ═══════════════════════════════════════════════════════════════════
        NAV
   ═══════════════════════════════════════════════════════════════════ -->
+  <!-- Limited-time launch offer -->
+  <div class="offer-bar" role="banner" aria-label="Limited-time offer">
+    <div class="offer-bar-inner">
+      <span class="offer-pill"><span class="offer-flame">🔥</span> <strong>Launch offer</strong><span class="offer-label-long"> — Full Access</span></span>
+      <span><span class="offer-old">$99</span> <span class="offer-new">$49.99</span> lifetime</span>
+      <span class="offer-pill">Ends in <span class="offer-timer" id="offerTimer">--:--:--</span></span>
+      <a class="offer-cta" href="https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33" rel="nofollow">Get Full Access →</a>
+    </div>
+  </div>
+
   <nav class="hp-nav" aria-label="Main navigation">
     <div class="hp-nav-inner">
       <a href="/" class="hp-nav-logo">
@@ -2078,6 +2121,22 @@
           drawer.setAttribute('aria-hidden', 'true');
         });
       });
+    })();
+  </script>
+  <script>
+    /* Limited-time launch offer — evergreen 48h countdown per visitor */
+    (function () {
+      var KEY = 'scd_offer_deadline', WIN = 48 * 3600 * 1000, now = Date.now();
+      var dl = parseInt(localStorage.getItem(KEY) || '0', 10);
+      if (!dl || dl < now || dl - now > WIN) { dl = now + WIN; try { localStorage.setItem(KEY, dl); } catch (e) {} }
+      var el = document.getElementById('offerTimer');
+      function pad(n) { return (n < 10 ? '0' : '') + n; }
+      function tick() {
+        var s = Math.max(0, Math.floor((dl - Date.now()) / 1000));
+        if (el) el.innerHTML = '<b>' + pad(Math.floor(s / 3600)) + '</b>:<b>' + pad(Math.floor(s % 3600 / 60)) + '</b>:<b>' + pad(s % 60) + '</b>';
+        if (s <= 0) { dl = Date.now() + WIN; try { localStorage.setItem(KEY, dl); } catch (e) {} }
+      }
+      tick(); setInterval(tick, 1000);
     })();
   </script>
 </body>
