@@ -195,6 +195,26 @@
       <a class="offer-cta" href="https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33" rel="nofollow">Get Full Access →</a>
     </div>
   </div>
+  <script>
+    /* Real, one-time, fixed launch-offer deadline — does NOT reset per
+       visitor. Runs immediately after the bar (not at the bottom of body)
+       so an already-expired page load hides it before paint, no flash.
+       When DEADLINE passes this bar is retired for good; the markup
+       itself gets removed from the page at that point. */
+    (function () {
+      var DEADLINE = Date.parse('2026-08-17T19:00:00Z');
+      var bar = document.querySelector('.offer-bar');
+      function pad(n) { return (n < 10 ? '0' : '') + n; }
+      function tick() {
+        var s = Math.floor((DEADLINE - Date.now()) / 1000);
+        if (s <= 0) { if (bar) bar.style.display = 'none'; clearInterval(iv); return; }
+        var el = document.getElementById('offerTimer');
+        if (el) el.innerHTML = '<b>' + pad(Math.floor(s / 3600)) + '</b>:<b>' + pad(Math.floor(s % 3600 / 60)) + '</b>:<b>' + pad(s % 60) + '</b>';
+      }
+      tick();
+      var iv = setInterval(tick, 1000);
+    })();
+  </script>
 
   <div class="page-wrapper">
     <div class="page-content">
@@ -305,20 +325,5 @@
     </div>
   </div>
   <script type="module" src="/src/pricing.js"></script>
-  <script>
-    (function () {
-      var KEY = 'scd_offer_deadline', WIN = 48 * 3600 * 1000, now = Date.now();
-      var dl = parseInt(localStorage.getItem(KEY) || '0', 10);
-      if (!dl || dl < now || dl - now > WIN) { dl = now + WIN; try { localStorage.setItem(KEY, dl); } catch (e) {} }
-      var el = document.getElementById('offerTimer');
-      function pad(n) { return (n < 10 ? '0' : '') + n; }
-      function tick() {
-        var s = Math.max(0, Math.floor((dl - Date.now()) / 1000));
-        if (el) el.innerHTML = '<b>' + pad(Math.floor(s / 3600)) + '</b>:<b>' + pad(Math.floor(s % 3600 / 60)) + '</b>:<b>' + pad(s % 60) + '</b>';
-        if (s <= 0) { dl = Date.now() + WIN; try { localStorage.setItem(KEY, dl); } catch (e) {} }
-      }
-      tick(); setInterval(tick, 1000);
-    })();
-  </script>
 </body>
 </html>
