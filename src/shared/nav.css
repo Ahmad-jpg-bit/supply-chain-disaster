@@ -177,10 +177,10 @@
   left: 50%;
   transform: translateX(-50%);
   min-width: 140px;
-  background: rgba(15, 23, 42, 0.97);
+  background: var(--surface-elevated);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 0.4rem;
   list-style: none;
@@ -280,8 +280,8 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: rgba(15, 23, 42, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--radius-md);
   overflow: hidden;
   backdrop-filter: blur(16px);

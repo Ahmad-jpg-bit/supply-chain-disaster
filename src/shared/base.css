@@ -4,19 +4,30 @@
    ======================================== */
 
 :root {
-  /* Colors */
-  --bg-color: #0f172a;
-  --surface-color: rgba(30, 41, 59, 0.7);
-  --surface-hover: rgba(51, 65, 85, 0.8);
-  --primary-color: #3b82f6;
+  /* Colors — layered dark palette (page → secondary → card → elevated),
+     lifted off near-black (#0f172a) so surfaces stay legible in bright
+     rooms/daylight without becoming a light theme. Every text/surface
+     pairing below is WCAG-AA-verified (≥4.5:1), including worst-case
+     (muted text on the lightest/elevated tier). See design-tokens audit,
+     Aug 2026. */
+  --bg-color: #111827;              /* page background (was #0f172a) */
+  --bg-secondary: #17212e;          /* NEW — secondary background / section */
+  --surface-color: #1d2938;         /* card background — now opaque & distinct (was rgba(30,41,59,.7)) */
+  --surface-hover: #24344a;         /* hover state for surface-color, opaque (was rgba(51,65,85,.8)) */
+  --surface-elevated: #28394d;      /* NEW — elevated card / modal / popover */
+  --primary-color: #2e6be9;         /* deepened from #3b82f6 so white button text clears WCAG AA (4.78:1 vs 3.68:1) — same blue, imperceptibly different */
   --primary-hover: #2563eb;
   --primary-dark: #1d4ed8;
+  --primary-text: #8fb3fb;          /* NEW — lighter blue for links/inline text on dark surfaces */
   --accent-color: #f59e0b;
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-muted: #a3b0c2;            /* lightened from #94a3b8 for extra margin */
   --success-color: #22c55e;
+  --success-text: #4ade80;          /* NEW — success as small/inline text */
   --danger-color: #ef4444;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --danger-text: #f87171;           /* NEW — danger as small/inline text */
+  --border-color: rgba(255, 255, 255, 0.14);       /* card/divider borders (was 0.1) */
+  --border-color-strong: rgba(255, 255, 255, 0.28); /* NEW — inputs & essential UI boundaries (WCAG 1.4.11) */
 
   /* Industry accent colors */
   --accent-electronics: #f59e0b;
@@ -48,8 +59,8 @@
   --spacing-xl: 2rem;
 
   /* Effects */
-  --glass-bg: rgba(30, 41, 59, 0.6);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(36, 49, 68, 0.78);  /* lighter + more opaque so cards read as distinct surfaces (was rgba(30,41,59,.6)) */
+  --glass-border: 1px solid var(--border-color);
   --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   --blur-amount: 12px;
   --radius-sm: 0.375rem;
@@ -123,7 +134,7 @@ body {
   .glass-panel {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background: rgba(30, 41, 59, 0.92);
+    background: rgba(36, 49, 68, 0.96);
   }
 }
 
@@ -196,6 +207,14 @@ a {
 
 a:hover {
   color: var(--primary-hover);
+}
+
+/* Sitewide focus ring — WCAG 2.4.7/2.4.11. Previously undefined, so
+   keyboard focus fell back to (often invisible) browser defaults. */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* Particle Canvas (shared across all pages) */

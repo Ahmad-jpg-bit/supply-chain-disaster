@@ -7,7 +7,7 @@
    marketing/blog pages read with the same depth as the homepage instead of
    flat slate. Scoped to content pages (this file never loads in the game). */
 body {
-  background-color: #0a0f1e;
+  background-color: var(--bg-color);
 }
 
 body::before {
@@ -296,14 +296,20 @@ body::before {
 
 .form-group input,
 .form-group textarea {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color-strong);
   color: var(--text-main);
   padding: 0.75rem var(--spacing-md);
   border-radius: var(--radius-md);
   font-family: var(--font-main);
   font-size: var(--text-base);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 .form-group input:focus,
@@ -449,7 +455,7 @@ body::before {
   align-items: center;
   gap: 1rem;
   font-size: var(--text-sm);
-  color: #64748b;
+  color: var(--text-muted);
   flex-wrap: wrap;
 }
 
@@ -459,8 +465,8 @@ body::before {
 .article-content {
   max-width: 760px;
   margin: 0 auto 4rem;
-  background: rgba(22, 33, 54, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(29, 41, 56, 0.82);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 2.75rem 3.25rem;
   backdrop-filter: blur(16px);
@@ -482,7 +488,7 @@ body::before {
   margin-top: 2.75rem;
   margin-bottom: var(--spacing-md);
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .article-content h3 {
@@ -605,7 +611,7 @@ a.mission-btn:hover {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
@@ -646,7 +652,8 @@ a.mission-btn:hover {
   margin-bottom: var(--spacing-md);
 }
 
-/* CTA button — amber gradient, same visual weight as the mission button */
+/* CTA button — identical to the mission button used across all posts:
+   amber gradient, dark readable text, no underline, pulsing amber glow. */
 .cta-button {
   display: inline-block;
   padding: 0.875rem 2.25rem;
@@ -654,17 +661,30 @@ a.mission-btn:hover {
   color: #0f172a !important;
   font-weight: 700;
   font-size: 1rem;
-  text-decoration: none;
+  text-decoration: none !important;
   border-radius: 8px;
   letter-spacing: 0.02em;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: mission-glow 2.2s ease-in-out infinite;
+  transition: transform 0.2s ease;
 }
 
 .cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.35);
   text-decoration: none;
+}
+
+/* Glow used by both .cta-button and inline .mission-btn definitions. */
+@keyframes mission-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.25), 0 3px 10px rgba(0, 0, 0, 0.4); }
+  50%      { box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), 0 3px 10px rgba(0, 0, 0, 0.4); }
+}
+
+/* Respect reduced-motion for both CTA styles: no pulsing, static glow instead. */
+@media (prefers-reduced-motion: reduce) {
+  .cta-button, a.mission-btn {
+    animation: none !important;
+    box-shadow: 0 3px 12px rgba(245, 158, 11, 0.3) !important;
+  }
 }
 
 /* Article responsive */
@@ -738,12 +758,12 @@ a.mission-btn:hover {
   .legal-table thead { display: none; }
   .legal-table tr { display: block; margin-bottom: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }
   .legal-table td { display: block; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .legal-table td::before { content: attr(data-label); display: block; font-weight: 600; color: var(--text-primary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+  .legal-table td::before { content: attr(data-label); display: block; font-weight: 600; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
 }
 
 .legal-last-updated {
   font-size: var(--text-xs);
-  color: rgba(255,255,255,0.3);
+  color: var(--text-muted);
   margin-top: 0.5rem;
 }
 
