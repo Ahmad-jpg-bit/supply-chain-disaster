@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-03-29
+> Last updated: 2026-08-20
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -30,6 +30,7 @@ Deploy command: `npx vercel --prod` from the project root.
 | Full Access | 1–10 | 1–40 | $49.99 one-time (lifetime) |
 
 - **Single-plan pricing (since 2026-07-05):** one $49.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
+- **Launch offer / price increase:** `$49.99` is launch pricing. Per the homepage announcement bar (`index.html`, countdown deadline hardcoded as `2026-09-19T19:00:00Z`), the list price reverts to **$99** after that date — confirmed genuine by the user 2026-08-20. When working past that date, re-check whether the site/checkout price still reads $49.99 or $99 before assuming either.
 - **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
 - Premium stored in `localStorage` key `scd_premium`
 - Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`

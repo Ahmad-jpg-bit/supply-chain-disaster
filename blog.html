@@ -494,7 +494,36 @@
         <p class="hero-subtitle">Deep dives into the strategies, concepts, and real-world lessons behind the game — from the bullwhip effect to supply chain risk, updated for 2026.</p>
       </section>
 
+      <!-- Reusable editorial → product bridge. Reuse this exact block (swap the
+           two copy lines + href) on individual article pages to link a topic
+           to its matching simulation chapter — e.g. a bullwhip-effect post
+           → Chapter 2, a safety-stock post → Chapter 3. -->
+      <a class="article-cta" href="/play?start=1">
+        <span class="article-cta__eyebrow">See it, don't just read it</span>
+        <span class="article-cta__title">Every concept on this blog is a chapter you can actually play.</span>
+        <span class="article-cta__btn">Play Chapter 1 Free &rarr;</span>
+      </a>
+
       <style>
+        .article-cta {
+          display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
+          flex-wrap: wrap; text-decoration: none;
+          background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.24);
+          border-radius: 14px; padding: 1.25rem 1.5rem; margin: 0 0 2.75rem;
+          transition: border-color .15s ease, background .15s ease;
+        }
+        .article-cta:hover { border-color: rgba(34,197,94,0.45); background: rgba(34,197,94,0.10); }
+        .article-cta__eyebrow {
+          display: block; font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+          color: #4ade80; margin-bottom: .3rem;
+        }
+        .article-cta__title { font-size: .95rem; font-weight: 600; color: var(--text-main,#f1f5f9); line-height: 1.4; }
+        .article-cta__btn {
+          flex-shrink: 0; font-size: .82rem; font-weight: 700; color: #06170d;
+          background: #22c55e; padding: .55rem 1.1rem; border-radius: 8px; white-space: nowrap;
+        }
+        @media (max-width: 560px) { .article-cta__btn { width: 100%; text-align: center; } }
+
         .topic-toc { margin: 0 0 2.75rem; }
         .topic-toc__label { font-size: .75rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-muted,#94a3b8); margin: 0 0 .95rem; }
         .topic-toc__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .6rem; }
