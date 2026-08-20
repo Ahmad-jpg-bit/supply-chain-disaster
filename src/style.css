@@ -860,6 +860,12 @@ input[type="number"] {
   .hud-turn-text { font-size: 11px; }
   .hud-tp-label  { display: none; }
   .hud-turn-text .hud-tp-sep:first-of-type { display: none; }
+
+  /* Comfortable touch targets for secondary controls on phones — these are
+     sized for a mouse on desktop; give them a finger-friendly hit area here. */
+  .tab-btn          { min-height: 44px; }
+  .story-sheet-btn  { min-height: 40px; padding: 0.5rem 0.85rem; }
+  .story-sheet-close { width: 40px; height: 40px; }
 }
 
 /* ===== Global Turn Progress Bar ===== */
