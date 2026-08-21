@@ -16,7 +16,7 @@ Deploy command: `npx vercel --prod` from the project root.
 ## Stack
 - **Frontend:** Vanilla JS (ES modules), Vite 7.3.1, Chart.js, pure CSS
 - **Backend:** Vercel serverless functions in `/api/`
-- **Payments:** Lemon Squeezy (web) + RevenueCat (native Android via Capacitor)
+- **Payments:** Lemon Squeezy (web only — the Android/RevenueCat path is discontinued, see "Android / Capacitor" below)
 - **Email:** Resend — sender `hello@supplychaindisaster.com` (domain verified)
 - **Dev server:** `npm run dev` → http://localhost:3000
 - **Build:** `npx vite build`
@@ -124,7 +124,14 @@ VITE_REVENUECAT_ANDROID_KEY
 
 ---
 
-## Android / Capacitor
+## Android / Capacitor — DISCONTINUED (2026-08-20)
+Supply Chain Disaster is now web-only. All public-facing Android/RevenueCat/"mobile app" claims
+were removed from marketing pages and `privacy.html` on 2026-08-20 per user instruction. The
+native Capacitor project (`android/`, `capacitor.config.ts`) and `src/logic/billing.js`'s
+native→RevenueCat routing still exist in the repo but are **not to be referenced as a live,
+publicly-available distribution channel** in any new copy. Don't write "available on Android",
+"Android app", or similar in new content unless the user explicitly re-launches it.
+
 - App ID: `com.nextrack.scmdisaster`
 - Config: `capacitor.config.ts`
 - Update native: `npx vite build && npx cap sync android`
