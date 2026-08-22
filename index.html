@@ -73,7 +73,7 @@
     ],
     "featureList": [
       "Up to 10 chapters of supply chain scenarios",
-      "3 industries: Electronics, FMCG, Pharmaceutical",
+      "3 difficulty tiers per chapter: Guided, Normal, Expert",
       "Bullwhip effect simulation",
       "Real-time inventory and cash flow analytics",
       "Supplier disruption events",
@@ -144,10 +144,10 @@
       },
       {
         "@type": "Question",
-        "name": "What industries are covered in the game?",
+        "name": "What difficulty levels does the game offer?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Supply Chain Disaster covers three industries: Electronics (volatile demand, long lead times), FMCG / Fast-Moving Consumer Goods (high volume, tight margins), and Pharmaceuticals (regulatory constraints, safety stock requirements). Each industry has distinct cost structures, risk profiles, and supply chain dynamics."
+          "text": "Every one of the 10 chapters can be played at three difficulty tiers: Guided (small-business framing, clean numbers, built-in hints), Normal (a typical firm's real decisions), and Expert (advanced CSCP formulas and tighter tolerances). That's 120 total scenarios across the full campaign — the same chapter concept taught three different ways as your judgment grows."
         }
       },
       {
@@ -233,8 +233,8 @@
       {
         "@type": "HowToStep",
         "position": 1,
-        "name": "Choose Your Industry",
-        "text": "Select from Electronics (volatile demand, long lead times), FMCG (high volume, tight margins), or Pharmaceuticals (regulatory constraints, safety stock) to set your supply chain context."
+        "name": "Choose Your Difficulty",
+        "text": "Select Guided (small-business framing, clean numbers, built-in hints), Normal (a typical firm's real decisions), or Expert (advanced CSCP formulas and tighter tolerances) to set your challenge level."
       },
       {
         "@type": "HowToStep",
@@ -1391,16 +1391,18 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 0;
+      row-gap: 0.375rem;
       list-style: none;
-      margin-top: 1rem;
+      margin-top: 1.5rem;
       padding: 0;
-      font-size: 12px;
-      color: #94a3b8;
+      font-size: 13px;
+      color: var(--scd-text-secondary);
     }
     .hp-hero-steps li:not(:last-child)::after {
-      content: "\00a0\2192\00a0";
-      color: #94a3b8;
+      content: "\2192";
+      display: inline-block;
+      margin: 0 0.7rem;
+      color: var(--scd-text-muted);
     }
     @media (max-width: 768px) {
       .hp-hero-steps {
@@ -1670,19 +1672,19 @@
         </div>
         <div class="hp-stat">
           <span class="hp-stat-val">3</span>
-          <span class="hp-stat-label">Real Industries</span>
+          <span class="hp-stat-label">Difficulty Tiers</span>
         </div>
         <div class="hp-stat">
           <span class="hp-stat-val">40</span>
           <span class="hp-stat-label">Decisions That Matter</span>
         </div>
         <div class="hp-stat">
-          <span class="hp-stat-val">&lt;2.5h</span>
-          <span class="hp-stat-label">To Complete</span>
+          <span class="hp-stat-val">120</span>
+          <span class="hp-stat-label">Total Scenarios</span>
         </div>
       </div>
       <ol class="hp-hero-steps" aria-label="What happens when you click play">
-        <li>1. Pick your industry</li>
+        <li>1. Choose your difficulty</li>
         <li>2. Make procurement decisions</li>
         <li>3. See if your supply chain survives</li>
       </ol>
@@ -1822,13 +1824,13 @@
     <div class="hp-how-grid">
       <div class="hp-how-card">
         <div class="hp-how-num">1</div>
-        <div class="hp-how-title">Choose your industry</div>
-        <p class="hp-how-desc">Electronics, FMCG, or Pharma. Each with unique dynamics and risk profiles that change everything about how you play.</p>
+        <div class="hp-how-title">Choose your difficulty</div>
+        <p class="hp-how-desc">Guided, Normal, or Expert. Each with the same chapter concept, but different framing, formulas, and stakes.</p>
       </div>
       <div class="hp-how-card">
         <div class="hp-how-num">2</div>
-        <div class="hp-how-title">Make quarterly decisions</div>
-        <p class="hp-how-desc">Procurement, supplier selection, pricing strategy, quality inspection across 8 simulated quarters. Every choice has a cost.</p>
+        <div class="hp-how-title">Make the decisions</div>
+        <p class="hp-how-desc">Procurement, supplier selection, pricing strategy, quality inspection across 4 scenarios per chapter. Every choice has a cost.</p>
       </div>
       <div class="hp-how-card">
         <div class="hp-how-num">3</div>
@@ -1905,7 +1907,7 @@
             <div class="hp-edu-check" aria-hidden="true">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            Scenario-based learning across 3 industries, with live analytics and a CSCP debrief after every chapter
+            Scenario-based learning at 3 difficulty tiers, with live analytics and a CSCP debrief after every chapter
           </div>
         </div>
         <div class="hp-edu-group-label hp-edu-group-label--soon">Coming soon</div>
@@ -1959,7 +1961,7 @@
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            All 3 industries
+            All 3 difficulty tiers
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1975,11 +1977,11 @@
           </li>
           <li>
             <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span class="locked">Executive Strategy PDF</span>
+            <span class="locked">5-Page PDF Debrief Report</span>
           </li>
           <li>
             <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span class="locked">Global Certification</span>
+            <span class="locked">Certificate of Completion</span>
           </li>
         </ul>
         <a href="/play?start=1" class="hp-tier-cta hp-tier-cta--green">Play Chapter 1 Free &rarr;</a>
@@ -2005,7 +2007,7 @@
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>Ch 9&ndash;10 Global Logistics Expansion</strong>
+            <strong>3 Difficulty Tiers &mdash; 120 Total Scenarios</strong>
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2013,11 +2015,7 @@
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>Executive Strategy Debrief PDF</strong>
-          </li>
-          <li>
-            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>Global Certificate of Completion</strong>
+            <strong>Certificate of Completion</strong>
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
