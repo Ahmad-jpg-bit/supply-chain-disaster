@@ -188,8 +188,15 @@ The game has **10 chapters total**. Single plan since 2026-07-05. Always write:
 - "Full Access — $49.99 one-time, lifetime" for the paid plan (all 10 chapters + Advanced Report)
 - "40 quarterly turns" for the full game
 - Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers
+- **No industry picker exists.** `supplychaindisaster.com/play?start=1` — every homepage CTA — redirects entirely to `play.supplychaindisaster.com` (the Next.js fork), which has no industry selection. It's 10 CSCP levels × **3 difficulty tiers** (Guided/Normal/Expert), never "Electronics/FMCG/Pharma" or similar. Say "3 Difficulty Tiers" and "120 Total Scenarios," not "3 Real Industries."
+- Only **one** PDF exists (the 5-page Advanced Report) and **one** certificate — never write "Executive Strategy Debrief PDF" as a second, separate PDF.
 
 Files corrected for single-plan pricing (2026-07-05): `index.html`, `about.html`, `terms.html`, `pricing.html`,
 `refund.html`, `privacy.html`, `public/llms.txt`, `supply-chain-disruption-simulation.html`,
 `supply-chain-management-game.html`, `procurement-simulation-game.html`, `six-sigma-kaizen-supply-chain.html`,
 `7cs-supply-chain-4pl-logistics.html`.
+
+Files corrected for the industries → difficulty-tiers rewrite (2026-08-23, commit `a0a5b58`): `index.html` (JSON-LD
+featureList + HowTo step, hero eyebrow/stats, hero micro-steps, How It Works cards, FAQ JSON-LD, educator copy,
+pricing tiers — removed the fake second "Executive Strategy Debrief PDF" bullet), `about.html`, `terms.html`,
+`supply-chain-company-types.html`, `supply-chain-industry-dynamics.html`, `scm-fundamentals-5-pillars.html`.
