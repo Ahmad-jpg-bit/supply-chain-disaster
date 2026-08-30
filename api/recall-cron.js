@@ -58,7 +58,7 @@ function pickQuestion(windowId, record) {
     return pool[h % pool.length];
 }
 
-function recallEmailHtml({ question, resumeChapter }) {
+function recallEmailHtml({ question, resumeChapter, email }) {
     const resumeLine = resumeChapter
         ? `Your operation is paused at <strong style="color:#8b8fa8;">Chapter ${resumeChapter}</strong>. Enter your email in Save &amp; Resume to pick up exactly where you left off.`
         : `Jump back in — no account needed.`;
@@ -103,7 +103,7 @@ function recallEmailHtml({ question, resumeChapter }) {
           <td style="background:#080b14;padding:16px 44px;border-top:1px solid rgba(255,255,255,0.05);">
             <p style="margin:0;font-size:11px;color:#3a4256;line-height:1.6;text-align:center;">
               You're getting this because you saved progress at supplychaindisaster.com.
-              Prefer not to receive drills? <a href="${APP_URL}/contact" style="color:#5a6178;">Let us know</a> and we'll stop.
+              <a href="${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}" style="color:#5a6178;">Unsubscribe</a>
             </p>
           </td>
         </tr>
@@ -159,6 +159,9 @@ export default async function handler(req, res) {
                 const windowMatch = WINDOWS.find(w => days >= w.min && days < w.max);
                 if (!windowMatch) continue;
 
+                // Skip anyone who's unsubscribed
+                if (await kv.get(`unsub:${record.email.toLowerCase()}`)) continue;
+
                 // Skip if this reminder already went out
                 const recallKey = `recall:${record.email.toLowerCase()}`;
                 const rawSent = await kv.get(recallKey);
@@ -178,7 +181,7 @@ export default async function handler(req, res) {
                         subject: windowMatch.id === 'r3'
                             ? 'A quick supply chain drill — pick up where you left off'
                             : 'Still on the shelf? One question before you forget',
-                        html: recallEmailHtml({ question, resumeChapter }),
+                        html: recallEmailHtml({ question, resumeChapter, email: record.email }),
                     });
                     sentMap[windowMatch.id] = now;
                     await kv.set(recallKey, JSON.stringify(sentMap), { ex: 60 * 60 * 24 * 200 });

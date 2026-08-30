@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-08-20
+> Last updated: 2026-08-31
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -76,8 +76,11 @@ Deploy command: `npx vercel --prod` from the project root.
 | `/api/ls-webhook` | Handles LS webhook events; sends tier-specific purchase welcome emails |
 | `/api/save-progress` | Sends "operational data secured" email to player + internal notification |
 | `/api/save-game` / `/api/load-game` | Store/restore game state in Vercel KV by email (no-op without KV env) |
-| `/api/recall-cron` | Daily Vercel cron (`vercel.json` crons, 14:00 UTC): sends day-3/day-10 spaced-recall emails to saved players. `CRON_SECRET`-guarded; no-op until KV is configured |
+| `/api/recall-cron` | Daily Vercel cron (`vercel.json` crons, 14:00 UTC): sends day-3/day-10 spaced-recall emails to saved players. `CRON_SECRET`-guarded; no-op until KV is configured. Skips anyone with `unsub:{email}` set |
 | `/api/send-email` | Contact form handler |
+| `/api/unsubscribe` | GET `?email=` — one-click unsubscribe (sets `unsub:{email}` in KV, no expiry). POST `?broadcast=1` — one-off re-engagement broadcast to everyone in the `game:*` saved-progress list; `CRON_SECRET`-guarded, `?dry=1` reports counts without sending. Idempotent via `announced:{email}`. Both live in one file to stay under Vercel Hobby's 12-function cap — see note below |
+
+**Vercel Hobby plan caps serverless functions at 12** (one per file in `/api/`, `polar-webhook.js` included even though it's dead). Adding a new one-off endpoint means either deleting/consolidating an existing file first or folding the new logic into one that already exists — `unsubscribe.js` does the latter (unsubscribe + broadcast in one handler, branched on HTTP method). Check `ls api/*.js | wc -l` before adding a new file.
 
 ---
 
@@ -94,6 +97,12 @@ Deploy command: `npx vercel --prod` from the project root.
 - **Standard welcome:** subject "Your Standard Edition is ready — Supply Chain Disaster"
 - **Expansion welcome:** subject "Your Expansion Bundle is ready — Supply Chain Disaster"
 - Design: dark theme (`#080b14`), gradient accent bars, circular feature check badges, restore-access hint block
+
+### Unsubscribe / suppression (added 2026-08-31)
+- Every marketing-ish email (recall-cron, the one-off announcement broadcast) must link `GET /api/unsubscribe?email={email}` — sets `unsub:{email}` in KV, no expiry, no confirmation step needed on the recipient's end.
+- Any future sender that iterates the `game:*` saved-progress list **must check `unsub:{email}` before sending** — recall-cron and the broadcast endpoint both do this already.
+- Transactional email (purchase welcome, save-progress checkpoint, contact form) is not gated by this — only re-engagement/marketing sends are.
+- One-off re-engagement broadcast: sent 2026-08-31 to the 5 real addresses in the `game:*` list at the time (a 6th, a `kvtest+...` synthetic test address from earlier KV testing, was suppressed instead of emailed). Announced the Next.js-fork rebuild (3 difficulty tiers, 120 scenarios) and linked to `play.supplychaindisaster.com/levels`. Re-running `POST /api/unsubscribe?broadcast=1` is safe — it only reaches players who saved progress after that date and haven't been sent the announcement (tracked via `announced:{email}`).
 
 ---
 
