@@ -32,7 +32,7 @@ const NODE_ICONS = {
  *   inactive  – node not involved in current chapter → dim gray
  */
 const STATUS_CONFIG = {
-    normal:    { stroke: '#3b82f6', fill: 'rgba(59,130,246,0.18)',  icon: '#3b82f6',  filter: 'glow-blue',   badge: null,        badgeColor: null      },
+    normal:    { stroke: '#5c5cee', fill: 'rgba(92,92,238,0.18)',   icon: '#5c5cee',  filter: 'glow-blue',   badge: null,        badgeColor: null      },
     ok:        { stroke: '#22c55e', fill: 'rgba(34,197,94,0.18)',   icon: '#22c55e',  filter: 'glow-green',  badge: 'NOMINAL',   badgeColor: '#22c55e' },
     warning:   { stroke: '#f59e0b', fill: 'rgba(245,158,11,0.18)',  icon: '#f59e0b',  filter: 'glow-orange', badge: 'WARNING',   badgeColor: '#f59e0b' },
     critical:  { stroke: '#ef4444', fill: 'rgba(239,68,68,0.18)',   icon: '#ef4444',  filter: 'glow-red',    badge: 'CRITICAL',  badgeColor: '#ef4444' },
@@ -75,7 +75,7 @@ export class SupplyChainFlow {
                 </filter>
                 <filter id="glow-blue" x="-60%" y="-60%" width="220%" height="220%">
                     <feGaussianBlur stdDeviation="4" result="blur"/>
-                    <feFlood flood-color="#3b82f6" flood-opacity="0.55" result="c"/>
+                    <feFlood flood-color="#5c5cee" flood-opacity="0.55" result="c"/>
                     <feComposite in="c" in2="blur" operator="in" result="cb"/>
                     <feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>

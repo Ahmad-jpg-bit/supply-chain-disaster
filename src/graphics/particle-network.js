@@ -4,7 +4,7 @@
  */
 
 const COLORS = [
-    'rgba(59, 130, 246, 0.3)',   // blue
+    'rgba(92, 92, 238, 0.3)',    // indigo (primary)
     'rgba(34, 197, 94, 0.22)',   // green
     'rgba(245, 158, 11, 0.18)',  // amber
 ];

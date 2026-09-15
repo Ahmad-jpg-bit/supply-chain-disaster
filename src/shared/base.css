@@ -15,10 +15,11 @@
   --surface-color: #1d2938;         /* card background — now opaque & distinct (was rgba(30,41,59,.7)) */
   --surface-hover: #24344a;         /* hover state for surface-color, opaque (was rgba(51,65,85,.8)) */
   --surface-elevated: #28394d;      /* NEW — elevated card / modal / popover */
-  --primary-color: #2e6be9;         /* deepened from #3b82f6 so white button text clears WCAG AA (4.78:1 vs 3.68:1) — same blue, imperceptibly different */
-  --primary-hover: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-text: #8fb3fb;          /* NEW — lighter blue for links/inline text on dark surfaces */
+  --primary-color: #5c5cee;         /* indigo — matches the 2026 fork palette; white button text clears WCAG AA (4.98:1) */
+  --primary-hover: #4c4cd6;         /* hover/pressed — stronger contrast still */
+  --primary-dark: #3f3fc4;          /* deepest indigo — gradient stops / pressed fills */
+  --primary-text: #a5b4fc;          /* indigo AS TEXT/links on dark surfaces (8.9:1) */
+  --primary-glow: rgba(92, 92, 238, 0.32); /* focus rings / caret / pulse glows */
   --accent-color: #f59e0b;
   --text-main: #f8fafc;
   --text-muted: #a3b0c2;            /* lightened from #94a3b8 for extra margin */
@@ -59,10 +60,10 @@
   --spacing-xl: 2rem;
 
   /* Effects */
-  --glass-bg: rgba(36, 49, 68, 0.78);  /* lighter + more opaque so cards read as distinct surfaces (was rgba(30,41,59,.6)) */
+  --glass-bg: rgba(29, 41, 56, 0.88);  /* flatter, mostly-opaque cards (fork-style) — less glassmorphism, crisper surface separation */
   --glass-border: 1px solid var(--border-color);
-  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  --blur-amount: 12px;
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.18);  /* crisp near-shadow + soft ambient, fork-style */
+  --blur-amount: 8px;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -174,7 +175,7 @@ button {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 22px var(--primary-glow);
 }
 
 .btn-primary:disabled {
@@ -200,13 +201,13 @@ button {
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--primary-text);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--primary-hover);
+  color: var(--text-main);
 }
 
 /* Sitewide focus ring — WCAG 2.4.7/2.4.11. Previously undefined, so

@@ -1,9 +1,10 @@
 /**
  * SaveProgressModal
  *
- * An email-capture gate themed as an "Operational Data Backup" prompt.
- * Displayed after Chapter 2 (last free chapter) and on Game Over
- * if the player hasn't already provided their email.
+ * A plain, benefit-led email-capture gate — "save your progress, get a
+ * link to continue on any device."
+ * Displayed after Chapter 1 and on Game Over if the player hasn't already
+ * provided their email.
  *
  * Usage:
  *   const modal = new SaveProgressModal();
@@ -71,16 +72,16 @@ export class SaveProgressModal {
                 <div class="sp-header">
                     <div class="sp-badge">
                         <span class="sp-badge-dot"></span>
-                        System Alert
+                        Save progress
                     </div>
                     <div class="sp-icon-wrap">
                         ${shield(28)}
                     </div>
-                    <h2 class="sp-title">Secure Your Operational Data</h2>
+                    <h2 class="sp-title">Save your progress</h2>
                     <p class="sp-subtitle">
-                        Your performance metrics and strategic decisions are stored in volatile
-                        session memory. Enter your command-center access to encrypt and back up
-                        your progress before advancing.
+                        Right now your progress only lives in this browser. Add your email and
+                        we'll send you a link so you can pick up where you left off &mdash; on any
+                        device. No spam, just your save link.
                     </p>
                 </div>
 
@@ -107,20 +108,20 @@ export class SaveProgressModal {
                             id="sp-email-input"
                             class="sp-email-input"
                             type="email"
-                            placeholder="commander@yourdomain.com"
+                            placeholder="you@example.com"
                             autocomplete="email"
                             value="${existingEmail}"
                         />
                     </div>
                     <button id="sp-submit-btn" class="sp-submit-btn">
-                        Lock In My Progress &rarr;
+                        Email me my progress &rarr;
                     </button>
                     <div id="sp-status" class="sp-status hidden"></div>
                 </div>
 
                 <div class="sp-footer">
                     <button id="sp-skip-btn" class="sp-skip">
-                        Skip &mdash; I accept the risk of data loss
+                        Maybe later
                     </button>
                 </div>
 
@@ -165,13 +166,13 @@ export class SaveProgressModal {
 
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             input.classList.add('error');
-            this._setStatus('Enter a valid email address to secure your data.', 'error-msg');
+            this._setStatus('Enter a valid email address so we can send your link.', 'error-msg');
             input.focus();
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Encrypting...';
+        submitBtn.textContent = 'Saving…';
         this._setStatus('', '');
 
         try {
@@ -196,8 +197,8 @@ export class SaveProgressModal {
         } catch (err) {
             console.error('save-progress error:', err);
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Lock In My Progress \u2192';
-            this._setStatus('Backup failed. Try again or skip for now.', 'error-msg');
+            submitBtn.textContent = 'Email me my progress \u2192';
+            this._setStatus('Something went wrong \u2014 try again, or skip for now.', 'error-msg');
         }
     }
 
@@ -208,13 +209,13 @@ export class SaveProgressModal {
         form.innerHTML = `
             <div class="sp-success-state">
                 <div class="sp-success-icon">${checkmark(24)}</div>
-                <h3 class="sp-success-title">Progress Secured</h3>
+                <h3 class="sp-success-title">Progress saved</h3>
                 <p class="sp-success-sub">
-                    Your operational data has been encrypted and sent to
-                    <strong>${email}</strong>. The board has been notified.
+                    We've sent a link to <strong>${email}</strong>. Open it on any device to
+                    jump back in right where you left off.
                 </p>
                 <button class="sp-continue-btn" id="sp-continue-btn">
-                    Continue Mission &rarr;
+                    Continue &rarr;
                 </button>
             </div>
         `;

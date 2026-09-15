@@ -99,7 +99,7 @@
   right: -200px;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(92, 92, 238,0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -253,12 +253,12 @@
   gap: 0.4rem;
   margin-bottom: 0.6rem;
   padding: 0.3rem 0.75rem;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.28);
+  background: rgba(92, 92, 238, 0.12);
+  border: 1px solid rgba(92, 92, 238, 0.28);
   border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: #93c5fd;
+  color: var(--primary-text);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -273,7 +273,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(92, 92, 238, 0.08);
 }
 
 .lp-terminal-body {
@@ -536,8 +536,8 @@
 }
 
 .lp-roadmap-node--free .lp-rn-icon {
-  background: rgba(59, 130, 246, 0.15);
-  border: 2px solid rgba(59, 130, 246, 0.5);
+  background: rgba(92, 92, 238, 0.15);
+  border: 2px solid rgba(92, 92, 238, 0.5);
   color: var(--primary-color);
 }
 
@@ -562,12 +562,12 @@
 }
 
 .lp-roadmap-node--free .lp-rn-connector {
-  background: linear-gradient(90deg, rgba(59,130,246,0.4), rgba(59,130,246,0.1));
+  background: linear-gradient(90deg, rgba(92, 92, 238,0.4), rgba(92, 92, 238,0.1));
 }
 
 /* Transition node (ch2 → ch3) — amber line */
 .lp-roadmap-node--free:last-of-type .lp-rn-connector {
-  background: linear-gradient(90deg, rgba(59,130,246,0.4), rgba(245,158,11,0.4));
+  background: linear-gradient(90deg, rgba(92, 92, 238,0.4), rgba(245,158,11,0.4));
 }
 
 .lp-rn-body {
@@ -603,9 +603,9 @@
 }
 
 .lp-rn-badge--free {
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(92, 92, 238, 0.15);
+  color: var(--primary-text);
+  border: 1px solid rgba(92, 92, 238, 0.3);
 }
 
 .lp-rn-badge--pro {
@@ -975,10 +975,10 @@
 
 .lp-intel-terminal {
   background: rgba(10, 18, 35, 0.9);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(92, 92, 238, 0.2);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
+  box-shadow: 0 0 40px rgba(92, 92, 238, 0.06);
 }
 
 .lp-intel-form-body {
@@ -1025,8 +1025,8 @@
 .lp-intel-input::placeholder { color: #334155; }
 
 .lp-intel-input:focus {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: rgba(92, 92, 238, 0.5);
+  box-shadow: 0 0 0 3px rgba(92, 92, 238, 0.1);
 }
 
 .lp-intel-submit {
@@ -1044,7 +1044,7 @@
 }
 
 .lp-intel-submit:hover:not(:disabled) {
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 16px rgba(92, 92, 238, 0.35);
 }
 
 .lp-intel-submit:disabled {
@@ -1204,8 +1204,8 @@
   max-height: 92vh;
   border-radius: var(--radius-lg);
   background: rgba(10, 18, 35, 0.97);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(92, 92, 238, 0.2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(92, 92, 238, 0.1);
   display: flex;
   flex-direction: column;
   transform: scale(0.95) translateY(12px);
@@ -1220,13 +1220,13 @@
 /* Progress bar */
 .lp-demo-progress-bar {
   height: 2px;
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(92, 92, 238, 0.12);
   flex-shrink: 0;
 }
 
 .lp-demo-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), #60a5fa);
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-text));
   transition: width 0.1s linear;
   width: 0%;
 }
@@ -1300,8 +1300,8 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--primary-color);
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(92, 92, 238, 0.1);
+  border: 1px solid rgba(92, 92, 238, 0.25);
   border-radius: 100px;
   padding: 4px 12px;
 }
@@ -1561,8 +1561,8 @@
   display: flex;
   align-items: baseline;
   gap: 3px;
-  background: rgba(59, 130, 246, 0.08);
-  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: rgba(92, 92, 238, 0.08);
+  border: 2px solid rgba(92, 92, 238, 0.3);
   border-radius: var(--radius-md);
   padding: 0.75rem 1.25rem;
   flex-shrink: 0;
