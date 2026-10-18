@@ -20,6 +20,7 @@ Deploy command: `npx vercel --prod` from the project root.
 - **Email:** Resend — sender `hello@supplychaindisaster.com` (domain verified)
 - **Dev server:** `npm run dev` → http://localhost:3000
 - **Build:** `npx vite build`
+- **Tests:** `npm test` — engine regression suite (`tests/`). The golden fixture pins seeded gameplay; only regenerate it (`node tests/make-golden.mjs`) for an intentional rules change
 
 ---
 
@@ -62,6 +63,8 @@ Deploy command: `npx vercel --prod` from the project root.
 | `src/ui/definition-card.js` | CSCP definition flashcard shown after each chapter |
 | `src/ui/chapter-transition.js` | Chapter summary overlay (score + next chapter teaser) |
 | `src/ui/concept-card.js` | Chapter intro card (shown before chapter begins) |
+| `src/ui/procurement-workspace.js` | /play decision screen markup (situation, 3 decision groups, outlook, consequence summary). All numbers come from `GameEngine.estimateTurn()` — never add game math here |
+| `src/ui/play-workspace.css` | In-game layout/theme, scoped to `body.scd-playing` (set while a run is active) so marketing pages are unaffected |
 
 ### Old/unused files — do not edit
 - `api/polar-webhook.js` — deprecated, returns 410

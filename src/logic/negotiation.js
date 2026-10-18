@@ -120,6 +120,19 @@ export function contractFromOffer(offer, chapterIndex) {
  * engine before cost math when a contract is active for the chosen supplier.
  * @returns {{ costFactor, fee, honoured, note }}
  */
+/**
+ * Read-only preview of evaluateContract() for the decision UI — same terms,
+ * but never touches the contract's honoured/missed counters.
+ */
+export function contractTerms(contract, supplierId, orderQuantity) {
+    if (!contract || contract.supplierId !== supplierId) {
+        return { costFactor: 1, fee: 0, honoured: null, applies: false };
+    }
+    return orderQuantity >= contract.minVolume
+        ? { costFactor: 1 - contract.discountPct / 100, fee: 0, honoured: true, applies: true }
+        : { costFactor: 1, fee: contract.shortfallFee, honoured: false, applies: true };
+}
+
 export function evaluateContract(contract, supplierId, orderQuantity) {
     if (!contract || contract.supplierId !== supplierId) {
         return { costFactor: 1, fee: 0, honoured: null, note: null };

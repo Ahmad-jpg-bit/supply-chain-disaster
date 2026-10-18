@@ -8,7 +8,7 @@ import { SUPPLIERS, SHIPPING_METHODS, PRICING_STRATEGIES, QUALITY_INSPECTIONS } 
 import { CrisisEngine } from './crisis-engine.js';
 import { DebriefCollector } from '../game/debrief-collector.js';
 import { createWorldMemory, computeWorldEchoes, updateWorldMemory } from './world-memory.js';
-import { evaluateContract } from './negotiation.js';
+import { evaluateContract, contractTerms } from './negotiation.js';
 import { mulberry32 } from './seeded-rng.js';
 
 export const GAME_PHASES = {
@@ -21,6 +21,9 @@ export const GAME_PHASES = {
     GAME_OVER: 'PHASE_GAME_OVER',
     ENDLESS_DEATH: 'PHASE_ENDLESS_DEATH',
 };
+
+// Industry-specific holding cost rate (per unit-value held per turn)
+const HOLDING_RATES = { electronics: 0.07, fmcg: 0.04, pharma: 0.09 };
 
 export function getDefaultProcurementChoices() {
     return {
@@ -442,6 +445,102 @@ export class GameEngine {
         return this.state.pendingCrisis;
     }
 
+    /** Story-decision modifiers merged with persistent archetype modifiers (+ endless wave scaling). */
+    _effectiveModifiers() {
+        const { modifiers, archetypeModifiers } = this.state;
+        const effectiveMods = {
+            leadTime:             (modifiers.leadTime || 0)         + (archetypeModifiers?.leadTime || 0),
+            unitCost:             (modifiers.unitCost ?? 1.0)        * (archetypeModifiers?.unitCost ?? 1.0),
+            customerSatisfaction:  modifiers.customerSatisfaction ?? 100,
+            demandMultiplier:     (modifiers.demandMultiplier ?? 1.0) * (archetypeModifiers?.demandMultiplier ?? 1.0),
+        };
+
+        // Endless mode: scale difficulty by wave
+        if (this.state.isEndless && this.state.endlessWave > 1) {
+            const wave = this.state.endlessWave;
+            effectiveMods.demandMultiplier *= (1 + (wave - 1) * 0.05);  // +5% demand per wave
+            effectiveMods.unitCost         *= (1 + (wave - 1) * 0.04);  // +4% cost per wave
+        }
+        return effectiveMods;
+    }
+
+    /** Resolve choice ids to option objects (falls back to the standard option). */
+    _resolveProcurementOptions(choices) {
+        const suppliers = SUPPLIERS[this.state.industry.id] || SUPPLIERS.electronics;
+        return {
+            supplier:        suppliers.find(s => s.id === choices.supplierId) || suppliers[1],
+            shippingMethod:  SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[2],
+            pricingStrategy: PRICING_STRATEGIES.find(p => p.id === choices.pricingId) || PRICING_STRATEGIES[1],
+            inspection:      QUALITY_INSPECTIONS.find(q => q.id === choices.inspectionId) || QUALITY_INSPECTIONS[1],
+        };
+    }
+
+    /**
+     * Pre-resolution estimate of a procurement decision, for the decision UI.
+     * Mirrors processTurn() for everything knowable before the quarter
+     * resolves. It deliberately EXCLUDES what is unknown or random at decision
+     * time: this quarter's micro-crisis, demand variance, and world-memory
+     * echoes (requalification premiums, loyalty shields, quality-debt demand).
+     * Pure — never mutates state.
+     * @param {Object} choices — same shape as processTurn(choices)
+     */
+    estimateTurn(choices) {
+        const s = this.state;
+        const { supplier, shippingMethod, pricingStrategy, inspection } = this._resolveProcurementOptions(choices);
+        const effectiveMods = this._effectiveModifiers();
+        const orderQuantity = choices.orderQuantity || 0;
+        const baseCost = 100;
+
+        const contract = contractTerms(s.activeContract, supplier.id, orderQuantity);
+        const unitCost = baseCost * supplier.costMultiplier * effectiveMods.unitCost * contract.costFactor;
+        const routeCostFactor = s.activeRoute?.shippingCostFactor ?? 1.0;
+        const orderCost = orderQuantity * unitCost;
+        const shippingCost = orderQuantity * shippingMethod.costPerUnit * routeCostFactor;
+        const inspectionCost = orderQuantity * inspection.costPerUnit;
+
+        const waveDefectBonus = s.isEndless ? (s.endlessWave - 1) * 0.015 : 0;
+        const defectRate = supplier.defectRate + waveDefectBonus;
+        const totalDefective = Math.floor(orderQuantity * defectRate);
+        const caughtDefects = Math.floor(totalDefective * inspection.defectCatchRate);
+        const passedDefects = totalDefective - caughtDefects;
+        const usableUnits = orderQuantity - totalDefective;
+        const defectDisposalCost = caughtDefects * (baseCost * 0.3);
+
+        // Holding cost is charged on stock on hand after this turn's arrivals
+        const arrivingThisTurn = s.inTransit
+            .filter(o => o.arrivesOnTurn <= s.turn)
+            .reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
+        const holdingCost = ((s.inventory + arrivingThisTurn) * baseCost) * (HOLDING_RATES[s.industry.id] ?? 0.05);
+
+        const leadTimeTurns = Math.max(1,
+            this._computeLeadTimeTurns(supplier, shippingMethod, effectiveMods.leadTime, s.industry.id)
+            + (s.activeRoute?.leadTimeMod ?? 0));
+
+        const purchaseCost = orderCost + shippingCost + inspectionCost + defectDisposalCost + contract.fee;
+        return {
+            supplier, shippingMethod, pricingStrategy, inspection,
+            orderQuantity,
+            unitCost,
+            landedUnitCost: orderQuantity > 0 ? purchaseCost / orderQuantity : unitCost + shippingMethod.costPerUnit * routeCostFactor + inspection.costPerUnit,
+            orderCost, shippingCost, inspectionCost, defectDisposalCost,
+            contractFee: contract.fee,
+            contractApplies: contract.applies,
+            contractHonoured: contract.honoured,
+            purchaseCost,
+            holdingCost,
+            totalDefective, caughtDefects, passedDefects, usableUnits,
+            // Units that land in inventory on arrival (engine receives usable + passed defects)
+            arrivingUnits: usableUnits + passedDefects,
+            arrivingThisTurn,
+            leadTimeTurns,
+            arrivesOnTurn: s.turn + leadTimeTurns,
+            // Deterministic demand forecast (same basis as the debrief's demandForecast)
+            expectedDemand: Math.floor(1000 * effectiveMods.demandMultiplier * pricingStrategy.demandMultiplier),
+            unitPrice: baseCost * (1 + s.industry.metrics.baseMargin) * pricingStrategy.priceMultiplier,
+            effectiveMods,
+        };
+    }
+
     // --- PHASE: PROCUREMENT & RESULTS ---
     processTurn(choices) {
         if (this.state.phase !== GAME_PHASES.PROCUREMENT) throw new Error('Not in Procurement Phase');
@@ -465,23 +564,10 @@ export class GameEngine {
         );
         const _snapBacklog = this.state.backlog;
 
-        const { industry, modifiers, archetypeModifiers } = this.state;
+        const { industry } = this.state;
         const industryId = industry.id;
 
-        // Merge story-decision modifiers with persistent archetype modifiers
-        const effectiveMods = {
-            leadTime:             (modifiers.leadTime || 0)         + (archetypeModifiers?.leadTime || 0),
-            unitCost:             (modifiers.unitCost ?? 1.0)        * (archetypeModifiers?.unitCost ?? 1.0),
-            customerSatisfaction:  modifiers.customerSatisfaction ?? 100,
-            demandMultiplier:     (modifiers.demandMultiplier ?? 1.0) * (archetypeModifiers?.demandMultiplier ?? 1.0),
-        };
-
-        // Endless mode: scale difficulty by wave
-        if (this.state.isEndless && this.state.endlessWave > 1) {
-            const wave = this.state.endlessWave;
-            effectiveMods.demandMultiplier *= (1 + (wave - 1) * 0.05);  // +5% demand per wave
-            effectiveMods.unitCost         *= (1 + (wave - 1) * 0.04);  // +4% cost per wave
-        }
+        const effectiveMods = this._effectiveModifiers();
 
         // Use the crisis pre-rolled for the inbox interrupt if one exists;
         // otherwise roll now (endless mode, legacy callers).
@@ -507,11 +593,7 @@ export class GameEngine {
         }
 
         // Resolve procurement options
-        const suppliers = SUPPLIERS[industryId] || SUPPLIERS.electronics;
-        const supplier = suppliers.find(s => s.id === choices.supplierId) || suppliers[1];
-        const shippingMethod = SHIPPING_METHODS.find(s => s.id === choices.shippingId) || SHIPPING_METHODS[2];
-        const pricingStrategy = PRICING_STRATEGIES.find(p => p.id === choices.pricingId) || PRICING_STRATEGIES[1];
-        const inspection = QUALITY_INSPECTIONS.find(q => q.id === choices.inspectionId) || QUALITY_INSPECTIONS[1];
+        const { supplier, shippingMethod, pricingStrategy, inspection } = this._resolveProcurementOptions(choices);
         const orderQuantity = choices.orderQuantity || 0;
 
         // World memory: past behaviour echoes into this turn's economics.
@@ -587,7 +669,6 @@ export class GameEngine {
         const basePrice = baseCost * (1 + industry.metrics.baseMargin);
         const revenue = sales * basePrice * pricingStrategy.priceMultiplier;
         // Option 7: industry-specific holding costs
-        const HOLDING_RATES = { electronics: 0.07, fmcg: 0.04, pharma: 0.09 };
         const holdingRate = HOLDING_RATES[industryId] ?? 0.05;
         const holdingCost = (this.state.inventory * baseCost) * holdingRate;
 

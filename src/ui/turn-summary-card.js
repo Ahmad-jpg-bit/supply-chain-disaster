@@ -139,8 +139,8 @@ export class TurnSummaryCard {
         const profitSign  = isProfitable ? '+' : '−';
 
         const chapterLabel = chapter
-            ? `Q${result.turn - 1} · Ch ${chapter.number}: ${chapter.title}`
-            : `Wave ${result.endlessWave || 1} · Turn ${result.turn - 1}`;
+            ? `Q${result.turn} · Ch ${chapter.number}: ${chapter.title}`
+            : `Wave ${result.endlessWave || 1} · Turn ${result.endlessTurn ?? result.turn}`;
 
         const costRows = [
             { label: 'Procurement',   value: result.orderCost,         icon: getIcon('factory', 15) },
@@ -153,6 +153,27 @@ export class TurnSummaryCard {
         const driverClass = driver.type === 'good' ? 'tsc-driver--good'
                           : driver.type === 'warn' ? 'tsc-driver--warn'
                           :                          'tsc-driver--info';
+
+        // Operations — what physically happened this quarter (resolved engine data only)
+        const n = (x) => (x || 0).toLocaleString();
+        const next = (result._nextArrivals || []).slice(0, 3);
+        const unresolved = [
+            result.backlog > 0 ? `${n(result.backlog)} units still owed to customers (backlog)` : null,
+            result.safetyBreach ? `Stock ended below your ${n(result.safetyStockTarget)}-unit safety target` : null,
+            next.length ? `Next arrivals: ${next.map(a => `${n(a.units)} in Q${a.turn}`).join(', ')}` : 'No shipments en route',
+        ].filter(Boolean);
+        const opsHtml = `
+            <div class="tsc-ops" data-delay="0">
+                <dl class="tsc-ops-grid">
+                    <div><dt>Shipments received</dt><dd>${n(result.unitsReceived)}</dd></div>
+                    <div><dt>Demand</dt><dd>${n(result.demand)}${result.backlogBefore ? `<small> + ${n(result.backlogBefore)} backlog</small>` : ''}</dd></div>
+                    <div><dt>Units fulfilled</dt><dd>${n(result.sales)}</dd></div>
+                    <div class="${result.missedSales > 0 ? 'tsc-ops--bad' : ''}"><dt>Shortage</dt><dd>${result.missedSales > 0 ? n(result.missedSales) : 'None'}</dd></div>
+                    <div><dt>Stock at quarter end</dt><dd>${n(result.inventory)}</dd></div>
+                    <div><dt>Cash at quarter close</dt><dd>${(result.cash < 0 ? '−' : '') + fmt(result.cash)}</dd></div>
+                </dl>
+                <ul class="tsc-ops-next" aria-label="Carried into next quarter">${unresolved.map(t => `<li>${t}</li>`).join('')}</ul>
+            </div>`;
 
         // Forecast verdict (demand slider call), decorated by dashboard
         const fc = result._forecast;
@@ -261,6 +282,8 @@ export class TurnSummaryCard {
                 </div>
 
                 <div class="tsc-body">
+
+                    ${opsHtml}
 
                     ${predictionHtml}
 

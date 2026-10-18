@@ -45,13 +45,20 @@
     <div id="game-dashboard" class="screen hidden">
       <!-- Ambient stress overlay — color shifts with financial/satisfaction state -->
       <div id="ambient-overlay" class="ambient-overlay" aria-hidden="true"></div>
+      <!-- Compact game header — the site nav is hidden during play (see play-workspace.css) -->
       <header class="dashboard-header glass-panel">
+        <a href="/" class="hud-home" aria-label="Exit to Supply Chain Disaster home page">
+          <img src="/logo-nav.png" class="hud-home-logo" alt="" aria-hidden="true" width="24" height="24">
+          <span class="hud-home-text">Exit</span>
+        </a>
         <div class="hud-chapter-label" id="hud-chapter-name"></div>
-        <div id="chapter-progress" class="chapter-progress"></div>
+        <div id="chapter-progress" class="chapter-progress" aria-hidden="true"></div>
         <div id="hud-turn-text" class="hud-turn-text" aria-live="polite"></div>
         <div class="hud-right">
+          <button id="hud-unlock-btn" class="hud-btn hud-unlock-btn" type="button" hidden>Unlock</button>
+          <button id="hud-news-btn" class="hud-btn" type="button" aria-expanded="false" aria-controls="crisis-ticker">News<span class="hud-news-count" id="hud-news-count" hidden></span></button>
           <button id="audio-toggle" class="hud-audio-btn" aria-pressed="true" title="Mute audio"></button>
-          <div class="turn-indicator">Q<span id="turn-display">1</span></div>
+          <div class="turn-indicator" aria-label="Quarter"><span aria-hidden="true">Q</span><span id="turn-display">1</span></div>
         </div>
       </header>
       <!-- 1px amber progress bar — fills left→right as global turns advance -->
@@ -59,32 +66,37 @@
         <div id="game-progress-fill" class="game-progress-fill"></div>
       </div>
 
-      <!-- Supply Chain Flow Diagram -->
-      <div id="supply-chain-flow" class="supply-chain-flow-container"></div>
-
-      <!-- KPI strip — single horizontal band shared by all phases -->
-      <section class="metrics-panel glass-panel">
+      <!-- State strip — single horizontal band shared by all phases -->
+      <section class="metrics-panel glass-panel" aria-label="Company state">
         <div class="metric-card" data-metric="cash">
           <span class="label">Cash</span>
           <span class="value" id="cash-display">$0</span>
+          <span class="metric-sub" id="cash-sub">Available now</span>
         </div>
         <div class="metric-card" data-metric="inventory">
-          <span class="label">Inventory</span>
+          <span class="label">Available inventory</span>
           <span class="value" id="inventory-display">0</span>
+          <span class="metric-sub" id="inventory-sub">Units on hand</span>
         </div>
         <div class="metric-card" data-metric="in-transit">
-          <span class="label">In Transit</span>
+          <span class="label">In transit</span>
           <span class="value" id="in-transit-display">0</span>
+          <span class="metric-sub" id="in-transit-sub">No shipments en route</span>
         </div>
         <div class="metric-card" data-metric="demand">
-          <span class="label">Last Demand</span>
+          <span class="label">Last demand</span>
           <span class="value" id="demand-display">--</span>
+          <span class="metric-sub" id="demand-sub">No quarter played yet</span>
         </div>
         <div class="metric-card" data-metric="profit">
-          <span class="label">Net Profit</span>
+          <span class="label">Net profit · last quarter</span>
           <span class="value" id="profit-display">$0</span>
+          <span class="metric-sub" id="profit-sub">Cumulative: $0</span>
         </div>
       </section>
+
+      <!-- Supply Chain Flow Diagram (condensed band; the only network visual) -->
+      <div id="supply-chain-flow" class="supply-chain-flow-container" role="img" aria-label="Supply chain network status"></div>
 
       <main class="dashboard-grid">
         <!-- Main View -->
@@ -137,13 +149,17 @@
     </div>
   </div>
 
-  <!-- Crisis News Ticker (fixed bottom bar, shown once game starts) -->
-  <div id="crisis-ticker" class="crisis-ticker" aria-live="polite" aria-label="Supply chain live news feed" role="marquee">
-    <span class="ticker-prefix">⬥ LIVE FEED</span>
-    <div class="ticker-viewport">
-      <div class="ticker-track"></div>
+  <!-- News drawer (opened from the HUD "News" button; kept out of the decision path) -->
+  <aside id="crisis-ticker" class="crisis-ticker" aria-label="Supply chain news feed" hidden>
+    <div class="ticker-head">
+      <h2 class="ticker-prefix">News feed</h2>
+      <button type="button" class="ticker-close" aria-label="Close news feed">✕</button>
     </div>
-  </div>
+    <p class="ticker-note">Industry headlines are background colour. Items marked <strong>Your decision</strong> or <strong>Crisis</strong> come from your game.</p>
+    <div class="ticker-viewport">
+      <ul class="ticker-track"></ul>
+    </div>
+  </aside>
 
   <script type="module" src="/src/main.js"></script>
 </body>

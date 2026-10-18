@@ -1,5 +1,6 @@
 import './style.css'
 import './shared/nav.css'
+import './ui/play-workspace.css'
 import { ParticleNetwork } from './graphics/particle-network.js';
 import { Dashboard } from './dashboard.js';
 import { createNav } from './shared/nav.js';

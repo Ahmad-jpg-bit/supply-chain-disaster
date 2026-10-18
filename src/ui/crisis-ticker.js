@@ -1,6 +1,7 @@
 /**
- * CrisisTicker — continuous horizontal news ticker for the game dashboard.
- * Displays live SCM headlines and injects player-decision-specific updates.
+ * CrisisTicker — optional news drawer for the game dashboard (HUD "News" button).
+ * Lists background SCM headlines plus player-decision and crisis items. Kept out
+ * of the decision path: gameplay-critical crisis info is shown in the workspace.
  */
 
 const BASE_HEADLINES = [
@@ -39,6 +40,9 @@ const DECISION_TYPE = {
 export const CrisisTicker = {
   _el: null,
   _track: null,
+  _btn: null,
+  _count: null,
+  _unread: 0,
   _headlines: [...BASE_HEADLINES],
   _initialized: false,
 
@@ -46,26 +50,54 @@ export const CrisisTicker = {
     this._el = document.getElementById('crisis-ticker');
     if (!this._el) return;
     this._track = this._el.querySelector('.ticker-track');
+    this._btn   = document.getElementById('hud-news-btn');
+    this._count = document.getElementById('hud-news-count');
+    if (!this._initialized) {
+      this._btn?.addEventListener('click', () => this.toggle());
+      this._el.querySelector('.ticker-close')?.addEventListener('click', () => this.toggle(false));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this._el && !this._el.hidden) this.toggle(false);
+      });
+    }
     this._render();
     this._initialized = true;
   },
 
+  /** Game is running — the News button becomes available (drawer stays closed). */
   show() {
     if (!this._initialized) this.init();
-    if (this._el) this._el.classList.add('active');
+    if (this._btn) this._btn.hidden = false;
   },
 
   hide() {
-    if (this._el) this._el.classList.remove('active');
+    this.toggle(false);
+    if (this._btn) this._btn.hidden = true;
+  },
+
+  /** Open/close the news drawer. */
+  toggle(force) {
+    if (!this._el) return;
+    const open = force ?? this._el.hidden;
+    this._el.hidden = !open;
+    this._el.classList.toggle('active', open);
+    this._btn?.setAttribute('aria-expanded', String(open));
+    if (open) {
+      this._unread = 0;
+      this._updateCount();
+      this._el.querySelector('.ticker-close')?.focus();
+    } else if (this._el.contains(document.activeElement)) {
+      this._btn?.focus();
+    }
   },
 
   /**
-   * Inject a player-decision headline at the front of the ticker.
+   * Add a player-decision headline at the top of the feed.
    * @param {string} label     - The option label the player picked
    * @param {string} alignment - 'optimal' | 'cautious' | 'risky'
    * @param {string} outcome   - The outcome text (truncated if long)
+   * @param {string} [kind]    - 'decision' (player choice) | 'crisis' (in-game event)
    */
-  inject(label, alignment, outcome) {
+  inject(label, alignment, outcome, kind = 'decision') {
     if (!this._initialized) this.init();
     const prefix = DECISION_PREFIX[alignment] || 'EXEC:';
     const short  = outcome && outcome.length > 90 ? outcome.slice(0, 90) + '…' : outcome || '';
@@ -73,29 +105,33 @@ export const CrisisTicker = {
       text:  `${prefix} ${label} — ${short}`,
       type:  DECISION_TYPE[alignment] || 'update',
       fresh: true,
+      game:  kind,
     });
     // Cap the injected extras so base headlines still rotate
     const maxTotal = BASE_HEADLINES.length + 4;
     if (this._headlines.length > maxTotal) {
       this._headlines = this._headlines.slice(0, maxTotal);
     }
+    if (this._el?.hidden) { this._unread++; this._updateCount(); }
     this._render();
     // Clear the "fresh" flag after the flash animation completes
     setTimeout(() => this._headlines.forEach(h => { h.fresh = false; }), 2500);
   },
 
+  _updateCount() {
+    if (!this._count) return;
+    this._count.hidden = this._unread === 0;
+    this._count.textContent = this._unread ? String(this._unread) : '';
+    this._btn?.setAttribute('aria-label', this._unread ? `News, ${this._unread} new from your game` : 'News');
+  },
+
   _render() {
     if (!this._track) return;
-    const makeItems = () =>
-      this._headlines.map(h =>
-        `<span class="ticker-item ticker-item--${h.type}${h.fresh ? ' ticker-item--fresh' : ''}">` +
-        `<span class="ticker-label">${h.type.toUpperCase()}</span>${h.text}</span>`
-      ).join('');
-    // Duplicate content so the loop is seamless
-    this._track.innerHTML = makeItems() + makeItems();
-    // Force-restart the CSS animation
-    this._track.style.animation = 'none';
-    void this._track.offsetHeight; // reflow
-    this._track.style.animation  = '';
+    const escape = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    this._track.innerHTML = this._headlines.map(h => {
+      const tag = h.game === 'crisis' ? 'Crisis' : h.game ? 'Your decision' : h.type;
+      return `<li class="ticker-item ticker-item--${h.type}${h.fresh ? ' ticker-item--fresh' : ''}${h.game ? ' ticker-item--game' : ''}">` +
+        `<span class="ticker-label">${escape(tag)}</span><span class="ticker-text">${escape(h.text)}</span></li>`;
+    }).join('');
   },
 };
