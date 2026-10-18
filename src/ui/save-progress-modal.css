@@ -195,7 +195,7 @@
 .sp-submit-btn {
     width: 100%;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: #fff;
+    color: var(--text-inverse);
     border: none;
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
@@ -224,7 +224,7 @@
 
 .sp-submit-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(92, 92, 238, 0.4);
+    box-shadow: 0 4px 20px var(--primary-glow);
 }
 
 .sp-submit-btn:disabled {

@@ -4,12 +4,17 @@ import './shared/pages.css';
 import { createNav } from './shared/nav.js';
 import { createFooter } from './shared/footer.js';
 import { initAmbientParticles } from './shared/particles-lite.js';
+import { mountAiCta } from './shared/ai-cta.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   createNav('blog');
   createFooter();
   initAmbientParticles();
   handleBlogSearch();
+  // AI-courses promo: an explicit #ai-cta-slot wins (precise placement +
+  // per-post copy); otherwise it appends to the article body. No-op on the
+  // blog index (no .article-content).
+  mountAiCta({ slot: '#ai-cta-slot', fallback: '.article-content' });
 });
 
 function handleBlogSearch() {

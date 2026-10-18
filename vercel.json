@@ -13,15 +13,8 @@
       ]
     }
   ],
-  "crons": [
-    { "path": "/api/recall-cron", "schedule": "0 14 * * *" }
-  ],
+  "crons": [],
   "redirects": [
-    {
-      "source": "/play",
-      "destination": "https://play.supplychaindisaster.com/levels",
-      "permanent": false
-    },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "supplychaindisaster.com" }],

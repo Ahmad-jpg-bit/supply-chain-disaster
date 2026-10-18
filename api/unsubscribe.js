@@ -22,8 +22,17 @@ const MAX_PER_RUN = 150; // safety cap per invocation — call again to continue
 const APP_URL = 'https://www.supplychaindisaster.com';
 const PLAY_URL = 'https://play.supplychaindisaster.com/levels';
 
+// ── Campaign kill-switch ──────────────────────────────────────────────
+// Marketing/campaign email is PAUSED (set false to resume the re-engagement
+// broadcast). The GET one-click unsubscribe below is NOT a send and keeps
+// working. Transactional email is unaffected. Requested 2026-09-26.
+const CAMPAIGNS_PAUSED = true;
+
 export default async function handler(req, res) {
     if (req.method === 'POST' && req.query?.broadcast === '1') {
+        if (CAMPAIGNS_PAUSED) {
+            return res.status(200).json({ ok: true, paused: true, sent: 0 });
+        }
         return handleBroadcast(req, res);
     }
     return handleUnsubscribe(req, res);

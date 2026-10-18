@@ -17,9 +17,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(900px circle at 85% -5%, rgba(245, 158, 11, 0.10), transparent 55%),
-    radial-gradient(1100px circle at 5% 8%, rgba(59, 130, 246, 0.10), transparent 50%),
-    radial-gradient(1000px circle at 50% 110%, rgba(99, 102, 241, 0.08), transparent 55%);
+    radial-gradient(900px circle at 85% -5%, rgba(20, 184, 166, 0.06), transparent 55%),
+    radial-gradient(1100px circle at 5% 8%, rgba(37, 99, 235, 0.05), transparent 50%),
+    radial-gradient(1000px circle at 50% 110%, rgba(15, 118, 110, 0.05), transparent 55%);
 }
 
 .page-wrapper {
@@ -44,7 +44,7 @@ body::before {
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
-  background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+  background: linear-gradient(135deg, var(--brand), var(--action));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -74,7 +74,7 @@ body::before {
 .content-card h2 {
   font-size: var(--text-2xl);
   margin-bottom: var(--spacing-md);
-  color: var(--accent-color);
+  color: var(--text-main);
 }
 
 .content-card h3 {
@@ -104,7 +104,7 @@ body::before {
 .feature-item {
   text-align: center;
   padding: var(--spacing-lg);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 }
@@ -135,7 +135,7 @@ body::before {
 .team-card {
   text-align: center;
   padding: var(--spacing-xl);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
 }
@@ -176,13 +176,9 @@ body::before {
   position: relative;
   display: flex;
   flex-direction: column;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
-    rgba(17, 24, 42, 0.72);
-  backdrop-filter: blur(var(--blur-amount));
-  -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 24px rgba(0, 0, 0, 0.25);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   overflow: hidden;
@@ -198,7 +194,7 @@ body::before {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+  background: linear-gradient(90deg, var(--brand), var(--action));
   transform: scaleX(0);
   transform-origin: left;
   opacity: 0.65;
@@ -207,8 +203,8 @@ body::before {
 
 .blog-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(245, 158, 11, 0.35);
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(245, 158, 11, 0.12);
+  border-color: var(--brand-accent);
+  box-shadow: var(--shadow-lg);
 }
 
 .blog-card:hover::before {
@@ -221,11 +217,11 @@ body::before {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #fcd34d;
+  color: var(--brand);
   font-weight: 600;
   padding: 0.28rem 0.8rem;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.22);
   border-radius: 999px;
   margin-bottom: var(--spacing-md);
   width: fit-content;
@@ -240,7 +236,7 @@ body::before {
 }
 
 .blog-card:hover h2 {
-  color: #fef3c7;
+  color: var(--brand);
 }
 
 .blog-card .blog-date {
@@ -269,7 +265,7 @@ body::before {
 }
 
 .blog-card .read-more:hover {
-  color: #fbbf24;
+  color: var(--brand-hover);
   gap: 0.6rem;
 }
 
@@ -316,7 +312,7 @@ body::before {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 .form-group input:focus-visible,
 .form-group textarea:focus-visible {
@@ -345,9 +341,9 @@ body::before {
 
 .form-status.success {
   display: block;
-  background: rgba(34, 197, 94, 0.15);
-  color: var(--success-color);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(22, 163, 74, 0.10);
+  color: var(--success-text);
+  border: 1px solid rgba(22, 163, 74, 0.30);
 }
 
 .form-status.error {
@@ -435,7 +431,7 @@ body::before {
   color: var(--primary-color);
   font-weight: 600;
   padding: 0.25rem 0.75rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(15, 118, 110, 0.30);
   border-radius: 999px;
   margin-bottom: var(--spacing-md);
 }
@@ -444,7 +440,7 @@ body::before {
   font-size: clamp(1.75rem, 3.5vw, 2.75rem);
   font-weight: 800;
   line-height: 1.2;
-  color: #f1f5f9;
+  color: var(--text-main);
   margin-bottom: var(--spacing-md);
   -webkit-text-fill-color: unset;
   background: none;
@@ -459,23 +455,21 @@ body::before {
   flex-wrap: wrap;
 }
 
-.article-meta-sep { color: rgba(255, 255, 255, 0.15); }
+.article-meta-sep { color: var(--border-color-strong); }
 
 /* Reading surface card */
 .article-content {
   max-width: 760px;
   margin: 0 auto 4rem;
-  background: rgba(29, 41, 56, 0.82);
+  background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 2.75rem 3.25rem;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-md);
 }
 
 .article-content p {
-  color: #cbd5e1;
+  color: var(--text-secondary);
   line-height: 1.85;
   margin-bottom: 1.35rem;
   font-size: 1.0625rem;
@@ -484,7 +478,7 @@ body::before {
 .article-content h2 {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--text-main);
   margin-top: 2.75rem;
   margin-bottom: var(--spacing-md);
   padding-bottom: 0.5rem;
@@ -494,7 +488,7 @@ body::before {
 .article-content h3 {
   font-size: var(--text-lg);
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-main);
   margin-top: 2rem;
   margin-bottom: 0.6rem;
 }
@@ -502,7 +496,7 @@ body::before {
 .article-content h4 {
   font-size: 1.0625rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-main);
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
 }
@@ -514,63 +508,99 @@ body::before {
 }
 
 .article-content li {
-  color: #cbd5e1;
+  color: var(--text-secondary);
   line-height: 1.8;
   margin-bottom: 0.5rem;
   font-size: 1.0625rem;
 }
 
-.article-content strong { color: #f1f5f9; }
+.article-content strong { color: var(--text-main); }
 
 .article-content a {
-  color: #60a5fa;
+  color: var(--action);
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(96, 165, 250, 0.4);
+  text-decoration-color: rgba(37, 99, 235, 0.4);
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 .article-content a:hover {
-  color: #93c5fd;
-  text-decoration-color: rgba(147, 197, 253, 0.6);
+  color: var(--action-hover);
+  text-decoration-color: rgba(37, 99, 235, 0.6);
 }
 .article-content a.mission-btn,
 a.mission-btn {
-  color: #0f172a !important;
+  color: #0f766e !important;
   text-decoration: none !important;
   text-decoration-color: transparent !important;
 }
 .article-content a.mission-btn:hover,
 a.mission-btn:hover {
-  color: #0f172a !important;
+  color: #0f766e !important;
   text-decoration: none !important;
+}
+
+/* In-article "mission briefing" CTA card sits inside .article-content and is a
+   teal→blue gradient panel, so its heading/label/copy must stay light — beat the
+   default dark .article-content h2/p rules with higher-specificity overrides. */
+.article-content .mission-briefing h2 {
+  color: #ffffff;
+  border: none;
+  padding: 0;
+}
+.article-content .mission-briefing p,
+.article-content .mission-briefing .mission-briefing-label,
+.article-content .mission-briefing .mission-briefing-note {
+  color: rgba(255, 255, 255, 0.9);
+}
+/* Inline-styled note inside the card — override its inline color */
+.article-content .mission-briefing .mission-note {
+  color: rgba(255, 255, 255, 0.82) !important;
 }
 
 .article-content hr {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-top: 1px solid var(--border-color);
   margin: 2.75rem 0;
 }
 
 /* Comparison table */
+/* display:block lets the table itself act as the horizontal scroll container, so
+   wide tables slide sideways instead of being clipped. (A later `overflow: hidden`
+   used to override overflow-x and silently disable scrolling.) */
 .article-content table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: var(--spacing-xl);
   font-size: var(--text-sm);
-  overflow-x: auto;
   display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  scrollbar-width: thin;
+}
+
+/* Give columns a readable floor so many-column tables scroll rather than squash
+   each cell into a sliver of wrapped text. */
+.article-content thead th,
+.article-content tbody td {
+  min-width: 9.5rem;
+}
+.article-content thead th:first-child,
+.article-content tbody td:first-child {
+  min-width: 8rem;
 }
 
 .article-content thead th {
   text-align: left;
   padding: 0.7rem 1rem;
-  background: rgba(59, 130, 246, 0.15);
-  color: #f1f5f9;
+  background: var(--bg-secondary);
+  color: var(--text-main);
   font-weight: 600;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-  white-space: nowrap;
+  border-bottom: 2px solid var(--border-color-strong);
+  white-space: normal;
+  vertical-align: bottom;
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -578,24 +608,24 @@ a.mission-btn:hover {
 
 .article-content tbody td {
   padding: 0.7rem 1rem;
-  color: #cbd5e1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
   vertical-align: top;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--surface-color);
 }
 
 .article-content tbody tr:nth-child(even) td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-secondary);
 }
 
 .article-content tbody tr:hover td {
-  background: rgba(59, 130, 246, 0.06);
+  background: var(--surface-hover);
 }
 
 /* Game info block */
 .game-info {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: var(--spacing-md) var(--spacing-lg);
   margin: var(--spacing-md) 0;
@@ -615,25 +645,25 @@ a.mission-btn:hover {
   font-weight: 600;
 }
 
-.game-info-value { color: #e2e8f0; }
+.game-info-value { color: var(--text-main); }
 
 /* "Who should skip it" note */
 .skip-note {
-  background: rgba(245, 158, 11, 0.08);
-  border-left: 3px solid rgba(245, 158, 11, 0.55);
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--accent-color);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   padding: 0.65rem var(--spacing-md);
   margin: var(--spacing-md) 0;
   font-size: var(--text-sm);
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
-.skip-note strong { color: rgba(251, 191, 36, 0.95); }
+.skip-note strong { color: var(--accent-color); }
 
 /* CTA box */
 .article-cta {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.22);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   text-align: center;
@@ -647,7 +677,7 @@ a.mission-btn:hover {
 }
 
 .article-cta p {
-  color: #94a3b8 !important;
+  color: var(--text-muted) !important;
   font-size: var(--text-base) !important;
   margin-bottom: var(--spacing-md);
 }
@@ -657,8 +687,8 @@ a.mission-btn:hover {
 .cta-button {
   display: inline-block;
   padding: 0.875rem 2.25rem;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #0f172a !important;
+  background: linear-gradient(135deg, var(--brand), var(--action));
+  color: #ffffff !important;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none !important;
@@ -675,15 +705,15 @@ a.mission-btn:hover {
 
 /* Glow used by both .cta-button and inline .mission-btn definitions. */
 @keyframes mission-glow {
-  0%, 100% { box-shadow: 0 0 6px rgba(245, 158, 11, 0.25), 0 3px 10px rgba(0, 0, 0, 0.4); }
-  50%      { box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), 0 3px 10px rgba(0, 0, 0, 0.4); }
+  0%, 100% { box-shadow: 0 0 8px rgba(15, 118, 110, 0.28), 0 3px 12px rgba(15, 23, 42, 0.12); }
+  50%      { box-shadow: 0 0 18px rgba(37, 99, 235, 0.38), 0 3px 12px rgba(15, 23, 42, 0.12); }
 }
 
 /* Respect reduced-motion for both CTA styles: no pulsing, static glow instead. */
 @media (prefers-reduced-motion: reduce) {
   .cta-button, a.mission-btn {
     animation: none !important;
-    box-shadow: 0 3px 12px rgba(245, 158, 11, 0.3) !important;
+    box-shadow: var(--shadow-md) !important;
   }
 }
 
@@ -743,21 +773,21 @@ a.mission-btn:hover {
 .legal-table th,
 .legal-table td {
   padding: 0.55rem 0.75rem;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-color);
   text-align: left;
   vertical-align: top;
   color: var(--text-muted);
   line-height: 1.6;
 }
 .legal-table th {
-  background: rgba(255,255,255,0.04);
-  color: var(--text-primary);
+  background: var(--bg-secondary);
+  color: var(--text-main);
   font-weight: 600;
 }
 @media (max-width: 640px) {
   .legal-table thead { display: none; }
-  .legal-table tr { display: block; margin-bottom: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }
-  .legal-table td { display: block; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .legal-table tr { display: block; margin-bottom: 0.75rem; border: 1px solid var(--border-color); }
+  .legal-table td { display: block; border: none; border-bottom: 1px solid var(--border-color); }
   .legal-table td::before { content: attr(data-label); display: block; font-weight: 600; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
 }
 
@@ -805,8 +835,8 @@ a.mission-btn:hover {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--primary-color);
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.22);
   border-radius: 999px;
   padding: 0.3rem 0.85rem;
   margin-bottom: var(--spacing-md);
@@ -827,7 +857,7 @@ a.mission-btn:hover {
 .calc-inputs-card h2 {
   font-size: var(--text-lg);
   margin-bottom: var(--spacing-lg);
-  color: var(--accent-color);
+  color: var(--brand);
 }
 
 /* Form fields */
@@ -849,8 +879,8 @@ a.mission-btn:hover {
 .calc-select,
 .calc-number-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color-strong);
   color: var(--text-main);
   padding: 0.65rem var(--spacing-md);
   border-radius: var(--radius-md);
@@ -873,7 +903,7 @@ a.mission-btn:hover {
 .calc-number-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
 /* Crisis factors */
@@ -890,14 +920,14 @@ a.mission-btn:hover {
   padding: 0.6rem 0.75rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--bg-secondary);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .crisis-item:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.06);
+  border-color: var(--border-color-strong);
+  background: var(--surface-hover);
 }
 
 .crisis-item--active {
@@ -930,7 +960,7 @@ a.mission-btn:hover {
 .calc-output-card h2 {
   font-size: var(--text-lg);
   margin-bottom: var(--spacing-lg);
-  color: var(--accent-color);
+  color: var(--brand);
 }
 
 .calc-stats-grid {
@@ -984,8 +1014,8 @@ a.mission-btn:hover {
   border-radius: 999px;
 }
 
-.calc-risk-badge--low      { background: rgba(34,197,94,0.15);  color: #22c55e; border: 1px solid rgba(34,197,94,0.3);  }
-.calc-risk-badge--medium   { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.calc-risk-badge--low      { background: rgba(15,118,110,0.08);  color: var(--brand); border: 1px solid rgba(15,118,110,0.22);  }
+.calc-risk-badge--medium   { background: rgba(245,158,11,0.12); color: #b45309; border: 1px solid rgba(245,158,11,0.30); }
 .calc-risk-badge--high     { background: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
 .calc-risk-badge--critical { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3);  }
 
@@ -1010,7 +1040,7 @@ a.mission-btn:hover {
 .calc-breakdown-table td {
   padding: 0.6rem 0.75rem;
   color: var(--text-muted);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--border-color);
   font-family: var(--font-mono);
 }
 
@@ -1095,8 +1125,8 @@ a.mission-btn:hover {
 .bw-input { text-align: center; padding: 0.4rem 0.3rem !important; }
 
 /* Status colors */
-.bw-status--efficient { color: #22c55e; background: rgba(34,197,94,0.12);  }
-.bw-status--moderate  { color: #f59e0b; background: rgba(245,158,11,0.12); }
+.bw-status--efficient { color: var(--success-text); background: rgba(22,163,74,0.10);  }
+.bw-status--moderate  { color: var(--brand); background: rgba(15,118,110,0.10); }
 .bw-status--high      { color: #f97316; background: rgba(249,115,22,0.12); }
 .bw-status--critical  { color: #ef4444; background: rgba(239,68,68,0.12);  }
 
@@ -1114,7 +1144,7 @@ a.mission-btn:hover {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.4);
   border-radius: var(--radius-md);
-  color: #fca5a5;
+  color: var(--danger-text);
   font-size: var(--text-sm);
   font-weight: 600;
   padding: 0.85rem var(--spacing-lg);
@@ -1153,7 +1183,7 @@ a.mission-btn:hover {
 
 .bw-bar-track {
   height: 2rem;
-  background: rgba(0,0,0,0.25);
+  background: var(--bg-secondary);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
@@ -1168,10 +1198,10 @@ a.mission-btn:hover {
   transition: width 0.35s var(--ease-smooth);
 }
 
-.bw-bar-fill--efficient { background: rgba(34,197,94,0.5);  }
-.bw-bar-fill--moderate  { background: rgba(245,158,11,0.5); }
-.bw-bar-fill--high      { background: rgba(249,115,22,0.5); }
-.bw-bar-fill--critical  { background: rgba(239,68,68,0.5);  }
+.bw-bar-fill--efficient { background: var(--success-color);  }
+.bw-bar-fill--moderate  { background: var(--brand); }
+.bw-bar-fill--high      { background: var(--warning); }
+.bw-bar-fill--critical  { background: var(--danger-color);  }
 
 .bw-bar-val {
   font-size: var(--text-xs);

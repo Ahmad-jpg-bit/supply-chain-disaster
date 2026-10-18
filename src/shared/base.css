@@ -4,41 +4,63 @@
    ======================================== */
 
 :root {
-  /* Colors — layered dark palette (page → secondary → card → elevated),
-     lifted off near-black (#0f172a) so surfaces stay legible in bright
-     rooms/daylight without becoming a light theme. Every text/surface
-     pairing below is WCAG-AA-verified (≥4.5:1), including worst-case
-     (muted text on the lightest/elevated tier). See design-tokens audit,
-     Aug 2026. */
-  --bg-color: #111827;              /* page background (was #0f172a) */
-  --bg-secondary: #17212e;          /* NEW — secondary background / section */
-  --surface-color: #1d2938;         /* card background — now opaque & distinct (was rgba(30,41,59,.7)) */
-  --surface-hover: #24344a;         /* hover state for surface-color, opaque (was rgba(51,65,85,.8)) */
-  --surface-elevated: #28394d;      /* NEW — elevated card / modal / popover */
-  --primary-color: #5c5cee;         /* indigo — matches the 2026 fork palette; white button text clears WCAG AA (4.98:1) */
-  --primary-hover: #4c4cd6;         /* hover/pressed — stronger contrast still */
-  --primary-dark: #3f3fc4;          /* deepest indigo — gradient stops / pressed fills */
-  --primary-text: #a5b4fc;          /* indigo AS TEXT/links on dark surfaces (8.9:1) */
-  --primary-glow: rgba(92, 92, 238, 0.32); /* focus rings / caret / pulse glows */
-  --accent-color: #f59e0b;
-  --text-main: #f8fafc;
-  --text-muted: #a3b0c2;            /* lightened from #94a3b8 for extra margin */
-  --success-color: #22c55e;
-  --success-text: #4ade80;          /* NEW — success as small/inline text */
-  --danger-color: #ef4444;
-  --danger-text: #f87171;           /* NEW — danger as small/inline text */
-  --border-color: rgba(255, 255, 255, 0.14);       /* card/divider borders (was 0.1) */
-  --border-color-strong: rgba(255, 255, 255, 0.28); /* NEW — inputs & essential UI boundaries (WCAG 1.4.11) */
+  /* ── 2026 light SaaS design system ──────────────────────────────
+     The marketing/content site (homepage, blog, articles, pricing,
+     legal, calculators) runs on this light "supply-chain intelligence
+     platform" palette. The in-game simulation (body.play-bg) keeps the
+     original dark theme — the dark token values are re-declared under
+     `body.play-bg` at the end of this block, so shared components stay
+     dark inside gameplay while the marketing surface reads light.
+     Every text/surface pairing below is WCAG-AA (≥4.5:1) on white/off-white.
+     Token names are kept stable so existing var(--…) refs re-theme for free. */
+  --bg-color: #f8fafc;              /* page background — cool off-white */
+  --bg-secondary: #f1f5f9;          /* secondary/tertiary section surface */
+  --surface-color: #ffffff;         /* card background */
+  --surface-hover: #f1f5f9;         /* hover state for cards */
+  --surface-elevated: #ffffff;      /* elevated card / modal / popover */
+  --primary-color: #0f766e;         /* brand — deep teal (fills, focus) */
+  --primary-hover: #115e59;         /* brand hover/pressed */
+  --primary-dark: #115e59;          /* darker gradient stop / pressed fills */
+  --primary-text: #2563eb;          /* inline links / action text — SaaS blue */
+  --primary-glow: rgba(15, 118, 110, 0.18); /* focus rings / teal glow */
+  --accent-color: #f59e0b;          /* amber — attention / warning accents */
+  --text-main: #0f172a;             /* primary text — dark navy */
+  --text-secondary: #475569;        /* secondary body text */
+  --text-muted: #475569;            /* body copy default (was truly-muted; kept legible) */
+  --text-subtle: #64748b;           /* small metadata / captions */
+  --text-inverse: #ffffff;          /* text on brand/action fills */
+  --success-color: #16a34a;         /* green — recovery / success */
+  --success-text: #15803d;          /* green as small/inline text on white */
+  --danger-color: #ef4444;          /* red — disaster / loss */
+  --danger-text: #dc2626;           /* red as small/inline text on white */
+  --border-color: #e2e8f0;          /* card/divider borders */
+  --border-color-strong: #cbd5e1;   /* inputs & essential UI boundaries (WCAG 1.4.11) */
 
-  /* Industry accent colors */
-  --accent-electronics: #f59e0b;
-  --accent-fmcg: #22c55e;
-  --accent-pharma: #a855f7;
+  /* Extended semantic tokens (2026 system) */
+  --brand: #0f766e;
+  --brand-hover: #115e59;
+  --brand-accent: #14b8a6;          /* modern teal accent */
+  --action: #2563eb;                /* SaaS blue — product actions */
+  --action-hover: #1d4ed8;
+  --warning: #f59e0b;
+  --dark: #0f172a;                  /* dark sections (footer, institutions card) */
+  --dark-secondary: #1e293b;
+  --dark-text: #e2e8f0;
 
-  /* Grade colors */
-  --grade-s: #f59e0b;
-  --grade-a: #22c55e;
-  --grade-b: #3b82f6;
+  /* Modern SaaS shadow hierarchy — prefer borders over shadows for most cards */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.10);
+
+  /* Industry accent colors — mapped onto the new palette */
+  --accent-electronics: #2563eb;
+  --accent-fmcg: #0f766e;
+  --accent-pharma: #14b8a6;
+
+  /* Grade colors — status scale (best → worst) on light */
+  --grade-s: #0f766e;
+  --grade-a: #16a34a;
+  --grade-b: #64748b;
   --grade-c: #94a3b8;
   --grade-d: #ef4444;
 
@@ -59,10 +81,10 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
 
-  /* Effects */
-  --glass-bg: rgba(29, 41, 56, 0.88);  /* flatter, mostly-opaque cards (fork-style) — less glassmorphism, crisper surface separation */
+  /* Effects — light cards: solid white surface, thin border, soft SaaS shadow */
+  --glass-bg: #ffffff;
   --glass-border: 1px solid var(--border-color);
-  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.18);  /* crisp near-shadow + soft ambient, fork-style */
+  --glass-shadow: var(--shadow-md);
   --blur-amount: 8px;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -79,10 +101,55 @@
   padding: 0;
 }
 
-/* Dark-theme form controls + scrollbars (kills the white default scrollbar
-   inside modals/overlays on the dark backdrop) */
 :root {
+  color-scheme: light;
+}
+
+/* ── In-game simulation keeps the original dark theme ──────────────
+   play.html carries body.play-bg. Re-declaring the dark token values here
+   (and only here) means every shared component that reads var(--…) renders
+   dark inside gameplay, while the marketing site stays on the light palette
+   above. Values below are the pre-2026 dark tokens, verbatim. */
+body.play-bg {
   color-scheme: dark;
+  --bg-color: #0a0a0b;
+  --bg-secondary: #131315;
+  --surface-color: #1a1a1d;
+  --surface-hover: #26262b;
+  --surface-elevated: #2e2e33;
+  --primary-color: #fafafa;
+  --primary-hover: #e4e4e7;
+  --primary-dark: #d4d4d8;
+  --primary-text: #e4e4e7;
+  --primary-glow: rgba(255, 255, 255, 0.16);
+  --accent-color: #c99a52;
+  --text-main: #f5f5f6;
+  --text-secondary: #a1a1aa;
+  --text-muted: #a1a1aa;
+  --text-subtle: #a1a1aa;
+  --text-inverse: #0a0a0b;
+  --success-color: #5faa79;
+  --success-text: #86c79b;
+  --danger-color: #cf6b6b;
+  --danger-text: #e2908f;
+  --border-color: rgba(255, 255, 255, 0.14);
+  --border-color-strong: rgba(255, 255, 255, 0.30);
+  --brand: #fafafa;
+  --brand-hover: #e4e4e7;
+  --brand-accent: #d4d4d8;
+  --action: #fafafa;
+  --action-hover: #e4e4e7;
+  --dark-text: #f5f5f6;
+  --accent-electronics: #d4d4d8;
+  --accent-fmcg: #d4d4d8;
+  --accent-pharma: #d4d4d8;
+  --grade-s: #c99a52;
+  --grade-a: #5faa79;
+  --grade-b: #9a9aa3;
+  --grade-c: #6b6b73;
+  --grade-d: #cf6b6b;
+  --glass-bg: rgba(29, 41, 56, 0.88);
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 * {
@@ -135,6 +202,9 @@ body {
   .glass-panel {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    background: var(--surface-color);
+  }
+  body.play-bg .glass-panel {
     background: rgba(36, 49, 68, 0.96);
   }
 }
@@ -149,7 +219,7 @@ button {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
+  color: var(--text-inverse);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -186,9 +256,9 @@ button {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-main);
+  border: 1px solid var(--border-color-strong);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
   font-weight: 500;
@@ -196,6 +266,17 @@ button {
 }
 
 .btn-secondary:hover {
+  background: var(--surface-muted, var(--bg-secondary));
+  color: var(--text-main);
+  border-color: var(--border-color-strong);
+}
+
+body.play-bg .btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  border-color: var(--border-color);
+}
+body.play-bg .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-main);
 }

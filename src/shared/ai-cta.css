@@ -1,0 +1,104 @@
+/* ──────────────────────────────────────────────────────────────────────
+   Shared "AI courses on Udemy" affiliate promo.
+   A compact, animated band that fits the light SaaS UI. Rendered by
+   src/shared/ai-cta.js into a #ai-cta-* slot (homepage, articles) or
+   appended to .article-content. Inner selectors are prefixed with `.ai-cta`
+   so they out-specify the .article-content p/a/h* rules when embedded in a
+   blog post. Colours fall back to hard values so it also renders standalone.
+   ────────────────────────────────────────────────────────────────────── */
+
+.ai-cta {
+  position: relative;
+  margin: 2.25rem 0;
+  border-radius: 16px;
+  padding: 1.4rem 1.6rem;
+  background:
+    radial-gradient(130% 130% at 0% 0%, rgba(20, 184, 166, 0.10), transparent 55%),
+    radial-gradient(130% 130% at 100% 100%, rgba(37, 99, 235, 0.10), transparent 55%),
+    var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+  overflow: hidden;
+  transition: box-shadow 0.25s ease;
+}
+.ai-cta:hover { box-shadow: 0 18px 40px rgba(15, 23, 42, 0.11); }
+
+/* Animated gradient accent bar along the top */
+.ai-cta::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #0f766e, #14b8a6, #2563eb, #14b8a6, #0f766e);
+  background-size: 250% 100%;
+  animation: ai-cta-slide 6s linear infinite;
+}
+@keyframes ai-cta-slide { to { background-position: 250% 0; } }
+
+.ai-cta .ai-cta-inner {
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+}
+.ai-cta .ai-cta-text { flex: 1 1 300px; min-width: 0; }
+
+.ai-cta .ai-cta-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: 'Courier New', monospace; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--brand, #0f766e); margin: 0 0 0.45rem;
+}
+.ai-cta .ai-cta-spark {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--brand-accent, #14b8a6);
+  animation: ai-cta-pulse 2s ease-out infinite;
+}
+@keyframes ai-cta-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(20, 184, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+}
+
+.ai-cta .ai-cta-title {
+  font-size: 1.1rem; font-weight: 800; color: var(--text-main, #0f172a);
+  line-height: 1.3; margin: 0 0 0.3rem; padding: 0; border: none;
+}
+.ai-cta .ai-cta-desc {
+  font-size: 0.86rem; color: var(--text-secondary, #475569);
+  line-height: 1.55; margin: 0; max-width: 62ch;
+}
+
+.ai-cta .ai-cta-action {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 0.4rem; flex-shrink: 0;
+}
+.ai-cta .ai-cta-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+  white-space: nowrap; padding: 0.72rem 1.3rem; border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand, #0f766e), var(--action, #2563eb));
+  color: #ffffff !important; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.01em;
+  text-decoration: none !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.26);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  position: relative; overflow: hidden;
+}
+.ai-cta .ai-cta-btn:hover {
+  transform: translateY(-2px); filter: brightness(1.06);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.34);
+}
+.ai-cta .ai-cta-btn::after {
+  content: ""; position: absolute; top: 0; left: -130%; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-20deg); animation: ai-cta-shimmer 3.2s ease-in-out infinite;
+}
+@keyframes ai-cta-shimmer { 0%, 60% { left: -130%; } 100% { left: 140%; } }
+.ai-cta .ai-cta-arrow { transition: transform 0.2s ease; }
+.ai-cta .ai-cta-btn:hover .ai-cta-arrow { transform: translateX(4px); }
+
+.ai-cta .ai-cta-note {
+  font-size: 0.7rem; color: var(--text-subtle, #94a3b8); margin: 0; text-align: center;
+}
+
+@media (max-width: 640px) {
+  .ai-cta .ai-cta-action { width: 100%; }
+  .ai-cta .ai-cta-btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-cta::before, .ai-cta .ai-cta-spark, .ai-cta .ai-cta-btn::after { animation: none; }
+}

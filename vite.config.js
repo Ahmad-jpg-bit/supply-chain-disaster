@@ -109,6 +109,12 @@ export default defineConfig({
                 'supply-chain-job-search-strategies': resolve(__dirname, 'supply-chain-job-search-strategies.html'),
                 'supply-chain-talent-gap': resolve(__dirname, 'supply-chain-talent-gap.html'),
                 'supply-chain-gadgets': resolve(__dirname, 'supply-chain-gadgets.html'),
+                'business-simulation-games-for-students': resolve(__dirname, 'business-simulation-games-for-students.html'),
+                'business-simulation-games-corporate-training': resolve(__dirname, 'business-simulation-games-corporate-training.html'),
+                'operations-management-simulation-games': resolve(__dirname, 'operations-management-simulation-games.html'),
+                'online-business-simulation-games': resolve(__dirname, 'online-business-simulation-games.html'),
+                'games-like-startup-company': resolve(__dirname, 'games-like-startup-company.html'),
+                'virtonomics-vs-capitalism-lab': resolve(__dirname, 'virtonomics-vs-capitalism-lab.html'),
             },
 
             output: {

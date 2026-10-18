@@ -32,11 +32,11 @@ const NODE_ICONS = {
  *   inactive  – node not involved in current chapter → dim gray
  */
 const STATUS_CONFIG = {
-    normal:    { stroke: '#5c5cee', fill: 'rgba(92,92,238,0.18)',   icon: '#5c5cee',  filter: 'glow-blue',   badge: null,        badgeColor: null      },
-    ok:        { stroke: '#22c55e', fill: 'rgba(34,197,94,0.18)',   icon: '#22c55e',  filter: 'glow-green',  badge: 'NOMINAL',   badgeColor: '#22c55e' },
-    warning:   { stroke: '#f59e0b', fill: 'rgba(245,158,11,0.18)',  icon: '#f59e0b',  filter: 'glow-orange', badge: 'WARNING',   badgeColor: '#f59e0b' },
-    critical:  { stroke: '#ef4444', fill: 'rgba(239,68,68,0.18)',   icon: '#ef4444',  filter: 'glow-red',    badge: 'CRITICAL',  badgeColor: '#ef4444' },
-    disrupted: { stroke: '#ef4444', fill: 'rgba(239,68,68,0.10)',   icon: '#ef4444',  filter: 'glow-red',    badge: 'DISRUPTED', badgeColor: '#ef4444' },
+    normal:    { stroke: '#e4e4e7', fill: 'rgba(255,255,255,0.12)', icon: '#e4e4e7',  filter: 'glow-blue',   badge: null,        badgeColor: null      },
+    ok:        { stroke: '#5faa79', fill: 'rgba(95,170,121,0.18)', icon: '#5faa79',  filter: 'glow-green',  badge: 'NOMINAL',   badgeColor: '#5faa79' },
+    warning:   { stroke: '#c99a52', fill: 'rgba(201,154,82,0.18)', icon: '#c99a52',  filter: 'glow-orange', badge: 'WARNING',   badgeColor: '#c99a52' },
+    critical:  { stroke: '#cf6b6b', fill: 'rgba(207,107,107,0.18)',icon: '#cf6b6b',  filter: 'glow-red',    badge: 'CRITICAL',  badgeColor: '#cf6b6b' },
+    disrupted: { stroke: '#cf6b6b', fill: 'rgba(207,107,107,0.10)',icon: '#cf6b6b',  filter: 'glow-red',    badge: 'DISRUPTED', badgeColor: '#cf6b6b' },
     inactive:  { stroke: 'rgba(148,163,184,0.3)', fill: 'rgba(30,41,59,0.8)', icon: '#94a3b8', filter: null, badge: null, badgeColor: null },
 };
 
@@ -75,7 +75,7 @@ export class SupplyChainFlow {
                 </filter>
                 <filter id="glow-blue" x="-60%" y="-60%" width="220%" height="220%">
                     <feGaussianBlur stdDeviation="4" result="blur"/>
-                    <feFlood flood-color="#5c5cee" flood-opacity="0.55" result="c"/>
+                    <feFlood flood-color="#ffffff" flood-opacity="0.45" result="c"/>
                     <feComposite in="c" in2="blur" operator="in" result="cb"/>
                     <feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>

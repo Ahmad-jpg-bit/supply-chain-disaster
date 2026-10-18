@@ -115,7 +115,16 @@ function recallEmailHtml({ question, resumeChapter, email }) {
 </html>`;
 }
 
+// ── Campaign kill-switch ──────────────────────────────────────────────
+// Marketing/campaign email is PAUSED (set false to resume the spaced-recall
+// campaign). Transactional email — purchase welcome, save-progress, contact —
+// is unaffected. Requested 2026-09-26.
+const CAMPAIGNS_PAUSED = true;
+
 export default async function handler(req, res) {
+    if (CAMPAIGNS_PAUSED) {
+        return res.status(200).json({ ok: true, paused: true, sent: 0 });
+    }
     // Only allow the scheduled invocation (Vercel sends the CRON_SECRET bearer).
     const secret = process.env.CRON_SECRET;
     if (secret) {

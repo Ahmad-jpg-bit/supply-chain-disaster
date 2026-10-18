@@ -9,13 +9,27 @@
   padding: 0.75rem var(--spacing-lg);
   border-radius: 0;
   margin-bottom: 0;
-  /* Match homepage nav — dark navy, high opacity, bottom-only border */
-  background: rgba(10, 15, 30, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Light SaaS nav — translucent white, hairline bottom border */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border: none;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.site-nav {
+  --nav-hover: rgba(15, 23, 42, 0.05);
+  --nav-hover-strong: rgba(15, 23, 42, 0.08);
+}
+
+/* In-game nav keeps the dark navy bar */
+body.play-bg .site-nav {
+  background: rgba(10, 15, 30, 0.92);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: none;
+  --nav-hover: rgba(255, 255, 255, 0.06);
+  --nav-hover-strong: rgba(255, 255, 255, 0.1);
 }
 
 .nav-inner {
@@ -46,9 +60,10 @@
 .nav-logo-text {
   font-weight: 600;
   font-size: var(--text-sm);
-  color: #f0f2ff;
+  color: var(--text-main);
   white-space: nowrap;
 }
+body.play-bg .nav-logo-text { color: #f0f2ff; }
 
 .nav-links {
   display: flex;
@@ -79,7 +94,7 @@
 
 .nav-link:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--nav-hover);
 }
 
 /* Active indicator — amber underline pill under non-CTA links */
@@ -96,7 +111,7 @@
   bottom: 0.15rem;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent-color), #fbbf24);
+  background: linear-gradient(90deg, var(--brand), var(--action));
 }
 
 /* Hamburger button */
@@ -131,21 +146,21 @@
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Primary CTA — amber, matching homepage */
+/* Primary CTA — teal brand button */
 .nav-link--cta {
-  color: #0a0f1e !important;
-  background: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: var(--text-inverse) !important;
+  background: var(--primary-color);
+  border: 1px solid transparent;
   font-weight: 700;
 }
 .nav-link--cta:hover {
-  background: #fbbf24;
-  color: #0a0f1e !important;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+  background: var(--primary-hover);
+  color: var(--text-inverse) !important;
+  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.30);
 }
 .nav-link--cta.active {
-  background: #fbbf24;
-  border-color: rgba(245, 158, 11, 0.6);
+  background: var(--primary-hover);
+  border-color: transparent;
 }
 
 /* Learn dropdown */
@@ -185,7 +200,7 @@
   padding: 0.4rem;
   list-style: none;
   margin: 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
   z-index: 100;
 }
 .nav-dropdown.open { display: block; }
@@ -205,7 +220,7 @@
 }
 .nav-dropdown-link:hover,
 .nav-dropdown-link.active {
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--nav-hover-strong);
   color: var(--text-main);
 }
 .nav-dropdown-link:hover .nav-dropdown-icon,
@@ -215,7 +230,7 @@
 
 /* Upgrade — demoted to subtle text link, doesn't compete with primary CTA */
 .nav-upgrade-btn {
-  color: rgba(245, 158, 11, 0.75);
+  color: var(--text-subtle);
   font-weight: 500;
   font-size: calc(var(--text-sm) * 0.92);
   padding: 0.5rem 0.65rem;
@@ -223,8 +238,8 @@
 }
 
 .nav-upgrade-btn:hover {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.08);
+  color: var(--primary-color);
+  background: var(--nav-hover-strong);
 }
 
 /* Search icon button */
@@ -250,7 +265,7 @@
 .nav-search-btn:hover,
 .nav-search-btn[aria-expanded="true"] {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--nav-hover);
 }
 
 /* Expandable search box */
@@ -308,7 +323,7 @@
 .nav-search-submit {
   background: none;
   border: none;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid var(--border-color);
   padding: 0.45rem 0.6rem;
   color: var(--text-muted);
   cursor: pointer;
@@ -367,7 +382,7 @@
     position: static;
     transform: none;
     border: none;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--nav-hover);
     box-shadow: none;
     padding: 0 0 0 1rem;
     border-radius: 0;

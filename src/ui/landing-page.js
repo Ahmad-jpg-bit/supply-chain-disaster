@@ -10,11 +10,13 @@
 
 import './landing-page.css';
 import { CHAPTERS } from '../data/chapters.js';
+import { EXPANSION_CHAPTERS } from '../data/expansion-chapters.js';
 import { INDUSTRIES } from '../logic/industries.js';
 import { getIcon } from '../graphics/svg-icons.js';
 import { PremiumManager } from '../logic/premium.js';
 import { createFooter } from '../shared/footer.js';
 import { setNavMinimal } from '../shared/nav.js';
+import { showDemo } from './demo-modal.js';
 
 const CHAPTER_OUTCOMES = [
     'Forecast demand to avoid stockouts & overstock',
@@ -30,8 +32,8 @@ const CHAPTER_OUTCOMES = [
 const INDUSTRY_CONFIG = {
     electronics: {
         icon: getIcon('factory', 32),
-        accent: '#f59e0b',
-        accentRgb: '245,158,11',
+        accent: '#d4d4d8',
+        accentRgb: '212,212,216',
         label: 'Emergency Alert',
         tagline: 'Volatile demand · Long lead times · Chip shortages',
         stats: [
@@ -41,14 +43,14 @@ const INDUSTRY_CONFIG = {
         ],
         difficulty: {
             label: 'Intermediate',
-            rgb: '245,158,11',
+            rgb: '201,154,82',
             persona: "Best if you're familiar with volatile demand",
         },
     },
     fmcg: {
         icon: getIcon('store', 32),
-        accent: '#3b82f6',
-        accentRgb: '59,130,246',
+        accent: '#d4d4d8',
+        accentRgb: '212,212,216',
         label: 'High Volume',
         tagline: 'High volume · Tight margins · Rapid replenishment',
         stats: [
@@ -58,15 +60,15 @@ const INDUSTRY_CONFIG = {
         ],
         difficulty: {
             label: 'Start here',
-            rgb: '34,197,94',
+            rgb: '95,170,121',
             persona: 'Best for your first playthrough',
         },
         recommended: true,
     },
     pharma: {
         icon: getIcon('shield', 32),
-        accent: '#22c55e',
-        accentRgb: '34,197,94',
+        accent: '#d4d4d8',
+        accentRgb: '212,212,216',
         label: 'Regulatory',
         tagline: 'Regulatory constraints · Safety stock · Cold chain',
         stats: [
@@ -76,7 +78,7 @@ const INDUSTRY_CONFIG = {
         ],
         difficulty: {
             label: 'Advanced',
-            rgb: '239,68,68',
+            rgb: '207,107,107',
             persona: 'Best for students with supply chain experience',
         },
     },
@@ -176,7 +178,7 @@ export class LandingPage {
                     <span class="lp-free-label">Free &mdash; no account required</span>
                     <div class="lp-hero-stats">
                         <div class="lp-stat">
-                            <span class="lp-stat-val">8</span>
+                            <span class="lp-stat-val">10</span>
                             <span class="lp-stat-label">Chapters</span>
                         </div>
                         <div class="lp-stat-divider"></div>
@@ -186,12 +188,12 @@ export class LandingPage {
                         </div>
                         <div class="lp-stat-divider"></div>
                         <div class="lp-stat">
-                            <span class="lp-stat-val">32</span>
+                            <span class="lp-stat-val">40</span>
                             <span class="lp-stat-label">Decisions</span>
                         </div>
                         <div class="lp-stat-divider"></div>
                         <div class="lp-stat">
-                            <span class="lp-stat-val">&lt;2h</span>
+                            <span class="lp-stat-val">&lt;2.5h</span>
                             <span class="lp-stat-label">To Complete</span>
                         </div>
                     </div>
@@ -288,18 +290,19 @@ export class LandingPage {
     }
 
     _roadmapHTML() {
-        const nodes = CHAPTERS.map((ch, i) => {
-            const isFree    = ch.number <= 3;
-            const hasNext   = i < CHAPTERS.length - 1;
+        // All 10 chapters are free to play; the paid feature is the Advanced Report.
+        const allChapters = [...CHAPTERS, ...EXPANSION_CHAPTERS];
+        const nodes = allChapters.map((ch, i) => {
+            const hasNext   = i < allChapters.length - 1;
             const outcome   = CHAPTER_OUTCOMES[i] || '';
             return `
-            <div class="lp-roadmap-node lp-roadmap-node--${isFree ? 'free' : 'pro'}">
+            <div class="lp-roadmap-node lp-roadmap-node--free">
                 <div class="lp-rn-icon">${getIcon(ch.icon, 20)}</div>
                 ${hasNext ? '<div class="lp-rn-connector"></div>' : ''}
                 <div class="lp-rn-body">
                     <div class="lp-rn-header">
                         <span class="lp-rn-num">Ch ${ch.number}</span>
-                        <span class="lp-rn-badge lp-rn-badge--${isFree ? 'free' : 'pro'}">${isFree ? 'Free' : 'Pro'}</span>
+                        <span class="lp-rn-badge lp-rn-badge--free">Free</span>
                     </div>
                     <div class="lp-rn-title">${ch.title}</div>
                     <div class="lp-rn-outcome">${outcome}</div>
@@ -312,16 +315,14 @@ export class LandingPage {
             <div class="lp-section-header">
                 <div class="lp-section-label">Mission Briefing</div>
                 <h2>Master the Full Supply Chain Arc</h2>
-                <p class="lp-section-sub">8 chapters scaffolding from fundamentals to advanced strategy. Each chapter unlocks new crises, harder decisions, and deeper consequences.</p>
+                <p class="lp-section-sub">10 chapters scaffolding from fundamentals to advanced strategy. Each chapter unlocks new crises, harder decisions, and deeper consequences.</p>
             </div>
             <div class="lp-roadmap-scroll">
                 <div class="lp-roadmap-track">${nodes}</div>
             </div>
             <div class="lp-roadmap-legend">
-                <span class="lp-rn-badge lp-rn-badge--free">Free Entry</span>
-                <span class="lp-roadmap-legend-text">Chapters 1–3 always free</span>
-                <span class="lp-rn-badge lp-rn-badge--pro" style="margin-left:1.25rem;">Pro</span>
-                <span class="lp-roadmap-legend-text">Chapters 4–10 &mdash; $49.99 one-time, lifetime</span>
+                <span class="lp-rn-badge lp-rn-badge--free">Free</span>
+                <span class="lp-roadmap-legend-text">All 10 chapters free — no account needed. Full Access adds the 5-page Advanced Report + certificate.</span>
             </div>
         </section>`;
     }
@@ -514,8 +515,8 @@ export class LandingPage {
         <section class="lp-upgrade">
             <div class="lp-section-header">
                 <div class="lp-section-label">Pricing</div>
-                <h2>One Price. Everything Unlocked.</h2>
-                <p class="lp-section-sub">Start free today. One $49.99 purchase unlocks the entire game — for life.</p>
+                <h2>All 10 chapters free. One-time upgrade.</h2>
+                <p class="lp-section-sub">Play the entire game free — no account. A one-time Full Access purchase adds the 5-page Advanced Report and your certificate, for life. No subscription.</p>
             </div>
             <div class="lp-pricing-grid">
 
@@ -529,14 +530,13 @@ export class LandingPage {
                         <p class="lp-tier-tagline">Start immediately. No card needed.</p>
                     </div>
                     <ul class="lp-tier-features">
-                        <li>${check} Chapters 1–3 (12 scenarios)</li>
+                        <li>${check} <strong>All 10 chapters — 40-turn campaign</strong></li>
                         <li>${check} All 3 industries</li>
                         <li>${check} Live analytics dashboard</li>
                         <li>${check} Bullwhip Effect tracker</li>
-                        <li>${cross} <span class="lp-tier-locked">Chapters 4–10</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Executive Strategy PDF</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Global Certification</span></li>
-                        <li>${cross} <span class="lp-tier-locked">Advanced Debrief Report</span></li>
+                        <li>${check} In-browser performance debrief</li>
+                        <li>${cross} <span class="lp-tier-locked">5-page Advanced Report (PDF)</span></li>
+                        <li>${cross} <span class="lp-tier-locked">Certificate of Completion</span></li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--free lp-begin-btn-pricing">
                         Play Free &rarr;
@@ -552,16 +552,14 @@ export class LandingPage {
                             <span class="lp-tier-amount lp-tier-amount--premium">$49.99</span>
                             <span class="lp-tier-period">one-time</span>
                         </div>
-                        <p class="lp-tier-tagline">Everything unlocked. Lifetime access. No subscriptions.</p>
+                        <p class="lp-tier-tagline">The full analysis layer. Lifetime access. No subscriptions.</p>
                     </div>
                     <ul class="lp-tier-features">
-                        <li>${check} Everything in Free</li>
-                        <li>${check} <strong>All 10 Chapters — 40-Turn Campaign</strong></li>
-                        <li>${check} <strong>Global Crisis &amp; Multi-Regional Chapters</strong></li>
-                        <li>${check} <strong>Advanced Debrief Report (5-page PDF)</strong></li>
-                        <li>${check} <strong>Executive Strategy Debrief PDF</strong></li>
-                        <li>${check} <strong>Global Certificate of Completion</strong></li>
-                        <li>${check} Advanced Cost Breakdown Analytics</li>
+                        <li>${check} Everything in Free — all 10 chapters</li>
+                        <li>${check} <strong>5-page Advanced Report (PDF debrief)</strong></li>
+                        <li>${check} <strong>Turn-by-turn Decision Audit</strong></li>
+                        <li>${check} <strong>Learning Summary &amp; Chapter Breakdown</strong></li>
+                        <li>${check} <strong>Certificate of Completion</strong></li>
                         <li>${check} <strong>Lifetime Updates</strong></li>
                     </ul>
                     <button class="lp-tier-cta lp-tier-cta--premium btn-glow lp-upgrade-btn">
@@ -588,7 +586,9 @@ export class LandingPage {
         });
 
         // Demo button
-        page.querySelector('#lp-demo-btn')?.addEventListener('click', () => this._showDemo());
+        page.querySelector('#lp-demo-btn')?.addEventListener('click', () => showDemo({
+            onStart: () => this.container.querySelector('#lp-industries')?.scrollIntoView({ behavior: 'smooth' }),
+        }));
 
         // Industry card "Play X" buttons → launch game
         page.querySelectorAll('.lp-ind-btn').forEach(btn => {
@@ -673,272 +673,6 @@ export class LandingPage {
         });
     }
 
-    _showDemo() {
-        const SLIDE_MS     = 10_000;
-        const TOTAL_SLIDES = 3;
-        const slides       = [
-            this._demoSlideDecision(),
-            this._demoSlideOutcome(),
-            this._demoSlideSummary(),
-        ];
-        const badges = [
-            'CHAPTER 2 · DECISION SCREEN',
-            'CHAPTER 2 · OUTCOME LOG',
-            'CHAPTER 2 · PERFORMANCE REPORT',
-        ];
-
-        const overlay = document.createElement('div');
-        overlay.className = 'lp-demo-overlay';
-        overlay.innerHTML = `
-            <div class="lp-demo-modal">
-                <div class="lp-demo-header">
-                    <div class="lp-demo-header-left">
-                        <span class="lp-demo-badge" id="lp-demo-badge">${badges[0]}</span>
-                        <button class="lp-demo-close" aria-label="Close">&times;</button>
-                    </div>
-                </div>
-                <div class="lp-demo-progress-bar">
-                    <div class="lp-demo-progress-fill" id="lp-demo-fill"></div>
-                </div>
-                <div class="lp-demo-slides" id="lp-demo-slides">${slides[0]}</div>
-                <div class="lp-demo-nav">
-                    <div class="lp-demo-dots" id="lp-demo-dots">
-                        ${slides.map((_, i) =>
-                            `<button class="lp-demo-dot ${i === 0 ? 'lp-demo-dot--active' : ''}"
-                                     data-slide="${i}" aria-label="Slide ${i + 1}"></button>`
-                        ).join('')}
-                    </div>
-                    <button class="btn-primary btn-glow lp-demo-start-btn">
-                        Start Playing Free &rarr;
-                    </button>
-                </div>
-            </div>`;
-
-        document.body.appendChild(overlay);
-        requestAnimationFrame(() => overlay.classList.add('visible'));
-
-        let current     = 0;
-        let startTime   = performance.now();
-        let rafId       = null;
-        let selectTimer = null;
-
-        const slidesEl = overlay.querySelector('#lp-demo-slides');
-        const fillEl   = overlay.querySelector('#lp-demo-fill');
-        const dotsEl   = overlay.querySelector('#lp-demo-dots');
-        const badgeEl  = overlay.querySelector('#lp-demo-badge');
-
-        const goTo = (idx) => {
-            current = Math.max(0, Math.min(idx, TOTAL_SLIDES - 1));
-            clearTimeout(selectTimer);
-            badgeEl.textContent = badges[current];
-            slidesEl.innerHTML  = slides[current];
-            dotsEl.querySelectorAll('.lp-demo-dot').forEach((d, i) =>
-                d.classList.toggle('lp-demo-dot--active', i === current)
-            );
-            startTime = performance.now();
-            if (current === 0) _scheduleAutoSelect();
-        };
-
-        const _scheduleAutoSelect = () => {
-            selectTimer = setTimeout(() => {
-                const opt = slidesEl.querySelector('.lp-demo-option--mid');
-                if (opt) opt.classList.add('lp-demo-option--chosen');
-            }, 3000);
-        };
-
-        const tick = () => {
-            const frac = Math.min((performance.now() - startTime) / SLIDE_MS, 1);
-            fillEl.style.width = `${((current + frac) / TOTAL_SLIDES) * 100}%`;
-            if (frac >= 1 && current < TOTAL_SLIDES - 1) goTo(current + 1);
-            if (overlay.isConnected) rafId = requestAnimationFrame(tick);
-        };
-        rafId = requestAnimationFrame(tick);
-        _scheduleAutoSelect();
-
-        dotsEl.querySelectorAll('.lp-demo-dot').forEach(dot =>
-            dot.addEventListener('click', () => goTo(Number(dot.dataset.slide)))
-        );
-
-        const close = () => {
-            cancelAnimationFrame(rafId);
-            clearTimeout(selectTimer);
-            overlay.classList.remove('visible');
-            overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
-        };
-
-        overlay.querySelector('.lp-demo-close').addEventListener('click', close);
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-        overlay.querySelector('.lp-demo-start-btn').addEventListener('click', () => {
-            close();
-            this.container.querySelector('#lp-industries')?.scrollIntoView({ behavior: 'smooth' });
-        });
-    }
-
-    _demoSlideDecision() {
-        return `
-        <div class="lp-demo-game-ui">
-            <div class="lp-demo-terminal-bar">
-                <span class="lp-term-dot lp-term-dot--red"></span>
-                <span class="lp-term-dot lp-term-dot--amber"></span>
-                <span class="lp-term-dot lp-term-dot--green"></span>
-                <span class="lp-term-title">PROCUREMENT_DECISION.exe &nbsp;·&nbsp; Electronics · Q2 · Turn 5 of 8</span>
-            </div>
-            <div class="lp-demo-metrics">
-                <div class="lp-demo-metric">
-                    <span class="lp-demo-metric-label">CASH</span>
-                    <span class="lp-demo-metric-val" style="color:#f59e0b">$847,200</span>
-                </div>
-                <div class="lp-demo-metric">
-                    <span class="lp-demo-metric-label">INVENTORY</span>
-                    <span class="lp-demo-metric-val" style="color:#ef4444">312 units</span>
-                </div>
-                <div class="lp-demo-metric">
-                    <span class="lp-demo-metric-label">DEMAND SIGNAL</span>
-                    <span class="lp-demo-metric-val">1,840 units</span>
-                </div>
-                <div class="lp-demo-metric">
-                    <span class="lp-demo-metric-label">IN TRANSIT</span>
-                    <span class="lp-demo-metric-val">0 units</span>
-                </div>
-            </div>
-            <div class="lp-demo-scenario">
-                <div class="lp-demo-scenario-label">${getIcon('warning', 12)} SCENARIO ALERT</div>
-                <h3 class="lp-demo-scenario-title">The Retailer Panic</h3>
-                <p class="lp-demo-scenario-text">Your three largest retail accounts have each doubled their orders after a competitor stockout made headlines. Demand signal jumped 84% in a single quarter — is this real demand or the Bullwhip Effect?</p>
-            </div>
-            <div class="lp-demo-options">
-                <div class="lp-demo-option">
-                    <div class="lp-demo-opt-header">
-                        <span class="lp-demo-risk-tag lp-demo-risk--low">Low Risk</span>
-                        <span class="lp-demo-opt-title">Hold steady — order 1,200 units</span>
-                    </div>
-                    <p>Trust historical demand. Protect cash, risk stockout if signal is real.</p>
-                </div>
-                <div class="lp-demo-option lp-demo-option--mid">
-                    <div class="lp-demo-opt-header">
-                        <span class="lp-demo-risk-tag lp-demo-risk--supply">Supply Risk</span>
-                        <span class="lp-demo-opt-title">Match signal — order 2,000 units</span>
-                    </div>
-                    <p>Respond to retailers. Risk over-ordering if demand normalises next quarter.</p>
-                </div>
-                <div class="lp-demo-option">
-                    <div class="lp-demo-opt-header">
-                        <span class="lp-demo-risk-tag lp-demo-risk--financial">Financial Risk</span>
-                        <span class="lp-demo-opt-title">Panic-order 3,500 units</span>
-                    </div>
-                    <p>Front-load aggressively. Ties up $350K and amplifies bullwhip upstream.</p>
-                </div>
-            </div>
-            <p class="lp-demo-hint-text">Auto-selecting in 3s&hellip;</p>
-        </div>`;
-    }
-
-    _demoSlideOutcome() {
-        return `
-        <div class="lp-demo-game-ui">
-            <div class="lp-demo-terminal-bar">
-                <span class="lp-term-dot lp-term-dot--red"></span>
-                <span class="lp-term-dot lp-term-dot--amber"></span>
-                <span class="lp-term-dot lp-term-dot--green"></span>
-                <span class="lp-term-title">OUTCOME_LOG.exe &nbsp;·&nbsp; Turn 5 resolved</span>
-            </div>
-            <div class="lp-demo-outcome-chosen">
-                <span class="lp-demo-risk-tag lp-demo-risk--supply">Your Decision</span>
-                <span>Matched demand signal — ordered 2,000 units at $107/unit</span>
-            </div>
-            <div class="lp-demo-kpi-grid">
-                <div class="lp-demo-kpi lp-demo-kpi--warn">
-                    <span class="lp-demo-kpi-label">Cash Flow</span>
-                    <span class="lp-demo-kpi-val">−$214,000</span>
-                    <span class="lp-demo-kpi-sub">Order cost this turn</span>
-                </div>
-                <div class="lp-demo-kpi lp-demo-kpi--good">
-                    <span class="lp-demo-kpi-label">Units Incoming</span>
-                    <span class="lp-demo-kpi-val">+2,000</span>
-                    <span class="lp-demo-kpi-sub">Lead time: 2 weeks</span>
-                </div>
-                <div class="lp-demo-kpi lp-demo-kpi--good">
-                    <span class="lp-demo-kpi-label">Customer Score</span>
-                    <span class="lp-demo-kpi-val">+8%</span>
-                    <span class="lp-demo-kpi-sub">Stockout risk reduced</span>
-                </div>
-                <div class="lp-demo-kpi lp-demo-kpi--warn">
-                    <span class="lp-demo-kpi-label">Bullwhip Ratio</span>
-                    <span class="lp-demo-kpi-val">1.84×</span>
-                    <span class="lp-demo-kpi-sub">Amplification detected</span>
-                </div>
-            </div>
-            <div class="lp-demo-outcome-log">
-                <div class="lp-term-line lp-term-line--info" style="opacity:1;animation:none">
-                    <span class="lp-term-tag">INFO</span>
-                    <span>Order confirmed — 2,000 units dispatched from Shenzhen facility</span>
-                </div>
-                <div class="lp-term-line lp-term-line--warn" style="opacity:1;animation:none">
-                    <span class="lp-term-tag">WARN</span>
-                    <span>Demand signal still rising — retailers placing follow-on orders</span>
-                </div>
-                <div class="lp-term-line lp-term-line--danger" style="opacity:1;animation:none">
-                    <span class="lp-term-tag">CRIT</span>
-                    <span>Bullwhip cascade risk: supplier lead times extending to 4 weeks</span>
-                </div>
-            </div>
-        </div>`;
-    }
-
-    _demoSlideSummary() {
-        return `
-        <div class="lp-demo-game-ui lp-demo-summary">
-            <div class="lp-demo-summary-score">
-                <div class="lp-demo-score-ring">
-                    <span class="lp-demo-score-val">74</span>
-                    <span class="lp-demo-score-denom">/100</span>
-                </div>
-                <div class="lp-demo-score-meta">
-                    <span class="lp-demo-score-title">Chapter 2 Performance</span>
-                    <span class="lp-demo-score-sub">Balanced decision-maker &mdash; above average</span>
-                </div>
-            </div>
-            <div class="lp-demo-mastery-grid">
-                <div class="lp-demo-mastery-item">
-                    <div class="lp-demo-mastery-header">
-                        <span class="lp-demo-mastery-label">Demand Forecasting</span>
-                        <span class="lp-demo-mastery-pct">68%</span>
-                    </div>
-                    <div class="lp-demo-mastery-bar">
-                        <div class="lp-demo-mastery-fill" style="width:68%;background:#3b82f6"></div>
-                    </div>
-                </div>
-                <div class="lp-demo-mastery-item">
-                    <div class="lp-demo-mastery-header">
-                        <span class="lp-demo-mastery-label">Cash Flow Control</span>
-                        <span class="lp-demo-mastery-pct">52%</span>
-                    </div>
-                    <div class="lp-demo-mastery-bar">
-                        <div class="lp-demo-mastery-fill" style="width:52%;background:#f59e0b"></div>
-                    </div>
-                </div>
-                <div class="lp-demo-mastery-item">
-                    <div class="lp-demo-mastery-header">
-                        <span class="lp-demo-mastery-label">Bullwhip Resistance</span>
-                        <span class="lp-demo-mastery-pct">41%</span>
-                    </div>
-                    <div class="lp-demo-mastery-bar">
-                        <div class="lp-demo-mastery-fill" style="width:41%;background:#ef4444"></div>
-                    </div>
-                </div>
-                <div class="lp-demo-mastery-item">
-                    <div class="lp-demo-mastery-header">
-                        <span class="lp-demo-mastery-label">Customer Satisfaction</span>
-                        <span class="lp-demo-mastery-pct">79%</span>
-                    </div>
-                    <div class="lp-demo-mastery-bar">
-                        <div class="lp-demo-mastery-fill" style="width:79%;background:#22c55e"></div>
-                    </div>
-                </div>
-            </div>
-            <p class="lp-demo-summary-cta-text">6 more chapters of escalating crises await &mdash; dual-sourcing, supplier bankruptcy, Just-In-Time failure, and more.</p>
-        </div>`;
-    }
 
     async _handleEmailSubmit(input, btn, status, restoreWrap) {
         const INDUSTRY_LABELS = { electronics: 'Electronics', fmcg: 'Consumer Goods', pharma: 'Pharmaceuticals' };
@@ -976,7 +710,7 @@ export class LandingPage {
 
                 if (restoreWrap) {
                     restoreWrap.innerHTML = `<button
-                        style="width:100%;padding:10px 16px;background:linear-gradient(135deg,#6c63ff,#4facfe);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.03em;"
+                        style="width:100%;padding:10px 16px;background:linear-gradient(135deg,var(--primary-color),var(--primary-dark));color:var(--text-inverse);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.03em;"
                         id="lp-restore-btn">
                         Continue &mdash; Chapter ${chNum}: ${indLabel} &rarr;
                     </button>`;

@@ -490,7 +490,7 @@
     <div class="page-content">
 
       <section class="hero-section">
-        <h1 style="background:linear-gradient(135deg,#3b82f6 0%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">Supply Chain Insights</h1>
+        <h1 style="background:linear-gradient(135deg,#0f766e 0%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">Supply Chain Insights</h1>
         <p class="hero-subtitle">Deep dives into the strategies, concepts, and real-world lessons behind the game — from the bullwhip effect to supply chain risk, updated for 2026.</p>
       </section>
 
@@ -508,32 +508,32 @@
         .article-cta {
           display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
           flex-wrap: wrap; text-decoration: none;
-          background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.24);
+          background: #f1f5f9; border: 1px solid #e2e8f0;
           border-radius: 14px; padding: 1.25rem 1.5rem; margin: 0 0 2.75rem;
           transition: border-color .15s ease, background .15s ease;
         }
-        .article-cta:hover { border-color: rgba(34,197,94,0.45); background: rgba(34,197,94,0.10); }
+        .article-cta:hover { border-color: #cbd5e1; background: #f1f5f9; }
         .article-cta__eyebrow {
           display: block; font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
           color: #4ade80; margin-bottom: .3rem;
         }
-        .article-cta__title { font-size: .95rem; font-weight: 600; color: var(--text-main,#f1f5f9); line-height: 1.4; }
+        .article-cta__title { font-size: .95rem; font-weight: 600; color: var(--text-main,#0f172a); line-height: 1.4; }
         .article-cta__btn {
           flex-shrink: 0; font-size: .82rem; font-weight: 700; color: #06170d;
-          background: #22c55e; padding: .55rem 1.1rem; border-radius: 8px; white-space: nowrap;
+          background: #0f766e; padding: .55rem 1.1rem; border-radius: 8px; white-space: nowrap;
         }
         @media (max-width: 560px) { .article-cta__btn { width: 100%; text-align: center; } }
 
         .topic-toc { margin: 0 0 2.75rem; }
-        .topic-toc__label { font-size: .75rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-muted,#94a3b8); margin: 0 0 .95rem; }
+        .topic-toc__label { font-size: .75rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-muted,#475569); margin: 0 0 .95rem; }
         .topic-toc__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .6rem; }
-        .topic-chip { display: block; width: 100%; text-align: left; cursor: pointer; padding: .7rem .9rem; border-radius: 12px; border: 1px solid rgba(148,163,184,.18); background: rgba(148,163,184,.05); color: var(--text-main,#f1f5f9); font-family: inherit; transition: border-color .15s ease, background .15s ease; }
-        .topic-chip:hover { border-color: rgba(59,130,246,.5); background: rgba(59,130,246,.08); }
-        .topic-chip[aria-pressed="true"] { border-color: #3b82f6; background: rgba(59,130,246,.14); }
+        .topic-chip { display: block; width: 100%; text-align: left; cursor: pointer; padding: .7rem .9rem; border-radius: 12px; border: 1px solid rgba(148,163,184,.18); background: rgba(148,163,184,.05); color: var(--text-main,#0f172a); font-family: inherit; transition: border-color .15s ease, background .15s ease; }
+        .topic-chip:hover { border-color: #cbd5e1; background: #f1f5f9; }
+        .topic-chip[aria-pressed="true"] { border-color: #0f766e; background: #f1f5f9; }
         .topic-chip__row { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
         .topic-chip__name { font-size: .92rem; font-weight: 600; }
-        .topic-chip__count { font-size: .72rem; color: var(--text-muted,#94a3b8); font-variant-numeric: tabular-nums; }
-        .topic-chip__desc { margin: .3rem 0 0; font-size: .78rem; line-height: 1.45; color: var(--text-muted,#94a3b8); }
+        .topic-chip__count { font-size: .72rem; color: var(--text-muted,#475569); font-variant-numeric: tabular-nums; }
+        .topic-chip__desc { margin: .3rem 0 0; font-size: .78rem; line-height: 1.45; color: var(--text-muted,#475569); }
         .blog-card.is-hidden { display: none; }
       </style>
 
@@ -541,7 +541,7 @@
         <p class="topic-toc__label">Browse by topic</p>
         <div class="topic-toc__grid" id="topicToc">
           <button type="button" class="topic-chip" data-cat="all" aria-pressed="true">
-            <span class="topic-chip__row"><span class="topic-chip__name">All topics</span><span class="topic-chip__count">52</span></span>
+            <span class="topic-chip__row"><span class="topic-chip__name">All topics</span><span class="topic-chip__count">58</span></span>
             <span class="topic-chip__desc">Every post — strategy, risk, analytics, operations, and careers.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Resilience" aria-pressed="false">
@@ -557,7 +557,7 @@
             <span class="topic-chip__desc">Roles, skills, and job-search strategy for supply chain professionals — and the talent gap.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Operations" aria-pressed="false">
-            <span class="topic-chip__row"><span class="topic-chip__name">Operations</span><span class="topic-chip__count">7</span></span>
+            <span class="topic-chip__row"><span class="topic-chip__name">Operations</span><span class="topic-chip__count">8</span></span>
             <span class="topic-chip__desc">Execution on the ground — visibility, real-time monitoring, automation, and collaboration.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Strategy" aria-pressed="false">
@@ -577,7 +577,7 @@
             <span class="topic-chip__desc">Efficiency methods — Six Sigma, Kaizen, and DMAIC applied to the supply chain.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Training" aria-pressed="false">
-            <span class="topic-chip__row"><span class="topic-chip__name">Training</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__row"><span class="topic-chip__name">Training</span><span class="topic-chip__count">3</span></span>
             <span class="topic-chip__desc">Running effective simulation-based disruption training for teams.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Tools" aria-pressed="false">
@@ -589,13 +589,62 @@
             <span class="topic-chip__desc">Start-here explainers — what a supply chain is and every stage it moves through.</span>
           </button>
           <button type="button" class="topic-chip" data-cat="Rankings" aria-pressed="false">
-            <span class="topic-chip__row"><span class="topic-chip__name">Rankings</span><span class="topic-chip__count">1</span></span>
+            <span class="topic-chip__row"><span class="topic-chip__name">Rankings</span><span class="topic-chip__count">4</span></span>
             <span class="topic-chip__desc">Curated, ranked roundups of the best simulation games and professional gadgets.</span>
           </button>
         </div>
       </nav>
 
       <div class="blog-grid">
+
+        <article class="blog-card">
+          <span class="blog-tag">Training</span>
+          <h2><a href="/business-simulation-games-for-students" style="color:inherit;text-decoration:none;">8 Best Business Simulation Games for Students: Self-Study and Classroom Picks</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Compare 8 business simulation games for students, from solo learning to classroom strategy. Explore access, learning goals, exercises, and limitations.</p>
+          <a href="/business-simulation-games-for-students" class="read-more">Read more &rarr;</a>
+        </article>
+
+        <article class="blog-card">
+          <span class="blog-tag">Training</span>
+          <h2><a href="/business-simulation-games-corporate-training" style="color:inherit;text-decoration:none;">6 Business Simulation Games for Corporate Training: A Practical Selection Guide</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Compare business simulation games for corporate training. Match tools to learning goals, plan the workshop, run a useful debrief, and assess workplace application.</p>
+          <a href="/business-simulation-games-corporate-training" class="read-more">Read more &rarr;</a>
+        </article>
+
+        <article class="blog-card">
+          <span class="blog-tag">Operations</span>
+          <h2><a href="/operations-management-simulation-games" style="color:inherit;text-decoration:none;">7 Operations Management Simulation Games for Learning Inventory, Capacity, and Flow</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Compare 7 operations management simulation games for inventory, capacity, production, and coordination, with practical exercises and worked examples.</p>
+          <a href="/operations-management-simulation-games" class="read-more">Read more &rarr;</a>
+        </article>
+
+        <article class="blog-card">
+          <span class="blog-tag">Rankings</span>
+          <h2><a href="/online-business-simulation-games" style="color:inherit;text-decoration:none;">7 Online Business Simulation Games You Can Play in a Browser</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Compare online business simulation games for browser play, from free company management to licensed classroom simulations. Find the right access and learning format.</p>
+          <a href="/online-business-simulation-games" class="read-more">Read more &rarr;</a>
+        </article>
+
+        <article class="blog-card">
+          <span class="blog-tag">Rankings</span>
+          <h2><a href="/games-like-startup-company" style="color:inherit;text-decoration:none;">6 Games Like Startup Company: Alternatives by Management Style</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Find games like Startup Company for software development, small-business growth, game studios, and production. Compare similarities, differences, and player modes.</p>
+          <a href="/games-like-startup-company" class="read-more">Read more &rarr;</a>
+        </article>
+
+        <article class="blog-card">
+          <span class="blog-tag">Rankings</span>
+          <h2><a href="/virtonomics-vs-capitalism-lab" style="color:inherit;text-decoration:none;">Virtonomics vs. Capitalism Lab: Which Business Simulation Should You Choose?</a></h2>
+          <p class="blog-date">October 6, 2026</p>
+          <p>Compare Virtonomics and Capitalism Lab on gameplay, competition, pacing, cost, and learning value. Find the business simulation that fits how you want to play.</p>
+          <a href="/virtonomics-vs-capitalism-lab" class="read-more">Read more &rarr;</a>
+        </article>
+
 
         <article class="blog-card">
           <span class="blog-tag">Rankings</span>
@@ -1016,11 +1065,11 @@
       </div>
 
       <!-- Tools cross-link banner -->
-      <section style="margin:3rem 0 2rem;padding:2rem 2.5rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.22);border-radius:14px;">
+      <section style="margin:3rem 0 2rem;padding:2rem 2.5rem;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.25rem;">
           <div>
-            <h2 style="margin:0 0 0.4rem;font-size:1.15rem;font-weight:700;color:var(--text-main,#f1f5f9);">Free Freight Cost Calculator — 1,000+ Global Trade Lanes</h2>
-            <p style="margin:0;font-size:0.9rem;color:var(--text-muted,#94a3b8);max-width:520px;">Compare sea, air, and rail freight costs from 36 origins to every major EU port. Includes CBAM carbon costs, EU import duties, and a live disruption simulator for Red Sea &amp; port strike scenarios.</p>
+            <h2 style="margin:0 0 0.4rem;font-size:1.15rem;font-weight:700;color:var(--text-main,#0f172a);">Free Freight Cost Calculator — 1,000+ Global Trade Lanes</h2>
+            <p style="margin:0;font-size:0.9rem;color:var(--text-muted,#475569);max-width:520px;">Compare sea, air, and rail freight costs from 36 origins to every major EU port. Includes CBAM carbon costs, EU import duties, and a live disruption simulator for Red Sea &amp; port strike scenarios.</p>
           </div>
           <a href="https://tools.supplychaindisaster.com" target="_blank" rel="noopener"
              style="flex-shrink:0;display:inline-block;padding:0.65rem 1.5rem;background:#2e6be9;color:#fff;font-weight:600;font-size:0.9rem;border-radius:8px;text-decoration:none;white-space:nowrap;">

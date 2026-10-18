@@ -27,14 +27,16 @@ Deploy command: `npx vercel --prod` from the project root.
 | Tier | Chapters | Turns | Price |
 |---|---|---|---|
 | Free | 1–3 | 1–12 | — |
+| Starter | 1–5 | 1–20 | $19.99 one-time (lifetime) |
 | Full Access | 1–10 | 1–40 | $49.99 one-time (lifetime) |
 
-- **Single-plan pricing (since 2026-07-05):** one $49.99 lifetime purchase unlocks everything — all 10 chapters + Advanced Report. Old Standard ($14.99) / Expansion ($25) tiers are retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`).
+- **Two paid tiers (since 2026-09-13):** **Starter $19.99** (chapters 1–5) and **Full Access $49.99** (all 10 chapters + Advanced Report + certificate); chapters 1–3 free. This replaced the single-plan model that ran 2026-07-05 → 2026-09-13. Old Standard ($14.99) / Expansion ($25) tiers stay retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`). **Starter gating + checkout live in the FORK (`D:\supplychaindisaster-next`) only** — the vanilla game code (`src/logic/premium.js`) remains Full-Access-only.
 - **Launch offer / price increase:** `$49.99` is launch pricing. Per the homepage announcement bar (`index.html`, countdown deadline hardcoded as `2026-09-19T19:00:00Z`), the list price reverts to **$99** after that date — confirmed genuine by the user 2026-08-20. When working past that date, re-check whether the site/checkout price still reads $49.99 or $99 before assuming either.
 - **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
-- Premium stored in `localStorage` key `scd_premium`
+- **LS product "Supply Chain Disaster — Starter" (added 2026-09-13):** product ID `1358576`, variant ID `2121591`, $19.99 one-time, hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/19f46b98-7503-4969-925e-9472ef697e5d` (used on vanilla `pricing.html`/`index.html`; the fork checkout picks it via `LEMONSQUEEZY_STARTER_VARIANT_ID` + `NEXT_PUBLIC_STARTER_ENABLED`).
+- Premium stored in `localStorage` key `scd_premium` (fork also uses `scd_tier` = starter|full)
 - Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
-- Paywall triggers at Ch 3→4 (single gate) — any premium unlocks all remaining chapters
+- Paywall gates (live fork): Ch 3→4 (Starter or Full) and Ch 5→6 (Full only). The legacy vanilla game has a single Ch 3→4 gate (Full only).
 - Expired promo grants auto-cleared silently by `PremiumManager._isDataActive()`
 
 ---
@@ -182,12 +184,13 @@ Definitions live in `src/data/cscp-definitions.js`, keyed by chapter ID.
 ---
 
 ## Content Consistency Rules
-The game has **10 chapters total**. Single plan since 2026-07-05. Always write:
+The game has **10 chapters total**. Two paid tiers since 2026-09-13 (was single-plan 2026-07-05 → 2026-09-13). Always write:
 - "up to 10 chapters" when describing the game generically
 - "Chapters 1–3 free" for the free tier
-- "Full Access — $49.99 one-time, lifetime" for the paid plan (all 10 chapters + Advanced Report)
+- "Starter — $19.99 one-time" for the entry tier (chapters 1–5; no Advanced Report or certificate)
+- "Full Access — $49.99 one-time, lifetime" for the top tier (all 10 chapters + Advanced Report + certificate)
 - "40 quarterly turns" for the full game
-- Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers
+- Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers (distinct from the current Starter tier)
 - **No industry picker exists.** `supplychaindisaster.com/play?start=1` — every homepage CTA — redirects entirely to `play.supplychaindisaster.com` (the Next.js fork), which has no industry selection. It's 10 CSCP levels × **3 difficulty tiers** (Guided/Normal/Expert), never "Electronics/FMCG/Pharma" or similar. Say "3 Difficulty Tiers" and "120 Total Scenarios," not "3 Real Industries."
 - Only **one** PDF exists (the 5-page Advanced Report) and **one** certificate — never write "Executive Strategy Debrief PDF" as a second, separate PDF.
 

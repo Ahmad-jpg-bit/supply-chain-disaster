@@ -1032,7 +1032,7 @@
 .lp-intel-submit {
   padding: 0.7rem 1.25rem;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: #fff;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-mono);
@@ -1044,7 +1044,7 @@
 }
 
 .lp-intel-submit:hover:not(:disabled) {
-  box-shadow: 0 0 16px rgba(92, 92, 238, 0.35);
+  box-shadow: 0 0 16px var(--primary-glow);
 }
 
 .lp-intel-submit:disabled {
@@ -1180,6 +1180,20 @@
 /* ============================================================
    DEMO OVERLAY / MODAL
    ============================================================ */
+/* The demo modal is a self-contained dark "game preview" player. Its slide
+   markup uses a few page tokens inline (--text-main, --text-muted, mastery-bar
+   accents); pin them here to dark-theme values with teal brand accents so the
+   modal renders correctly whether the host page is dark (game) or light
+   (marketing homepage). */
+.lp-demo-overlay {
+  --text-main: #f5f5f6;
+  --text-muted: #9aa3b2;
+  --danger-color: #f87171;
+  --primary-color: #14b8a6;
+  --primary-dark: #0f766e;
+  --text-inverse: #ffffff;
+}
+
 .lp-demo-overlay {
   position: fixed;
   inset: 0;
@@ -1810,13 +1824,13 @@
 }
 
 .lp-tier-cta--premium {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #0f172a;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-inverse);
   font-weight: 700;
 }
 
 .lp-tier-cta--premium:hover {
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 24px var(--primary-glow);
 }
 
 .lp-tier-guarantee {

@@ -272,8 +272,10 @@ export class Dashboard {
             return;
         }
 
-        // Listen for email capture (in-game modal) → auto-save game state
-        document.addEventListener('scd:email-captured', () => this._autoSave(true));
+        // Listen for email capture (in-game modal) → persist game state to KV
+        // silently. The save-progress modal already sent the confirmation email,
+        // so DON'T send another one here (avoids duplicate/extra emails).
+        document.addEventListener('scd:email-captured', () => this._autoSave(false));
 
         // Mount the landing page (replaces the old onboarding wizard)
         // ?start=1 skips the marketing hero and goes straight to industry selection

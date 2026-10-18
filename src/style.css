@@ -5,9 +5,9 @@
    also loads style.css via home.js, keeps its own backdrop. */
 body.play-bg {
   background:
-    radial-gradient(ellipse 78% 58% at 16% 6%,  rgba(92, 92, 238, 0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 62% 46% at 88% 12%,  rgba(124, 92, 238, 0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 55% 45% at 84% 94%,  rgba(34, 197, 94, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 78% 58% at 16% 6%,  rgba(255, 255, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 62% 46% at 88% 12%,  rgba(255, 255, 255, 0.035) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 84% 94%,  rgba(255, 255, 255, 0.025) 0%, transparent 60%),
     var(--bg-color);
   background-attachment: fixed;
 }
@@ -3651,13 +3651,13 @@ input[type="number"] {
 }
 
 .pricing-buy-btn--featured {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #000;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-inverse);
   font-weight: 700;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+  box-shadow: 0 4px 16px var(--primary-glow);
 }
 .pricing-buy-btn--featured:hover {
-  box-shadow: 0 6px 22px rgba(245,158,11,0.5);
+  box-shadow: 0 6px 22px var(--primary-glow);
 }
 
 /* Sandbox banner */
@@ -4808,7 +4808,7 @@ input[type="number"] {
 
 .eds-btn--primary {
   background: var(--primary-color);
-  color: #fff;
+  color: var(--text-inverse);
 }
 .eds-btn--primary:hover { background: var(--primary-hover); }
 
@@ -7690,7 +7690,7 @@ input[type="number"] {
    with panels or the amber/red ambient state washes.
    ═══════════════════════════════════════════════════════════════════ */
 
-body {
+body.play-bg {
   background-color: #111827;
   background-image: linear-gradient(180deg, #131c30 0%, #111827 52%, #0d1420 100%);
   background-attachment: fixed;
@@ -7698,9 +7698,11 @@ body {
 }
 
 /* Two glow layers that slowly drift out of lockstep, so the backdrop
-   breathes. Transform-only animation → GPU-composited, no repaint cost. */
-body::before,
-body::after {
+   breathes. Transform-only animation → GPU-composited, no repaint cost.
+   Scoped to the game so the light marketing homepage (which also loads
+   style.css) is not tinted by the dark in-game backdrop. */
+body.play-bg::before,
+body.play-bg::after {
   content: '';
   position: fixed;
   inset: -15%;
@@ -7710,14 +7712,14 @@ body::after {
   will-change: transform;
 }
 
-body::before {
+body.play-bg::before {
   background-image:
     radial-gradient(1100px 620px at 12% 6%, rgba(108, 99, 255, 0.22), transparent 62%),
     radial-gradient(680px 460px at 88% 10%, rgba(34, 211, 238, 0.08), transparent 60%);
   animation: bgDriftA 30s ease-in-out infinite alternate;
 }
 
-body::after {
+body.play-bg::after {
   background-image:
     radial-gradient(980px 720px at 92% 96%, rgba(92, 92, 238, 0.18), transparent 58%);
   animation: bgDriftB 38s ease-in-out infinite alternate;

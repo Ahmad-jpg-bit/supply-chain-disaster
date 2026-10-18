@@ -1,7 +1,9 @@
 /**
  * PremiumManager — client-side premium status management.
  *
- * Single plan: Full Access — $49.99 one-time, lifetime.
+ * This legacy vanilla module is Full-Access-only: Full Access — $49.99 one-time, lifetime.
+ * (The LIVE game is the Next.js fork, which added a $19.99 Starter tier for chapters 1–5;
+ * Starter gating/checkout lives in the fork, not in this module.)
  * Chapters 1-3  : free.
  * Chapters 4-10 : require Full Access.
  * Full Access also unlocks the Advanced Report (PDF debrief).

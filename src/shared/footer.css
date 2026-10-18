@@ -1,19 +1,25 @@
-/* ── Site Footer ───────────────────────────────────────────── */
+/* ── Site Footer — dark bookend ─────────────────────────────── */
 .page-footer {
-  padding: var(--spacing-xl) 0 var(--spacing-lg);
+  /* Full-bleed dark band even inside a max-width page container */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   margin-top: var(--spacing-2xl, 4rem);
-  border-top: 1px solid var(--border-color);
-  color: var(--text-muted);
+  padding: var(--spacing-xl) clamp(1rem, 5vw, 3rem) var(--spacing-lg);
+  background: var(--dark, #0f172a);
+  border-top: 1px solid var(--dark-secondary, #1e293b);
+  color: #94a3b8;
   font-size: var(--text-sm);
 }
 
 .footer-inner {
+  max-width: 1080px;
+  margin: 0 auto var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--spacing-xl);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-lg);
 }
 
 .footer-brand {
@@ -35,7 +41,7 @@
 .footer-brand-name {
   font-weight: 800;
   font-size: var(--text-sm);
-  background: linear-gradient(135deg, #3b82f6, #f97316);
+  background: linear-gradient(135deg, #2dd4bf, #38bdf8);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -44,7 +50,7 @@
 
 .footer-tagline {
   font-size: var(--text-xs);
-  color: var(--text-muted);
+  color: #94a3b8;
   margin: 0;
   line-height: 1.55;
 }
@@ -72,21 +78,23 @@
 
 .footer-link {
   text-decoration: none;
-  color: var(--text-muted);
+  color: #94a3b8;
   font-size: var(--text-sm);
   transition: color 0.15s;
 }
 
-.footer-link:hover { color: var(--text-main); }
+.footer-link:hover { color: #2dd4bf; }
 
 .footer-bottom {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   font-size: var(--text-xs);
   flex-wrap: wrap;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
 .footer-bottom-sep { color: rgba(255, 255, 255, 0.35); }

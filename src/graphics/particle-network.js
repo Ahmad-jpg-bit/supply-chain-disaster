@@ -4,9 +4,9 @@
  */
 
 const COLORS = [
-    'rgba(92, 92, 238, 0.3)',    // indigo (primary)
-    'rgba(34, 197, 94, 0.22)',   // green
-    'rgba(245, 158, 11, 0.18)',  // amber
+    'rgba(255, 255, 255, 0.28)',  // white
+    'rgba(255, 255, 255, 0.16)',  // light gray
+    'rgba(255, 255, 255, 0.10)',  // faint gray
 ];
 
 const HERO_COUNT = 50;           // reduced from 80 — lighter visual weight on landing page

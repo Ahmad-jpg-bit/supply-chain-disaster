@@ -13,11 +13,26 @@
   <link rel="icon" type="image/png" href="/favicon-32.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#0a0a0b" />
+
+  <!-- Impact.com site verification -->
+  <meta name="impact-site-verification" value="b85afc32-620d-484c-81e5-cbabb9b2115a" />
+
+  <!-- Flag scroll-reveal before first paint so entrance animations never flash.
+       No JS / reduced-motion → class absent → all content shows normally. -->
+  <script>
+    (function () {
+      try {
+        if (!window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('reveal-ready');
+        }
+      } catch (e) { /* no-op: content stays visible */ }
+    })();
+  </script>
 
   <!-- Primary SEO -->
   <title>Supply Chain Disaster | Supply Chain Management Simulation Game</title>
-  <meta name="description" content="Learn supply chain by surviving the crisis — 10 simulations on the bullwhip effect, inventory, procurement & risk. Play Chapters 1–3 free, no account needed." />
+  <meta name="description" content="Learn supply chain by surviving the crisis — 10 simulations on the bullwhip effect, inventory, procurement & risk. Play all 10 chapters free, no account needed." />
   <meta name="keywords" content="supply chain game, supply chain simulation, supply chain game free, bullwhip effect game, bullwhip effect simulation, inventory management game, inventory management simulation, procurement strategy, procurement simulation, supply chain management learning, supply chain training game, demand forecasting game, supply chain risk management, learn supply chain management, supply chain education, supply chain disaster" />
   <link rel="canonical" href="https://www.supplychaindisaster.com/" />
   <meta name="robots" content="index, follow" />
@@ -27,7 +42,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.supplychaindisaster.com/" />
   <meta property="og:title" content="Supply Chain Disaster | Supply Chain Simulation Game" />
-  <meta property="og:description" content="Experience the bullwhip effect, supplier disruptions, and procurement crises firsthand. Browser-based simulation that teaches real supply chain strategy across up to 10 chapters. Chapters 1–3 free — Full Access $49.99 one-time, lifetime." />
+  <meta property="og:description" content="Experience the bullwhip effect, supplier disruptions, and procurement crises firsthand. Browser-based simulation that teaches real supply chain strategy across 10 chapters — all free to play. Full Access ($49.99 one-time) adds the 5-page Advanced Report + certificate." />
   <meta property="og:image" content="https://www.supplychaindisaster.com/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -37,7 +52,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Supply Chain Disaster | Supply Chain Simulation Game" />
-  <meta name="twitter:description" content="Master procurement, inventory, and supplier risk through interactive play. Chapters 1–3 free — Full Access unlocks all 10 chapters for $49.99. One-time purchase, lifetime access." />
+  <meta name="twitter:description" content="Master procurement, inventory, and supplier risk through interactive play. All 10 chapters free — Full Access ($49.99 one-time) adds the Advanced Report + certificate. Lifetime access." />
   <meta name="twitter:image" content="https://www.supplychaindisaster.com/og-image.png" />
 
   <!-- JSON-LD: SoftwareApplication -->
@@ -47,7 +62,7 @@
     "@type": "SoftwareApplication",
     "name": "Supply Chain Disaster",
     "url": "https://www.supplychaindisaster.com/",
-    "description": "A browser-based supply chain management simulation game. Players make quarterly procurement, inventory, and risk decisions across up to 10 chapters covering the bullwhip effect, supplier disruptions, and demand forecasting. Chapters 1–3 are free; Full Access ($49.99 one-time) unlocks all 10 chapters and the Advanced Report for life.",
+    "description": "A browser-based supply chain management simulation game. Players make quarterly procurement, inventory, and risk decisions across 10 chapters covering the bullwhip effect, supplier disruptions, and demand forecasting. All 10 chapters are free to play; Full Access ($49.99 one-time) adds the 5-page Advanced Report and Certificate of Completion for life.",
     "applicationCategory": "GameApplication",
     "applicationSubCategory": "Educational Simulation",
     "operatingSystem": "Web Browser",
@@ -56,13 +71,13 @@
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD",
-        "name": "Free — Chapters 1–3"
+        "name": "Free — All 10 chapters"
       },
       {
         "@type": "Offer",
         "price": "49.99",
         "priceCurrency": "USD",
-        "name": "Full Access — All 10 Chapters + Advanced Report (lifetime)",
+        "name": "Full Access — Advanced Report + Certificate (lifetime)",
         "priceSpecification": {
           "@type": "UnitPriceSpecification",
           "price": "49.99",
@@ -73,7 +88,7 @@
     ],
     "featureList": [
       "Up to 10 chapters of supply chain scenarios",
-      "3 difficulty tiers per chapter: Guided, Normal, Expert",
+      "3 industries: Electronics, FMCG, Pharmaceutical",
       "Bullwhip effect simulation",
       "Real-time inventory and cash flow analytics",
       "Supplier disruption events",
@@ -123,7 +138,7 @@
         "name": "What is Supply Chain Disaster?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Supply Chain Disaster is a free browser-based simulation game that teaches supply chain management through interactive play. Players make quarterly procurement, inventory, and risk decisions across up to 10 story-driven chapters, experiencing real concepts like the bullwhip effect, supplier disruptions, and demand forecasting. Chapters 1–3 are free; Full Access ($49.99 one-time) unlocks all 10 chapters and the Advanced Report for life."
+          "text": "Supply Chain Disaster is a free browser-based simulation game that teaches supply chain management through interactive play. Players make quarterly procurement, inventory, and risk decisions across 10 story-driven chapters, experiencing real concepts like the bullwhip effect, supplier disruptions, and demand forecasting. All 10 chapters are free to play; Full Access ($49.99 one-time) adds the 5-page Advanced Report and Certificate of Completion for life."
         }
       },
       {
@@ -139,15 +154,15 @@
         "name": "Is Supply Chain Disaster free to play?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Chapters 1, 2, and 3 are completely free — no account required, no download needed. Full Access ($49.99 one-time) unlocks all 10 chapters, including the Global Crisis and Multi-Regional chapters, plus the Advanced Report PDF debrief. One purchase, lifetime access."
+          "text": "Yes — all 10 chapters are completely free to play, no account required, no download needed. Full Access ($49.99 one-time) adds the 5-page Advanced Report PDF debrief and your Certificate of Completion. One purchase, lifetime access."
         }
       },
       {
         "@type": "Question",
-        "name": "What difficulty levels does the game offer?",
+        "name": "What industries are covered in the game?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Every one of the 10 chapters can be played at three difficulty tiers: Guided (small-business framing, clean numbers, built-in hints), Normal (a typical firm's real decisions), and Expert (advanced CSCP formulas and tighter tolerances). That's 120 total scenarios across the full campaign — the same chapter concept taught three different ways as your judgment grows."
+          "text": "Supply Chain Disaster covers three industries: Electronics (volatile demand, long lead times), FMCG / Fast-Moving Consumer Goods (high volume, tight margins), and Pharmaceuticals (regulatory constraints, safety stock requirements). Each industry has distinct cost structures, risk profiles, and supply chain dynamics."
         }
       },
       {
@@ -163,7 +178,7 @@
         "name": "How long does it take to complete Supply Chain Disaster?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Each chapter takes approximately 10–15 minutes to complete. The full 10-chapter campaign takes approximately 2.5 hours. Individual turns take 2–3 minutes, making it easy to play in short sessions. The free chapters 1–3 can be completed in under 45 minutes."
+          "text": "Each chapter takes approximately 10–15 minutes to complete. The full 10-chapter campaign takes approximately 2.5 hours. Individual turns take 2–3 minutes, making it easy to play in short sessions. The first three chapters can be completed in under 45 minutes."
         }
       },
       {
@@ -233,8 +248,8 @@
       {
         "@type": "HowToStep",
         "position": 1,
-        "name": "Choose Your Difficulty",
-        "text": "Select Guided (small-business framing, clean numbers, built-in hints), Normal (a typical firm's real decisions), or Expert (advanced CSCP formulas and tighter tolerances) to set your challenge level."
+        "name": "Choose Your Industry",
+        "text": "Select from Electronics (volatile demand, long lead times), FMCG (high volume, tight margins), or Pharmaceuticals (regulatory constraints, safety stock) to set your supply chain context."
       },
       {
         "@type": "HowToStep",
@@ -258,14 +273,15 @@
         "@type": "HowToStep",
         "position": 5,
         "name": "Complete Chapters and Earn Mastery",
-        "text": "Progress through up to 10 chapters (Chapters 1–3 free; Full Access unlocks all 10 for $49.99 one-time), earning a mastery score and final grade based on the quality of your decisions."
+        "text": "Progress through 10 chapters — all free to play; Full Access ($49.99 one-time) adds the Advanced Report and certificate — earning a mastery score and final grade based on the quality of your decisions."
       }
     ]
   }
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap"></noscript>
   <link rel="alternate" type="application/rss+xml" title="Supply Chain Disaster RSS Feed" href="/rss.xml">
 
   <style>
@@ -274,23 +290,34 @@
        accent, warnings, and the paid/premium CTA. Red = disruption only —
        never a clickable action. See CLAUDE.md for the token rationale. */
     :root {
-      --scd-bg:              #111827;
-      --scd-bg-secondary:    #182230;
-      --scd-surface:         #1D2938;
-      --scd-surface-elevated:#243244;
-      --scd-border:          rgba(255,255,255,0.12);
-      --scd-border-strong:   rgba(255,255,255,0.20);
+      /* 2026 light SaaS palette. --scd-green → teal brand (primary CTAs,
+         positive/free actions); --scd-amber → SaaS action blue (secondary
+         accents, KPIs, upgrade CTA); --scd-red → danger. CTA text (--scd-ink)
+         is white on the teal/blue fills. Genuine network-sim status states
+         (normal/watch/disrupted) use literal green/amber/red further down. */
+      --scd-bg:              #f8fafc;
+      --scd-bg-secondary:    #f1f5f9;
+      --scd-surface:         #ffffff;
+      --scd-surface-elevated:#ffffff;
+      --scd-border:          #e2e8f0;
+      --scd-border-strong:   #cbd5e1;
 
-      --scd-text-primary:    #F3F6F8;
-      --scd-text-secondary:  #B8C2CC;
-      --scd-text-muted:      #8D99A6;
+      --scd-text-primary:    #0f172a;
+      --scd-text-secondary:  #475569;
+      --scd-text-muted:      #64748b;
 
-      --scd-amber:       #f59e0b;
-      --scd-amber-hover: #fbbf24;
-      --scd-green:       #22c55e;
-      --scd-green-hover: #16a34a;
+      --scd-amber:       #2563eb;
+      --scd-amber-hover: #1d4ed8;
+      --scd-green:       #0f766e;
+      --scd-green-hover: #115e59;
       --scd-red:         #ef4444;
-      --scd-focus:       #60a5fa;
+      --scd-focus:       #0f766e;
+      --scd-ink:         #ffffff;   /* white text on the teal/blue CTA fills */
+
+      /* Literal semantic status colors for the supply-chain network sim */
+      --scd-status-normal:  #16a34a;
+      --scd-status-watch:   #f59e0b;
+      --scd-status-down:    #ef4444;
     }
 
     /* ── Reset & Base ──────────────────────────────────────────────────── */
@@ -331,10 +358,11 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(10, 15, 30, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border-bottom: 1px solid #e2e8f0;
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(15,23,42,0.05));
     }
     .hp-nav-inner {
       max-width: 1200px;
@@ -351,7 +379,7 @@
       gap: 10px;
       font-weight: 600;
       font-size: 15px;
-      color: #f0f2ff;
+      color: #0f172a;
       flex-shrink: 0;
     }
     .hp-nav-logo img {
@@ -368,22 +396,22 @@
     .hp-nav-links a {
       font-size: 14px;
       font-weight: 500;
-      color: #94a3b8;
+      color: #64748b;
       transition: color 0.2s;
     }
-    .hp-nav-links a:hover { color: #e2e8f0; }
+    .hp-nav-links a:hover { color: #0f172a; }
     .hp-nav-cta {
       margin-left: 1.5rem;
       flex-shrink: 0;
       background: var(--scd-green);
-      color: #06170d;
+      color: #ffffff;
       font-weight: 700;
       font-size: 14px;
       padding: 8px 20px;
       border-radius: 6px;
       transition: background 0.2s;
     }
-    .hp-nav-cta:hover { background: #34d374; color: #06170d; }
+    .hp-nav-cta:hover { background: var(--scd-green-hover); color: #ffffff; }
 
     /* ── Shared section wrapper ────────────────────────────────────────── */
     .hp-section {
@@ -421,7 +449,7 @@
       align-items: center;
       gap: 6px;
       background: var(--scd-green);
-      color: #06170d;
+      color: #ffffff;
       font-weight: 700;
       font-size: 15px;
       padding: 13px 28px;
@@ -430,31 +458,44 @@
       cursor: pointer;
       text-decoration: none;
       transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.4), 0 6px 24px rgba(34,197,94,0.25);
+      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.25);
     }
     .hp-btn-primary:hover {
-      background: #34d374;
+      background: var(--scd-green-hover);
       transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(34,197,94,0.5), 0 8px 32px rgba(34,197,94,0.35);
+      box-shadow: 0 10px 28px rgba(15, 118, 110, 0.33);
     }
     .hp-btn-outline {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: transparent;
-      color: var(--scd-text-secondary);
+      gap: 10px;
+      background: var(--scd-surface);
+      color: var(--scd-text-primary);
       font-weight: 600;
       font-size: 15px;
-      padding: 12px 24px;
+      padding: 12px 22px;
       border-radius: 8px;
-      border: 1px solid rgba(184, 194, 204, 0.3);
+      border: 1px solid var(--scd-border-strong);
       cursor: pointer;
       text-decoration: none;
-      transition: border-color 0.2s, color 0.2s;
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
     }
     .hp-btn-outline:hover {
-      border-color: rgba(184, 194, 204, 0.55);
+      border-color: var(--scd-green);
       color: var(--scd-text-primary);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
+    /* Play-icon badge — reads as a video/demo affordance */
+    .hp-btn-outline svg {
+      flex-shrink: 0;
+      width: 11px;
+      height: 11px;
+      padding: 6px;
+      color: #ffffff;
+      background: var(--scd-green);
+      border-radius: 50%;
     }
 
     /* ── Hero ──────────────────────────────────────────────────────────── */
@@ -471,9 +512,9 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.28);
-      color: #f59e0b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--scd-amber);
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -486,7 +527,7 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #f59e0b;
+      background: var(--scd-amber);
       flex-shrink: 0;
       animation: hp-pulse 2s ease-in-out infinite;
     }
@@ -527,7 +568,7 @@
     }
     .hp-stat + .hp-stat {
       padding-left: 1.25rem;
-      border-left: 1px solid rgba(255, 255, 255, 0.14);
+      border-left: 1px solid #e2e8f0;
     }
     .hp-stat-val {
       font-size: 20px;
@@ -550,9 +591,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: #cbd5e1;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #475569;
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.02em;
@@ -561,8 +602,8 @@
       margin-bottom: 12px;
     }
     .hp-terminal {
-      background: #0d1526;
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
@@ -573,8 +614,8 @@
       align-items: center;
       gap: 6px;
       padding: 10px 16px;
-      background: rgba(255, 255, 255, 0.10);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
     }
     .hp-term-dot {
       width: 11px;
@@ -589,7 +630,7 @@
       margin-left: 8px;
       font-size: 11px;
       font-family: 'Courier New', Courier, monospace;
-      color: #94a3b8;
+      color: #64748b;
       letter-spacing: 0.05em;
     }
     .hp-terminal-body {
@@ -605,7 +646,7 @@
       font-family: 'Courier New', Courier, monospace;
       font-size: 12px;
       line-height: 1.5;
-      color: #94a3b8;
+      color: #64748b;
     }
     .hp-term-tag {
       flex-shrink: 0;
@@ -616,16 +657,16 @@
       letter-spacing: 0.06em;
       margin-top: 1px;
     }
-    .hp-term-line--warn   .hp-term-tag { background: rgba(245,158,11,0.18); color: #f59e0b; }
-    .hp-term-line--danger .hp-term-tag { background: rgba(239,68,68,0.18);  color: #ef4444; }
-    .hp-term-line--ok     .hp-term-tag { background: rgba(34,197,94,0.15);  color: #22c55e; }
-    .hp-term-red  { color: #ef4444; }
+    .hp-term-line--warn   .hp-term-tag { background: rgba(245,158,11,0.14); color: #b45309; }
+    .hp-term-line--danger .hp-term-tag { background: rgba(239,68,68,0.12);  color: var(--scd-red); }
+    .hp-term-line--ok     .hp-term-tag { background: rgba(22,163,74,0.12);  color: #15803d; }
+    .hp-term-red  { color: var(--scd-red); }
 
     /* ── Social proof bar ──────────────────────────────────────────────── */
     .hp-social-proof {
-      border-top: 1px solid rgba(255, 255, 255, 0.10);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-      background: rgba(255, 255, 255, 0.015);
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f1f5f9;
     }
     .hp-social-proof-inner {
       max-width: 1200px;
@@ -639,7 +680,7 @@
     }
     .hp-social-proof-label {
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
       font-weight: 500;
       flex-shrink: 0;
     }
@@ -654,10 +695,10 @@
       align-items: center;
       font-size: 12px;
       font-weight: 700;
-      color: #cbd5e1;
+      color: #475569;
       letter-spacing: 0.02em;
-      background: rgba(245, 158, 11, 0.07);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 999px;
       padding: 0.4rem 0.9rem;
     }
@@ -670,15 +711,15 @@
     }
     .hp-how-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 2rem;
       transition: border-color 0.2s, background 0.2s;
     }
     .hp-how-card:hover {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(245, 158, 11, 0.2);
+      background: #f1f5f9;
+      border-color: #0f172a;
     }
     .hp-how-card:not(:last-child)::after {
       content: '→';
@@ -686,7 +727,7 @@
       top: 50%;
       right: -1.7rem;
       transform: translateY(-50%);
-      color: rgba(245, 158, 11, 0.35);
+      color: #cbd5e1;
       font-size: 20px;
       line-height: 1;
     }
@@ -697,22 +738,26 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.22);
-      color: #f59e0b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--scd-green);
       font-size: 14px;
       font-weight: 700;
       margin-bottom: 1.25rem;
     }
+    /* ASSESS → DECIDE → CONSEQUENCE colour progression (teal → blue → amber) */
+    .hp-how-card:nth-of-type(1) .hp-how-num { color: #0f766e; border-color: rgba(15,118,110,0.35); background: rgba(15,118,110,0.06); }
+    .hp-how-card:nth-of-type(2) .hp-how-num { color: #2563eb; border-color: rgba(37,99,235,0.35); background: rgba(37,99,235,0.06); }
+    .hp-how-card:nth-of-type(3) .hp-how-num { color: #b45309; border-color: rgba(245,158,11,0.40); background: rgba(245,158,11,0.08); }
     .hp-how-title {
       font-size: 16px;
       font-weight: 700;
-      color: #e2e8f0;
+      color: #0f172a;
       margin-bottom: 0.5rem;
     }
     .hp-how-desc {
       font-size: 14px;
-      color: #cbd5e1;
+      color: #475569;
       line-height: 1.75;
     }
 
@@ -723,22 +768,22 @@
       gap: 1.5rem;
     }
     .hp-feat-card {
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 2rem;
       transition: border-color 0.2s, background 0.2s;
     }
     .hp-feat-card:hover {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(245, 158, 11, 0.2);
+      background: #f1f5f9;
+      border-color: #0f172a;
     }
     .hp-feat-icon {
       width: 42px;
       height: 42px;
       border-radius: 10px;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -766,16 +811,16 @@
     .hp-blog-card {
       display: flex;
       flex-direction: column;
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 1.75rem;
       text-decoration: none;
       transition: border-color 0.2s, background 0.2s, transform 0.2s;
     }
     .hp-blog-card:hover {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(245, 158, 11, 0.25);
+      background: #f1f5f9;
+      border-color: #0f172a;
       transform: translateY(-3px);
     }
     .hp-blog-tag {
@@ -784,9 +829,9 @@
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--scd-amber);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 999px;
       padding: 4px 10px;
       margin-bottom: 1rem;
@@ -794,14 +839,14 @@
     .hp-blog-title {
       font-size: 17px;
       font-weight: 700;
-      color: #e2e8f0;
+      color: #0f172a;
       line-height: 1.35;
       margin-bottom: 0.625rem;
     }
-    .hp-blog-card:hover .hp-blog-title { color: #f0f2ff; }
+    .hp-blog-card:hover .hp-blog-title { color: #0f172a; }
     .hp-blog-desc {
       font-size: 14px;
-      color: #cbd5e1;
+      color: #475569;
       line-height: 1.7;
       margin-bottom: 1.25rem;
     }
@@ -812,17 +857,50 @@
       margin-top: auto;
       padding-top: 0.5rem;
     }
-    .hp-blog-date { font-size: 12px; color: #94a3b8; }
-    .hp-blog-more { font-size: 13px; font-weight: 600; color: #f59e0b; }
+    .hp-blog-date { font-size: 12px; color: #64748b; }
+    .hp-blog-more { font-size: 13px; font-weight: 600; color: var(--scd-amber); }
     .hp-blog-cta { text-align: center; margin-top: 2.5rem; }
+
+    /* ── From the founder ──────────────────────────────────────────────── */
+    .hp-founder {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid var(--scd-amber);
+      border-radius: 14px;
+      padding: 2.5rem 2.25rem;
+    }
+    .hp-founder .hp-section-label { margin-bottom: 0.75rem; }
+    .hp-founder-h2 {
+      font-size: clamp(1.5rem, 2.4vw, 2rem);
+      color: #0f172a;
+      line-height: 1.25;
+      margin-bottom: 1.25rem;
+    }
+    .hp-founder-body p {
+      font-size: 16px;
+      color: #64748b;
+      line-height: 1.8;
+      margin: 0 0 1rem;
+    }
+    .hp-founder-body p:last-child { margin-bottom: 0; }
+    .hp-founder-body em { color: #0f172a; font-style: italic; }
+    .hp-founder-sign {
+      margin-top: 1.5rem;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--scd-amber);
+    }
+    @media (max-width: 600px) {
+      .hp-founder { padding: 1.75rem 1.35rem; }
+    }
 
     /* ── For educators ─────────────────────────────────────────────────── */
     .hp-educators {
-      background: linear-gradient(135deg,
-        rgba(245,158,11,0.055) 0%,
-        rgba(10,15,30,0)       60%);
-      border-top:    1px solid rgba(245,158,11,0.1);
-      border-bottom: 1px solid rgba(245,158,11,0.1);
+      background: var(--scd-bg-secondary);
+      border-top:    1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
     }
     .hp-edu-inner {
       max-width: 1200px;
@@ -866,7 +944,7 @@
       font-size: 12px;
       font-weight: 600;
       color: var(--scd-text-muted);
-      background: rgba(255,255,255,0.05);
+      background: #f1f5f9;
       border: 1px solid var(--scd-border);
       border-radius: 999px;
       padding: 5px 12px;
@@ -876,8 +954,8 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: rgba(34,197,94,0.14);
-      border: 1px solid rgba(34,197,94,0.32);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -885,47 +963,68 @@
       color: var(--scd-green);
     }
     .hp-edu-visual {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       padding: 1.75rem 2rem;
       font-family: 'Courier New', Courier, monospace;
       font-size: 13px;
       line-height: 2;
-      color: #94a3b8;
+      color: #64748b;
     }
-    .hp-edu-visual .cl-amber { color: #f59e0b; }
-    .hp-edu-visual .cl-green { color: #22c55e; }
-    .hp-edu-visual .cl-blue  { color: #60a5fa; }
-    .hp-edu-visual .cl-muted { color: #94a3b8; }
+    .hp-edu-visual .cl-amber { color: var(--scd-amber); }
+    .hp-edu-visual .cl-green { color: var(--scd-green); }
+    .hp-edu-visual .cl-blue  { color: var(--scd-text-secondary); }
+    .hp-edu-visual .cl-muted { color: #64748b; }
 
     /* ── Pricing ───────────────────────────────────────────────────────── */
     .hp-pricing-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.25rem;
       align-items: start;
     }
     .hp-tier {
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.14);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.05);
       padding: 1.75rem;
       position: relative;
       display: flex;
       flex-direction: column;
     }
     .hp-tier--popular {
-      border-color: rgba(245,158,11,0.35);
-      background: rgba(245,158,11,0.03);
+      border: 2px solid #0f766e;
+      background: #ffffff;
+      box-shadow: 0 20px 40px rgba(15,118,110,0.12);
+    }
+    /* Institutions — dark navy slate card (B2B bookend) */
+    .hp-tier--inst {
+      background: var(--scd-text-primary);
+      border-color: var(--dark-secondary, #1e293b);
+    }
+    .hp-tier--inst .hp-tier-name { color: #2dd4bf; }
+    .hp-tier--inst .hp-tier-amount { color: #ffffff; }
+    .hp-tier--inst .hp-tier-tagline { color: #94a3b8; border-bottom-color: rgba(255,255,255,0.12); }
+    .hp-tier--inst .hp-tier-features li { color: #cbd5e1; }
+    .hp-tier--inst .hp-tier-features .ic-check { color: #2dd4bf; }
+    .hp-tier--inst .hp-tier-cta--muted {
+      border-color: rgba(255,255,255,0.28);
+      color: #e2e8f0;
+    }
+    .hp-tier--inst .hp-tier-cta--muted:hover {
+      border-color: #2dd4bf;
+      color: #ffffff;
+      background: rgba(255,255,255,0.06);
     }
     .hp-tier-popular-badge {
       position: absolute;
       top: -11px;
       left: 50%;
       transform: translateX(-50%);
-      background: #f59e0b;
-      color: #0a0f1e;
+      background: linear-gradient(135deg, #0f766e, #2563eb);
+      color: #ffffff;
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -937,7 +1036,7 @@
     .hp-tier-name {
       font-size: 12px;
       font-weight: 700;
-      color: #cbd5e1;
+      color: #475569;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       margin-bottom: 0.625rem;
@@ -951,21 +1050,21 @@
     .hp-tier-amount {
       font-size: 2.375rem;
       font-weight: 800;
-      color: #f0f2ff;
+      color: #0f172a;
       line-height: 1;
     }
-    .hp-tier-amount--accent { color: #f59e0b; }
+    .hp-tier-amount--accent { color: var(--scd-amber); }
     .hp-tier-period {
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
     }
     .hp-tier-tagline {
       font-size: 13px;
-      color: #cbd5e1;
+      color: #475569;
       margin-bottom: 1.375rem;
       line-height: 1.55;
       padding-bottom: 1.25rem;
-      border-bottom: 1px solid rgba(255,255,255,0.10);
+      border-bottom: 1px solid #e2e8f0;
     }
     .hp-tier-features {
       display: flex;
@@ -979,13 +1078,13 @@
       align-items: flex-start;
       gap: 8px;
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
       line-height: 1.5;
     }
     .hp-tier-features li svg { flex-shrink: 0; margin-top: 1px; }
-    .hp-tier-features .ic-check { color: #22c55e; }
-    .hp-tier-features .ic-cross { color: #2d3a4a; }
-    .hp-tier-features .locked   { color: #2d3a4a; }
+    .hp-tier-features .ic-check { color: var(--scd-green); }
+    .hp-tier-features .ic-cross { color: #e2e8f0; }
+    .hp-tier-features .locked   { color: #e2e8f0; }
     .hp-tier-cta {
       display: block;
       width: 100%;
@@ -999,34 +1098,34 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
     .hp-tier-cta--outline {
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #94a3b8;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
       background: transparent;
     }
-    .hp-tier-cta--outline:hover { border-color: rgba(255,255,255,0.25); color: #e2e8f0; }
+    .hp-tier-cta--outline:hover { border-color: #0f172a; color: #0f172a; }
     .hp-tier-cta--amber {
-      background: #f59e0b;
-      color: #0a0f1e;
+      background: linear-gradient(135deg, #0f766e, #2563eb);
+      color: #ffffff;
       border: none;
-      box-shadow: 0 4px 16px rgba(245,158,11,0.28);
+      box-shadow: 0 8px 24px rgba(15,118,110,0.22);
     }
-    .hp-tier-cta--amber:hover { background: #fbbf24; }
+    .hp-tier-cta--amber:hover { filter: brightness(1.06); }
     .hp-tier-cta--green {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: linear-gradient(135deg, var(--scd-green), var(--scd-green-hover));
       color: #fff;
       border: none;
-      box-shadow: 0 4px 16px rgba(34,197,94,0.2);
+      box-shadow: 0 6px 18px rgba(15,118,110,0.18);
     }
     .hp-tier-cta--green:hover { filter: brightness(1.08); }
     .hp-tier-cta--muted {
-      border: 1px solid rgba(255,255,255,0.14);
-      color: #cbd5e1;
+      border: 1px solid #e2e8f0;
+      color: #475569;
       background: transparent;
     }
-    .hp-tier-cta--muted:hover { border-color: rgba(255,255,255,0.16); color: #94a3b8; }
+    .hp-tier-cta--muted:hover { border-color: #0f172a; color: #64748b; }
     .hp-tier-guarantee {
       font-size: 11px;
-      color: #94a3b8;
+      color: #64748b;
       text-align: center;
       margin-top: 0.625rem;
     }
@@ -1042,19 +1141,19 @@
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       font-weight: 700;
-      color: #e2e8f0;
+      color: #0f172a;
       margin-bottom: 6px;
     }
     .hp-faq-item p {
       font-size: 14px;
-      color: #cbd5e1;
+      color: #475569;
       line-height: 1.75;
     }
 
     /* ── Final CTA ─────────────────────────────────────────────────────── */
     .hp-final-cta {
       border-top: 1px solid var(--scd-border);
-      background: linear-gradient(180deg, rgba(34,197,94,0.05) 0%, rgba(17,24,39,0) 55%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(17,24,39,0) 55%);
     }
     .hp-final-cta-inner {
       max-width: 640px;
@@ -1083,7 +1182,7 @@
 
     /* ── Connect ───────────────────────────────────────────────────────── */
     .hp-connect {
-      border-top: 1px solid rgba(255,255,255,0.10);
+      border-top: 1px solid #e2e8f0;
     }
     .hp-connect-inner {
       max-width: 1200px;
@@ -1115,31 +1214,31 @@
       white-space: nowrap;
     }
     .hp-connect-btn--amber {
-      background: rgba(245,158,11,0.1);
-      border: 1px solid rgba(245,158,11,0.3);
-      color: #f59e0b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--scd-amber);
     }
     .hp-connect-btn--amber:hover {
-      background: rgba(245,158,11,0.18);
-      border-color: rgba(245,158,11,0.55);
+      background: #f1f5f9;
+      border-color: #0f172a;
     }
     .hp-connect-btn--blue {
       background: rgba(59,130,246,0.1);
       border: 1px solid rgba(59,130,246,0.3);
-      color: #60a5fa;
+      color: var(--scd-text-secondary);
     }
     .hp-connect-btn--blue:hover {
       background: rgba(59,130,246,0.18);
       border-color: rgba(59,130,246,0.55);
     }
     .hp-connect-btn--x {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.1);
-      color: #e2e8f0;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
     }
     .hp-connect-btn--x:hover {
-      background: rgba(255,255,255,0.14);
-      border-color: rgba(255,255,255,0.2);
+      background: #f1f5f9;
+      border-color: #0f172a;
     }
     @media (max-width: 600px) {
       .hp-connect-inner { flex-direction: column; align-items: flex-start; }
@@ -1149,7 +1248,8 @@
 
     /* ── Footer ────────────────────────────────────────────────────────── */
     .hp-footer {
-      border-top: 1px solid rgba(255,255,255,0.10);
+      background: var(--dark, #0f172a);
+      border-top: 1px solid var(--dark-secondary, #1e293b);
       margin-top: 2rem;
     }
     .hp-footer-inner {
@@ -1169,7 +1269,7 @@
       gap: 10px;
       font-weight: 700;
       font-size: 15px;
-      color: #f0f2ff;
+      color: #f8fafc;
       margin-bottom: 0.625rem;
     }
     .hp-footer-logo img { width: 28px; height: 28px; border-radius: 5px; }
@@ -1190,12 +1290,12 @@
       color: #94a3b8;
       transition: color 0.2s;
     }
-    .hp-footer-links a:hover { color: #94a3b8; }
+    .hp-footer-links a:hover { color: #2dd4bf; }
     .hp-footer-copy {
       max-width: 1200px;
       margin: 0 auto;
       padding: 1.25rem 2rem;
-      border-top: 1px solid rgba(255,255,255,0.12);
+      border-top: 1px solid rgba(255,255,255,0.08);
       font-size: 12px;
       color: #94a3b8;
     }
@@ -1209,8 +1309,8 @@
 
     /* ── Supply-chain network graphic ─────────────────────────────────── */
     .hp-scm-card {
-      background: #0d1526;
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
@@ -1221,11 +1321,11 @@
       align-items: center;
       justify-content: space-between;
       padding: 10px 16px;
-      background: rgba(255, 255, 255, 0.10);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
-      color: #94a3b8;
+      color: #64748b;
       letter-spacing: 0.04em;
     }
     .hp-scm-header-dots {
@@ -1242,27 +1342,27 @@
     }
     .hp-scm-node {
       flex: 1;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 0.75rem 0.625rem;
       min-width: 0;
     }
     .hp-scm-node--crit {
-      border-color: rgba(239, 68, 68, 0.32);
-      background: rgba(239, 68, 68, 0.045);
+      border-color: rgba(239,68,68, 0.35);
+      background: rgba(239,68,68, 0.06);
       animation: hp-crit-pulse 2.2s ease-in-out infinite;
     }
     .hp-scm-node--warn {
-      border-color: rgba(245, 158, 11, 0.28);
-      background: rgba(245, 158, 11, 0.04);
+      border-color: rgba(245,158,11, 0.40);
+      background: rgba(245,158,11, 0.06);
     }
     .hp-scm-node--ok {
-      border-color: rgba(34, 197, 94, 0.22);
-      background: rgba(34, 197, 94, 0.03);
+      border-color: rgba(22,163,74, 0.32);
+      background: rgba(22,163,74, 0.05);
     }
     @keyframes hp-crit-pulse {
-      0%, 100% { border-color: rgba(239,68,68,0.32); }
+      0%, 100% { border-color: rgba(239,68,68,0.35); }
       50%       { border-color: rgba(239,68,68,0.65);
                   box-shadow: 0 0 14px rgba(239,68,68,0.18); }
     }
@@ -1285,14 +1385,14 @@
     .hp-scm-node-label {
       font-size: 11px;
       font-weight: 700;
-      color: #94a3b8;
+      color: #64748b;
       margin-bottom: 5px;
       line-height: 1.35;
     }
     .hp-scm-node-metric {
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px;
-      color: #94a3b8;
+      color: #64748b;
       line-height: 1.6;
     }
     .hp-scm-connector {
@@ -1314,17 +1414,17 @@
     }
     .hp-scm-connector-arrow {
       font-size: 9px;
-      color: #94a3b8;
+      color: #64748b;
       line-height: 1;
     }
     .hp-scm-footer {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      border-top: 1px solid rgba(255, 255, 255, 0.10);
+      border-top: 1px solid #e2e8f0;
     }
     .hp-scm-kpi {
       padding: 0.875rem 1rem;
-      border-right: 1px solid rgba(255, 255, 255, 0.10);
+      border-right: 1px solid #e2e8f0;
     }
     .hp-scm-kpi:last-child { border-right: none; }
     .hp-scm-kpi-label {
@@ -1332,7 +1432,7 @@
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color: #64748b;
       margin-bottom: 4px;
     }
     .hp-scm-kpi-val {
@@ -1342,8 +1442,8 @@
     }
     .hp-scm-decision-bar {
       padding: 0.75rem 1rem;
-      background: rgba(245, 158, 11, 0.06);
-      border-top: 1px solid rgba(245, 158, 11, 0.12);
+      background: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1352,13 +1452,13 @@
     .hp-scm-decision-text {
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
-      color: #94a3b8;
+      color: #64748b;
     }
     .hp-scm-decision-text strong { color: var(--scd-amber); }
     .hp-scm-decision-cta {
       flex-shrink: 0;
-      background: rgba(34,197,94,0.18);
-      border: 1px solid rgba(34,197,94,0.4);
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       color: #4ade80;
       font-size: 10px;
       font-weight: 700;
@@ -1372,18 +1472,18 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .hp-scm-decision-cta:hover {
-      background: rgba(34,197,94,0.30);
-      border-color: rgba(34,197,94,0.6);
+      background: #f1f5f9;
+      border-color: #0f172a;
     }
 
     /* ── Hero friction line ────────────────────────────────────────────── */
     .hp-hero-friction {
       font-size: 13px;
-      color: #94a3b8;
+      color: #64748b;
       text-align: left;
       padding-top: 1rem;
       margin-top: -0.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid #e2e8f0;
     }
 
     /* ── Hero micro-steps ──────────────────────────────────────────────── */
@@ -1429,7 +1529,7 @@
       border-radius: 6px;
       transition: background 0.2s;
     }
-    .hp-hamburger:hover { background: rgba(255,255,255,0.10); }
+    .hp-hamburger:hover { background: #f1f5f9; }
     .hp-hamburger span {
       display: block;
       width: 20px;
@@ -1448,7 +1548,7 @@
       flex-direction: column;
       gap: 0;
       background: rgba(10, 15, 30, 0.98);
-      border-top: 1px solid rgba(255,255,255,0.12);
+      border-top: 1px solid #e2e8f0;
       padding: 0.75rem 1rem 1rem;
     }
     .hp-nav-mobile.open { display: flex; }
@@ -1456,8 +1556,8 @@
       padding: 0.75rem 0.5rem;
       font-size: 15px;
       font-weight: 500;
-      color: #94a3b8;
-      border-bottom: 1px solid rgba(255,255,255,0.14);
+      color: #64748b;
+      border-bottom: 1px solid #e2e8f0;
       transition: color 0.2s;
     }
     .hp-nav-mobile a:last-child { border-bottom: none; }
@@ -1467,13 +1567,13 @@
       display: block;
       text-align: center;
       background: var(--scd-green);
-      color: #06170d;
+      color: #ffffff;
       font-weight: 700;
       border-radius: 6px;
       padding: 11px 20px;
       border-bottom: none;
     }
-    .hp-nav-mobile .hp-nav-mobile-cta:hover { background: #34d374; color: #06170d; }
+    .hp-nav-mobile .hp-nav-mobile-cta:hover { background: var(--scd-green-hover); color: #ffffff; }
 
     /* ── Responsive ────────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
@@ -1520,85 +1620,106 @@
       .hp-scm-decision-text { font-size: 10px; }
       .hp-scm-chain { overflow-x: auto; }
     }
-    /* ── Limited-time launch offer bar ─────────────────────────── */
-    .offer-bar {
-      background: linear-gradient(90deg, #0a0f1e 0%, #16203a 50%, #0a0f1e 100%);
-      border-bottom: 1px solid rgba(251, 191, 36, 0.35);
-      font-family: 'Inter', sans-serif;
+    /* ── Modern-SaaS motion polish ──────────────────────────────────────
+       Entrance + scroll-reveal micro-animations. All gated on both JS
+       (.reveal-ready, set pre-paint) and prefers-reduced-motion, so the page
+       is fully visible and static when either is unavailable. */
+    @media (prefers-reduced-motion: no-preference) {
+      /* Hero: a gentle, staggered load-in (keyframes → base state stays
+         visible if animations never run). */
+      .reveal-ready .hp-eyebrow,
+      .reveal-ready .hp-h1,
+      .reveal-ready .hp-hero-sub,
+      .reveal-ready .hp-hero-ctas,
+      .reveal-ready .hp-hero-friction,
+      .reveal-ready .hp-hero-stats,
+      .reveal-ready .hp-hero-steps,
+      .reveal-ready .hp-terminal-wrap {
+        animation: hp-enter 0.72s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+      }
+      .reveal-ready .hp-h1            { animation-delay: 0.06s; }
+      .reveal-ready .hp-hero-sub      { animation-delay: 0.12s; }
+      .reveal-ready .hp-hero-ctas     { animation-delay: 0.18s; }
+      .reveal-ready .hp-hero-friction { animation-delay: 0.24s; }
+      .reveal-ready .hp-hero-stats    { animation-delay: 0.30s; }
+      .reveal-ready .hp-hero-steps    { animation-delay: 0.30s; }
+      .reveal-ready .hp-terminal-wrap { animation-delay: 0.14s; }
+      @keyframes hp-enter {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: none; }
+      }
+
+      /* Below-the-fold sections: fade + rise as they scroll into view.
+         Hidden from first paint (no flash); revealed by the IntersectionObserver
+         in home.js adding .hp-reveal-in. */
+      .reveal-ready .hp-social-proof,
+      .reveal-ready body > .hp-section,
+      .reveal-ready .hp-educators,
+      .reveal-ready #ai-cta-home,
+      .reveal-ready .hp-final-cta,
+      .reveal-ready .hp-connect {
+        opacity: 0;
+        transform: translateY(26px);
+        transition: opacity 0.7s ease, transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+        will-change: opacity, transform;
+      }
+      .reveal-ready .hp-reveal-in {
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
-    .offer-bar-inner {
-      max-width: 1200px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: center;
-      gap: 0.9rem; flex-wrap: wrap; padding: 0.55rem 1.25rem;
-      font-size: 0.9rem; color: #e2e8f0; text-align: center;
+
+    /* Nav gains depth once the page is scrolled (condense-on-scroll). */
+    .hp-nav {
+      transition: box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
     }
-    .offer-pill { display: inline-flex; align-items: center; gap: 0.4rem; }
-    .offer-flame { filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5)); }
-    .offer-old { color: #94a3b8; text-decoration: line-through; }
-    .offer-new { color: #fbbf24; font-weight: 800; }
-    .offer-timer {
-      font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0.04em;
-      background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35);
-      color: #fde68a; border-radius: 8px; padding: 0.15rem 0.55rem; min-width: 96px;
-      display: inline-block; text-align: center;
+    .hp-nav.hp-nav--scrolled {
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+      border-bottom-color: #d8e0ea;
     }
-    .offer-timer b { color: #fff; }
-    .offer-cta {
-      background: #fbbf24; color: #0a0f1e; font-weight: 700; text-decoration: none;
-      padding: 0.4rem 0.95rem; border-radius: 8px; white-space: nowrap;
-      transition: transform 0.15s ease, background 0.15s ease;
+
+    /* Consistent card micro-interaction: lift + deepen shadow on hover. */
+    .hp-stat, .hp-tier, .hp-how-card {
+      transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease;
     }
-    .offer-cta:hover { background: #fcd34d; transform: translateY(-1px); }
-    @media (max-width: 600px) {
-      .offer-bar-inner { gap: 0.55rem; font-size: 0.8rem; padding: 0.5rem 0.75rem; }
-      .offer-label-long { display: none; }
+    @media (prefers-reduced-motion: no-preference) {
+      .hp-how-card:hover { transform: translateY(-3px); }
     }
   </style>
 </head>
 
 <body>
+<noscript id="seo-nav">
+<nav aria-label="Site navigation (static fallback)">
+<a href="/">Play Free</a>
+<a href="/blog">Supply Chain Blog</a>
+<a href="/pricing">Pricing</a>
+<a href="/about">About</a>
+<a href="/contact">Contact</a>
+<a href="/terms">Terms of Service</a>
+<a href="/privacy">Privacy Policy</a>
+<a href="/refund">Refund Policy</a>
+<a href="/what-is-a-supply-chain">What Is a Supply Chain?</a>
+<a href="/best-business-simulation-games">Best Business Simulation Games</a>
+<a href="/supply-chain-simulation-guide">Supply Chain Simulation Guide</a>
+<a href="/scm-fundamentals-5-pillars">SCM Fundamentals</a>
+<a href="/7cs-supply-chain-4pl-logistics">7Cs Supply Chain &amp; 4PL Logistics</a>
+<a href="/six-sigma-kaizen-supply-chain">Six Sigma &amp; Kaizen</a>
+<a href="/supply-chain-management-game">Supply Chain Management Game</a>
+<a href="/supply-chain-disruption-simulation">Supply Chain Disruption Simulation</a>
+<a href="/procurement-simulation-game">Procurement Simulation Game</a>
+<a href="/lead-time-calculator">Lead Time Calculator</a>
+<a href="/bullwhip-effect-calculator">Bullwhip Effect Calculator</a>
+<a href="/automotive-supply-chain-resilience">Automotive Supply Chain Resilience</a>
+<a href="/excel-supply-chain-management">Excel for Supply Chain Management</a>
+<a href="/supply-chain-gadgets">Best Gadgets for Supply Chain Professionals</a>
+</nav>
+</noscript>
 
   <!-- ═══════════════════════════════════════════════════════════════════
        NAV
   ═══════════════════════════════════════════════════════════════════ -->
-  <!-- Limited-time launch offer. Real deadline: 2026-09-19 19:00 UTC — after
-       this, Full Access reverts to $99 (list price). The countdown never
-       renders a placeholder: the "Ends in" pill stays hidden until JS has
-       computed a real value, and a <noscript> fallback covers no-JS visitors
-       with an honest, non-urgent static line instead of a dead timer. -->
-  <div class="offer-bar" role="banner" aria-label="Limited-time offer">
-    <div class="offer-bar-inner">
-      <span class="offer-pill"><span class="offer-flame">🔥</span> <strong>Launch offer</strong><span class="offer-label-long"> — Full Access</span></span>
-      <span><span class="offer-old">$99</span> <span class="offer-new">$49.99</span> lifetime</span>
-      <span class="offer-pill" id="offerEndsPill" hidden>Ends in <span class="offer-timer" id="offerTimer"></span></span>
-      <noscript><span class="offer-pill">Launch pricing &mdash; ends soon</span></noscript>
-      <a class="offer-cta" href="https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33" rel="nofollow">Get Full Access &rarr;</a>
-    </div>
-  </div>
-  <script>
-    /* Real, one-time, fixed launch-offer deadline — does NOT reset per
-       visitor. Runs immediately after the bar (not at the bottom of body)
-       so an already-expired page load hides it before paint, no flash.
-       When DEADLINE passes this bar is retired for good. The "Ends in" pill
-       is `hidden` by default and only revealed once a real countdown value
-       is computed, so a broken "--:--:--" can never be shown. */
-    (function () {
-      var DEADLINE = Date.parse('2026-09-19T19:00:00Z');
-      var bar = document.querySelector('.offer-bar');
-      var pill = document.getElementById('offerEndsPill');
-      function pad(n) { return (n < 10 ? '0' : '') + n; }
-      function tick() {
-        var s = Math.floor((DEADLINE - Date.now()) / 1000);
-        if (s <= 0) { if (bar) bar.style.display = 'none'; clearInterval(iv); return; }
-        var el = document.getElementById('offerTimer');
-        if (el) el.innerHTML = '<b>' + pad(Math.floor(s / 3600)) + '</b>:<b>' + pad(Math.floor(s % 3600 / 60)) + '</b>:<b>' + pad(s % 60) + '</b>';
-        if (pill && pill.hidden) pill.hidden = false;
-      }
-      tick();
-      var iv = setInterval(tick, 1000);
-    })();
-  </script>
-
   <nav class="hp-nav" aria-label="Main navigation">
     <div class="hp-nav-inner">
       <a href="/" class="hp-nav-logo">
@@ -1662,29 +1783,11 @@
         </button>
       </div>
       <div class="hp-hero-friction">
-        Takes 15 minutes. No account. No install. Runs in your browser.
+        No account. No install. Runs in your browser.
       </div>
 
-      <div class="hp-hero-stats" aria-label="Key statistics">
-        <div class="hp-stat">
-          <span class="hp-stat-val">10</span>
-          <span class="hp-stat-label">Crisis Chapters</span>
-        </div>
-        <div class="hp-stat">
-          <span class="hp-stat-val">3</span>
-          <span class="hp-stat-label">Difficulty Tiers</span>
-        </div>
-        <div class="hp-stat">
-          <span class="hp-stat-val">40</span>
-          <span class="hp-stat-label">Decisions That Matter</span>
-        </div>
-        <div class="hp-stat">
-          <span class="hp-stat-val">120</span>
-          <span class="hp-stat-label">Total Scenarios</span>
-        </div>
-      </div>
       <ol class="hp-hero-steps" aria-label="What happens when you click play">
-        <li>1. Choose your difficulty</li>
+        <li>1. Pick your industry</li>
         <li>2. Make procurement decisions</li>
         <li>3. See if your supply chain survives</li>
       </ol>
@@ -1715,8 +1818,8 @@
         <div class="hp-scm-chain">
 
           <div class="hp-scm-node hp-scm-node--crit">
-            <div class="hp-scm-node-status" style="color:#ef4444">
-              <span class="hp-scm-status-dot" style="background:#ef4444"></span>
+            <div class="hp-scm-node-status" style="color:var(--scd-red)">
+              <span class="hp-scm-status-dot" style="background:var(--scd-red)"></span>
               Disrupted
             </div>
             <div class="hp-scm-node-label">Shenzhen<br>Factory</div>
@@ -1729,8 +1832,8 @@
           </div>
 
           <div class="hp-scm-node hp-scm-node--warn">
-            <div class="hp-scm-node-status" style="color:#f59e0b">
-              <span class="hp-scm-status-dot" style="background:#f59e0b"></span>
+            <div class="hp-scm-node-status" style="color:var(--scd-status-watch)">
+              <span class="hp-scm-status-dot" style="background:var(--scd-status-watch)"></span>
               Warning
             </div>
             <div class="hp-scm-node-label">Regional<br>Hub</div>
@@ -1743,8 +1846,8 @@
           </div>
 
           <div class="hp-scm-node hp-scm-node--ok">
-            <div class="hp-scm-node-status" style="color:#22c55e">
-              <span class="hp-scm-status-dot" style="background:#22c55e"></span>
+            <div class="hp-scm-node-status" style="color:var(--scd-status-normal)">
+              <span class="hp-scm-status-dot" style="background:var(--scd-status-normal)"></span>
               Nominal
             </div>
             <div class="hp-scm-node-label">UK<br>Distributor</div>
@@ -1757,8 +1860,8 @@
           </div>
 
           <div class="hp-scm-node hp-scm-node--warn">
-            <div class="hp-scm-node-status" style="color:#f59e0b">
-              <span class="hp-scm-status-dot" style="background:#f59e0b"></span>
+            <div class="hp-scm-node-status" style="color:var(--scd-status-watch)">
+              <span class="hp-scm-status-dot" style="background:var(--scd-status-watch)"></span>
               Alert
             </div>
             <div class="hp-scm-node-label">Retail<br>Network</div>
@@ -1771,15 +1874,15 @@
         <div class="hp-scm-footer">
           <div class="hp-scm-kpi">
             <div class="hp-scm-kpi-label">Cash</div>
-            <div class="hp-scm-kpi-val" style="color:#f59e0b">$847K</div>
+            <div class="hp-scm-kpi-val" style="color:var(--scd-amber)">$847K</div>
           </div>
           <div class="hp-scm-kpi">
             <div class="hp-scm-kpi-label">Satisfaction</div>
-            <div class="hp-scm-kpi-val" style="color:#ef4444">62%</div>
+            <div class="hp-scm-kpi-val" style="color:var(--scd-red)">62%</div>
           </div>
           <div class="hp-scm-kpi">
             <div class="hp-scm-kpi-label">Bullwhip Ratio</div>
-            <div class="hp-scm-kpi-val" style="color:#f59e0b">2.7&times;</div>
+            <div class="hp-scm-kpi-val" style="color:var(--scd-amber)">2.7&times;</div>
           </div>
         </div>
 
@@ -1824,8 +1927,8 @@
     <div class="hp-how-grid">
       <div class="hp-how-card">
         <div class="hp-how-num">1</div>
-        <div class="hp-how-title">Choose your difficulty</div>
-        <p class="hp-how-desc">Guided, Normal, or Expert. Each with the same chapter concept, but different framing, formulas, and stakes.</p>
+        <div class="hp-how-title">Choose your industry</div>
+        <p class="hp-how-desc">Electronics, FMCG, or Pharma. Each with unique dynamics and risk profiles that change everything about how you play.</p>
       </div>
       <div class="hp-how-card">
         <div class="hp-how-num">2</div>
@@ -1907,7 +2010,7 @@
             <div class="hp-edu-check" aria-hidden="true">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            Scenario-based learning at 3 difficulty tiers, with live analytics and a CSCP debrief after every chapter
+            Scenario-based learning across 3 industries, with live analytics and a CSCP debrief after every chapter
           </div>
         </div>
         <div class="hp-edu-group-label hp-edu-group-label--soon">Coming soon</div>
@@ -1937,13 +2040,23 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       AI COURSES — affiliate promo (rendered into #ai-cta-home by home.js)
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div style="max-width: 1040px; margin: 0 auto; padding: 1.75rem 1.5rem 0;">
+    <div id="ai-cta-home"
+         data-ai-eyebrow="Level up your edge"
+         data-ai-title="Supply-chain judgment + AI is what gets operators hired."
+         data-ai-desc="The professionals pulling ahead pair real decision-making instinct with AI skills. Get job-ready with the top-rated AI courses on Udemy."></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        PRICING
   ═══════════════════════════════════════════════════════════════════ -->
   <div class="hp-section" id="pricing">
     <div class="hp-section-header">
       <div class="hp-section-label">Pricing</div>
-      <h2 class="hp-section-h2">One payment. Full access. No subscription.</h2>
-      <p class="hp-section-sub">Start free today. One $49.99 purchase unlocks the entire game &mdash; no monthly fees, no recurring charges, lifetime access.</p>
+      <h2 class="hp-section-h2">Pay once. Play for life. No subscription.</h2>
+      <p class="hp-section-sub">Play all 10 chapters free &mdash; no account. A one-time Full Access purchase ($49.99) adds the 5-page Advanced Report and your Certificate of Completion &mdash; no monthly fees, no recurring charges, lifetime access.</p>
     </div>
     <div class="hp-pricing-grid">
 
@@ -1957,11 +2070,11 @@
         <ul class="hp-tier-features">
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            Chapters 1–3 (12 scenarios)
+            <strong>All 10 chapters &mdash; 40-turn campaign</strong>
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            All 3 difficulty tiers
+            All 3 industries
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1972,8 +2085,8 @@
             Bullwhip Effect tracker
           </li>
           <li>
-            <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span class="locked">Chapters 4&ndash;10</span>
+            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            In-browser performance debrief
           </li>
           <li>
             <svg class="ic-cross" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1995,23 +2108,19 @@
           <span class="hp-tier-amount hp-tier-amount--accent">$49.99</span>
           <span class="hp-tier-period">one-time</span>
         </div>
-        <p class="hp-tier-tagline">Everything unlocked. Lifetime access. No subscriptions.</p>
+        <p class="hp-tier-tagline">The full analysis layer. Lifetime access. No subscriptions.</p>
         <ul class="hp-tier-features">
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            Everything in Free
+            Everything in Free &mdash; all 10 chapters
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>All 10 Chapters &mdash; 40-Turn Campaign</strong>
+            <strong>5-page Advanced Report (PDF debrief)</strong>
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>3 Difficulty Tiers &mdash; 120 Total Scenarios</strong>
-          </li>
-          <li>
-            <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            <strong>Advanced Debrief Report (5-page PDF)</strong>
+            <strong>Turn-by-turn Decision Audit</strong>
           </li>
           <li>
             <svg class="ic-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2027,7 +2136,7 @@
       </div>
 
       <!-- INSTITUTIONS -->
-      <div class="hp-tier">
+      <div class="hp-tier hp-tier--inst">
         <div class="hp-tier-name">Institutions</div>
         <div class="hp-tier-price">
           <span class="hp-tier-amount" style="font-size:1.875rem">Custom</span>
@@ -2072,7 +2181,7 @@
     <div class="hp-faq-list">
       <div class="hp-faq-item">
         <h3>Is Supply Chain Disaster free to play?</h3>
-        <p>Yes. Chapters 1, 2, and 3 are completely free &mdash; no account required, no download needed. Full Access ($49.99 one-time) unlocks all 10 chapters plus the Advanced Report. One purchase, lifetime access.</p>
+        <p>Yes &mdash; all 10 chapters are completely free to play, no account required, no download needed. Full Access ($49.99 one-time) adds the 5-page Advanced Report and your Certificate of Completion. One purchase, lifetime access.</p>
       </div>
       <div class="hp-faq-item">
         <h3>What is the bullwhip effect?</h3>
@@ -2135,8 +2244,8 @@
       <h2 class="hp-section-h2" id="final-cta-h2">Ready to test your supply chain?</h2>
       <p class="hp-final-cta-sub">Make the decisions. See the consequences. Learn what actually works.</p>
       <a href="/play?start=1" class="hp-btn-primary hp-final-cta-btn">Play Chapter 1 Free &rarr;</a>
-      <div class="hp-final-cta-friction">15 minutes &middot; No account &middot; No installation</div>
-      <div class="hp-final-cta-price">$49.99 to unlock the complete 10-chapter campaign. Lifetime access.</div>
+      <div class="hp-final-cta-friction">No account &middot; No installation</div>
+      <div class="hp-final-cta-price">All 10 chapters free. $49.99 adds the Advanced Report + certificate. Lifetime access.</div>
     </div>
   </section>
 
@@ -2195,7 +2304,7 @@
     </div>
   </footer>
 
-  <script type="module" src="/src/home.js"></script>
+
 
   <!-- Navigation transition overlay: fades the page to dark before navigating
        to /play so the transition into the dark game feels intentional. -->
@@ -2233,6 +2342,7 @@
     })();
   </script>
 
+  <script type="module" src="/src/home.js"></script>
 </body>
 
 </html>
