@@ -5,8 +5,7 @@ import { getIcon } from '../graphics/svg-icons.js';
  * that walks through one turn of the game (Decision → Outcome → Performance),
  * auto-advancing across three ~10s slides.
  *
- * Shared by the in-game landing screen (landing-page.js) and the marketing
- * homepage (home.js). The modal pins itself to the dark game palette (see the
+ * Used by the marketing homepage (home.js). The modal pins itself to the dark game palette (see the
  * `.lp-demo-overlay` token overrides in landing-page.css), so it renders
  * correctly whether the host page is dark (game) or light (homepage).
  *

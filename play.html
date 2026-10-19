@@ -38,7 +38,19 @@
   <div id="app">
     <!-- Start Screen / Onboarding -->
     <div id="start-screen" class="screen">
-      <!-- Onboarding wizard injected by JS -->
+      <!-- Static summary for crawlers / no-JS; replaced by the pre-game page (src/ui/pregame-page.js) -->
+      <div class="pg-static">
+        <p>Interactive supply-chain strategy simulation</p>
+        <h1>Your supplier cuts capacity. Demand keeps rising. What do you order next?</h1>
+        <p>Play a procurement analyst answering to a board. Each quarter, respond to a crisis briefing and set supplier, shipping, order quantity, pricing, quality inspection and safety stock — then see the effect on cash, stock and customers.</p>
+        <ul>
+          <li>Fast-Moving Consumer Goods — high volume on a thin margin</li>
+          <li>Pharmaceuticals — long lead times and regulatory demand spikes</li>
+          <li>Consumer Electronics — the most volatile demand</li>
+        </ul>
+        <p>10 chapters and 40 quarterly turns, free to play in your browser. Optional one-time Full Access adds a downloadable Advanced Report.</p>
+        <noscript><p>Supply Chain Disaster needs JavaScript to run.</p></noscript>
+      </div>
     </div>
 
     <!-- Dashboard Screen -->
@@ -55,6 +67,9 @@
         <div id="chapter-progress" class="chapter-progress" aria-hidden="true"></div>
         <div id="hud-turn-text" class="hud-turn-text" aria-live="polite"></div>
         <div class="hud-right">
+          <button id="hud-save-btn" class="hud-btn" type="button" hidden aria-describedby="hud-save-status">Save</button>
+          <span id="hud-save-status" class="hud-save-status" role="status" aria-live="polite"></span>
+          <button id="hud-save-backup" class="hud-btn hud-save-backup" type="button" hidden>Back up to email</button>
           <button id="hud-unlock-btn" class="hud-btn hud-unlock-btn" type="button" hidden>Unlock</button>
           <button id="hud-news-btn" class="hud-btn" type="button" aria-expanded="false" aria-controls="crisis-ticker">News<span class="hud-news-count" id="hud-news-count" hidden></span></button>
           <button id="audio-toggle" class="hud-audio-btn" aria-pressed="true" title="Mute audio"></button>

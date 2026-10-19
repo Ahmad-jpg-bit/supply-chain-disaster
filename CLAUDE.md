@@ -35,6 +35,7 @@ Deploy command: `npx vercel --prod` from the project root.
 - **Launch offer / price increase:** `$49.99` is launch pricing. Per the homepage announcement bar (`index.html`, countdown deadline hardcoded as `2026-09-19T19:00:00Z`), the list price reverts to **$99** after that date — confirmed genuine by the user 2026-08-20. When working past that date, re-check whether the site/checkout price still reads $49.99 or $99 before assuming either.
 - **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
 - **LS product "Supply Chain Disaster — Starter" (added 2026-09-13):** product ID `1358576`, variant ID `2121591`, $19.99 one-time, hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/19f46b98-7503-4969-925e-9472ef697e5d` (used on vanilla `pricing.html`/`index.html`; the fork checkout picks it via `LEMONSQUEEZY_STARTER_VARIANT_ID` + `NEXT_PUBLIC_STARTER_ENABLED`).
+- **What Full Access actually gates in the vanilla game at /play (verified in code, 2026-10-19):** only the downloadable 5-page Advanced Report PDF and *starting directly* at Chapter 4+ (`PremiumManager.isChapterLocked`, pre-game chapter picker). Playing on through all 10 chapters, the Certificate of Completion, the strategy guide and the in-browser debrief are FREE. All apex copy (homepage, pricing, terms, refund, llms.txt, paywall, purchase email, debrief upsell) was corrected to say exactly this on 2026-10-19 — keep it that way. Refunds: technical failure / duplicate / unauthorised charge within 7 days — never write "no questions asked" as an unconditional promise.
 - Premium stored in `localStorage` key `scd_premium` (fork also uses `scd_tier` = starter|full)
 - Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
 - Paywall gates (live fork): Ch 3→4 (Starter or Full) and Ch 5→6 (Full only). The legacy vanilla game has a single Ch 3→4 gate (Full only).
@@ -63,6 +64,9 @@ Deploy command: `npx vercel --prod` from the project root.
 | `src/ui/definition-card.js` | CSCP definition flashcard shown after each chapter |
 | `src/ui/chapter-transition.js` | Chapter summary overlay (score + next chapter teaser) |
 | `src/ui/concept-card.js` | Chapter intro card (shown before chapter begins) |
+| `src/ui/pregame-page.js` | /play pre-game page (hero, industry picker + mission preview, resume, access, FAQ). Copy in `src/i18n/pregame.js`; industry facts from `src/logic/industry-profiles.js` (engine constants) — never hand-type numbers. Replaced `landing-page.js` (deleted 2026-10-18; `landing-page.css` stays — the homepage uses it) |
+| `src/logic/save-game.js` | Campaign saves (saveVersion 2): full snapshot that resumes at any turn. Auto-saved to localStorage `scd_local_save_v1` at every safe point; HUD "Save" saves now and backs up to email (`/api/save-game`) if one is set. Superset of the legacy chapter-boundary gameState, so old email saves and recall-cron still work |
+| `src/shared/track.js` | GA4 product events via the existing gtag (no new vendor). Dev builds log to `window.__scdAnalytics` instead of sending |
 | `src/ui/procurement-workspace.js` | /play decision screen markup (situation, 3 decision groups, outlook, consequence summary). All numbers come from `GameEngine.estimateTurn()` — never add game math here |
 | `src/ui/play-workspace.css` | In-game layout/theme, scoped to `body.scd-playing` (set while a run is active) so marketing pages are unaffected |
 
@@ -191,10 +195,11 @@ The game has **10 chapters total**. Two paid tiers since 2026-09-13 (was single-
 - "up to 10 chapters" when describing the game generically
 - "Chapters 1–3 free" for the free tier
 - "Starter — $19.99 one-time" for the entry tier (chapters 1–5; no Advanced Report or certificate)
-- "Full Access — $49.99 one-time, lifetime" for the top tier (all 10 chapters + Advanced Report + certificate)
+- "Full Access — $49.99 one-time, lifetime" for the top tier. On apex/vanilla copy: it adds the downloadable Advanced Report PDF and direct start at Chapter 4+; all 10 chapters and the certificate are free (see "What Full Access actually gates" above)
 - "40 quarterly turns" for the full game
 - Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers (distinct from the current Starter tier)
-- **No industry picker exists.** `supplychaindisaster.com/play?start=1` — every homepage CTA — redirects entirely to `play.supplychaindisaster.com` (the Next.js fork), which has no industry selection. It's 10 CSCP levels × **3 difficulty tiers** (Guided/Normal/Expert), never "Electronics/FMCG/Pharma" or similar. Say "3 Difficulty Tiers" and "120 Total Scenarios," not "3 Real Industries."
+- **Exception (since 2026-09-19):** `/play` serves the *vanilla* game, which DOES have an industry picker (FMCG / Pharma / Electronics) — describe industries on `/play` itself. The rule below still applies to homepage/marketing copy about the fork.
+- **No industry picker exists (fork / marketing copy).** `supplychaindisaster.com/play?start=1` — every homepage CTA — redirects entirely to `play.supplychaindisaster.com` (the Next.js fork), which has no industry selection. It's 10 CSCP levels × **3 difficulty tiers** (Guided/Normal/Expert), never "Electronics/FMCG/Pharma" or similar. Say "3 Difficulty Tiers" and "120 Total Scenarios," not "3 Real Industries."
 - Only **one** PDF exists (the 5-page Advanced Report) and **one** certificate — never write "Executive Strategy Debrief PDF" as a second, separate PDF.
 
 Files corrected for single-plan pricing (2026-07-05): `index.html`, `about.html`, `terms.html`, `pricing.html`,

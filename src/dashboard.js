@@ -8,7 +8,9 @@ import { ConceptCard } from './ui/concept-card.js';
 import { ChapterTransition } from './ui/chapter-transition.js';
 import { SupplyChainFlow } from './graphics/supply-chain-flow.js';
 import { getIcon, iconify } from './graphics/svg-icons.js';
-import { LandingPage } from './ui/landing-page.js';
+import { PregamePage } from './ui/pregame-page.js';
+import { track } from './shared/track.js';
+import { buildSnapshot, restoreSnapshot, writeLocalSave, SAVEABLE_PHASES } from './logic/save-game.js';
 import { AnimatedCounter, showTrendBadge } from './ui/animated-counter.js';
 import { GameOverScreen } from './ui/game-over-screen.js';
 import { TerminationScreen } from './ui/termination-screen.js';
@@ -228,16 +230,29 @@ export class Dashboard {
         if (PremiumManager.isPremium()) markNavPremium();
 
         // Listen for nav upgrade button click
-        document.addEventListener('scd:open-paywall', () => {
+        document.addEventListener('scd:open-paywall', (e) => {
+            track('paid_offer_open', { source: e.detail?.source || 'game' });
             this.paywall.show(() => {
                 markNavPremium();
                 this._syncUnlockButton();
                 this.renderChapterProgress();
             });
         });
+        // Save now (any point in a campaign) + optional email backup offer
+        document.getElementById('hud-save-btn')?.addEventListener('click', () => this._manualSave());
+        document.getElementById('hud-save-backup')?.addEventListener('click', () => {
+            this._setSaveStatus('');
+            this.saveProgressModal.show({
+                chapter: (this.engine.state.chapterIndex ?? 0) + 1,
+                industry: this.engine.state.industry?.id || 'electronics',
+            }, () => {});
+        });
+        // Capture the latest in-progress decisions if the tab is closed
+        window.addEventListener('pagehide', () => this._saveLocal());
+
         // In-game header stand-in for the (hidden) nav upgrade button
         document.getElementById('hud-unlock-btn')?.addEventListener('click', () => {
-            document.dispatchEvent(new CustomEvent('scd:open-paywall'));
+            document.dispatchEvent(new CustomEvent('scd:open-paywall', { detail: { source: 'hud' } }));
         });
 
         // Weekly challenge: start a seeded run, or view the leaderboard
@@ -253,6 +268,7 @@ export class Dashboard {
         // Handle ?upgrade=1 query param (e.g. clicking Upgrade from another page)
         if (new URLSearchParams(window.location.search).get('upgrade') === '1') {
             window.history.replaceState({}, '', '/');
+            track('paid_offer_open', { source: 'upgrade_param' });
             this.paywall.show(() => markNavPremium());
         }
 
@@ -289,14 +305,14 @@ export class Dashboard {
         // so DON'T send another one here (avoids duplicate/extra emails).
         document.addEventListener('scd:email-captured', () => this._autoSave(false));
 
-        // Mount the landing page (replaces the old onboarding wizard)
-        // ?start=1 skips the marketing hero and goes straight to industry selection
+        // Mount the pre-game page (what the game is, industry choice, resume)
+        // ?start=1 (homepage CTAs) jumps straight to the industry picker on small screens
         // (used by all homepage CTAs — direct /play navigation preserves the full landing page)
         const _skipHero = new URLSearchParams(window.location.search).get('start') === '1';
         if (_skipHero) window.history.replaceState({}, '', window.location.pathname);
-        new LandingPage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null) => {
+        new PregamePage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null, savedGame = null) => {
             this.selectedIndustryId = industryId;
-            this.startGame(startChapterIndex, mode, statePatches);
+            this.startGame(startChapterIndex, mode, statePatches, savedGame);
         }, { skipHero: _skipHero });
 
         // Landing page is now rendered and visible — dismiss the loading screen.
@@ -434,7 +450,13 @@ export class Dashboard {
             </div>`;
     }
 
-    startGame(startChapterIndex = 0, mode = 'story', _statePatches = null) {
+    /**
+     * @param {number} startChapterIndex
+     * @param {'story'|'endless'|'weekly'} mode
+     * @param {Object|null} _statePatches — chapter-boundary state patch (checkout resume, legacy email saves)
+     * @param {Object|null} savedGame — full v2 save (logic/save-game.js) to resume at the saved turn
+     */
+    startGame(startChapterIndex = 0, mode = 'story', _statePatches = null, savedGame = null) {
         this._gameMode = mode;
         if (mode === 'weekly') {
             // Weekly challenge: fixed industry + shared seed for a comparable run
@@ -455,11 +477,27 @@ export class Dashboard {
             Object.assign(this.engine.state, _statePatches);
         }
 
+        // Resume a full saved game at the exact turn it was saved
+        if (savedGame && mode === 'story') {
+            const ui = restoreSnapshot(this.engine, savedGame);
+            if (ui.forecastStats) this._forecastStats = ui.forecastStats;
+            this._askedRecallChapters = new Set(ui.askedRecallChapters || []);
+            if (ui.draft) { this._draft = ui.draft; this._draftTurn = this.engine.state.turn; }
+            else this._draftTurn = null;
+        } else if (mode === 'story') {
+            this._draftTurn = null; // fresh game: drafts start from the engine defaults
+        }
+
         this.ui.startScreen.classList.add('hidden');
         this.ui.dashboard.classList.remove('hidden');
         // In-game chrome: compact game header replaces the site nav
         document.body.classList.add('scd-playing');
         this._syncUnlockButton();
+
+        // Manual save is a campaign feature (endless/weekly runs aren't saved)
+        const saveBtn = document.getElementById('hud-save-btn');
+        if (saveBtn) saveBtn.hidden = mode !== 'story';
+        this._setSaveStatus('');
 
         // Board confidence meter + career rank chip (campaign mode only)
         if (mode !== 'endless' && mode !== 'weekly') {
@@ -519,6 +557,72 @@ export class Dashboard {
         this.renderChapterProgress();
         this.renderGameState();
         this._showRestoreNudge();
+
+        // Analytics: the game really started (distinct from a start-button click)
+        this._firstTurnTracked = false;
+        track('game_start', {
+            industry_id:   this.engine.state.industry?.id,
+            mode,
+            start_chapter: mode === 'story' ? (this.engine.state.chapterIndex ?? startChapterIndex) + 1 : 0,
+            resumed:       Boolean(_statePatches || savedGame),
+        });
+    }
+
+    /* ── Saving ──────────────────────────────────────────────────────────── */
+
+    /** Full v2 snapshot of the running campaign (logic/save-game.js). */
+    _snapshot() {
+        const inProcurement = this.engine.state.phase === GAME_PHASES.PROCUREMENT;
+        return buildSnapshot(this.engine, {
+            draft:               inProcurement && this._draftTurn === this.engine.state.turn ? this._draft : null,
+            forecastStats:       this._forecastStats,
+            askedRecallChapters: [...this._askedRecallChapters],
+        });
+    }
+
+    /**
+     * Save the campaign in this browser. Called automatically at every safe
+     * point (each phase, after each decision and quarter), so closing the tab
+     * never loses more than the decision in progress.
+     * @returns {boolean} true if saved
+     */
+    _saveLocal() {
+        const s = this.engine.state;
+        if (this._gameMode !== 'story' || !s.industry || !SAVEABLE_PHASES.includes(s.phase)) return false;
+        return writeLocalSave(this._snapshot());
+    }
+
+    /** Debounced local save while the player edits procurement decisions. */
+    _scheduleDraftSave() {
+        clearTimeout(this._draftSaveTimer);
+        this._draftSaveTimer = setTimeout(() => this._saveLocal(), 800);
+    }
+
+    _setSaveStatus(text, { backupOffer = false } = {}) {
+        const el = document.getElementById('hud-save-status');
+        const offer = document.getElementById('hud-save-backup');
+        if (el) el.textContent = text;
+        if (offer) offer.hidden = !backupOffer;
+        clearTimeout(this._saveStatusTimer);
+        if (text) this._saveStatusTimer = setTimeout(() => this._setSaveStatus(''), backupOffer ? 12000 : 6000);
+    }
+
+    /** HUD "Save" — save now, at any point, and back up to email if one is set. */
+    async _manualSave() {
+        const email = SaveProgressModal.getCapturedEmail();
+        const local = this._saveLocal();
+        track('game_saved', { industry_id: this.engine.state.industry?.id, source: 'manual', backup: Boolean(email) });
+        if (!email) {
+            this._setSaveStatus(local
+                ? 'Saved on this device.'
+                : 'Couldn\u2019t save on this device (browser storage is full or blocked).', { backupOffer: true });
+            return;
+        }
+        this._setSaveStatus(local ? 'Saved on this device \u00b7 backing up\u2026' : 'Backing up\u2026');
+        const backedUp = await this._autoSave(false);
+        this._setSaveStatus(backedUp
+            ? (local ? `Saved on this device and backed up to ${email}.` : `Backed up to ${email}.`)
+            : (local ? 'Saved on this device. Email backup failed \u2014 try again.' : 'Save failed \u2014 try again.'));
     }
 
     renderChapterProgress() {
@@ -731,6 +835,7 @@ export class Dashboard {
                 this._showEndlessDeath();
                 break;
         }
+        this._saveLocal();
     }
 
     renderChapterIntro() {
@@ -1137,6 +1242,7 @@ export class Dashboard {
 
         // 2. Calculate result synchronously (fast, pure logic — no I/O)
         const { outcome, alignment } = this.engine.makeDecision(index);
+        this._saveLocal(); // the response is committed: a reload must not re-offer it
 
         // 3. Optimistic metric flash + audio/haptic — immediate signal of decision direction
         this._flashMetricCards(alignment);
@@ -1776,6 +1882,7 @@ export class Dashboard {
         if (btn && !this._submitting) btn.disabled = Boolean(this._qtyError);
 
         this._updateBullwhipPreview(qty);
+        this._scheduleDraftSave();
     }
 
     /** Full scenario briefing in an accessible dialog (narrative vs. actual game effects). */
@@ -1889,6 +1996,10 @@ export class Dashboard {
     _resolveTurn(choices, forecastCall, crisisResponse = null) {
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
         this.engine.processTurn(choices);
+        if (!this._firstTurnTracked) {
+            this._firstTurnTracked = true;
+            track('first_turn_complete', { industry_id: this.engine.state.industry?.id, mode: this._gameMode });
+        }
 
         // Surface any micro-crisis that fired this turn into the live ticker
         const crisis = this.engine.state.lastTurnResult?.crisis;
@@ -1942,6 +2053,7 @@ export class Dashboard {
             worldMemory: this.engine.state.worldMemory,
         }));
 
+        this._saveLocal(); // quarter resolved: save before any results screen
         const showSummary = () => this.turnSummaryCard.show(result, chapter, () => {
             if (!this.engine.state.isEndless && this.engine.state.boardConfidence <= 0) {
                 this._boardDismissal();
@@ -1959,6 +2071,7 @@ export class Dashboard {
                 missed: result.missedSales,
                 onDone: (alloc) => {
                     const consequences = applyAllocation(this.engine.state, scenario, alloc);
+                    this._saveLocal();
                     allocator.showConsequences(consequences, showSummary);
                 },
             });
@@ -2191,43 +2304,25 @@ export class Dashboard {
 
     /**
      * Silently saves the current engine state to the server, tied to the player's
-     * captured email. Fire-and-forget — never blocks the game loop.
+     * captured email. Never blocks the game loop.
      * @param {boolean} [sendEmail=false] - send a confirmation email to the player
+     * @returns {Promise<boolean>} whether the backup was stored
      */
     _autoSave(sendEmail = false) {
         const email = SaveProgressModal.getCapturedEmail();
-        if (!email) return;
+        if (!email) return Promise.resolve(false);
 
         const s = this.engine?.state;
-        if (!s?.industry) return;
+        if (!s?.industry) return Promise.resolve(false);
 
-        const gameState = {
-            industryId:         s.industry.id,
-            chapterIndex:       s.chapterIndex,
-            cash:               s.cash,
-            inventory:          s.inventory,
-            backlog:            s.backlog,
-            inTransit:          s.inTransit,
-            turn:               s.turn,
-            maxTurns:           s.maxTurns,
-            modifiers:          s.modifiers,
-            archetypeModifiers: s.archetypeModifiers,
-            procurementChoices: s.procurementChoices,
-            startingArchetype:  s.startingArchetype,
-            shuffledScenarios:  s.shuffledScenarios,
-            history:            s.history,
-            worldMemory:        s.worldMemory,
-            boardConfidence:    s.boardConfidence,
-            activeContract:     s.activeContract,
-            activeRoute:        s.activeRoute,
-            careerRankIndex:    s.careerRankIndex,
-        };
+        // Full snapshot (resumes at the saved turn); keeps every legacy field too
+        const gameState = this._snapshot();
 
-        fetch('/api/save-game', {
+        return fetch('/api/save-game', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ email, gameState, sendEmail }),
-        }).catch(() => { /* fail silently */ });
+        }).then(r => r.ok).catch(() => false);
     }
 
     renderChapterSummary() {

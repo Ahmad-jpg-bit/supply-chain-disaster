@@ -23,7 +23,18 @@ export const GAME_PHASES = {
 };
 
 // Industry-specific holding cost rate (per unit-value held per turn)
-const HOLDING_RATES = { electronics: 0.07, fmcg: 0.04, pharma: 0.09 };
+export const HOLDING_RATES = { electronics: 0.07, fmcg: 0.04, pharma: 0.09 };
+
+// Base order lead time per industry, in turns (before supplier/shipping/story modifiers)
+export const BASE_LEAD_TURNS = { electronics: 2, fmcg: 1, pharma: 3 };
+
+// Quarterly demand volatility per industry: ±swing around base demand; pharma
+// additionally has a chance of a regulatory demand spike (+spikeMin…+spikeMin+spikeRange).
+export const DEMAND_PROFILES = {
+    electronics: { swing: 0.25 },
+    fmcg:        { swing: 0.08 },
+    pharma:      { swing: 0.05, spikeChance: 0.15, spikeMin: 0.4, spikeRange: 0.2 },
+};
 
 export function getDefaultProcurementChoices() {
     return {
@@ -390,21 +401,12 @@ export class GameEngine {
      */
     _generateDemandVariance(industryId) {
         const rng = this._rng || Math.random;
-        switch (industryId) {
-            case 'electronics':
-                return { multiplier: 1 + (rng() * 0.5 - 0.25), event: null };
-            case 'fmcg':
-                return { multiplier: 1 + (rng() * 0.16 - 0.08), event: null };
-            case 'pharma': {
-                if (rng() < 0.15) {
-                    // Regulatory/emergency demand spike: +40% to +60%
-                    return { multiplier: 1 + 0.4 + rng() * 0.2, event: 'regulatory_spike' };
-                }
-                return { multiplier: 1 + (rng() * 0.1 - 0.05), event: null };
-            }
-            default:
-                return { multiplier: 1 + (rng() * 0.2 - 0.1), event: null };
+        const p = DEMAND_PROFILES[industryId] || { swing: 0.1 };
+        if (p.spikeChance && rng() < p.spikeChance) {
+            // Regulatory/emergency demand spike: +40% to +60%
+            return { multiplier: 1 + p.spikeMin + rng() * p.spikeRange, event: 'regulatory_spike' };
         }
+        return { multiplier: 1 + (rng() * (2 * p.swing) - p.swing), event: null };
     }
 
     /**
@@ -415,8 +417,7 @@ export class GameEngine {
      * Minimum 1 turn — no same-turn delivery, even with premium + charter.
      */
     _computeLeadTimeTurns(supplier, shippingMethod, storyLeadMod, industryId) {
-        const BASE_TURNS = { electronics: 2, fmcg: 1, pharma: 3 };
-        const base = BASE_TURNS[industryId] ?? 2;
+        const base = BASE_LEAD_TURNS[industryId] ?? 2;
         // Positive delays round up; negative reductions round down
         const weekToTurn = (w) => w > 0 ? Math.ceil(w / 2) : Math.floor(w / 2);
         const total = base

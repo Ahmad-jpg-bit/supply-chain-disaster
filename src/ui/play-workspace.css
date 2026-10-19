@@ -96,6 +96,9 @@ body.scd-playing .hud-right { margin-left: auto; flex-wrap: wrap; }
 .hud-btn:hover { background: var(--pw-raise); border-color: var(--pw-accent); }
 .hud-btn[hidden] { display: none; }
 .hud-unlock-btn { border-color: rgba(251, 191, 36, 0.5); color: var(--pw-warn); }
+.hud-save-status { font-size: 0.8125rem; color: var(--pw-muted); max-width: 34ch; }
+.hud-save-status:empty { display: none; }
+.hud-save-backup { border-color: rgba(56, 189, 248, 0.5); color: var(--pw-accent); }
 .hud-news-count {
   min-width: 18px;
   padding: 1px 5px;

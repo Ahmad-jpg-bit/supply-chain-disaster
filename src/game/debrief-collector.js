@@ -221,6 +221,16 @@ class _DebriefCollector {
     }
 
     /**
+     * Replace the session with a saved one (resuming a saved game).
+     * @param {Object} data — a getFullReport() snapshot
+     */
+    restore(data) {
+        if (!data) return;
+        this._data = JSON.parse(JSON.stringify(data));
+        this._persist();
+    }
+
+    /**
      * Wipe both the in-memory state and the localStorage entry.
      * Call before starting a new game if you want a clean slate.
      */
