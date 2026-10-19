@@ -1,7 +1,6 @@
 import { getIcon } from '../graphics/svg-icons.js';
 import { CHAPTERS } from '../data/chapters.js';
 import { EXPANSION_CHAPTERS } from '../data/expansion-chapters.js';
-import { PremiumManager } from '../logic/premium.js';
 
 export class ChapterTransition {
     constructor() {
@@ -68,35 +67,16 @@ export class ChapterTransition {
         }
 
         // ── Next-chapter teaser ───────────────────────────────────────────────
-        const nextIsExpansionLocked = nextChapter?.expansionOnly && !PremiumManager.isExpansion();
-        const nextIsLocked = nextChapter && !nextIsExpansionLocked
-            ? PremiumManager.isChapterLocked(nextChapter.number)
-            : false;
-        const isAnyLocked = nextIsLocked || nextIsExpansionLocked;
-
-        let nextChapterHtml = '';
-        if (nextChapter) {
-            if (isAnyLocked) {
-                nextChapterHtml = `
-                <div class="chapter-next-teaser chapter-next-teaser--locked">
-                    <span class="next-label">Coming Next</span>
-                    <div class="next-chapter-premium-badge">${getIcon('lock', 11)} PREMIUM</div>
-                    <h4>Chapter ${nextChapter.number}: ${nextChapter.title}</h4>
-                    <p class="chapter-next-lock-note">Full Access unlocks every remaining chapter — $49.99 one-time</p>
-                </div>`;
-            } else {
-                nextChapterHtml = `
+        // Playing on is always free (the campaign never gates the next chapter),
+        // so the teaser never shows a lock or a price.
+        const nextChapterHtml = nextChapter ? `
                 <div class="chapter-next-teaser">
                     <span class="next-label">Coming Next</span>
                     <div class="next-chapter-icon">${getIcon(nextChapter.icon, 32)}</div>
                     <h4>Chapter ${nextChapter.number}: ${nextChapter.title}</h4>
-                </div>`;
-            }
-        }
+                </div>` : '';
 
-        const ctaBtnLabel = isAnyLocked
-            ? getIcon('lock', 13) + ' Unlock Chapter ' + nextChapter.number + ' — $49.99 one-time'
-            : nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results';
+        const ctaBtnLabel = nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results';
 
         this.overlay.innerHTML = `
             <div class="chapter-transition glass-panel">
@@ -139,7 +119,7 @@ export class ChapterTransition {
 
                 ${nextChapterHtml}
 
-                <button class="btn-primary chapter-continue-btn ${isAnyLocked ? 'btn-premium' : ''}">
+                <button class="btn-primary chapter-continue-btn">
                     ${ctaBtnLabel}
                 </button>
                 <div class="chapter-auto-bar-wrap" aria-hidden="true">

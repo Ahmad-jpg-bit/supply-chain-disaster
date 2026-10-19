@@ -1,12 +1,13 @@
 /**
  * PremiumManager — client-side premium status management.
  *
- * This legacy vanilla module is Full-Access-only: Full Access — $49.99 one-time, lifetime.
- * (The LIVE game is the Next.js fork, which added a $19.99 Starter tier for chapters 1–5;
- * Starter gating/checkout lives in the fork, not in this module.)
- * Chapters 1-3  : free.
- * Chapters 4-10 : require Full Access.
- * Full Access also unlocks the Advanced Report (PDF debrief).
+ * Full Access — $49.99 one-time, lifetime.
+ * What it actually gates in this game:
+ *   · the downloadable 5-page Advanced Report (PDF debrief), and
+ *   · STARTING DIRECTLY at Chapter 4 or later (isChapterLocked, used by the
+ *     pre-game chapter picker).
+ * Playing on through all 10 chapters, the certificate and the in-browser
+ * debrief are free.
  *
  * Premium status is stored in localStorage and optionally verified against the server.
  * Stored shape: { active, email, customerId, tier, ts }
@@ -56,8 +57,8 @@ export const PremiumManager = {
   },
 
   /**
-   * Returns true if the given chapter number is locked for the current user.
-   * Chapters 4-10 → require Full Access.
+   * Returns true if the player may NOT start directly at this chapter.
+   * Chapters 4+ need Full Access to start directly (playing on to them is free).
    */
   isChapterLocked(chapterNumber) {
     if (chapterNumber <= FREE_CHAPTERS) return false;

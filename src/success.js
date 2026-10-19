@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     contentEl.innerHTML = `
       <div class="success-icon success-icon--ok">✓</div>
       <h2 class="success-title">Full Access Unlocked!</h2>
-      <p class="muted-text">All 10 chapters and the 5-page Advanced Report are now yours — for life. Jump back in and play the full campaign.</p>
+      <p class="muted-text">The downloadable 5-page Advanced Report is now yours — for life — and you can start directly at Chapter 4 or later. Jump back in and play the full campaign.</p>
 
       <div class="success-order-box">
         <p class="success-order-label">Your Order ID — save this</p>

@@ -358,7 +358,7 @@ export class DebriefScreen {
                             </button>
                         ` : `
                             <span class="debrief-premium-hint">
-                                PDF report — Premium only
+                                PDF report — Full Access
                             </span>
                         `}
                         <button class="debrief-close-btn" aria-label="Close">✕</button>
@@ -452,8 +452,8 @@ export class DebriefScreen {
 
                 ${!isPremium ? `
                     <div class="debrief-upsell">
-                        <strong>Unlock Full Access</strong> — all 10 chapters, decision audit table,
-                        chapter-by-chapter breakdown, and personalised learning narrative.
+                        <strong>Full Access</strong> turns this debrief into a downloadable 5-page PDF:
+                        quarter-by-quarter decision audit, chapter breakdown and learning summary.
                         One-time purchase at $49.99. Lifetime access.
                     </div>
                 ` : ''}

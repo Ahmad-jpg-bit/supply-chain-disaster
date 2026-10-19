@@ -15,16 +15,17 @@ const REPORT_PRODUCT = {
     name:     'Full Access',
     price:    '$49.99',
     period:   'one-time · lifetime',
-    btnLabel: 'Unlock Everything — $49.99 ✦',
+    btnLabel: 'Get Full Access — $49.99',
     features: [
-        { text: '<strong>All 10 chapters</strong> — full 40-turn campaign' },
-        { text: '<strong>Global Crisis &amp; Multi-Regional chapters</strong> (9–10)' },
-        { text: '<strong>5-page PDF Debrief Report</strong>' },
-        { text: '<strong>Turn-by-turn Decision Audit</strong>' },
-        { text: '<strong>Learning Summary &amp; Chapter Breakdown</strong>' },
-        { text: '<strong>Completion Certificate &amp; Lifetime Updates</strong>' },
+        { text: '<strong>Downloadable 5-page Advanced Report (PDF)</strong>' },
+        { text: 'Quarter-by-quarter decision audit, chapter breakdown &amp; learning summary — in the PDF' },
+        { text: '<strong>Start directly at Chapter 4 or later</strong>' },
+        { text: 'Already free: all 10 chapters, every industry and the Certificate of Completion' },
     ],
 };
+
+/** Full Access price as shown at checkout — single source for other surfaces. */
+export const FULL_ACCESS_PRICE = REPORT_PRODUCT.price;
 
 export class Paywall {
     constructor() {
@@ -73,14 +74,14 @@ export class Paywall {
                         <span class="pricing-price-amount">${REPORT_PRODUCT.price}</span>
                         <span class="pricing-price-period">${REPORT_PRODUCT.period}</span>
                     </div>
-                    <p class="pricing-card-tagline">One purchase. Every chapter, every feature, forever.</p>
+                    <p class="pricing-card-tagline">One purchase. Lifetime access to the Advanced Report.</p>
                 </div>
                 <ul class="pricing-features">${featuresHtml}</ul>
                 <button
                     class="pricing-buy-btn pricing-buy-btn--featured"
                     data-tier="${REPORT_PRODUCT.id}"
                 >${REPORT_PRODUCT.btnLabel}</button>
-                <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">7-day refund policy &mdash; no questions asked</p>
+                <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px;">7-day refund if a technical issue can&rsquo;t be fixed &mdash; <a href="/refund" style="color:inherit;">Refund Policy</a></p>
             </div>`;
 
         const restoreLabel = BillingManager.isNative ? 'Restore Purchases' : 'Restore access';
@@ -93,9 +94,9 @@ export class Paywall {
 
                 <div class="paywall-header">
                     <div class="paywall-badge">FULL ACCESS — $49.99 LIFETIME</div>
-                    <h2 class="paywall-title">Unlock the full game.</h2>
+                    <h2 class="paywall-title">Get the Advanced Report.</h2>
                     <p class="paywall-subtitle">
-                        One $49.99 purchase unlocks all 10 chapters, the 5-page Advanced Report, and every feature — for life. No subscription.
+                        The whole campaign is already free. One $49.99 purchase adds the downloadable 5-page Advanced Report and lets you start directly at Chapter 4 or later — for life. No subscription.
                     </p>
                 </div>
 

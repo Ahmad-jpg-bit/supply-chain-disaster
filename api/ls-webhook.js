@@ -146,22 +146,20 @@ function buildReportEmail(appUrl, orderId) {
     heading:    'Full Access unlocked.',
     subheading: 'One-time $49.99 purchase &mdash; lifetime access, no subscriptions, no expiry.',
     bodyHtml: `
-      <p style="margin:0 0 24px;">You now own <strong style="color:#e2e8f0;">everything</strong> — all 10 chapters of the campaign plus the <strong style="color:#e2e8f0;">Advanced Report</strong>. Complete the game and hit <strong style="color:#e2e8f0;">Download Report</strong> on the final screen to generate your full 5-page PDF debrief.</p>
+      <p style="margin:0 0 24px;">Full Access adds the downloadable <strong style="color:#e2e8f0;">Advanced Report</strong> to the free campaign. Finish the game, open <strong style="color:#e2e8f0;">Debrief Report</strong> on the final screen and choose <strong style="color:#e2e8f0;">Download PDF</strong> to generate your 5-page report. You can also start directly at Chapter 4 or later from the game&rsquo;s start page.</p>
 
       ${orderIdBlock(orderId)}
 
       <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:24px;">
         <tr>
           <td style="padding:20px 24px 14px;">
-            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">Everything included in Full Access</p>
+            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">What Full Access adds</p>
             <table cellpadding="0" cellspacing="0" width="100%">
-              ${featureRow('All 10 chapters &mdash; full 40-turn campaign')}
-              ${featureRow('Global Crisis &amp; Multi-Regional chapters (9&ndash;10)')}
-              ${featureRow('5-page PDF Debrief Report')}
-              ${featureRow('Turn-by-turn Decision Audit')}
+              ${featureRow('Downloadable 5-page Advanced Report (PDF)')}
+              ${featureRow('Quarter-by-quarter decision audit')}
               ${featureRow('Bullwhip Ratio &amp; Service Level Analysis')}
               ${featureRow('Chapter-by-chapter Breakdown &amp; Learning Summary')}
-              ${featureRow('Completion Certificate &amp; Lifetime updates')}
+              ${featureRow('Start directly at Chapter 4 or later')}
             </table>
           </td>
         </tr>
