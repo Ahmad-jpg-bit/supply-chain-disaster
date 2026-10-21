@@ -40,8 +40,10 @@ export class GameOverScreen {
      * @param {string}    params.industry     - 'electronics' | 'fmcg' | 'pharma'
      * @param {boolean}   params.isExpansion  - Whether expansion tier is active
      * @param {Function}  [params.onDebrief]  - Optional callback to open the debrief screen
+     * @param {boolean}   [params.certificateAllowed] - Certificate is a Core Game Pass feature
+     * @param {Function}  [params.onUnlock]   - Opens the Core offer when the certificate is locked
      */
-    show({ cash, overall, summaries, industry = 'electronics', isExpansion = false, onDebrief = null }) {
+    show({ cash, overall, summaries, industry = 'electronics', isExpansion = false, onDebrief = null, certificateAllowed = true, onUnlock = null }) {
         // Option 8: Blended score = 60% financial + 40% mastery
         const initialCapital = (typeof industry === 'object' ? industry?.metrics?.initialCapital : null) || 500000;
         const financialPct = Math.min(100, Math.max(0, (cash / (initialCapital * 2)) * 100));
@@ -112,7 +114,7 @@ export class GameOverScreen {
 
                 <div class="gameover-actions">
                     <button class="btn-primary btn-glow gameover-play-again" onclick="location.reload()">Play Again</button>
-                    <button class="btn-secondary gameover-cert-btn">Certificate</button>
+                    <button class="btn-secondary gameover-cert-btn">${certificateAllowed ? 'Certificate' : 'Certificate (Core Game Pass)'}</button>
                     <button class="btn-secondary gameover-guide-btn">Strategy Guide</button>
                     ${onDebrief ? `<button class="btn-secondary gameover-debrief-btn">Debrief Report</button>` : ''}
                 </div>
@@ -128,6 +130,7 @@ export class GameOverScreen {
 
         // Certificate button
         this.modal.querySelector('.gameover-cert-btn').addEventListener('click', async () => {
+            if (!certificateAllowed) { onUnlock?.(); return; }
             const { CertificateGenerator } = await import('./certificate.js');
             CertificateGenerator.show({ overall, cash, industry, isExpansion });
         });

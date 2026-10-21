@@ -1,4 +1,7 @@
 import { kv } from '@vercel/kv';
+import { billingConfig } from '../lib/billing/config.js';
+import { accessFromToken } from '../lib/billing/service.js';
+import { hasFeature, FEATURE } from '../src/data/packages.js';
 
 /**
  * Weekly challenge leaderboard, backed by a Vercel KV sorted set per week.
@@ -61,9 +64,19 @@ export default async function handler(req, res) {
 
     // ── Submit a score ────────────────────────────────────────────────────
     if (req.method === 'POST') {
-        const { weekId, name, score, industryId } = req.body || {};
+        const { weekId, name, score, industryId, accessToken } = req.body || {};
         if (!weekId || !WEEK_RE.test(weekId)) {
             return res.status(400).json({ error: 'Valid weekId required.' });
+        }
+        // The weekly challenge is a Core Game Pass feature: require a server-signed
+        // access token that includes it. (Before billing is configured — no
+        // ENTITLEMENT_TOKEN_SECRET — submissions stay open, as before.)
+        const cfg = billingConfig();
+        if (cfg.tokenSecret) {
+            const access = accessFromToken(cfg, accessToken);
+            if (!access || !hasFeature(access, FEATURE.WEEKLY)) {
+                return res.status(403).json({ error: 'core_required' });
+            }
         }
         const numScore = Number(score);
         if (!Number.isFinite(numScore) || numScore < 0 || numScore > MAX_SCORE) {

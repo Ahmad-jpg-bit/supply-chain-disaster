@@ -11,7 +11,7 @@
  */
 
 import { GAME_PHASES } from './engine.js';
-import { isSnapshot } from './save-game.js';
+import { isSnapshot, isPrePackagingSave } from './save-game.js';
 
 export const SAVE_EMAIL_KEY = 'scd_progress_email';
 
@@ -66,6 +66,18 @@ export function describeSave(record, chapters, source = 'email') {
         cash: gs.cash,
         turnsPlayed: Math.max(0, Math.min(totalTurns, (gs.turn ?? 1) - 1)),
     };
+}
+
+/**
+ * Was this saved campaign started before the free-intro / Core packaging?
+ * Such saves are grandfathered: they can be played to the end without Core.
+ * Mirrors Dashboard._mayStart (v2 snapshots carry packagingVersion in their
+ * state; older chapter-boundary saves never had it).
+ */
+export function saveIsGrandfathered(save) {
+    const gs = save?.gameState;
+    if (!gs) return false;
+    return isSnapshot(gs) ? isPrePackagingSave(gs) : !gs.packagingVersion;
 }
 
 /** Of two described saves, the one saved most recently (either may be null). */

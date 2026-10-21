@@ -358,7 +358,7 @@ export class DebriefScreen {
                             </button>
                         ` : `
                             <span class="debrief-premium-hint">
-                                PDF report — Full Access
+                                PDF report — Core Game Pass
                             </span>
                         `}
                         <button class="debrief-close-btn" aria-label="Close">✕</button>
@@ -452,9 +452,9 @@ export class DebriefScreen {
 
                 ${!isPremium ? `
                     <div class="debrief-upsell">
-                        <strong>Full Access</strong> turns this debrief into a downloadable 5-page PDF:
+                        The <strong>Core Game Pass</strong> turns this debrief into a downloadable 5-page PDF:
                         quarter-by-quarter decision audit, chapter breakdown and learning summary.
-                        One-time purchase at $49.99. Lifetime access.
+                        One-time purchase at $19.99 — no subscription.
                     </div>
                 ` : ''}
             </div>

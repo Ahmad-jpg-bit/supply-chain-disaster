@@ -1,5 +1,15 @@
-import crypto from 'crypto';
 import { Resend } from 'resend';
+import { billingConfig } from '../lib/billing/config.js';
+import { defaultStore } from '../lib/billing/store.js';
+import { handleWebhook } from '../lib/billing/service.js';
+import { PACKAGE } from '../src/data/packages.js';
+
+/*
+ * Lemon Squeezy webhook. Signature verification (timing-safe HMAC-SHA256 of
+ * the raw body), store / test-mode / variant allowlist checks, idempotency
+ * and out-of-order safety all live in lib/billing — see ledger.js.
+ * Non-2xx responses make Lemon Squeezy retry (up to 3 times).
+ */
 
 // Disable Vercel's body parser — we need the raw body for HMAC verification.
 export const config = {
@@ -13,16 +23,6 @@ function getRawBody(req) {
     req.on('end',  () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
-}
-
-/** Map a LS variant ID to a product tier. */
-function deriveTier(variantId) {
-  const vid = String(variantId ?? '');
-  const standardId  = process.env.LEMONSQUEEZY_STANDARD_VARIANT_ID?.trim();
-  const expansionId = process.env.LEMONSQUEEZY_EXPANSION_VARIANT_ID?.trim();
-  if (expansionId && vid === expansionId) return 'expansion';
-  if (standardId  && vid === standardId)  return 'standard';
-  return 'standard';
 }
 
 // ── Email templates ──────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ function emailHtml({ eyebrow, heading, subheading, bodyHtml, ctaUrl, ctaLabel })
               </td>
               <td>
                 <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.7;">
-                  <strong style="color:#6b7280;">Switching devices?</strong> Open the game, click <strong style="color:#8b8fa8;">Unlock</strong>, then <strong style="color:#8b8fa8;">Restore access</strong>, and enter this email address.
+                  <strong style="color:#6b7280;">Switching devices?</strong> Open the game, choose <strong style="color:#8b8fa8;">Core Game Pass &rarr; Restore a purchase</strong>, enter this email address and type the one-time code we send you.
                 </p>
               </td>
             </tr>
@@ -140,38 +140,6 @@ function featureRow(text, note = '') {
   </tr>`;
 }
 
-function buildReportEmail(appUrl, orderId) {
-  return emailHtml({
-    eyebrow:    'Purchase Confirmed',
-    heading:    'Full Access unlocked.',
-    subheading: 'One-time $49.99 purchase &mdash; lifetime access, no subscriptions, no expiry.',
-    bodyHtml: `
-      <p style="margin:0 0 24px;">Full Access adds the downloadable <strong style="color:#e2e8f0;">Advanced Report</strong> to the free campaign. Finish the game, open <strong style="color:#e2e8f0;">Debrief Report</strong> on the final screen and choose <strong style="color:#e2e8f0;">Download PDF</strong> to generate your 5-page report. You can also start directly at Chapter 4 or later from the game&rsquo;s start page.</p>
-
-      ${orderIdBlock(orderId)}
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:24px;">
-        <tr>
-          <td style="padding:20px 24px 14px;">
-            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">What Full Access adds</p>
-            <table cellpadding="0" cellspacing="0" width="100%">
-              ${featureRow('Downloadable 5-page Advanced Report (PDF)')}
-              ${featureRow('Quarter-by-quarter decision audit')}
-              ${featureRow('Bullwhip Ratio &amp; Service Level Analysis')}
-              ${featureRow('Chapter-by-chapter Breakdown &amp; Learning Summary')}
-              ${featureRow('Start directly at Chapter 4 or later')}
-            </table>
-          </td>
-        </tr>
-      </table>
-    `,
-    ctaUrl:   appUrl,
-    ctaLabel: 'Start Playing &rarr;',
-  });
-}
-
-// ── Webhook handler ──────────────────────────────────────────────────────────
-
 function orderIdBlock(orderId) {
   if (!orderId) return '';
   return `
@@ -181,19 +149,37 @@ function orderIdBlock(orderId) {
           <p style="margin:0 0 6px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">Your Order ID — save this</p>
           <p style="margin:0 0 10px;font-size:22px;font-weight:800;color:#f0f2ff;font-family:monospace;letter-spacing:0.06em;">${orderId}</p>
           <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.7;">
-            If you clear your browser data, switch devices, or use a different browser, you can restore access by going to <strong style="color:#8b8fa8;">Unlock &rarr; Restore access</strong> in the game and entering your purchase email — or by contacting support with this Order ID.
+            If you clear your browser data or switch devices, restore access in the game with <strong style="color:#8b8fa8;">Core Game Pass &rarr; Restore a purchase</strong> (we email you a one-time code) — or contact support with this Order ID.
           </p>
         </td>
       </tr>
     </table>`;
 }
 
-async function sendWelcomeEmail({ toEmail, appUrl, resend, orderId }) {
-  await resend.emails.send({
-    from:    'Supply Chain Disaster <hello@supplychaindisaster.com>',
-    to:      toEmail,
-    subject: 'Full Access unlocked — Supply Chain Disaster',
-    html:    buildReportEmail(appUrl, orderId),
+function buildCoreEmail(appUrl, orderId) {
+  return emailHtml({
+    eyebrow:    'Purchase Confirmed',
+    heading:    'Your Core Game Pass is active.',
+    subheading: 'One-time $19.99 purchase &mdash; no subscription and no recurring charge.',
+    bodyHtml: `
+      <p style="margin:0 0 24px;">The Core Game Pass unlocks the full campaigns for all three industries in the browser where you bought it. Open the game to continue where you left off.</p>
+      ${orderIdBlock(orderId)}
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(13,16,32,0.8);border:1px solid rgba(108,99,255,0.15);border-radius:10px;margin-bottom:24px;">
+        <tr>
+          <td style="padding:20px 24px 14px;">
+            <p style="margin:0 0 14px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#6c63ff;">Included in the Core Game Pass</p>
+            <table cellpadding="0" cellspacing="0" width="100%">
+              ${featureRow('Full 10-chapter campaigns: Fast-Moving Consumer Goods, Pharmaceuticals and Consumer Electronics')}
+              ${featureRow('Replay any campaign and start at any chapter')}
+              ${featureRow('Endless Survival and the weekly challenge')}
+              ${featureRow('Downloadable 5-page Advanced Report (PDF) and Certificate of Completion')}
+            </table>
+          </td>
+        </tr>
+      </table>
+    `,
+    ctaUrl:   `${appUrl}/play`,
+    ctaLabel: 'Open the game &rarr;',
   });
 }
 
@@ -202,83 +188,32 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
-  if (!secret) {
-    console.error('[LemonSqueezy] LEMONSQUEEZY_WEBHOOK_SECRET is not set');
-    return res.status(500).json({ error: 'Webhook not configured.' });
-  }
-
-  // Read raw body
   let rawBody;
   try {
     rawBody = await getRawBody(req);
-  } catch (err) {
+  } catch {
     return res.status(400).json({ error: 'Failed to read request body.' });
   }
 
-  // Verify HMAC-SHA256 signature
-  const signature = req.headers['x-signature'];
-  const expected  = crypto
-    .createHmac('sha256', secret)
-    .update(rawBody)
-    .digest('hex');
+  const cfg = billingConfig();
+  const store = await defaultStore();
+  const out = await handleWebhook({ store, cfg }, { rawBody, signature: req.headers['x-signature'] });
 
-  if (!signature || signature !== expected) {
-    console.error('[LemonSqueezy] Invalid webhook signature');
-    return res.status(400).json({ error: 'Invalid webhook signature.' });
-  }
-
-  let event;
-  try {
-    event = JSON.parse(rawBody.toString('utf8'));
-  } catch {
-    return res.status(400).json({ error: 'Malformed webhook payload.' });
-  }
-
-  const eventName = event.meta?.event_name;
-  const appUrl    = (process.env.APP_URL || 'https://supplychaindisaster.com').trim();
-
-  switch (eventName) {
-    case 'order_created': {
-      const attr      = event.data?.attributes ?? {};
-      const toEmail   = attr.user_email;
-      const variantId = String(attr.first_order_item?.variant_id ?? '');
-      const tier      = deriveTier(variantId);
-      const orderId   = String(event.data?.id ?? '');
-
-      console.log('[LemonSqueezy] Order created:', orderId, toEmail, '— tier:', tier);
-
-      if (toEmail && process.env.RESEND_API_KEY) {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        try {
-          await sendWelcomeEmail({ toEmail, appUrl, resend, orderId });
-          console.log('[LemonSqueezy] Welcome email sent to', toEmail);
-        } catch (err) {
-          // Log but don't fail the webhook — LS will retry on non-2xx
-          console.error('[LemonSqueezy] Failed to send welcome email:', err?.message);
-        }
-      }
-      break;
+  // Welcome email only the first time an order becomes paid (idempotent)
+  const paid = out.firstPaid;
+  if (paid?.email && paid.package === PACKAGE.CORE && process.env.RESEND_API_KEY) {
+    try {
+      await new Resend(process.env.RESEND_API_KEY).emails.send({
+        from:    'Supply Chain Disaster <hello@supplychaindisaster.com>',
+        to:      paid.email,
+        subject: 'Your Core Game Pass is active — Supply Chain Disaster',
+        html:    buildCoreEmail(cfg.appUrl, paid.orderId),
+      });
+    } catch (err) {
+      // Access is already granted; never fail the webhook over email
+      console.error('[billing] welcome email failed for order', paid.orderId, err?.message);
     }
-
-    case 'order_refunded':
-      console.log('[LemonSqueezy] Order refunded:', event.data?.id);
-      // TODO: revoke access in your DB
-      break;
-
-    case 'subscription_created':
-      console.log('[LemonSqueezy] Subscription created:', event.data?.id);
-      break;
-
-    case 'subscription_cancelled':
-    case 'subscription_expired':
-      console.log('[LemonSqueezy] Subscription ended:', eventName, event.data?.id);
-      // TODO: revoke access in your DB
-      break;
-
-    default:
-      console.log('[LemonSqueezy] Unhandled event:', eventName);
   }
 
-  return res.status(200).json({ received: true });
+  return res.status(out.status).json(out.body);
 }

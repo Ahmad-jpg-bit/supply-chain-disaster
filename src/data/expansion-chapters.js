@@ -1,5 +1,5 @@
 // Expansion chapters (9–10), turns 33–40
-// Unlocked with Full Access (any active premium).
+// Included in the Core Game Pass (and legacy Full Access) — see data/packages.js.
 
 export const EXPANSION_CHAPTERS = [
     {

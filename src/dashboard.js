@@ -10,7 +10,11 @@ import { SupplyChainFlow } from './graphics/supply-chain-flow.js';
 import { getIcon, iconify } from './graphics/svg-icons.js';
 import { PregamePage } from './ui/pregame-page.js';
 import { track } from './shared/track.js';
-import { buildSnapshot, restoreSnapshot, writeLocalSave, SAVEABLE_PHASES } from './logic/save-game.js';
+import { buildSnapshot, restoreSnapshot, writeLocalSave, SAVEABLE_PHASES, PACKAGING_VERSION, isPrePackagingSave } from './logic/save-game.js';
+import { Entitlements } from './logic/entitlements.js';
+import { FEATURE, FREE_INTRO } from './data/packages.js';
+import { describeSave } from './logic/pregame-state.js';
+import { IntroComplete } from './ui/intro-complete.js';
 import { AnimatedCounter, showTrendBadge } from './ui/animated-counter.js';
 import { GameOverScreen } from './ui/game-over-screen.js';
 import { TerminationScreen } from './ui/termination-screen.js';
@@ -123,7 +127,7 @@ export class Dashboard {
             <span class="restore-nudge-icon">&#9432;</span>
             <span class="restore-nudge-text">
                 <strong>Access is saved in this browser.</strong>
-                On a new device, click <strong>Unlock → Restore access</strong> and enter your purchase email.
+                On a new device, choose <strong>Core Game Pass → Restore a purchase</strong> and enter your purchase email.
             </span>
             <button class="restore-nudge-dismiss" aria-label="Dismiss">✕</button>
         `;
@@ -140,7 +144,46 @@ export class Dashboard {
     /** Show the HUD Unlock button only to non-premium players. */
     _syncUnlockButton() {
         const btn = document.getElementById('hud-unlock-btn');
-        if (btn) btn.hidden = PremiumManager.isPremium();
+        if (btn) btn.hidden = Entitlements.ownsCore();
+    }
+
+    /** Access changed (purchase confirmed, restore, promo, refund) — refresh access-dependent UI. */
+    _onAccessChanged() {
+        if (PremiumManager.isPremium()) markNavPremium();
+        this._syncUnlockButton();
+        this.renderChapterProgress();
+    }
+
+    /**
+     * May this game start? Fresh campaigns need access to their starting
+     * chapter; resumed saves started before the current packaging are
+     * grandfathered; Endless and the weekly challenge need their features.
+     * Opens the Core offer (and returns false) when access is missing.
+     */
+    _mayStart(startChapterIndex, mode, statePatches, savedGame) {
+        let ok;
+        if (mode === 'weekly') ok = Entitlements.has(FEATURE.WEEKLY);
+        else if (mode === 'endless') ok = Entitlements.has(FEATURE.ENDLESS);
+        else if (savedGame || statePatches) {
+            const gs = savedGame || statePatches;
+            const chapterNumber = savedGame
+                ? (describeSave({ gameState: savedGame }, [...CHAPTERS, ...EXPANSION_CHAPTERS])?.nextChapter?.number ?? 1)
+                : startChapterIndex + 1;
+            ok = (savedGame ? isPrePackagingSave(gs) : !gs.packagingVersion) || Entitlements.canPlay(this.selectedIndustryId, chapterNumber);
+        } else {
+            ok = Entitlements.canPlay(this.selectedIndustryId, startChapterIndex + 1);
+        }
+        if (!ok) {
+            track('paid_offer_open', { source: `locked_${mode}` });
+            this.paywall.show(() => this._onAccessChanged(), null, { source: `locked_${mode}` });
+        }
+        return ok;
+    }
+
+    /** Can the current campaign continue into chapter `n`? */
+    _canContinueTo(n) {
+        const s = this.engine.state;
+        return Boolean(s.grandfathered) || Entitlements.canPlay(s.industry?.id, n);
     }
 
     /**
@@ -232,12 +275,15 @@ export class Dashboard {
         // Listen for nav upgrade button click
         document.addEventListener('scd:open-paywall', (e) => {
             track('paid_offer_open', { source: e.detail?.source || 'game' });
-            this.paywall.show(() => {
-                markNavPremium();
-                this._syncUnlockButton();
-                this.renderChapterProgress();
-            });
+            this.paywall.show(() => this._onAccessChanged(), null, { source: e.detail?.source || 'game' });
         });
+        Entitlements.onChange(() => this._onAccessChanged());
+        // Re-validate cached access (refunds/expiry) and finish any checkout whose
+        // confirmation arrived after the player left the return page.
+        Entitlements.refresh();
+        if (Entitlements.pendingClaim()) {
+            Entitlements.checkClaim().then(r => { if (r.state === 'active' || r.state === 'not_active') Entitlements.clearClaim(); });
+        }
         // Save now (any point in a campaign) + optional email backup offer
         document.getElementById('hud-save-btn')?.addEventListener('click', () => this._manualSave());
         document.getElementById('hud-save-backup')?.addEventListener('click', () => {
@@ -269,13 +315,13 @@ export class Dashboard {
         if (new URLSearchParams(window.location.search).get('upgrade') === '1') {
             window.history.replaceState({}, '', '/');
             track('paid_offer_open', { source: 'upgrade_param' });
-            this.paywall.show(() => markNavPremium());
+            this.paywall.show(() => this._onAccessChanged(), null, { source: 'upgrade_param' });
         }
 
         // Owner dev bypass: ?dev=nxt2026&chapter=N&industry=electronics|fmcg|pharma
         // Unlocks all chapters and jumps directly to the specified chapter.
         const _devParams = new URLSearchParams(window.location.search);
-        if (_devParams.get('dev') === 'nxt2026') {
+        if (import.meta.env.DEV && _devParams.get('dev') === 'nxt2026') {
             const _devChapter  = Math.max(0, parseInt(_devParams.get('chapter') || '0', 10) - 1);
             const _devIndustry = _devParams.get('industry') || 'electronics';
             localStorage.setItem('scd_premium', JSON.stringify({ active: true, tier: 'expansion' }));
@@ -457,6 +503,7 @@ export class Dashboard {
      * @param {Object|null} savedGame — full v2 save (logic/save-game.js) to resume at the saved turn
      */
     startGame(startChapterIndex = 0, mode = 'story', _statePatches = null, savedGame = null) {
+        if (!this._mayStart(startChapterIndex, mode, _statePatches, savedGame)) return;
         this._gameMode = mode;
         if (mode === 'weekly') {
             // Weekly challenge: fixed industry + shared seed for a comparable run
@@ -486,6 +533,12 @@ export class Dashboard {
             else this._draftTurn = null;
         } else if (mode === 'story') {
             this._draftTurn = null; // fresh game: drafts start from the engine defaults
+        }
+        if (mode === 'story') {
+            // Campaigns saved before the free-intro / Core packaging stay playable to the end
+            const resumedOld = savedGame ? isPrePackagingSave(savedGame) : Boolean(_statePatches && !_statePatches.packagingVersion);
+            if (resumedOld) this.engine.state.grandfathered = true;
+            this.engine.state.packagingVersion = PACKAGING_VERSION;
         }
 
         this.ui.startScreen.classList.add('hidden');
@@ -560,12 +613,17 @@ export class Dashboard {
 
         // Analytics: the game really started (distinct from a start-button click)
         this._firstTurnTracked = false;
+        const startChapterNumber = mode === 'story' ? (this.engine.state.chapterIndex ?? startChapterIndex) + 1 : 0;
         track('game_start', {
             industry_id:   this.engine.state.industry?.id,
             mode,
-            start_chapter: mode === 'story' ? (this.engine.state.chapterIndex ?? startChapterIndex) + 1 : 0,
+            start_chapter: startChapterNumber,
             resumed:       Boolean(_statePatches || savedGame),
         });
+        const isFreeContent = mode === 'story' && Entitlements.isFreeIntro(this.engine.state.industry?.id, startChapterNumber);
+        if (!isFreeContent) {
+            track('paid_campaign_open', { industry_id: this.engine.state.industry?.id, mode, start_chapter: startChapterNumber, grandfathered: Boolean(this.engine.state.grandfathered) });
+        }
     }
 
     /* ── Saving ──────────────────────────────────────────────────────────── */
@@ -2325,6 +2383,43 @@ export class Dashboard {
         }).then(r => r.ok).catch(() => false);
     }
 
+    /**
+     * The player finished the last chapter their access covers (normally the
+     * free FMCG intro). Shows the completion debrief + Core offer; buying or
+     * restoring continues straight into the next chapter.
+     */
+    _showAccessEnd(chapter, nextChapter, summary, proceed) {
+        const s = this.engine.state;
+        const turns = s.history.filter(h => h.chapter === chapter.number);
+        const isFreeIntro = Entitlements.isFreeIntro(s.industry?.id, chapter.number);
+        if (isFreeIntro) track('free_scenario_complete', { industry_id: s.industry?.id, chapter: chapter.number });
+        const screen = this._introComplete || (this._introComplete = new IntroComplete());
+        screen.show({
+            isFreeIntro,
+            chapter,
+            nextChapter,
+            stats: {
+                quarters: turns.length,
+                cash: s.cash,
+                profit: turns.reduce((n, t) => n + (t.profit || 0), 0),
+                missedSales: turns.reduce((n, t) => n + (t.missedSales || 0), 0),
+                score: summary.score,
+                maxScore: summary.maxScore,
+                mastered: summary.mastered,
+            },
+            diagnosis: this._computePlayerDiagnosis(chapter.number),
+            onUnlock: () => this.paywall.show(() => {
+                this._onAccessChanged();
+                if (this._canContinueTo(nextChapter.number)) { screen.hide(); proceed(); }
+            }, null, { source: 'intro_complete' }),
+            onReplay: () => {
+                this.selectedIndustryId = FREE_INTRO.industryId;
+                this.startGame(FREE_INTRO.chapterNumber - 1, 'story');
+            },
+            onMenu: () => { window.location.href = '/play'; },
+        });
+    }
+
     renderChapterSummary() {
         const prevChapterIdx = this.engine.state.chapterIndex;
         const allChapters = [...CHAPTERS, ...EXPANSION_CHAPTERS];
@@ -2349,11 +2444,14 @@ export class Dashboard {
         this.engine.state.careerRankIndex = nextRank;
         if (review) renderRankChip(document.querySelector('.hud-right'), nextRank);
 
-        // All chapters are free — advance directly (through the career notice).
-        const continueCallback = () => {
-            const advance = () => { this.engine.advanceFromChapterSummary(); this.renderGameState(); };
-            showCareerNotice(review, advance);
-        };
+        const advance = () => { this.engine.advanceFromChapterSummary(); this.renderGameState(); };
+        const nextChapter = allChapters[prevChapterIdx + 1];
+        const blocked = nextChapter && !this._canContinueTo(nextChapter.number);
+        // Results, summary and concept card are always shown first; a player
+        // whose access ends here then gets the completion screen + Core offer.
+        const continueCallback = blocked
+            ? () => this._showAccessEnd(allChapters[prevChapterIdx], nextChapter, summary, () => showCareerNotice(review, advance))
+            : () => showCareerNotice(review, advance);
 
         // Gate: show email capture after Chapter 2 if not yet captured.
         const industry = this.engine.state.industry?.id || 'electronics';
@@ -2369,7 +2467,7 @@ export class Dashboard {
         const playerDiagnosis = this._computePlayerDiagnosis(chapterNum);
         const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback, playerDiagnosis);
 
-        this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state }, withDefinition);
+        this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state, ctaLabel: blocked ? 'Continue' : null }, withDefinition);
 
         // Show waiting state in main view
         this.ui.mainView.innerHTML = `
@@ -2511,9 +2609,11 @@ export class Dashboard {
         const history   = this.engine.state.history;
 
         const showMainResults = () => {
-            const isPremium   = PremiumManager.isPremium();
+            const isPremium   = Entitlements.has(FEATURE.ADVANCED_REPORT);
             const industry    = this.engine.state.industry;
             const isExpansion = true; // all chapters always available
+            // Certificate: Core feature; runs started when it was free keep it
+            const certificateAllowed = Entitlements.has(FEATURE.CERTIFICATE) || Boolean(this.engine.state.grandfathered);
 
             // Build the debrief callback once so the closure captures the right state
             const openDebrief = async () => {
@@ -2538,6 +2638,8 @@ export class Dashboard {
                 industry,
                 isExpansion,
                 onDebrief: openDebrief,
+                certificateAllowed,
+                onUnlock: () => this.paywall.show(() => this._onAccessChanged(), null, { source: 'certificate' }),
             });
         };
 
@@ -2577,6 +2679,7 @@ export class Dashboard {
             industryId:   s.industry?.id || 'electronics',
             onLeaderboard: isWeekly ? () => {
                 promptScoreSubmit({
+                    accessToken: Entitlements.token(),
                     weekId: this._weekly.weekId,
                     score: weeklyScore,
                     industryId: this._weekly.industryId,

@@ -1,68 +1,26 @@
 /**
- * PremiumManager — client-side premium status management.
+ * PremiumManager — legacy local premium records + promo codes.
  *
- * Full Access — $49.99 one-time, lifetime.
- * What it actually gates in this game:
- *   · the downloadable 5-page Advanced Report (PDF debrief), and
- *   · STARTING DIRECTLY at Chapter 4 or later (isChapterLocked, used by the
- *     pre-game chapter picker).
- * Playing on through all 10 chapters, the certificate and the in-browser
- * debrief are free.
+ * Access decisions now go through logic/entitlements.js (package catalog in
+ * data/packages.js): free intro, Core Game Pass, Challenge Membership (not
+ * launched) and legacy purchases. This module still reads/writes the
+ * `scd_premium` record that earlier versions stored for $49.99 Full Access,
+ * older Standard/Expansion tiers and promo grants — Entitlements honours that
+ * record as legacy Full Access (or a time-limited promo) so existing
+ * purchasers keep everything they were promised.
  *
- * Premium status is stored in localStorage and optionally verified against the server.
- * Stored shape: { active, email, customerId, tier, ts }
- * Legacy tiers ('standard'/'expansion') from before the single-plan pricing
- * are honoured as Full Access.
+ * The old order-ID and unverified-email lookups were removed: access is now
+ * granted only from verified provider events or an email-verified restore.
  */
 
+import { Entitlements } from './entitlements.js';
+
 const STORAGE_KEY = 'scd_premium';
-const FREE_CHAPTERS = 3;
 
 export const PremiumManager = {
-  /**
-   * Returns true if stored premium is still valid (handles promo expiry).
-   * @param {object} data - parsed premium object from localStorage
-   */
-  _isDataActive(data) {
-    if (!data?.active) return false;
-    // Promo grants have an expiry timestamp; paid purchases do not.
-    if (data.expiresAt && Date.now() > data.expiresAt) {
-      // Expired promo — clean up silently.
-      try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
-      return false;
-    }
-    return true;
-  },
-
-  /**
-   * Returns true if the user has any active premium (standard or expansion).
-   */
+  /** True when the player holds any paid entitlement (Core, membership, legacy or promo). */
   isPremium() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const data = JSON.parse(raw);
-      return this._isDataActive(data);
-    } catch {
-      return false;
-    }
-  },
-
-  /**
-   * Single-plan model: any active premium includes the expansion chapters.
-   * Kept for backwards compatibility with callers that gated on tier.
-   */
-  isExpansion() {
-    return this.isPremium();
-  },
-
-  /**
-   * Returns true if the player may NOT start directly at this chapter.
-   * Chapters 4+ need Full Access to start directly (playing on to them is free).
-   */
-  isChapterLocked(chapterNumber) {
-    if (chapterNumber <= FREE_CHAPTERS) return false;
-    return !this.isPremium();
+    return Entitlements.hasPaid();
   },
 
   /**
@@ -128,74 +86,4 @@ export const PremiumManager = {
     }
   },
 
-  /**
-   * Verifies a completed Lemon Squeezy order by its order ID.
-   * Called on the success.html page after redirect from Lemon Squeezy.
-   */
-  async verifyOrder(orderId) {
-    try {
-      const res = await fetch('/api/verify-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
-      });
-      if (!res.ok) return false;
-      const json = await res.json();
-      if (json.active) {
-        this.setPremium({ email: json.email, customerId: json.customerId, tier: json.tier ?? 'standard' });
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  },
-
-  /**
-   * Restores premium access by looking up an active subscription by email.
-   */
-  async restoreByEmail(email) {
-    try {
-      const res = await fetch('/api/verify-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) return false;
-      const json = await res.json();
-      if (json.active) {
-        this.setPremium({ email: json.email ?? email, customerId: json.customerId, tier: json.tier ?? 'standard' });
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  },
-
-  /**
-   * Re-validates stored premium against the server. Falls back to localStorage if offline.
-   */
-  async verifyWithServer() {
-    const data = this.getPremiumData();
-    if (!data?.email) return this.isPremium();
-
-    try {
-      const res = await fetch('/api/verify-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email }),
-      });
-      if (!res.ok) return this.isPremium();
-      const json = await res.json();
-      if (!json.active) {
-        this.clearPremium();
-        return false;
-      }
-      this.setPremium({ email: json.email ?? data.email, customerId: json.customerId ?? data.customerId, tier: json.tier ?? data.tier ?? 'standard' });
-      return true;
-    } catch {
-      return this.isPremium(); // offline: trust localStorage
-    }
-  },
 };

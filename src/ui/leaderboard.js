@@ -72,7 +72,7 @@ export async function showLeaderboard({ weekId, industryId, highlight = null, ca
  * Prompt the player to submit their weekly score, then show the board.
  * @param {Object} opts { weekId, score, industryId }
  */
-export function promptScoreSubmit({ weekId, score, industryId }) {
+export function promptScoreSubmit({ weekId, score, industryId, accessToken = null }) {
     const savedName = (() => { try { return localStorage.getItem(NAME_KEY) || ''; } catch { return ''; } })();
 
     const overlay = document.createElement('div');
@@ -110,14 +110,16 @@ export function promptScoreSubmit({ weekId, score, industryId }) {
             const r = await fetch('/api/leaderboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ weekId, name, score, industryId }),
+                body: JSON.stringify({ weekId, name, score, industryId, accessToken }),
             });
             const json = await r.json();
             if (json.ok) {
                 msg.innerHTML = `<span class="lb-msg-good">Posted — you're ranked #${json.rank} this week.</span>`;
                 setTimeout(() => { close(); showLeaderboard({ weekId, industryId, highlight: { name, score } }); }, 900);
             } else {
-                msg.innerHTML = `<span class="lb-msg-bad">${json.skipped === 'kv-not-configured' ? 'Leaderboard is offline right now.' : 'Could not submit — try again.'}</span>`;
+                msg.innerHTML = `<span class="lb-msg-bad">${json.skipped === 'kv-not-configured' ? 'Leaderboard is offline right now.'
+                    : json.error === 'core_required' ? 'Posting to the weekly leaderboard needs the Core Game Pass. Restore your purchase and try again.'
+                    : 'Could not submit — try again.'}</span>`;
                 btn.disabled = false; btn.textContent = 'Submit';
             }
         } catch {

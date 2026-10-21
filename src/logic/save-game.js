@@ -16,6 +16,20 @@ import { DebriefCollector } from '../game/debrief-collector.js';
 export const LOCAL_SAVE_KEY = 'scd_local_save_v1';
 export const SAVE_VERSION = 2;
 
+/**
+ * Packaging version stamped into every campaign started under the free-intro /
+ * Core Game Pass model. Saves WITHOUT it were started when the whole campaign
+ * was free, so they stay playable to the end (grandfathered). Never deleted.
+ */
+export const PACKAGING_VERSION = 2;
+
+/** True when a stored gameState predates the current packaging (→ grandfathered). */
+export function isPrePackagingSave(gs) {
+    const state = gs?.snapshot?.state;
+    if (state?.grandfathered) return true;
+    return !(Number(state?.packagingVersion) >= PACKAGING_VERSION);
+}
+
 /** Phases a campaign can be saved in (and resumed from). */
 export const SAVEABLE_PHASES = [
     GAME_PHASES.CHAPTER_INTRO, GAME_PHASES.STORY, GAME_PHASES.PROCUREMENT,

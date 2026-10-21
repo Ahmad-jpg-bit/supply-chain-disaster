@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-08-31
+> Last updated: 2026-10-19
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -24,22 +24,25 @@ Deploy command: `npx vercel --prod` from the project root.
 
 ---
 
-## Tiers & Gating
-| Tier | Chapters | Turns | Price |
+## Packaging & Entitlements (vanilla game, since 2026-10-19 — NOT yet deployed/launched)
+| Package | What it includes | Price | Status |
 |---|---|---|---|
-| Free | 1–3 | 1–12 | — |
-| Starter | 1–5 | 1–20 | $19.99 one-time (lifetime) |
-| Full Access | 1–10 | 1–40 | $49.99 one-time (lifetime) |
+| Free introduction | FMCG Chapter 1 (complete 4-quarter scenario + summary, concept card, debrief), replayable, guest play | — | live in code |
+| **Core Game Pass** (`core`) | Catalog `core-2026-10` in `src/data/packages.js`: all 10 chapters of the FMCG, Pharma, Electronics campaigns; chapter jump; replay; Endless; weekly challenge (+ leaderboard posting); Advanced Report PDF; certificate. Content released later is NOT automatically included | USD $19.99 one-time | LS product 1460354 / variant 2278087 (live, store 295627) |
+| Challenge Membership (`challenge_membership`) | $5.99/month, $39/year | — | prepared, **disabled** via `CHALLENGE_MEMBERSHIP_ENABLED=false` (server-enforced). Never surface it in copy until the user enables it |
+| Legacy Full Access / Standard / Expansion (`legacy_full_access`) | everything (honoured forever) | was $49.99 | no longer sold |
+| Legacy Starter (`legacy_starter`, fork) | chapters 1–5 | was $19.99 | fork only |
+| Promo `SC10Disaster` (`promo_full_access`) | everything for 30 days | — | `/api/redeem-promo` |
 
-- **Two paid tiers (since 2026-09-13):** **Starter $19.99** (chapters 1–5) and **Full Access $49.99** (all 10 chapters + Advanced Report + certificate); chapters 1–3 free. This replaced the single-plan model that ran 2026-07-05 → 2026-09-13. Old Standard ($14.99) / Expansion ($25) tiers stay retired; legacy purchases (any stored `tier`) are honoured as Full Access (`PremiumManager.isExpansion()` returns `isPremium()`). **Starter gating + checkout live in the FORK (`D:\supplychaindisaster-next`) only** — the vanilla game code (`src/logic/premium.js`) remains Full-Access-only.
-- **Launch offer / price increase:** `$49.99` is launch pricing. Per the homepage announcement bar (`index.html`, countdown deadline hardcoded as `2026-09-19T19:00:00Z`), the list price reverts to **$99** after that date — confirmed genuine by the user 2026-08-20. When working past that date, re-check whether the site/checkout price still reads $49.99 or $99 before assuming either.
-- **LS product "Supply Chain Disaster Full Access":** product ID `1197198`, variant ID `1871634` (= `LEMONSQUEEZY_STANDARD_VARIANT_ID`), hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/65c58393-3110-4aec-9e52-c93abaf3de33` (hardcoded in `paywall.js` and `index.html`). `LEMONSQUEEZY_EXPANSION_VARIANT_ID` is kept only for legacy order verification.
-- **LS product "Supply Chain Disaster — Starter" (added 2026-09-13):** product ID `1358576`, variant ID `2121591`, $19.99 one-time, hosted checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/19f46b98-7503-4969-925e-9472ef697e5d` (used on vanilla `pricing.html`/`index.html`; the fork checkout picks it via `LEMONSQUEEZY_STARTER_VARIANT_ID` + `NEXT_PUBLIC_STARTER_ENABLED`).
-- **What Full Access actually gates in the vanilla game at /play (verified in code, 2026-10-19):** only the downloadable 5-page Advanced Report PDF and *starting directly* at Chapter 4+ (`PremiumManager.isChapterLocked`, pre-game chapter picker). Playing on through all 10 chapters, the Certificate of Completion, the strategy guide and the in-browser debrief are FREE. All apex copy (homepage, pricing, terms, refund, llms.txt, paywall, purchase email, debrief upsell) was corrected to say exactly this on 2026-10-19 — keep it that way. Refunds: technical failure / duplicate / unauthorised charge within 7 days — never write "no questions asked" as an unconditional promise.
-- Premium stored in `localStorage` key `scd_premium` (fork also uses `scd_tier` = starter|full)
-- Promo code `SC10Disaster` → 30-day full access, validated server-side via `/api/redeem-promo`
-- Paywall gates (live fork): Ch 3→4 (Starter or Full) and Ch 5→6 (Full only). The legacy vanilla game has a single Ch 3→4 gate (Full only).
-- Expired promo grants auto-cleared silently by `PremiumManager._isDataActive()`
+- **Single source of truth:** `src/data/packages.js` (catalog, offers, `resolveAccess` = union of entitlements). Client: `src/logic/entitlements.js` (`Entitlements.canPlay/has/ownsCore/token`). `PremiumManager.isPremium()` now means "any paid entitlement". Server: `lib/billing/` (config allowlist, KV ledger, signed tokens, webhook/checkout/claim/restore service) — outside `/api` so it doesn't count toward the 12-function cap.
+- **Access is granted only from verified provider data:** signed `order_*`/`subscription_*` webhooks (store, test/live mode and variant allowlist checked; idempotent; stale events ignored) or an email-verified restore (6-digit code + reconcile with the LS API). Never from the success URL, client params, client-supplied IDs or an unverified email. `/success` polls the checkout claim and shows an honest pending state.
+- **Grandfathering:** campaigns saved before the packaging (no `packagingVersion` in the save, or `grandfathered: true`) can be finished free, certificate included. Saves are never deleted when access changes.
+- **Limitation:** content ships in the browser, so client gating is UI-level; the server enforces access on leaderboard POST (needs `accessToken` with the weekly feature when `ENTITLEMENT_TOKEN_SECRET` is set), token issuance and refresh.
+- **Lemon Squeezy:** store `295627` (slug `nexttracksystems`). Core: product `1460354`, variant `2278087`, checkout `https://nexttracksystems.lemonsqueezy.com/checkout/buy/bfe7302a-7998-4368-9417-192bea4a69b3` (live; verified from the public checkout page 2026-10-21: $19.99, one-time) — set in Vercel Production as `LEMONSQUEEZY_CORE_*`. The price was set to $19.99 (not $19) by the user on 2026-10-21. Never invent IDs or infer a product from its price. Legacy Full Access: product `1197198`, variant `1871634` (`LEMONSQUEEZY_STANDARD_VARIANT_ID`) — recommend archiving it once Core is live. Fork Starter: product `1358576`, variant `2121591` (unverified from this repo).
+- **Required env for purchases:** see `.env.example` — `LEMONSQUEEZY_TEST_MODE`, `LEMONSQUEEZY_CORE_*`, `ENTITLEMENT_TOKEN_SECRET`, KV. Without them checkout reports "not available yet" (no fake success).
+- **Analytics (GA4 via `src/shared/track.js`):** `free_scenario_complete`, `core_offer_view`, `checkout_start`, `purchase_confirmed` (deduped by order ID locally; the ID is never sent), `paid_campaign_open`. No emails, order IDs or payment data in analytics.
+- Dev builds no longer auto-grant premium (`src/main.js`); owner bypass `?dev=nxt2026` works in DEV only.
+- **The Next.js fork** (`D:\supplychaindisaster-next`, play.supplychaindisaster.com) still has its own model (Ch 1–3 free, Starter $19.99, Full $49.99) — not changed here.
 
 ---
 
@@ -58,9 +61,13 @@ Deploy command: `npx vercel --prod` from the project root.
 | `src/data/cscp-definitions.js` | APICS CSCP definitions shown at chapter end (one per chapter) |
 | `src/data/scenarios-expanded.js` | Active scenario data (replaces old scenarios.js) |
 | `src/data/expansion-scenarios.js` | Expansion-only scenarios (Port Strikes, Fuel Hikes, etc.) |
-| `src/logic/premium.js` | PremiumManager — isPremium, isExpansion, redeemPromo, expiry logic |
-| `src/logic/billing.js` | BillingManager — routes web→LS, native→RevenueCat |
-| `src/ui/paywall.js` | Two-tier paywall modal + promo code input |
+| `src/logic/premium.js` | PremiumManager — legacy `scd_premium` record + promo redeem; `isPremium()` = any paid entitlement |
+| `src/data/packages.js` | Package catalog (free intro, Core, membership, legacy), offers, `resolveAccess` |
+| `src/logic/entitlements.js` | Client access state (signed token cache + legacy records), checkout claim, restore code |
+| `lib/billing/*` | Server billing: env allowlist, KV ledger, tokens, webhook/checkout/claim/restore service |
+| `src/ui/intro-complete.js` | Free-intro completion screen + Core offer |
+| `src/logic/billing.js` | BillingManager — native RevenueCat path (discontinued; no longer used by the paywall) |
+| `src/ui/paywall.js` | Core Game Pass offer modal ("Included" for owners) + email-code restore + promo code |
 | `src/ui/definition-card.js` | CSCP definition flashcard shown after each chapter |
 | `src/ui/chapter-transition.js` | Chapter summary overlay (score + next chapter teaser) |
 | `src/ui/concept-card.js` | Chapter intro card (shown before chapter begins) |
@@ -79,10 +86,10 @@ Deploy command: `npx vercel --prod` from the project root.
 ## API Endpoints
 | Endpoint | Purpose |
 |---|---|
-| `/api/create-checkout` | Builds LS checkout URL for a given tier |
-| `/api/verify-subscription` | Verifies LS order by ID or email |
+| `/api/create-checkout` | GET offer availability; POST `{offer}` → allowlisted LS checkout URL + claim ID (membership refused while disabled) |
+| `/api/verify-subscription` | Access API: `claim` (pending/active), `refresh` (re-validate token), `restore-request` / `restore-verify` (email one-time code) |
 | `/api/redeem-promo` | Validates promo codes server-side; `SC10Disaster` → 30-day expansion |
-| `/api/ls-webhook` | Handles LS webhook events; sends tier-specific purchase welcome emails |
+| `/api/ls-webhook` | Verified LS webhooks → KV ledger (idempotent, refund/out-of-order safe); Core welcome email on first paid order |
 | `/api/save-progress` | Sends "operational data secured" email to player + internal notification |
 | `/api/save-game` / `/api/load-game` | Store/restore game state in Vercel KV by email (no-op without KV env) |
 | `/api/recall-cron` | Daily Vercel cron (`vercel.json` crons, 14:00 UTC): sends day-3/day-10 spaced-recall emails to saved players. `CRON_SECRET`-guarded; no-op until KV is configured. Skips anyone with `unsub:{email}` set |
@@ -191,11 +198,12 @@ Definitions live in `src/data/cscp-definitions.js`, keyed by chapter ID.
 ---
 
 ## Content Consistency Rules
-The game has **10 chapters total**. Two paid tiers since 2026-09-13 (was single-plan 2026-07-05 → 2026-09-13). Always write:
+The game has **10 chapters total**. Apex/vanilla packaging since 2026-10-19 (see "Packaging & Entitlements"). Always write:
 - "up to 10 chapters" when describing the game generically
-- "Chapters 1–3 free" for the free tier
-- "Starter — $19.99 one-time" for the entry tier (chapters 1–5; no Advanced Report or certificate)
-- "Full Access — $49.99 one-time, lifetime" for the top tier. On apex/vanilla copy: it adds the downloadable Advanced Report PDF and direct start at Chapter 4+; all 10 chapters and the certificate are free (see "What Full Access actually gates" above)
+- "Chapter 1 free" / "FMCG Chapter 1 free" for the free introduction — never "all 10 chapters free" or "completely free"
+- "Core Game Pass — $19.99 one-time" (no subscription) for the paid package; list its contents explicitly and say content released later isn't automatically included; mention that tax is calculated at checkout where it applies
+- Never mention the Challenge Membership in public copy while `CHALLENGE_MEMBERSHIP_ENABLED` is false; no classroom/team plans, discounts, crossed-out prices, countdowns, scarcity or testimonials
+- Fork copy (play.supplychaindisaster.com) keeps its own model: "Chapters 1–3 free", Starter $19.99, Full Access $49.99
 - "40 quarterly turns" for the full game
 - Never mention Standard Edition ($14.99) or Expansion Bundle ($25) — retired tiers (distinct from the current Starter tier)
 - **Exception (since 2026-09-19):** `/play` serves the *vanilla* game, which DOES have an industry picker (FMCG / Pharma / Electronics) — describe industries on `/play` itself. The rule below still applies to homepage/marketing copy about the fork.

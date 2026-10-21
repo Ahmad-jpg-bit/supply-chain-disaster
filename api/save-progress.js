@@ -162,7 +162,7 @@ export default async function handler(req, res) {
                 </td>
                 <td>
                   <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.7;">
-                    <strong style="color:#6b7280;">Switching devices?</strong> Open the game, click <strong style="color:#8b8fa8;">Unlock</strong>, then <strong style="color:#8b8fa8;">Restore access</strong>, and enter this email address.
+                    <strong style="color:#6b7280;">Switching devices?</strong> Open the game and use <strong style="color:#8b8fa8;">Resume on another device</strong> with this email address. If you bought the Core Game Pass, choose <strong style="color:#8b8fa8;">Core Game Pass &rarr; Restore a purchase</strong> and we&rsquo;ll email you a one-time code.
                   </p>
                 </td>
               </tr>

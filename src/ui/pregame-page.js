@@ -18,12 +18,13 @@ import { CHAPTER_SCENARIOS } from '../data/scenarios-expanded.js';
 import { CSCP_DEFINITIONS } from '../data/cscp-definitions.js';
 import { STARTING_ARCHETYPES } from '../logic/crisis-engine.js';
 import { RANKS } from '../logic/career.js';
-import { PremiumManager } from '../logic/premium.js';
+import { Entitlements } from '../logic/entitlements.js';
+import { FEATURE, FREE_INTRO, CORE_CATALOG } from '../data/packages.js';
 import { getWeeklyChallenge } from '../logic/seeded-rng.js';
 import { listIndustryProfiles, getIndustryProfile } from '../logic/industry-profiles.js';
-import { describeSave, newerSave, resumeLaunchArgs, isValidEmail, SAVE_EMAIL_KEY } from '../logic/pregame-state.js';
+import { describeSave, newerSave, resumeLaunchArgs, isValidEmail, SAVE_EMAIL_KEY, saveIsGrandfathered } from '../logic/pregame-state.js';
 import { readLocalSave } from '../logic/save-game.js';
-import { FULL_ACCESS_PRICE } from './paywall.js';
+import { CORE_PRICE } from './paywall.js';
 import { createFooter } from '../shared/footer.js';
 import { setNavMinimal } from '../shared/nav.js';
 import { track } from '../shared/track.js';
@@ -64,6 +65,11 @@ export class PregamePage {
         this.save       = this.localSave;              // describeSave() result shown in the banner
         this.saveState  = this.localSave ? 'found' : 'none';   // none | checking | found | error
         this._render();
+        this._offAccess = Entitlements.onChange(() => {
+            if (!this.page?.isConnected) { this._offAccess?.(); return; }
+            this._render();
+            this._renderResume();
+        });
         track('pregame_view', { entry: this.skipHero ? 'start_param' : 'direct', has_email: Boolean(this.email), has_local_save: Boolean(this.localSave?.resumable) }, 'page');
         if (this.localSave) this._afterSaveChange();
         if (this.email) this._checkSave(this.email);
@@ -97,6 +103,10 @@ export class PregamePage {
         setNavMinimal(true);
         this.page = page;
         this._bind();
+        if (this.selectedId) {
+            const input = page.querySelector(`input[name="pg-industry"][value="${this.selectedId}"]`);
+            if (input) input.checked = true;
+        }
         this._renderPreview();
         this._renderJump();
 
@@ -132,7 +142,7 @@ export class PregamePage {
                     <span class="pg-card-check" aria-hidden="true">✓ ${t('picker.selected')}</span>
                 </span>
                 <span class="pg-card-tags">
-                    <span class="pg-tag pg-tag--free">${t('picker.free')}</span>
+                    ${this._accessTag(p)}
                     <span class="pg-tag">${t('picker.difficulty', { level: t(`difficulty.${p.difficulty}`) })}</span>
                     ${p.id === easiest ? `<span class="pg-tag pg-tag--rec" data-rec>${t('picker.recommended')}</span>` : ''}
                     <span class="pg-tag pg-tag--saved" data-saved hidden>${t('picker.saved')}</span>
@@ -165,7 +175,12 @@ export class PregamePage {
             ? `±${fmt.pct(p.demand.swing)} · ${fmt.pct(p.demand.spikeChance)} chance of +${fmt.pct(p.demand.spikeMin)}–${fmt.pct(p.demand.spikeMin + p.demand.spikeRange)}`
             : `±${fmt.pct(p.demand.swing)}`;
         const resumable = this.save?.resumable;
-        const startLabel = resumable ? t('preview.startNew', { industry: p.name }) : t('preview.start', { industry: p.name });
+        const canStart = Entitlements.canPlay(p.id, 1);
+        const startLabel = !canStart ? t('preview.unlock', { industry: p.name })
+            : resumable ? t('preview.startNew', { industry: p.name }) : t('preview.start', { industry: p.name });
+        const startNote = !canStart ? t('preview.startNoteLocked', { industry: p.name, price: CORE_PRICE })
+            : Entitlements.ownsCore() ? t('preview.startNoteCore')
+            : t('preview.startNoteFree', { price: CORE_PRICE });
         return `
             <p class="pg-eyebrow">${t('preview.eyebrow', { industry: esc(p.name) })}</p>
             <h2 class="pg-h2" id="pg-preview-title">${esc(p.name)}</h2>
@@ -212,8 +227,8 @@ export class PregamePage {
                 <ul class="pg-sample-options">${sample.options.map(o => `<li>${esc(o.label)}</li>`).join('')}</ul>
             </details>` : ''}
             <div class="pg-preview-action">
-                <button type="button" class="pg-btn ${resumable ? 'pg-btn--secondary' : 'pg-btn--primary'}" data-action="start">${startLabel}</button>
-                <p class="pg-muted">${t('preview.startNote')}</p>
+                <button type="button" class="pg-btn ${resumable || !canStart ? 'pg-btn--secondary' : 'pg-btn--primary'}" data-action="start">${startLabel}</button>
+                <p class="pg-muted">${startNote}</p>
             </div>`;
     }
 
@@ -244,14 +259,14 @@ export class PregamePage {
             <h2 class="pg-h2" id="pg-more-title">${t('more.title')}</h2>
             <div class="pg-more">
                 <div class="pg-panel">
-                    <h3 class="pg-h3">${t('more.endless.h')}</h3>
+                    <h3 class="pg-h3">${t('more.endless.h')} ${this._coreTag(FEATURE.ENDLESS)}</h3>
                     <p>${t('more.endless.b')}</p>
                     <div class="pg-btn-row">
                         ${this.profiles.map(p => `<button type="button" class="pg-btn pg-btn--secondary" data-action="endless" data-industry="${p.id}">${t('more.endless.cta', { industry: esc(p.name) })}</button>`).join('')}
                     </div>
                 </div>
                 <div class="pg-panel">
-                    <h3 class="pg-h3">${t('more.weekly.h')}</h3>
+                    <h3 class="pg-h3">${t('more.weekly.h')} ${this._coreTag(FEATURE.WEEKLY)}</h3>
                     <p>${t('more.weekly.b', { industry: esc(weeklyName) })}</p>
                     <div class="pg-btn-row">
                         <button type="button" class="pg-btn pg-btn--secondary" data-action="weekly">${t('more.weekly.cta')}</button>
@@ -259,11 +274,11 @@ export class PregamePage {
                     </div>
                 </div>
                 <div class="pg-panel" id="pg-jump">
-                    <h3 class="pg-h3">${t('more.jump.h')}</h3>
+                    <h3 class="pg-h3">${t('more.jump.h')} ${this._coreTag(FEATURE.CHAPTER_JUMP)}</h3>
                     <p>${t('more.jump.b')}</p>
                     <label class="pg-label" for="pg-jump-select">${t('more.jump.label')}</label>
                     <select id="pg-jump-select" class="pg-select-input">
-                        ${CHAPTERS.map((ch, i) => `<option value="${i}">${PremiumManager.isChapterLocked(ch.number)
+                        ${CHAPTERS.map((ch, i) => `<option value="${i}">${this._jumpLocked(ch.number)
                             ? t('more.jump.optLocked', { n: ch.number, title: ch.title })
                             : t('more.jump.opt', { n: ch.number, title: ch.title })}</option>`).join('')}
                     </select>
@@ -286,10 +301,12 @@ export class PregamePage {
                     <ul class="pg-list">${[1, 2, 3, 4].map(i => `<li>${t(`access.free.l${i}`)}</li>`).join('')}</ul>
                 </div>
                 <div class="pg-panel">
-                    <h3 class="pg-h3">${t('access.paid.h', { price: FULL_ACCESS_PRICE })}</h3>
+                    <h3 class="pg-h3">${t('access.paid.h', { price: CORE_PRICE })}</h3>
                     <p class="pg-muted">${t('access.paid.period')}</p>
-                    <ul class="pg-list">${[1, 2].map(i => `<li>${t(`access.paid.l${i}`)}</li>`).join('')}</ul>
-                    <button type="button" class="pg-btn pg-btn--secondary" data-action="paid">${t('access.paid.cta')}</button>
+                    <ul class="pg-list">${[1, 2, 3, 4, 5].map(i => `<li>${t(`access.paid.l${i}`, { n: CORE_CATALOG.chapters.length })}</li>`).join('')}</ul>
+                    ${Entitlements.ownsCore()
+                        ? `<p class="pg-owned">✓ ${t('access.paid.owned')}</p>`
+                        : `<button type="button" class="pg-btn pg-btn--secondary" data-action="paid">${t('access.paid.cta')}</button>`}
                     <p class="pg-muted">${t('access.paid.note')}</p>
                 </div>
             </div>
@@ -297,14 +314,14 @@ export class PregamePage {
     }
 
     _faqHTML() {
-        const items = ['free', 'prior', 'save', 'poor', 'paid', 'lang'];
+        const items = ['free', 'prior', 'save', 'poor', 'paid', 'tax', 'restore', 'refund', 'lang'];
         return `
         <section class="pg-section" aria-labelledby="pg-faq-title">
             <h2 class="pg-h2" id="pg-faq-title">${t('faq.title')}</h2>
             ${items.map(k => `
             <details class="pg-details pg-faq">
                 <summary>${t(`faq.${k}.q`)}</summary>
-                <p>${t(`faq.${k}.a`, { price: FULL_ACCESS_PRICE })}</p>
+                <p>${t(`faq.${k}.a`, { price: CORE_PRICE })}</p>
             </details>`).join('')}
         </section>`;
     }
@@ -368,6 +385,7 @@ export class PregamePage {
         }
         if (!s) { el.innerHTML = ''; return; }
         const name = getIndustryProfile(s.industryId)?.name || s.industryId;
+        const needsCore = s.resumable && !saveIsGrandfathered(s) && !Entitlements.canPlay(s.industryId, s.nextChapter?.number ?? s.nextChapterIndex + 1);
         if (!s.resumable) {
             el.innerHTML = `<p class="pg-resume-done">${t('resume.completed', { industry: esc(name) })}</p>`;
             return;
@@ -386,9 +404,10 @@ export class PregamePage {
                         cash: typeof s.cash === 'number' ? fmt.money(s.cash) : '—',
                         done: s.turnsPlayed, total: s.totalTurns,
                     })}</p>
+                    ${needsCore ? `<p class="pg-muted">${t('resume.needsCore', { chapter: s.nextChapter?.number ?? s.nextChapterIndex + 1 })}</p>` : ''}
                 </div>
                 <div class="pg-resume-actions">
-                    <button type="button" class="pg-btn pg-btn--primary" data-action="resume">${t('resume.cta', { industry: esc(name) })}</button>
+                    <button type="button" class="pg-btn pg-btn--primary" data-action="resume">${t(needsCore ? 'resume.ctaCore' : 'resume.cta', { industry: esc(name) })}</button>
                     <button type="button" class="pg-btn pg-btn--ghost" data-action="choose">${t('resume.new')}</button>
                 </div>
             </section>`;
@@ -401,7 +420,7 @@ export class PregamePage {
         const idx  = parseInt(sel.value, 10);
         const ch   = CHAPTERS[idx];
         const p    = this.selectedId ? getIndustryProfile(this.selectedId) : null;
-        const locked = PremiumManager.isChapterLocked(ch.number);
+        const locked = this._jumpLocked(ch.number);
         btn.disabled = !p && !locked;
         btn.textContent = locked
             ? t('more.jump.locked', { n: ch.number })
@@ -433,6 +452,7 @@ export class PregamePage {
             else if (action === 'resume') this._resume();
             else if (action === 'endless') this._start(el.dataset.industry, 0, 'endless', 'endless');
             else if (action === 'weekly') {
+                if (!Entitlements.has(FEATURE.WEEKLY)) { this._openPaid('pregame_weekly'); return; }
                 track('start_click', { industry_id: getWeeklyChallenge().industryId, mode: 'weekly', start_chapter: 0, has_save: Boolean(this.save?.resumable), source: 'weekly' });
                 document.dispatchEvent(new CustomEvent('scd:start-weekly'));
             }
@@ -440,7 +460,7 @@ export class PregamePage {
             else if (action === 'paid') this._openPaid('pregame_access');
             else if (action === 'jump') {
                 const idx = parseInt(page.querySelector('#pg-jump-select').value, 10);
-                if (PremiumManager.isChapterLocked(CHAPTERS[idx].number)) this._openPaid('pregame_chapter_jump');
+                if (this._jumpLocked(CHAPTERS[idx].number)) this._openPaid('pregame_chapter_jump');
                 else this._start(this.selectedId, idx, 'story', 'chapter_jump');
             }
         });
@@ -483,6 +503,8 @@ export class PregamePage {
 
     _start(industryId, chapterIndex, mode, source) {
         if (!industryId) { this._focusPicker(); return; }
+        const allowed = mode === 'endless' ? Entitlements.has(FEATURE.ENDLESS) : Entitlements.canPlay(industryId, chapterIndex + 1);
+        if (!allowed) { this._openPaid(`pregame_${source}`); return; }
         const hasSave = Boolean(this.localSave?.resumable || this.serverSave?.resumable);
         track('start_click', { industry_id: industryId, mode, start_chapter: chapterIndex + 1, has_save: hasSave, source });
         const go = () => { setNavMinimal(false); this.onLaunch(industryId, chapterIndex, mode); };
@@ -510,6 +532,23 @@ export class PregamePage {
         track('resume_click', { industry_id: s.industryId, start_chapter: s.nextChapterIndex + 1 });
         setNavMinimal(false);
         this.onLaunch(...resumeLaunchArgs(s));
+    }
+
+    /** Picker tag: what this industry costs for THIS player. */
+    _accessTag(p) {
+        if (Entitlements.ownsCore()) return `<span class="pg-tag pg-tag--free">✓ ${t('picker.included')}</span>`;
+        if (p.id === FREE_INTRO.industryId) return `<span class="pg-tag pg-tag--free">${t('picker.freeIntro')}</span>`;
+        return `<span class="pg-tag pg-tag--core">${t('picker.core')}</span>`;
+    }
+
+    _coreTag(feature) {
+        return Entitlements.has(feature) ? '' : `<span class="pg-tag pg-tag--core">${t('picker.core')}</span>`;
+    }
+
+    /** Starting directly at chapter n (n > 1) is a Core feature; so is any chapter of a locked campaign. */
+    _jumpLocked(n) {
+        if (n > 1 && !Entitlements.has(FEATURE.CHAPTER_JUMP)) return true;
+        return Boolean(this.selectedId) && !Entitlements.canPlay(this.selectedId, n);
     }
 
     _openPaid(source) {

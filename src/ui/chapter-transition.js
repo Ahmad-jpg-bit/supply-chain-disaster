@@ -67,8 +67,8 @@ export class ChapterTransition {
         }
 
         // ── Next-chapter teaser ───────────────────────────────────────────────
-        // Playing on is always free (the campaign never gates the next chapter),
-        // so the teaser never shows a lock or a price.
+        // The teaser never shows a lock or a price: when the next chapter needs
+        // the Core Game Pass, Dashboard shows that after the concept card.
         const nextChapterHtml = nextChapter ? `
                 <div class="chapter-next-teaser">
                     <span class="next-label">Coming Next</span>
@@ -76,7 +76,8 @@ export class ChapterTransition {
                     <h4>Chapter ${nextChapter.number}: ${nextChapter.title}</h4>
                 </div>` : '';
 
-        const ctaBtnLabel = nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results';
+        // gameStats.ctaLabel: set when the next chapter needs more access (free intro end)
+        const ctaBtnLabel = gameStats?.ctaLabel || (nextChapter ? 'Continue to Chapter ' + nextChapter.number : 'See Final Results');
 
         this.overlay.innerHTML = `
             <div class="chapter-transition glass-panel">
