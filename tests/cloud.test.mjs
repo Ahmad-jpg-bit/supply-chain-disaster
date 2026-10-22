@@ -209,3 +209,115 @@ test('cloud saves report not_configured without storage or secret', async () => 
     const s = await svc.sessionStatus({ store: null, cfg: { secret: '' } }, anon());
     assert.deepEqual(s.body, { signedIn: false, available: false });
 });
+
+/* ── Secret rotation never loses saves ──────────────────────────────── */
+
+test('identity secret rotation: with PREVIOUS set, re-verifying finds the same account and its saves (idempotent, old mapping kept)', async () => {
+    const store = memoryStore();
+    const mail = [];
+    const mk = (secret, previousSecrets = []) => ({ store, sendCode: async (to, code) => { mail.push({ to, code }); }, cfg: { secret, previousSecrets, origins: new Set([ORIGIN]), devInsecureCookies: false } });
+    // A save made under the checkpoint configuration, where the identity key used the token secret
+    const before = mk('token-secret-T');
+    const a = await signIn(before, mail, 'keep@x.io', '20.0.0.1');
+    assert.equal((await put(before, a, 'run-keep-001', 0, 'w-keep-0001')).status, 200);
+
+    // Proposed configuration: dedicated identity secret, old value kept as PREVIOUS
+    const after = mk('identity-secret-S', ['token-secret-T']);
+    assert.equal((await svc.listRuns(after, as(a))).body.runs.length, 1, 'sessions do not depend on any secret');
+    const again = await signIn(after, mail, 'keep@x.io', '20.0.0.2');
+    assert.equal(again.owner, a.owner, 'same account (same owner tag)');
+    assert.equal((await svc.getRun(after, as(again), { runId: 'run-keep-001' })).body.snapshot.industryId, 'fmcg');
+    assert.ok(await store.get(K.owner(keyed('identity-secret-S', 'email', 'keep@x.io'))), 'mapping copied to the new key');
+    assert.ok(await store.get(K.owner(keyed('token-secret-T', 'email', 'keep@x.io'))), 'old mapping left intact');
+    const third = await signIn(after, mail, 'keep@x.io', '20.0.0.3');
+    assert.equal(third.owner, a.owner, 'repeat verification is idempotent');
+
+    // Once migrated, PREVIOUS can be removed without losing the account
+    const later = mk('identity-secret-S');
+    const fourth = await signIn(later, mail, 'keep@x.io', '20.0.0.4');
+    assert.equal(fourth.owner, a.owner);
+});
+
+test('identity secret rotation WITHOUT the previous value would orphan saves — why the config order matters', async () => {
+    const store = memoryStore();
+    const mail = [];
+    const mk = (secret) => ({ store, sendCode: async (to, code) => { mail.push({ to, code }); }, cfg: { secret, previousSecrets: [], origins: new Set([ORIGIN]), devInsecureCookies: false } });
+    const a = await signIn(mk('v1'), mail, 'lost@x.io', '21.0.0.1');
+    await put(mk('v1'), a, 'run-lost-001', 0, 'w-lost-0001');
+    const b = await signIn(mk('v2'), mail, 'lost@x.io', '21.0.0.2');
+    assert.notEqual(b.owner, a.owner, 'a different (empty) account — the old runs still exist but are unreachable');
+    assert.equal((await svc.listRuns(mk('v2'), as(b))).body.runs.length, 0);
+});
+
+/* ── Concurrency against a slow store, retention timers ─────────────── */
+
+/** memoryStore with random latency on every call (SET NX stays atomic, as in Redis). */
+function slowStore() {
+    const s = memoryStore();
+    const lag = () => new Promise(r => setTimeout(r, Math.random() * 6));
+    return {
+        get: async (k) => { await lag(); return s.get(k); },
+        set: async (k, v, o) => { await lag(); return s.set(k, v, o); },
+        del: async (k) => { await lag(); return s.del(k); },
+        incr: async (k, t) => { await lag(); return s.incr(k, t); },
+        _map: s._map,
+    };
+}
+
+test('concurrent writes with the same base revision: exactly one wins, the record matches it', async () => {
+    const { deps, mail } = setup();
+    deps.store = slowStore();
+    const a = await signIn(deps, mail, 'race@x.io');
+    await put(deps, a, 'run-race-001', 0, 'w-race-base');
+    const results = await Promise.all(Array.from({ length: 12 }, (_, i) =>
+        svc.putRun(deps, as(a), { runId: 'run-race-001', expectedRev: 1, writeId: `w-race-${String(i).padStart(4, '0')}`, meta: meta('fmcg', { turn: 10 + i }), snapshot: snap('fmcg', 10 + i) })));
+    const winners = results.filter(r => r.status === 200);
+    assert.equal(winners.length, 1, `statuses: ${results.map(r => r.status).join(',')}`);
+    assert.ok(results.every(r => [200, 409, 503].includes(r.status)));
+    const rec = await svc.getRun(deps, as(a), { runId: 'run-race-001' });
+    assert.equal(rec.body.rev, 2);
+    assert.equal(rec.body.snapshot.turn, 10 + results.findIndex(r => r.status === 200), 'stored snapshot is the winner');
+});
+
+test('concurrent writes to different runs of one account never lose index entries', async () => {
+    const { deps, mail } = setup();
+    deps.store = slowStore();
+    const a = await signIn(deps, mail, 'many@x.io');
+    const ids = Array.from({ length: 8 }, (_, i) => `run-many-${String(i).padStart(4, '0')}`);
+    const attempt = async (id, n = 0) => {
+        const r = await put(deps, a, id, 0, `w-${id}`);
+        return r.status === 503 && n < 20 ? attempt(id, n + 1) : r;
+    };
+    const rs = await Promise.all(ids.map(id => attempt(id)));
+    assert.ok(rs.every(r => r.status === 200), rs.map(r => r.status).join(','));
+    assert.equal((await svc.listRuns(deps, as(a))).body.runs.length, 8);
+});
+
+test('retention: snapshots and index expire 12 months after the last sync; sessions after 30 days', async () => {
+    const { deps, mail } = setup();
+    const a = await signIn(deps, mail, 'ttl@x.io');
+    await put(deps, a, 'run-ttl-0001', 0, 'w-ttl-00001');
+    const year = 365 * 86400 * 1000, month = 30 * 86400 * 1000;
+    const near = (exp, ms) => Math.abs(exp - (Date.now() + ms)) < 60_000;
+    const entries = [...deps.store._map.entries()];
+    const blob = entries.find(([k]) => k.startsWith('sv:run:') && k.endsWith(':run-ttl-0001:1'));
+    const index = entries.find(([k]) => k.startsWith('sv:idx:'));
+    const session = entries.find(([k]) => k.startsWith('sv:sess:'));
+    assert.ok(blob && near(blob[1].exp, year), 'snapshot: 12 months');
+    assert.ok(index && near(index[1].exp, year), 'index: 12 months');
+    assert.ok(session && near(session[1].exp, month), 'session: 30 days');
+});
+
+test('superseded snapshots are cleaned up; only the current revision and one checkpoint remain', async () => {
+    const { deps, mail } = setup();
+    const a = await signIn(deps, mail, 'gc@x.io');
+    for (let rev = 0; rev < 6; rev++) {
+        const chapter = rev < 3 ? 1 : 2;
+        const r = await svc.putRun(deps, as(a), { runId: 'run-gc-00001', expectedRev: rev, writeId: `w-gc-${String(rev).padStart(5, '0')}`, meta: meta('fmcg', { chapterNumber: chapter, turn: rev + 1 }), snapshot: snap('fmcg', rev + 1) });
+        assert.equal(r.status, 200);
+    }
+    const blobs = [...deps.store._map.keys()].filter(k => k.includes(':run-gc-00001:'));
+    assert.equal(blobs.length, 2, blobs.join(' '));
+    const cp = await svc.getCheckpoint(deps, as(a), { runId: 'run-gc-00001' });
+    assert.equal(cp.body.rev, 3, 'checkpoint = last revision of Chapter 1');
+});

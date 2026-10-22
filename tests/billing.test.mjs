@@ -281,3 +281,22 @@ test('membership expiry does not remove separately purchased Core', async () => 
     assert.ok(a.packages.includes(PACKAGE.CORE));
     assert.ok(!a.packages.includes(PACKAGE.MEMBERSHIP));
 });
+
+test('rotating ENTITLEMENT_TOKEN_SECRET: with the old value as PREVIOUS, existing tokens keep working and refresh re-issues them', async () => {
+    const deps = fresh();
+    const { body } = await svc.createCheckout(deps, { offer: 'core' });
+    await send(deps, 'order_created', order(40), { claim_id: body.claimId });
+    const { token } = (await svc.claimStatus(deps, { claimId: body.claimId })).body;
+    // New secret, old one kept for the grace period
+    const rotated = { ...deps, cfg: cfgFor({ ENTITLEMENT_TOKEN_SECRET: 'tok_new', ENTITLEMENT_TOKEN_SECRET_PREVIOUS: 'tok_test' }) };
+    assert.ok(hasFeature(svc.accessFromToken(rotated.cfg, token), FEATURE.WEEKLY), 'old token accepted during grace');
+    const r = await svc.refresh(rotated, { token });
+    assert.equal(r.status, 200);
+    assert.ok(verifyToken(r.body.token, 'tok_new'), 're-issued with the new secret');
+    assert.equal(verifyToken(r.body.token, 'tok_test'), null);
+    // After the grace period (PREVIOUS removed) only new tokens verify; purchases themselves are untouched
+    const after = { ...deps, cfg: cfgFor({ ENTITLEMENT_TOKEN_SECRET: 'tok_new' }) };
+    assert.equal((await svc.refresh(after, { token })).status, 401, 'old token now needs a restore');
+    assert.equal((await svc.refresh(after, { token: r.body.token })).status, 200);
+    assert.equal((await accessOf(after)).packages.includes('core'), true, 'ledger unaffected by rotation');
+});
