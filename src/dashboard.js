@@ -10,9 +10,12 @@ import { SupplyChainFlow } from './graphics/supply-chain-flow.js';
 import { getIcon, iconify } from './graphics/svg-icons.js';
 import { PregamePage } from './ui/pregame-page.js';
 import { track } from './shared/track.js';
-import { buildSnapshot, restoreSnapshot, writeLocalSave, SAVEABLE_PHASES, PACKAGING_VERSION, isPrePackagingSave } from './logic/save-game.js';
+import { buildSnapshot, restoreSnapshot, SAVEABLE_PHASES, PACKAGING_VERSION } from './logic/save-game.js';
+import * as RS from './logic/run-store.js';
+import * as CS from './logic/cloud-sync.js';
+import { SavePanel, showCloudPrompt, showConflict, showTabLock } from './ui/save-panel.js';
 import { Entitlements } from './logic/entitlements.js';
-import { FEATURE, FREE_INTRO } from './data/packages.js';
+import { FEATURE, FREE_INTRO, CORE_CATALOG } from './data/packages.js';
 import { describeSave } from './logic/pregame-state.js';
 import { IntroComplete } from './ui/intro-complete.js';
 import { AnimatedCounter, showTrendBadge } from './ui/animated-counter.js';
@@ -22,7 +25,6 @@ import { Paywall } from './ui/paywall.js';
 import { PremiumManager } from './logic/premium.js';
 import { markNavPremium, setNavMinimal } from './shared/nav.js';
 import { updateCardSparkline } from './ui/sparkline.js';
-import { SaveProgressModal } from './ui/save-progress-modal.js';
 import { CrisisTicker } from './ui/crisis-ticker.js';
 import { AudioHapticManager } from './ui/audio-haptic.js';
 import { buildConsequenceData, showConsequenceOverlay } from './ui/consequence-overlay.js';
@@ -59,6 +61,8 @@ export class Dashboard {
         this.engine = new GameEngine();
         this.analytics = new Analytics(this.engine);
         this.selectedIndustryId = null;
+        this.runId = null;                 // the story campaign's run (logic/run-store.js)
+        this._tabId = RS.newId('tab');     // this tab, for multi-tab coordination
         this.charts = {};
         this.particles = particleNetwork;
 
@@ -91,7 +95,6 @@ export class Dashboard {
 
         this.gameOverScreen     = new GameOverScreen(this.ui.gameOverModal);
         this.terminationScreen  = new TerminationScreen();
-        this.saveProgressModal  = new SaveProgressModal();
         this.endlessDeathScreen = new EndlessDeathScreen();
         this.turnSummaryCard    = new TurnSummaryCard();
         this.debriefScreen      = null; // lazy — pulls in jsPDF, loaded on first open
@@ -160,16 +163,17 @@ export class Dashboard {
      * grandfathered; Endless and the weekly challenge need their features.
      * Opens the Core offer (and returns false) when access is missing.
      */
-    _mayStart(startChapterIndex, mode, statePatches, savedGame) {
+    _mayStart(startChapterIndex, mode, statePatches, savedGame, runMeta = null) {
         let ok;
         if (mode === 'weekly') ok = Entitlements.has(FEATURE.WEEKLY);
         else if (mode === 'endless') ok = Entitlements.has(FEATURE.ENDLESS);
         else if (savedGame || statePatches) {
-            const gs = savedGame || statePatches;
             const chapterNumber = savedGame
                 ? (describeSave({ gameState: savedGame }, [...CHAPTERS, ...EXPANSION_CHAPTERS])?.nextChapter?.number ?? 1)
                 : startChapterIndex + 1;
-            ok = (savedGame ? isPrePackagingSave(gs) : !gs.packagingVersion) || Entitlements.canPlay(this.selectedIndustryId, chapterNumber);
+            // Pre-packaging runs are recognised by the grant recorded once at migration —
+            // editing flags inside a snapshot changes nothing
+            ok = Boolean(runMeta?.legacyGrant) || Entitlements.canPlay(this.selectedIndustryId, chapterNumber);
         } else {
             ok = Entitlements.canPlay(this.selectedIndustryId, startChapterIndex + 1);
         }
@@ -183,34 +187,12 @@ export class Dashboard {
     /** Can the current campaign continue into chapter `n`? */
     _canContinueTo(n) {
         const s = this.engine.state;
-        return Boolean(s.grandfathered) || Entitlements.canPlay(s.industry?.id, n);
+        return Boolean(this._runGrant()) || Entitlements.canPlay(s.industry?.id, n);
     }
 
-    /**
-     * Saves the current engine state to localStorage before navigating to the
-     * external checkout page, so it can be restored on return.
-     */
-    _savePreCheckoutState() {
-        const s = this.engine.state;
-        if (!s.industry) return;
-        const resume = {
-            industryId:         s.industry.id,
-            chapterIndex:       s.chapterIndex,
-            cash:               s.cash,
-            inventory:          s.inventory,
-            backlog:            s.backlog,
-            inTransit:          s.inTransit,
-            turn:               s.turn,
-            maxTurns:           s.maxTurns,
-            modifiers:          s.modifiers,
-            archetypeModifiers: s.archetypeModifiers,
-            procurementChoices: s.procurementChoices,
-            startingArchetype:  s.startingArchetype,
-            shuffledScenarios:  s.shuffledScenarios,
-            history:            s.history,
-            ts:                 Date.now(),
-        };
-        try { localStorage.setItem('scd_pending_resume', JSON.stringify(resume)); } catch { /* storage full */ }
+    /** Pre-packaging grant recorded on the current run (see run-store migration), or null. */
+    _runGrant() {
+        return this.runId ? RS.getMeta(this.runId)?.legacyGrant || null : null;
     }
 
     /**
@@ -223,49 +205,6 @@ export class Dashboard {
         ls.style.transition = 'opacity 0.4s ease';
         ls.style.opacity    = '0';
         setTimeout(() => ls.remove(), 420);
-    }
-
-    /**
-     * Called on page load. If the user is returning after a successful checkout,
-     * restores their game at the next chapter with their saved financial state.
-     * Returns true if a resume was performed (caller should skip landing page).
-     */
-    _tryResumeFromCheckout() {
-        try {
-            const raw = localStorage.getItem('scd_pending_resume');
-            if (!raw) return false;
-            const resume = JSON.parse(raw);
-            // Expire stale saves (2 h)
-            if (!resume.ts || Date.now() - resume.ts > 2 * 60 * 60 * 1000) {
-                localStorage.removeItem('scd_pending_resume');
-                return false;
-            }
-            // Only restore once premium is confirmed
-            if (!PremiumManager.isPremium()) return false;
-            localStorage.removeItem('scd_pending_resume');
-
-            this.selectedIndustryId = resume.industryId;
-            const nextChapterIndex  = resume.chapterIndex + 1;
-            const patches = {
-                cash:               resume.cash,
-                inventory:          resume.inventory,
-                backlog:            resume.backlog,
-                inTransit:          resume.inTransit,
-                turn:               resume.turn,
-                maxTurns:           resume.maxTurns,
-                modifiers:          resume.modifiers,
-                archetypeModifiers: resume.archetypeModifiers,
-                procurementChoices: resume.procurementChoices,
-                startingArchetype:  resume.startingArchetype,
-                shuffledScenarios:  resume.shuffledScenarios,
-                history:            resume.history,
-            };
-            this.startGame(nextChapterIndex, 'story', patches);
-            return true;
-        } catch {
-            localStorage.removeItem('scd_pending_resume');
-            return false;
-        }
     }
 
     init() {
@@ -284,17 +223,42 @@ export class Dashboard {
         if (Entitlements.pendingClaim()) {
             Entitlements.checkClaim().then(r => { if (r.state === 'active' || r.state === 'not_active') Entitlements.clearClaim(); });
         }
-        // Save now (any point in a campaign) + optional email backup offer
-        document.getElementById('hud-save-btn')?.addEventListener('click', () => this._manualSave());
-        document.getElementById('hud-save-backup')?.addEventListener('click', () => {
-            this._setSaveStatus('');
-            this.saveProgressModal.show({
-                chapter: (this.engine.state.chapterIndex ?? 0) + 1,
-                industry: this.engine.state.industry?.id || 'electronics',
-            }, () => {});
+        // Save & progress: status, Save now, cloud saves (never blocks play)
+        this.savePanel = new SavePanel({
+            currentRunId: () => (this._gameMode === 'story' ? this.runId : null),
+            onSaveNow: () => this._saveLocal('manual'),
         });
-        // Capture the latest in-progress decisions if the tab is closed
-        window.addEventListener('pagehide', () => this._saveLocal());
+        document.getElementById('hud-save-btn')?.addEventListener('click', () => this.savePanel.open({ source: 'hud' }));
+        // Flush pending local changes when the page is hidden (pagehide as a backstop)
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') this._saveLocal('hidden'); });
+        window.addEventListener('pagehide', () => { this._saveLocal('hidden'); if (this.runId) RS.releaseRun(this.runId, this._tabId); });
+        window.addEventListener('pageshow', (e) => { if (e.persisted && this.runId && !this._standingDown) RS.claimRun(this.runId, this._tabId); });
+        // Leaving for checkout through our own controls: save, and come back to this run
+        document.addEventListener('scd:before-checkout', () => {
+            if (this._saveLocal('navigate') && this.runId) { try { localStorage.setItem('scd_resume_intent', this.runId); } catch { /* ignore */ } }
+        });
+        CS.setTabId(this._tabId);
+        CS.start();
+        CS.onChange((runId) => {
+            if (runId && runId !== this.runId) return;
+            this._renderSaveStatus();
+            const m = this.runId ? RS.getMeta(this.runId) : null;
+            if (m?.conflict && !this._conflictShown) {
+                this._conflictShown = true;
+                showConflict(this.runId, (choice) => { this._conflictShown = false; if (choice === 'cloud') this._reloadRun(this.runId); });
+            }
+        });
+        // Another tab took over this campaign → stop saving here instead of overwriting
+        RS.runsChannel?.addEventListener('message', (e) => {
+            const d = e.data || {};
+            if (!this.runId || d.runId !== this.runId || this._standingDown) return;
+            if ((d.type === 'claimed' && d.tabId !== this._tabId) || (d.type === 'written' && d.localRev > (this._tabRev ?? 0))) this._standDown();
+        });
+        // Same signal through the storage event (fires in other tabs on every claim)
+        window.addEventListener('storage', (e) => {
+            if (!this.runId || this._standingDown || e.key !== `scd_run_lock:${this.runId}` || !e.newValue) return;
+            try { if (JSON.parse(e.newValue).tabId !== this._tabId) this._standDown(); } catch { /* ignore */ }
+        });
 
         // In-game header stand-in for the (hidden) nav upgrade button
         document.getElementById('hud-unlock-btn')?.addEventListener('click', () => {
@@ -340,26 +304,15 @@ export class Dashboard {
             btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
         });
 
-        // Restore game state for users returning from a checkout redirect
-        if (this._tryResumeFromCheckout()) {
-            this._dismissLoadingScreen();
-            return;
-        }
-
-        // Listen for email capture (in-game modal) → persist game state to KV
-        // silently. The save-progress modal already sent the confirmation email,
-        // so DON'T send another one here (avoids duplicate/extra emails).
-        document.addEventListener('scd:email-captured', () => this._autoSave(false));
-
         // Mount the pre-game page (what the game is, industry choice, resume)
         // ?start=1 (homepage CTAs) jumps straight to the industry picker on small screens
         // (used by all homepage CTAs — direct /play navigation preserves the full landing page)
         const _skipHero = new URLSearchParams(window.location.search).get('start') === '1';
         if (_skipHero) window.history.replaceState({}, '', window.location.pathname);
-        new PregamePage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null, savedGame = null) => {
+        new PregamePage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null, savedGame = null, opts = {}) => {
             this.selectedIndustryId = industryId;
-            this.startGame(startChapterIndex, mode, statePatches, savedGame);
-        }, { skipHero: _skipHero });
+            this.startGame(startChapterIndex, mode, statePatches, savedGame, opts);
+        }, { skipHero: _skipHero, savePanel: this.savePanel });
 
         // Landing page is now rendered and visible — dismiss the loading screen.
         this._dismissLoadingScreen();
@@ -499,12 +452,17 @@ export class Dashboard {
     /**
      * @param {number} startChapterIndex
      * @param {'story'|'endless'|'weekly'} mode
-     * @param {Object|null} _statePatches — chapter-boundary state patch (checkout resume, legacy email saves)
+     * @param {Object|null} _statePatches — chapter-boundary state patch (legacy chapter-end saves)
      * @param {Object|null} savedGame — full v2 save (logic/save-game.js) to resume at the saved turn
+     * @param {{ runId?: string }} [opts] — resume this run (otherwise a story game starts a new run)
      */
-    startGame(startChapterIndex = 0, mode = 'story', _statePatches = null, savedGame = null) {
-        if (!this._mayStart(startChapterIndex, mode, _statePatches, savedGame)) return;
+    startGame(startChapterIndex = 0, mode = 'story', _statePatches = null, savedGame = null, opts = {}) {
+        const resumeMeta = opts.runId ? RS.getMeta(opts.runId) : null;
+        if (!this._mayStart(startChapterIndex, mode, _statePatches, savedGame, resumeMeta)) return;
+        if (this.runId) RS.releaseRun(this.runId, this._tabId);
         this._gameMode = mode;
+        this.runId = null;
+        this._standingDown = false;
         if (mode === 'weekly') {
             // Weekly challenge: fixed industry + shared seed for a comparable run
             const wc = getWeeklyChallenge();
@@ -534,12 +492,7 @@ export class Dashboard {
         } else if (mode === 'story') {
             this._draftTurn = null; // fresh game: drafts start from the engine defaults
         }
-        if (mode === 'story') {
-            // Campaigns saved before the free-intro / Core packaging stay playable to the end
-            const resumedOld = savedGame ? isPrePackagingSave(savedGame) : Boolean(_statePatches && !_statePatches.packagingVersion);
-            if (resumedOld) this.engine.state.grandfathered = true;
-            this.engine.state.packagingVersion = PACKAGING_VERSION;
-        }
+        if (mode === 'story') this._attachRun(resumeMeta, Boolean(savedGame || _statePatches));
 
         this.ui.startScreen.classList.add('hidden');
         this.ui.dashboard.classList.remove('hidden');
@@ -547,10 +500,10 @@ export class Dashboard {
         document.body.classList.add('scd-playing');
         this._syncUnlockButton();
 
-        // Manual save is a campaign feature (endless/weekly runs aren't saved)
+        // Save & progress is a campaign feature (endless/weekly runs aren't saved)
         const saveBtn = document.getElementById('hud-save-btn');
         if (saveBtn) saveBtn.hidden = mode !== 'story';
-        this._setSaveStatus('');
+        this._renderSaveStatus();
 
         // Board confidence meter + career rank chip (campaign mode only)
         if (mode !== 'endless' && mode !== 'weekly') {
@@ -639,49 +592,112 @@ export class Dashboard {
     }
 
     /**
-     * Save the campaign in this browser. Called automatically at every safe
-     * point (each phase, after each decision and quarter), so closing the tab
-     * never loses more than the decision in progress.
+     * Bind the story game to a run: resume the given one or create a new run.
+     * The pre-packaging grant lives on the run record (set once by migration).
+     */
+    _attachRun(resumeMeta, resumed) {
+        const s = this.engine.state;
+        if (resumeMeta) {
+            this.runId = resumeMeta.runId;
+            this._tabRev = resumeMeta.localRev;
+            track('resume_succeeded', { run_id: this.runId, industry_id: s.industry?.id, chapter: (s.chapterIndex ?? 0) + 1, turn: s.turn, phase: s.phase, snapshot_version: resumeMeta.format === 'v1-chapter-end' ? 1 : 2, cloud: resumeMeta.cloud ? 'verified' : 'device' });
+        } else {
+            const session = CS.getSession();
+            const meta = RS.createRun({
+                industryId: s.industry.id,
+                owner: session.signedIn ? session.owner : 'guest',
+                extra: { contentVersion: CORE_CATALOG.version },
+            });
+            this.runId = meta?.runId || null;
+            this._tabRev = meta ? 0 : undefined;
+            if (meta) track('run_started', { run_id: meta.runId, industry_id: s.industry.id, mode: 'story', start_chapter: (s.chapterIndex ?? 0) + 1, cloud: meta.cloud ? 'verified' : 'device' });
+        }
+        s.packagingVersion = PACKAGING_VERSION;
+        s.grandfathered = Boolean(this._runGrant());   // kept in saves for compatibility; never read for access
+        this._localSaveError = this.runId ? null : 'blocked';
+        if (this.runId) RS.claimRun(this.runId, this._tabId);
+        this._saveLocal(resumed ? 'resume' : 'run_created');
+    }
+
+    /**
+     * Save the campaign's run in this browser — at run creation, committed
+     * choices, resolved quarters, phase changes, debounced draft edits, before
+     * checkout and when the page is hidden. Never reports "saved" unless the
+     * write succeeded; cloud sync is queued separately and never blocks play.
+     * @param {string} trigger
      * @returns {boolean} true if saved
      */
-    _saveLocal() {
+    _saveLocal(trigger = 'phase') {
         const s = this.engine.state;
-        if (this._gameMode !== 'story' || !s.industry || !SAVEABLE_PHASES.includes(s.phase)) return false;
-        return writeLocalSave(this._snapshot());
+        if (this._gameMode !== 'story' || !s.industry || !SAVEABLE_PHASES.includes(s.phase) || this._standingDown) return false;
+        if (!this.runId) { this._localSaveError = 'blocked'; this._renderSaveStatus(); return false; }
+        // Backstop for missed tab messages: another tab has claimed this run since
+        const lock = RS.runLock(this.runId);
+        if (lock && lock.tabId !== this._tabId) { this._standDown(); return false; }
+        const checkpoint = trigger === 'turn' || (trigger === 'phase' && s.phase === GAME_PHASES.CHAPTER_SUMMARY);
+        const res = RS.saveRun(this.runId, this._snapshot(), { tabRev: this._tabRev, checkpoint });
+        if (res.ok) {
+            this._tabRev = res.meta.localRev;
+            this._localSaveError = null;
+            CS.schedule(this.runId, trigger === 'draft' ? 'draft' : 'urgent');
+        } else if (res.reason === 'stale_tab') {
+            this._standDown();
+            return false;
+        } else {
+            this._localSaveError = res.reason;
+            RS.updateMeta(this.runId, { localError: res.reason });
+            track('local_save_failed', { reason: res.reason, trigger, run_id: this.runId }, `lsf:${res.reason}`);
+        }
+        this._renderSaveStatus();
+        return res.ok;
     }
 
     /** Debounced local save while the player edits procurement decisions. */
     _scheduleDraftSave() {
         clearTimeout(this._draftSaveTimer);
-        this._draftSaveTimer = setTimeout(() => this._saveLocal(), 800);
+        this._draftSaveTimer = setTimeout(() => this._saveLocal('draft'), 800);
     }
 
-    _setSaveStatus(text, { backupOffer = false } = {}) {
+    /** Header status: separate device and cloud states, from the run record. */
+    _renderSaveStatus() {
         const el = document.getElementById('hud-save-status');
-        const offer = document.getElementById('hud-save-backup');
-        if (el) el.textContent = text;
-        if (offer) offer.hidden = !backupOffer;
-        clearTimeout(this._saveStatusTimer);
-        if (text) this._saveStatusTimer = setTimeout(() => this._setSaveStatus(''), backupOffer ? 12000 : 6000);
+        if (!el) return;
+        if (this._gameMode !== 'story') { el.textContent = ''; return; }
+        const meta = this.runId ? RS.getMeta(this.runId) : null;
+        const st = CS.statusFor(meta ? { ...meta, localError: this._localSaveError || null } : { localError: this._localSaveError, localRev: 0 });
+        const short = st.local === 'failed' ? 'Not saved on this device'
+            : ({ syncing: 'Syncing…', synced: 'Saved · synced', pending: 'Saved · sync pending', signin: 'Saved · sign in to sync', conflict: 'Saved · choose a version', deleted: 'Saved on this device' }[st.cloud]
+               || (st.local === 'saved' ? 'Saved on this device' : ''));
+        el.textContent = short;
+        el.title = st.text;
+        el.dataset.state = st.local === 'failed' ? 'failed' : st.cloud;
     }
 
-    /** HUD "Save" — save now, at any point, and back up to email if one is set. */
-    async _manualSave() {
-        const email = SaveProgressModal.getCapturedEmail();
-        const local = this._saveLocal();
-        track('game_saved', { industry_id: this.engine.state.industry?.id, source: 'manual', backup: Boolean(email) });
-        if (!email) {
-            this._setSaveStatus(local
-                ? 'Saved on this device.'
-                : 'Couldn\u2019t save on this device (browser storage is full or blocked).', { backupOffer: true });
-            return;
-        }
-        this._setSaveStatus(local ? 'Saved on this device \u00b7 backing up\u2026' : 'Backing up\u2026');
-        const backedUp = await this._autoSave(false);
-        this._setSaveStatus(backedUp
-            ? (local ? `Saved on this device and backed up to ${email}.` : `Backed up to ${email}.`)
-            : (local ? 'Saved on this device. Email backup failed \u2014 try again.' : 'Save failed \u2014 try again.'));
+    /** Another tab is playing this run: stop saving here (no silent overwrite). */
+    _standDown() {
+        if (this._standingDown) return;
+        this._standingDown = true;
+        clearTimeout(this._draftSaveTimer);
+        showTabLock({ onTakeOver: () => this._reloadRun(this.runId) });
     }
+
+    /** Re-open a run from its latest saved state (after another tab or a conflict choice). */
+    _reloadRun(runId) {
+        const loaded = RS.loadRun(runId);
+        if (loaded.error) { window.location.href = '/play'; return; }
+        this.selectedIndustryId = loaded.snapshot.industryId;
+        this.startGame(loaded.snapshot.chapterIndex ?? 0, 'story', null, loaded.snapshot, { runId });
+    }
+
+    /** Opaque, de-duplicated progress events (a reload never re-sends them). */
+    _progressEvent(name, key, params = {}) {
+        if (!this.runId || this._gameMode !== 'story') return;
+        if (!RS.markOnce(this.runId, key)) return;
+        const s = this.engine.state;
+        const session = CS.getSession();
+        track(name, { run_id: this.runId, industry_id: s.industry?.id, mode: 'story', cloud: session.signedIn ? 'verified' : 'device', access: Entitlements.ownsCore() ? 'core' : (this._runGrant() ? 'pre_packaging' : 'free'), ...params });
+    }
+
 
     renderChapterProgress() {
         const container = document.getElementById('chapter-progress');
@@ -893,11 +909,12 @@ export class Dashboard {
                 this._showEndlessDeath();
                 break;
         }
-        this._saveLocal();
+        this._saveLocal('phase');
     }
 
     renderChapterIntro() {
         const chapter = this.engine.state.currentChapter;
+        if (chapter) this._progressEvent('chapter_started', `cs${chapter.number}`, { chapter: chapter.number });
         if (!chapter) return;
 
         // Update flow diagram for new chapter
@@ -1300,7 +1317,7 @@ export class Dashboard {
 
         // 2. Calculate result synchronously (fast, pure logic — no I/O)
         const { outcome, alignment } = this.engine.makeDecision(index);
-        this._saveLocal(); // the response is committed: a reload must not re-offer it
+        this._saveLocal('choice'); // the response is committed: a reload must not re-offer it
 
         // 3. Optimistic metric flash + audio/haptic — immediate signal of decision direction
         this._flashMetricCards(alignment);
@@ -2053,7 +2070,10 @@ export class Dashboard {
      */
     _resolveTurn(choices, forecastCall, crisisResponse = null) {
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
+        const turnDone = this.engine.state.turn;
+        const chapterOfTurn = (this.engine.state.chapterIndex ?? 0) + 1;
         this.engine.processTurn(choices);
+        this._progressEvent('turn_completed', `t${turnDone}`, { chapter: chapterOfTurn, turn: turnDone });
         if (!this._firstTurnTracked) {
             this._firstTurnTracked = true;
             track('first_turn_complete', { industry_id: this.engine.state.industry?.id, mode: this._gameMode });
@@ -2111,7 +2131,10 @@ export class Dashboard {
             worldMemory: this.engine.state.worldMemory,
         }));
 
-        this._saveLocal(); // quarter resolved: save before any results screen
+        const savedTurn = this._saveLocal('turn'); // quarter resolved: save before any results screen
+        if (savedTurn && this._gameMode === 'story' && RS.getMeta(this.runId)?.turn === 2) {
+            showCloudPrompt({ onEnable: () => this.savePanel.open({ focus: 'email', adoptRunId: this.runId, source: 'first_turn_prompt' }) });
+        }
         const showSummary = () => this.turnSummaryCard.show(result, chapter, () => {
             if (!this.engine.state.isEndless && this.engine.state.boardConfidence <= 0) {
                 this._boardDismissal();
@@ -2129,7 +2152,7 @@ export class Dashboard {
                 missed: result.missedSales,
                 onDone: (alloc) => {
                     const consequences = applyAllocation(this.engine.state, scenario, alloc);
-                    this._saveLocal();
+                    this._saveLocal('choice');
                     allocator.showConsequences(consequences, showSummary);
                 },
             });
@@ -2361,29 +2384,6 @@ export class Dashboard {
     }
 
     /**
-     * Silently saves the current engine state to the server, tied to the player's
-     * captured email. Never blocks the game loop.
-     * @param {boolean} [sendEmail=false] - send a confirmation email to the player
-     * @returns {Promise<boolean>} whether the backup was stored
-     */
-    _autoSave(sendEmail = false) {
-        const email = SaveProgressModal.getCapturedEmail();
-        if (!email) return Promise.resolve(false);
-
-        const s = this.engine?.state;
-        if (!s?.industry) return Promise.resolve(false);
-
-        // Full snapshot (resumes at the saved turn); keeps every legacy field too
-        const gameState = this._snapshot();
-
-        return fetch('/api/save-game', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ email, gameState, sendEmail }),
-        }).then(r => r.ok).catch(() => false);
-    }
-
-    /**
      * The player finished the last chapter their access covers (normally the
      * free FMCG intro). Shows the completion debrief + Core offer; buying or
      * restoring continues straight into the next chapter.
@@ -2427,9 +2427,6 @@ export class Dashboard {
             allChapters[prevChapterIdx].id
         );
 
-        // Auto-save progress to server at every chapter boundary
-        this._autoSave();
-
         // Concept-named achievements (chapter-level)
         const chNumber = allChapters[prevChapterIdx].number;
         showAchievementToasts(checkChapterAchievements(
@@ -2453,12 +2450,8 @@ export class Dashboard {
             ? () => this._showAccessEnd(allChapters[prevChapterIdx], nextChapter, summary, () => showCareerNotice(review, advance))
             : () => showCareerNotice(review, advance);
 
-        // Gate: show email capture after Chapter 2 if not yet captured.
-        const industry = this.engine.state.industry?.id || 'electronics';
-        console.log('[SaveProgress] prevChapterIdx:', prevChapterIdx, '| isCaptured:', SaveProgressModal.isCaptured());
-        const gatedCallback = (prevChapterIdx === 1 && !SaveProgressModal.isCaptured())
-            ? () => this.saveProgressModal.show({ chapter: 2, industry }, continueCallback)
-            : continueCallback;
+        this._progressEvent('chapter_completed', `cc${allChapters[prevChapterIdx].number}`, { chapter: allChapters[prevChapterIdx].number, turn: this.engine.state.turn - 1 });
+        const gatedCallback = continueCallback;
 
         // Wrap gatedCallback with the CSCP definition card.
         // Flow: ChapterTransition → DefinitionCard → gatedCallback (email / paywall / continue)
@@ -2613,7 +2606,7 @@ export class Dashboard {
             const industry    = this.engine.state.industry;
             const isExpansion = true; // all chapters always available
             // Certificate: Core feature; runs started when it was free keep it
-            const certificateAllowed = Entitlements.has(FEATURE.CERTIFICATE) || Boolean(this.engine.state.grandfathered);
+            const certificateAllowed = Entitlements.has(FEATURE.CERTIFICATE) || Boolean(this._runGrant());
 
             // Build the debrief callback once so the closure captures the right state
             const openDebrief = async () => {
@@ -2651,18 +2644,8 @@ export class Dashboard {
             }
         };
 
-        // Auto-save final state at game completion
-        this._autoSave();
-
-        // Secondary trigger: capture email at game-end if not yet collected.
-        // High-emotion moment — player wants their certificate / guide.
-        if (!SaveProgressModal.isCaptured()) {
-            const industry = this.engine.state.industry?.id || 'electronics';
-            const chapter  = this.engine.state.chapterIndex + 1;
-            this.saveProgressModal.show({ chapter, industry }, showResults);
-        } else {
-            showResults();
-        }
+        this._progressEvent('run_completed', 'done', { chapter: (this.engine.state.chapterIndex ?? 0) + 1 });
+        showResults();
     }
 
     _showEndlessDeath() {

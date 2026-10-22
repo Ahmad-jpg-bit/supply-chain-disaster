@@ -162,6 +162,7 @@ export class Paywall {
         if (result.url) {
             track('checkout_start', { offer: 'core', source: this._source });
             this._onBeforeCheckout?.();
+            document.dispatchEvent(new Event('scd:before-checkout'));   // the game saves its run first
             window.location.href = result.url;
             return;
         }

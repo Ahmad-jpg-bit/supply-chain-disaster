@@ -24,7 +24,7 @@ export function track(name, params = {}, onceKey) {
         sentOnce.add(k);
     }
     const payload = { ...params, locale: LOCALE, variant: VARIANT };
-    if (import.meta.env.DEV) {
+    if (import.meta.env?.DEV) {
         (window.__scdAnalytics ||= []).push({ event: name, ...payload });
         return;
     }

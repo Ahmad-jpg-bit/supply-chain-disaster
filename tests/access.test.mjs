@@ -4,14 +4,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { withSeed } from './helpers.mjs';
 import { GameEngine, GAME_PHASES } from '../src/logic/engine.js';
-import { buildSnapshot, isPrePackagingSave, writeLocalSave, readLocalSave, PACKAGING_VERSION, LOCAL_SAVE_KEY } from '../src/logic/save-game.js';
-import { describeSave, saveIsGrandfathered } from '../src/logic/pregame-state.js';
+import { buildSnapshot, PACKAGING_VERSION, LOCAL_SAVE_KEY } from '../src/logic/save-game.js';
+import * as RS from '../src/logic/run-store.js';
 import { Entitlements } from '../src/logic/entitlements.js';
 import { FEATURE } from '../src/data/packages.js';
 import { CHAPTERS } from '../src/data/chapters.js';
 import { EXPANSION_CHAPTERS } from '../src/data/expansion-chapters.js';
 
 const ALL = [...CHAPTERS, ...EXPANSION_CHAPTERS];
+const nextChapter = (m) => (m.phase === GAME_PHASES.CHAPTER_SUMMARY ? m.chapterNumber + 1 : m.chapterNumber);
 const ACCESS_KEYS = ['scd_access_v1', 'scd_premium', 'scd_checkout_claim'];
 const resetAccess = () => ACCESS_KEYS.forEach(k => localStorage.removeItem(k));
 const grantCore = () => Entitlements.save({ token: 'test-token', access: { packages: ['core'] } });
@@ -72,40 +73,42 @@ test('the free intro is FMCG Chapter 1 only', () => {
     assert.equal(Entitlements.isFreeIntro('pharma', 1), false);
 });
 
-test('saves started before the packaging are grandfathered; new ones are not', () => {
+test('pre-packaging saves are recognised once, at migration, by when they were saved — not by snapshot flags', () => {
+    localStorage.removeItem(LOCAL_SAVE_KEY);
     const old = savedCampaign('electronics', false);
-    const fresh = savedCampaign('fmcg', true);
-    assert.equal(isPrePackagingSave(old), true);
-    assert.equal(isPrePackagingSave(fresh), false);
-    assert.equal(saveIsGrandfathered(describeSave({ gameState: old }, ALL, 'device')), true);
-    assert.equal(saveIsGrandfathered(describeSave({ gameState: fresh }, ALL, 'device')), false);
-    // Legacy chapter-boundary (v1) saves predate the packaging too
-    assert.equal(saveIsGrandfathered({ gameState: { industryId: 'pharma', chapterIndex: 4, turn: 21 } }), true);
-    // A grandfathered run re-saved later keeps its flag
-    const resaved = savedCampaign('fmcg', true);
-    resaved.snapshot.state.grandfathered = true;
-    assert.equal(isPrePackagingSave(resaved), true);
+    localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify({ savedAt: Date.parse('2026-10-20T09:00:00Z'), gameState: old }));
+    const m = RS.getMeta(RS.migrateLegacyLocal().runId);
+    assert.equal(m.legacyGrant, 'local-pre-packaging');
+    // A campaign started now carries the stamp and no grant, whatever its snapshot says
+    const fresh = RS.createRun({ industryId: 'fmcg' });
+    const gs = savedCampaign('fmcg', true);
+    gs.snapshot.state.grandfathered = true;
+    delete gs.snapshot.state.packagingVersion;
+    RS.saveRun(fresh.runId, gs);
+    assert.equal(RS.getMeta(fresh.runId).legacyGrant, undefined);
+    RS.deleteLocalRun(m.runId);
+    RS.deleteLocalRun(fresh.runId);
 });
 
-test('a free-intro save at the chapter boundary needs Core to continue, and is kept unchanged', () => {
+test('a free-intro run at the chapter boundary needs Core to continue, and the save is kept unchanged', () => {
     resetAccess();
-    localStorage.removeItem(LOCAL_SAVE_KEY);
+    const run = RS.createRun({ industryId: 'fmcg' });
     const gs = savedCampaign('fmcg', true);
-    writeLocalSave(gs);
-    const save = describeSave(readLocalSave(), ALL, 'device');
-    assert.equal(save.resumable, true);
-    assert.equal(save.nextChapter.number, 2);
-    assert.equal(saveIsGrandfathered(save), false);
-    assert.equal(Entitlements.canPlay(save.industryId, save.nextChapter.number), false, 'guest is locked at chapter 2');
+    assert.equal(RS.saveRun(run.runId, gs).ok, true);
+    const m = RS.getMeta(run.runId);
+    assert.equal(m.phase, GAME_PHASES.CHAPTER_SUMMARY);
+    assert.equal(nextChapter(m), 2);
+    assert.equal(m.legacyGrant, undefined);
+    assert.equal(Entitlements.canPlay(m.industryId, nextChapter(m)), false, 'guest is locked at chapter 2');
 
-    // Buying Core unlocks the same save — nothing about the save changes
+    // Buying Core unlocks the same run — nothing about the save changes
     grantCore();
-    assert.equal(Entitlements.canPlay(save.industryId, save.nextChapter.number), true);
-    assert.deepEqual(readLocalSave().gameState, JSON.parse(JSON.stringify(gs)));
+    assert.equal(Entitlements.canPlay(m.industryId, nextChapter(m)), true);
+    assert.deepEqual(RS.loadRun(run.runId).snapshot, JSON.parse(JSON.stringify(gs)));
 
     // Losing access (refund / invalid token) locks again but never deletes the save
     resetAccess();
-    assert.equal(Entitlements.canPlay(save.industryId, save.nextChapter.number), false);
-    assert.ok(readLocalSave(), 'save still present after access is removed');
-    localStorage.removeItem(LOCAL_SAVE_KEY);
+    assert.equal(Entitlements.canPlay(m.industryId, nextChapter(m)), false);
+    assert.ok(!RS.loadRun(run.runId).error, 'save still present after access is removed');
+    RS.deleteLocalRun(run.runId);
 });

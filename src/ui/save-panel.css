@@ -1,0 +1,72 @@
+/* Save & progress panel, cloud prompt, conflict + tab dialogs.
+   Uses the page's tokens; dark inside the game (body.play-bg), light on marketing pages. */
+
+.svp-dialog {
+  margin: auto;   /* the site's global reset removes the UA centring */
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+  border-radius: 14px;
+  background: var(--bg-elevated, var(--bg-color, #111827));
+  color: var(--text-main, #e5e7eb);
+  overflow: auto;
+}
+.svp-dialog::backdrop { background: rgba(4, 6, 16, 0.72); }
+.svp { padding: 22px 22px 18px; display: grid; gap: 14px; }
+.svp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.svp-title { margin: 0; font-size: 1.2rem; line-height: 1.3; }
+.svp-h3 { margin: 0 0 6px; font-size: 0.98rem; }
+.svp-x { background: none; border: 0; color: inherit; font-size: 1.1rem; cursor: pointer; padding: 6px; border-radius: 6px; }
+.svp-x:focus-visible, .svp-btn:focus-visible, .svp-link:focus-visible, .svp-input:focus-visible { outline: 2px solid var(--accent-color, #38bdf8); outline-offset: 2px; }
+.svp-sec { display: grid; gap: 10px; }
+.svp-sec + .svp-sec { padding-top: 12px; border-top: 1px solid var(--border-color, rgba(148, 163, 184, 0.2)); }
+.svp-sec p { margin: 0; line-height: 1.5; }
+.svp-run { font-weight: 600; }
+.svp-status { margin: 0; display: grid; gap: 6px; }
+.svp-status > div { display: grid; grid-template-columns: 96px 1fr; gap: 8px; }
+.svp-status dt { color: var(--text-secondary, #a1a1aa); font-size: 0.9rem; }
+.svp-status dd { margin: 0; font-size: 0.92rem; }
+.svp-bad { color: var(--danger-text, #f87171); }
+.svp-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.svp-form { display: grid; gap: 8px; }
+.svp-label { font-size: 0.9rem; color: var(--text-secondary, #a1a1aa); }
+.svp-input {
+  flex: 1 1 200px; min-width: 0; padding: 10px 12px; border-radius: 8px; font: inherit;
+  border: 1px solid var(--border-color-strong, rgba(148, 163, 184, 0.45));
+  background: transparent; color: inherit;
+}
+.svp-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px;
+  padding: 8px 14px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border-color-strong, rgba(148, 163, 184, 0.45));
+  background: transparent; color: inherit; text-decoration: none;
+}
+.svp-btn--primary { background: var(--action, #e5e7eb); color: var(--text-inverse, #0b0b0c); border-color: transparent; }
+.svp-btn--ghost { border-color: transparent; color: var(--text-secondary, #a1a1aa); }
+.svp-link { background: none; border: 0; padding: 4px 0; color: var(--accent-color, #38bdf8); cursor: pointer; font: inherit; text-decoration: underline; }
+.svp-msg { min-height: 1.2em; font-size: 0.9rem; color: var(--text-secondary, #a1a1aa); }
+.svp-fine ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.85rem; color: var(--text-secondary, #a1a1aa); line-height: 1.5; }
+.svp-versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.svp-version { border: 1px solid var(--border-color, rgba(148, 163, 184, 0.25)); border-radius: 10px; padding: 12px; display: grid; gap: 8px; align-content: start; }
+.svp-meta { font-size: 0.85rem; color: var(--text-secondary, #a1a1aa); }
+
+.svp-toast {
+  position: fixed; left: 16px; bottom: 16px; z-index: 240;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 16px; border-radius: 12px; display: grid; gap: 10px;
+  background: var(--bg-elevated, #111827); color: var(--text-main, #e5e7eb);
+  border: 1px solid var(--border-color-strong, rgba(148, 163, 184, 0.4));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+.svp-toast p { margin: 0; line-height: 1.45; }
+
+/* In-game header status */
+.hud-save-status[data-state="failed"] { color: var(--danger-text, #f87171); }
+.hud-save-status[data-state="pending"], .hud-save-status[data-state="signin"], .hud-save-status[data-state="conflict"] { color: var(--accent-color, #c99a52); }
+
+@media (max-width: 480px) {
+  .svp { padding: 18px 16px 14px; }
+  .svp-status > div { grid-template-columns: 1fr; gap: 2px; }
+  .svp-toast { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+}

@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { withSeed, scriptedChoices, digest } from './helpers.mjs';
 import { GameEngine, GAME_PHASES } from '../src/logic/engine.js';
-import { buildSnapshot, restoreSnapshot, isSnapshot, readLocalSave, writeLocalSave, LOCAL_SAVE_KEY } from '../src/logic/save-game.js';
-import { describeSave, newerSave, resumeLaunchArgs } from '../src/logic/pregame-state.js';
+import { buildSnapshot, restoreSnapshot, isSnapshot } from '../src/logic/save-game.js';
+import { describeSave, runLaunchArgs } from '../src/logic/pregame-state.js';
 import { CHAPTERS } from '../src/data/chapters.js';
 import { EXPANSION_CHAPTERS } from '../src/data/expansion-chapters.js';
 
@@ -84,30 +84,11 @@ test('describeSave: mid-chapter snapshot resumes at its chapter and quarter', ()
         assert.equal(s.quarter, 3);          // turn 7 = chapter 2, quarter 3
         assert.equal(s.turnsPlayed, 6);
         assert.equal(s.source, 'device');
-        assert.deepEqual(resumeLaunchArgs(s), ['pharma', 1, 'story', null, gs]);
+        assert.deepEqual(runLaunchArgs(gs, 'r-9'), ['pharma', 1, 'story', null, gs, { runId: 'r-9' }]);
     });
 });
 
 test('describeSave: a finished campaign snapshot is not resumable', () => {
     const gs = { industryId: 'fmcg', chapterIndex: 9, turn: 41, maxTurns: 40, saveVersion: 2, phase: GAME_PHASES.GAME_OVER, snapshot: { state: { turn: 41 } } };
     assert.equal(describeSave({ savedAt: 1, gameState: gs }, ALL).resumable, false);
-});
-
-test('newerSave prefers the most recent save', () => {
-    const a = { savedAt: 10 }, b = { savedAt: 20 };
-    assert.equal(newerSave(a, b), b);
-    assert.equal(newerSave(b, a), b);
-    assert.equal(newerSave(null, a), a);
-    assert.equal(newerSave(a, null), a);
-});
-
-test('local save read/write round-trip', () => {
-    localStorage.removeItem(LOCAL_SAVE_KEY);
-    assert.equal(readLocalSave(), null);
-    assert.equal(writeLocalSave({ industryId: 'fmcg', turn: 3 }), true);
-    const rec = readLocalSave();
-    assert.equal(rec.gameState.industryId, 'fmcg');
-    assert.ok(rec.savedAt > 0);
-    localStorage.setItem(LOCAL_SAVE_KEY, '{not json');
-    assert.equal(readLocalSave(), null);
 });

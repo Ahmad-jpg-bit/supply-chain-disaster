@@ -8,7 +8,11 @@
  * through the existing 'scd:open-paywall' event. Selecting or previewing an
  * industry has no side effects on saves, purchases or game state.
  *
- * Usage: new PregamePage(container, (industryId, chapterIndex, mode, statePatch) => …, { skipHero })
+ * Saves: every campaign is its own run (logic/run-store.js); the Continue card
+ * and "Your campaigns" list come from CampaignsPanel. Starting a campaign
+ * never replaces another one.
+ *
+ * Usage: new PregamePage(container, (industryId, chapterIndex, mode, statePatch, savedGame, { runId }) => …, { skipHero, savePanel })
  */
 
 import './pregame-page.css';
@@ -22,8 +26,10 @@ import { Entitlements } from '../logic/entitlements.js';
 import { FEATURE, FREE_INTRO, CORE_CATALOG } from '../data/packages.js';
 import { getWeeklyChallenge } from '../logic/seeded-rng.js';
 import { listIndustryProfiles, getIndustryProfile } from '../logic/industry-profiles.js';
-import { describeSave, newerSave, resumeLaunchArgs, isValidEmail, SAVE_EMAIL_KEY, saveIsGrandfathered } from '../logic/pregame-state.js';
-import { readLocalSave } from '../logic/save-game.js';
+import { SAVE_EMAIL_KEY, runLaunchArgs } from '../logic/pregame-state.js';
+import * as RS from '../logic/run-store.js';
+import * as CS from '../logic/cloud-sync.js';
+import { CampaignsPanel, nextChapterOf } from './campaigns-panel.js';
 import { CORE_PRICE } from './paywall.js';
 import { createFooter } from '../shared/footer.js';
 import { setNavMinimal } from '../shared/nav.js';
@@ -57,22 +63,23 @@ export class PregamePage {
         this.skipHero   = Boolean(options.skipHero);
         this.profiles   = listIndustryProfiles();
         this.selectedId = null;
-        this.email      = readEmail();
-        // Two possible saves: this browser (automatic) and the email backup.
-        // The banner offers whichever was saved most recently.
-        this.localSave  = describeSave(readLocalSave(), ALL_CHAPTERS, 'device');
-        this.serverSave = null;
-        this.save       = this.localSave;              // describeSave() result shown in the banner
-        this.saveState  = this.localSave ? 'found' : 'none';   // none | checking | found | error
+        this.savePanel  = options.savePanel || null;
+        // Old unverified email from the previous save system: only used to pre-fill verification
+        this.legacyEmail = readEmail();
+        // One-time move of the old single save into the run collection (idempotent)
+        this.migration = RS.migrateLegacyLocal();
+        CS.start();
         this._render();
         this._offAccess = Entitlements.onChange(() => {
             if (!this.page?.isConnected) { this._offAccess?.(); return; }
             this._render();
-            this._renderResume();
         });
-        track('pregame_view', { entry: this.skipHero ? 'start_param' : 'direct', has_email: Boolean(this.email), has_local_save: Boolean(this.localSave?.resumable) }, 'page');
-        if (this.localSave) this._afterSaveChange();
-        if (this.email) this._checkSave(this.email);
+        this._offCloud = CS.onChange(() => {
+            if (!this.page?.isConnected) { this._offCloud?.(); return; }
+            this._renderCloud();
+        });
+        const runs = RS.visibleRuns(CS.ownerTag());
+        track('pregame_view', { entry: this.skipHero ? 'start_param' : 'direct', runs: runs.length, in_progress: runs.filter(r => r.status !== 'completed').length, cloud: CS.getSession().signedIn ? 'verified' : 'device' }, 'page');
     }
 
     /* ── Render ─────────────────────────────────────────────── */
@@ -94,9 +101,8 @@ export class PregamePage {
             ${this._accessHTML()}
             <div class="pg-two">
                 ${this._faqHTML()}
-                ${this._restoreHTML()}
+                <section class="pg-section" aria-labelledby="pg-cloud-title" id="pg-cloud"></section>
             </div>
-            ${this._confirmHTML()}
         `;
         this.container.appendChild(page);
         createFooter(this.container);
@@ -107,6 +113,12 @@ export class PregamePage {
             const input = page.querySelector(`input[name="pg-industry"][value="${this.selectedId}"]`);
             if (input) input.checked = true;
         }
+        this.campaigns = new CampaignsPanel(page.querySelector('#pg-resume'), {
+            onContinue: (runId) => this._resume(runId),
+            onNewFor: (industryId) => this._start(industryId, 0, 'story', 'play_again'),
+            onChange: () => this._afterRunsChange(),
+        });
+        this._renderCloud();
         this._renderPreview();
         this._renderJump();
 
@@ -174,7 +186,7 @@ export class PregamePage {
         const swing = p.demand.spikeChance
             ? `±${fmt.pct(p.demand.swing)} · ${fmt.pct(p.demand.spikeChance)} chance of +${fmt.pct(p.demand.spikeMin)}–${fmt.pct(p.demand.spikeMin + p.demand.spikeRange)}`
             : `±${fmt.pct(p.demand.swing)}`;
-        const resumable = this.save?.resumable;
+        const resumable = RS.visibleRuns(CS.ownerTag()).some(r => r.industryId === p.id && r.status !== 'completed');
         const canStart = Entitlements.canPlay(p.id, 1);
         const startLabel = !canStart ? t('preview.unlock', { industry: p.name })
             : resumable ? t('preview.startNew', { industry: p.name }) : t('preview.start', { industry: p.name });
@@ -326,34 +338,6 @@ export class PregamePage {
         </section>`;
     }
 
-    _restoreHTML() {
-        return `
-        <section class="pg-section" aria-labelledby="pg-restore-title">
-            <h2 class="pg-h2" id="pg-restore-title">${t('restore.title')}</h2>
-            <p class="pg-muted">${t('restore.body')}</p>
-            <form class="pg-restore" id="pg-restore-form" novalidate>
-                <label class="pg-label" for="pg-restore-email">${t('restore.label')}</label>
-                <div class="pg-restore-row">
-                    <input type="email" id="pg-restore-email" class="pg-input" autocomplete="email" value="${esc(this.email)}" aria-describedby="pg-restore-status">
-                    <button type="submit" class="pg-btn pg-btn--secondary">${t('restore.cta')}</button>
-                </div>
-                <p class="pg-restore-status" id="pg-restore-status" role="status"></p>
-            </form>
-        </section>`;
-    }
-
-    _confirmHTML() {
-        return `
-        <dialog class="pg-dialog" id="pg-confirm" aria-labelledby="pg-confirm-title">
-            <h2 class="pg-h2" id="pg-confirm-title">${t('confirm.title')}</h2>
-            <p id="pg-confirm-body"></p>
-            <div class="pg-btn-row">
-                <button type="button" class="pg-btn pg-btn--secondary" value="cancel" data-confirm="no">${t('confirm.no')}</button>
-                <button type="button" class="pg-btn pg-btn--primary" data-confirm="yes">${t('confirm.yes')}</button>
-            </div>
-        </dialog>`;
-    }
-
     /* ── Dynamic regions ────────────────────────────────────── */
 
     _renderPreview() {
@@ -367,50 +351,35 @@ export class PregamePage {
         }));
     }
 
-    _renderResume() {
-        const el = this.page.querySelector('#pg-resume');
-        const s = this.save;
-        this.page.querySelectorAll('[data-saved]').forEach(tag => { tag.hidden = !(s?.resumable && tag.closest('.pg-card').dataset.industry === s.industryId); });
-        this.page.querySelectorAll('[data-rec]').forEach(tag => { tag.hidden = Boolean(s?.resumable); });
-        // One dominant action: with a resumable save, Resume replaces the hero's "Choose your industry"
-        const choose = this.page.querySelector('.pg-choose');
-        if (choose) choose.hidden = Boolean(s?.resumable);
-        if (this.saveState === 'checking') {
-            el.innerHTML = `<p class="pg-muted pg-resume-checking">${t('resume.checking')}</p>`;
-            return;
-        }
-        if (this.saveState === 'error') {
-            el.innerHTML = `<p class="pg-muted">${t('resume.error')}</p>`;
-            return;
-        }
-        if (!s) { el.innerHTML = ''; return; }
-        const name = getIndustryProfile(s.industryId)?.name || s.industryId;
-        const needsCore = s.resumable && !saveIsGrandfathered(s) && !Entitlements.canPlay(s.industryId, s.nextChapter?.number ?? s.nextChapterIndex + 1);
-        if (!s.resumable) {
-            el.innerHTML = `<p class="pg-resume-done">${t('resume.completed', { industry: esc(name) })}</p>`;
-            return;
-        }
+    /** Cloud saves section: explains device-only vs verified cloud saves. */
+    _renderCloud() {
+        const el = this.page?.querySelector('#pg-cloud');
+        if (!el) return;
+        const s = CS.getSession();
         el.innerHTML = `
-            <section class="pg-resume-card" aria-labelledby="pg-resume-title">
-                <div>
-                    <p class="pg-eyebrow">${t('resume.eyebrow')}</p>
-                    <h2 class="pg-h2" id="pg-resume-title" tabindex="-1">${t(s.midChapter && s.quarter > 1 ? 'resume.titleMid' : 'resume.title', {
-                        industry: esc(name), chapter: s.nextChapter?.number ?? s.nextChapterIndex + 1, chapterTitle: esc(s.nextChapter?.title ?? ''),
-                        quarter: s.quarter, quarters: s.nextChapter ? s.nextChapter.turnsRange[1] - s.nextChapter.turnsRange[0] + 1 : 4,
-                    })}</h2>
-                    <p class="pg-muted">${t(s.source === 'device' ? 'resume.meta.device' : 'resume.meta.email', {
-                        email: esc(this.email),
-                        date: s.savedAt ? fmt.dateTime(s.savedAt) : '—',
-                        cash: typeof s.cash === 'number' ? fmt.money(s.cash) : '—',
-                        done: s.turnsPlayed, total: s.totalTurns,
-                    })}</p>
-                    ${needsCore ? `<p class="pg-muted">${t('resume.needsCore', { chapter: s.nextChapter?.number ?? s.nextChapterIndex + 1 })}</p>` : ''}
-                </div>
-                <div class="pg-resume-actions">
-                    <button type="button" class="pg-btn pg-btn--primary" data-action="resume">${t(needsCore ? 'resume.ctaCore' : 'resume.cta', { industry: esc(name) })}</button>
-                    <button type="button" class="pg-btn pg-btn--ghost" data-action="choose">${t('resume.new')}</button>
-                </div>
-            </section>`;
+            <h2 class="pg-h2" id="pg-cloud-title">${t('cloud.title')}</h2>
+            ${s.signedIn
+                ? `<p>${t('cloud.on', { email: esc(s.email) })}</p>`
+                : `<p class="pg-muted">${t('cloud.off')}</p>${this.legacyEmail ? `<p class="pg-muted">${t('cloud.legacyHint', { email: esc(this.legacyEmail) })}</p>` : ''}`}
+            <ul class="pg-list pg-muted">
+                <li>${t('cloud.l1')}</li>
+                <li>${t('cloud.l2')}</li>
+                <li>${t('cloud.l3', { months: 12 })}</li>
+            </ul>
+            <button type="button" class="pg-btn pg-btn--secondary" data-action="cloud">${t(s.signedIn ? 'cloud.manage' : 'cloud.enable')}</button>
+            ${this.migration?.status === 'unreadable' ? `<p class="pg-muted" role="status">${t('cloud.unreadable')}</p>` : ''}`;
+    }
+
+    /** Runs changed (saved, synced, deleted): refresh tags and the hero's main action. */
+    _afterRunsChange() {
+        if (!this.page) return;
+        const runs = RS.visibleRuns(CS.ownerTag());
+        const active = runs.filter(r => r.status !== 'completed');
+        this.page.querySelectorAll('[data-saved]').forEach(tag => { tag.hidden = !active.some(r => r.industryId === tag.closest('.pg-card').dataset.industry); });
+        this.page.querySelectorAll('[data-rec]').forEach(tag => { tag.hidden = active.length > 0; });
+        // One dominant action: with a campaign in progress, Continue replaces "Choose your industry"
+        const choose = this.page.querySelector('.pg-choose');
+        if (choose) choose.hidden = active.length > 0;
     }
 
     _renderJump() {
@@ -449,11 +418,11 @@ export class PregamePage {
                 pv.focus({ preventScroll: true });
             }
             else if (action === 'start') this._start(this.selectedId, 0, 'story', 'preview');
-            else if (action === 'resume') this._resume();
+            else if (action === 'cloud') this._openCloud();
             else if (action === 'endless') this._start(el.dataset.industry, 0, 'endless', 'endless');
             else if (action === 'weekly') {
                 if (!Entitlements.has(FEATURE.WEEKLY)) { this._openPaid('pregame_weekly'); return; }
-                track('start_click', { industry_id: getWeeklyChallenge().industryId, mode: 'weekly', start_chapter: 0, has_save: Boolean(this.save?.resumable), source: 'weekly' });
+                track('start_click', { industry_id: getWeeklyChallenge().industryId, mode: 'weekly', start_chapter: 0, has_save: RS.visibleRuns(CS.ownerTag()).some(r => r.status !== 'completed'), source: 'weekly' });
                 document.dispatchEvent(new CustomEvent('scd:start-weekly'));
             }
             else if (action === 'leaderboard') document.dispatchEvent(new CustomEvent('scd:show-leaderboard'));
@@ -466,18 +435,6 @@ export class PregamePage {
         });
 
         page.querySelector('#pg-jump-select').addEventListener('change', () => this._renderJump());
-
-        page.querySelector('#pg-restore-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this._lookup(page.querySelector('#pg-restore-email').value.trim());
-        });
-
-        const dlg = page.querySelector('#pg-confirm');
-        dlg.addEventListener('click', (e) => {
-            const b = e.target.closest('[data-confirm]');
-            if (b) dlg.close(b.dataset.confirm);
-            else if (e.target === dlg) dlg.close('no');
-        });
     }
 
     _motion() {
@@ -505,33 +462,39 @@ export class PregamePage {
         if (!industryId) { this._focusPicker(); return; }
         const allowed = mode === 'endless' ? Entitlements.has(FEATURE.ENDLESS) : Entitlements.canPlay(industryId, chapterIndex + 1);
         if (!allowed) { this._openPaid(`pregame_${source}`); return; }
-        const hasSave = Boolean(this.localSave?.resumable || this.serverSave?.resumable);
-        track('start_click', { industry_id: industryId, mode, start_chapter: chapterIndex + 1, has_save: hasSave, source });
-        const go = () => { setNavMinimal(false); this.onLaunch(industryId, chapterIndex, mode); };
-        // Only campaign games autosave over the email save; endless/weekly never do.
-        if (hasSave && mode === 'story') this._confirmOverwrite(go);
-        else go();
-    }
-
-    _confirmOverwrite(proceed) {
-        const dlg = this.page.querySelector('#pg-confirm');
-        const nameOf = (sv) => getIndustryProfile(sv.industryId)?.name || sv.industryId;
-        const parts = [];
-        if (this.localSave?.resumable) parts.push(t('confirm.bodyDevice', { industry: nameOf(this.localSave) }));
-        if (this.serverSave?.resumable) parts.push(t('confirm.bodyEmail', { industry: nameOf(this.serverSave), email: this.email }));
-        this.page.querySelector('#pg-confirm-body').textContent = parts.join(' ');
-        dlg.addEventListener('close', () => { if (dlg.returnValue === 'yes') proceed(); }, { once: true });
-        dlg.returnValue = '';
-        dlg.showModal();
-        dlg.querySelector('[data-confirm="no"]').focus();
-    }
-
-    _resume() {
-        const s = this.save;
-        if (!s?.resumable) return;
-        track('resume_click', { industry_id: s.industryId, start_chapter: s.nextChapterIndex + 1 });
+        const runs = RS.visibleRuns(CS.ownerTag()).filter(r => r.status !== 'completed').length;
+        track('start_click', { industry_id: industryId, mode, start_chapter: chapterIndex + 1, has_save: runs > 0, source });
+        // A new campaign is a new run — existing runs are never replaced
         setNavMinimal(false);
-        this.onLaunch(...resumeLaunchArgs(s));
+        this.onLaunch(industryId, chapterIndex, mode);
+    }
+
+    /** Continue a saved run exactly where it was saved (legacy chapter-end saves: at the next chapter). */
+    _resume(runId) {
+        const m = RS.getMeta(runId);
+        if (!m) return;
+        track('resume_started', { run_id: runId, industry_id: m.industryId, chapter: m.chapterNumber, turn: m.turn, phase: m.phase, snapshot_version: m.format === 'v1-chapter-end' ? 1 : 2, cloud: m.cloud ? 'verified' : 'device' });
+        if (!m.legacyGrant && !Entitlements.canPlay(m.industryId, Math.min(nextChapterOf(m), m.totalChapters || 10))) {
+            try { localStorage.setItem('scd_resume_intent', runId); } catch { /* ignore */ }
+            this._openPaid('pregame_resume');
+            return;
+        }
+        const loaded = RS.loadRun(runId);
+        if (loaded.error) {
+            track('resume_failed', { run_id: runId, reason: loaded.error });
+            this.campaigns.notice = t(loaded.error === 'unsupported' ? 'runs.unsupported' : 'runs.unreadable');
+            this.campaigns.render();
+            return;
+        }
+        if (loaded.recovered) track('save_recovered', { run_id: runId, source: 'checkpoint' });
+        setNavMinimal(false);
+        this.onLaunch(...runLaunchArgs(loaded.snapshot, runId));
+    }
+
+    _openCloud() {
+        if (!this.savePanel) return;
+        if (!CS.getSession().signedIn && this.legacyEmail && !this.savePanel.email) this.savePanel.email = this.legacyEmail;
+        this.savePanel.open({ focus: 'email', source: 'pregame' });
     }
 
     /** Picker tag: what this industry costs for THIS player. */
@@ -553,71 +516,5 @@ export class PregamePage {
 
     _openPaid(source) {
         document.dispatchEvent(new CustomEvent('scd:open-paywall', { detail: { source } }));
-    }
-
-    async _fetchSave(email) {
-        const res = await fetch('/api/load-game', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-        });
-        if (!res.ok) throw new Error(`load-game ${res.status}`);
-        return res.json();
-    }
-
-    /** Silent check for a returning player whose email is already stored on this device. */
-    async _checkSave(email) {
-        this.saveState = 'checking';
-        this._renderResume();
-        try {
-            this.serverSave = describeSave(await this._fetchSave(email), ALL_CHAPTERS, 'email');
-            this.save = newerSave(this.localSave, this.serverSave);
-            this.saveState = this.save ? 'found' : 'none';
-        } catch {
-            // Email backup unreachable — a save on this device still works
-            this.save = this.localSave;
-            this.saveState = this.localSave ? 'found' : 'error';
-        }
-        this._afterSaveChange();
-    }
-
-    /** Explicit lookup from the "Resume on another device" form. */
-    async _lookup(email) {
-        const status = this.page.querySelector('#pg-restore-status');
-        if (!isValidEmail(email)) { status.textContent = t('restore.invalid'); return; }
-        status.textContent = t('restore.checking');
-        try {
-            const found = describeSave(await this._fetchSave(email), ALL_CHAPTERS, 'email');
-            if (!found) { status.textContent = t('restore.notFound'); return; }
-            // Only a found save links this device to the email (as before)
-            try { localStorage.setItem(SAVE_EMAIL_KEY, email); } catch { /* storage blocked */ }
-            this.email = email;
-            this.serverSave = found;
-            const save = newerSave(this.localSave, found);
-            this.save = save;
-            this.saveState = 'found';
-            status.textContent = !found.resumable
-                ? t('resume.completed', { industry: getIndustryProfile(found.industryId)?.name || found.industryId })
-                : save === found ? t('restore.found') : t('restore.foundOlder');
-            this._afterSaveChange();
-            if (save.resumable) {
-                const h = this.page.querySelector('#pg-resume-title');
-                h?.scrollIntoView({ block: 'center', behavior: this._motion() });
-                h?.focus({ preventScroll: true });
-            }
-        } catch {
-            status.textContent = t('restore.error');
-        }
-    }
-
-    _afterSaveChange() {
-        this._renderResume();
-        // Pre-select the saved industry so its briefing is ready — no side effects
-        if (this.save?.resumable && !this.selectedId) {
-            const input = this.page.querySelector(`input[name="pg-industry"][value="${this.save.industryId}"]`);
-            if (input) { input.checked = true; this.selectedId = this.save.industryId; }
-        }
-        this._renderPreview();
-        this._renderJump();
     }
 }

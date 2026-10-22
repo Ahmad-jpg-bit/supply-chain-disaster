@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import './helpers.mjs';
-import { describeSave, resumeLaunchArgs, isValidEmail } from '../src/logic/pregame-state.js';
+import { describeSave, runLaunchArgs } from '../src/logic/pregame-state.js';
 import { listIndustryProfiles, getIndustryProfile } from '../src/logic/industry-profiles.js';
 import { CHAPTERS } from '../src/data/chapters.js';
 import { EXPANSION_CHAPTERS } from '../src/data/expansion-chapters.js';
@@ -28,15 +28,15 @@ test('describeSave: finished campaign is not resumable; empty/invalid records gi
     assert.equal(describeSave(record({ chapterIndex: 1 }), ALL), null);
 });
 
-test('resumeLaunchArgs matches the pre-redesign restore call (next chapter, story, saved state)', () => {
+test('runLaunchArgs keeps legacy chapter-end semantics (next chapter, story, saved state as a patch)', () => {
     const gs = { industryId: 'electronics', chapterIndex: 1, turn: 9, maxTurns: 40 };
-    assert.deepEqual(resumeLaunchArgs(describeSave(record(gs), ALL)), ['electronics', 2, 'story', gs]);
+    assert.deepEqual(runLaunchArgs(gs, 'r-1'), ['electronics', 2, 'story', gs, null, { runId: 'r-1' }]);
 });
 
 test('resuming through the engine continues the saved run at the saved turn', () => {
     withSeed(9, () => {
         const gs = { industryId: 'electronics', chapterIndex: 2, turn: 13, maxTurns: 40, cash: 777, inventory: 321, backlog: 0, inTransit: [] };
-        const [industryId, chapterIndex, , patch] = resumeLaunchArgs(describeSave(record(gs), ALL));
+        const [industryId, chapterIndex, , patch] = runLaunchArgs(gs, 'r-2');
         const engine = new GameEngine();
         engine.init(industryId, true, chapterIndex);           // same as Dashboard.startGame
         Object.assign(engine.state, patch);
@@ -46,12 +46,6 @@ test('resuming through the engine continues the saved run at the saved turn', ()
         assert.equal(engine.state.cash, 777);
         assert.equal(engine.state.turn, 13);
     });
-});
-
-test('isValidEmail', () => {
-    assert.equal(isValidEmail('x@y.io'), true);
-    assert.equal(isValidEmail('nope'), false);
-    assert.equal(isValidEmail(''), false);
 });
 
 test('industry profiles cover exactly the catalog and reflect engine values', () => {

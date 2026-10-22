@@ -268,3 +268,25 @@
 .pg-tag--core { color: #fbbf24; border-color: rgba(251, 191, 36, 0.45); }
 .pg-h3 .pg-tag { margin-left: 6px; vertical-align: middle; font-size: 11px; }
 .pg-owned { margin: 12px 0 4px; font-weight: 700; color: var(--pg-ok); }
+
+/* ── Your campaigns (runs) ── */
+.pg-resume { display: grid; gap: 14px; }
+.pg-resume-card + .pg-resume-card { margin-top: 0; }
+.pg-runs { padding: 16px 20px; border-radius: var(--pg-radius); border: 1px solid var(--pg-border); background: var(--pg-panel); }
+.pg-runs-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 0; }
+.pg-run { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 0; border-top: 1px solid var(--pg-border); }
+.pg-run:first-child { border-top: 0; }
+.pg-run-main { flex: 1 1 300px; min-width: 0; display: grid; gap: 2px; }
+.pg-run-title { margin: 0; font-weight: 600; }
+.pg-run-sub { margin: 0; font-size: 0.9rem; }
+.pg-run-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pg-run-warn { margin: 4px 0 0; color: #fbbf24; }
+.pg-run-details { margin: 8px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px 14px; }
+.pg-run-details dt { font-size: 0.8rem; color: var(--pg-muted); }
+.pg-run-details dd { margin: 0; font-variant-numeric: tabular-nums; }
+.pg-runs-notice { margin: 0; padding: 10px 14px; border-radius: var(--pg-radius); border: 1px solid var(--pg-border-2); background: var(--pg-panel-2); }
+.pg-btn--danger { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+@media (max-width: 600px) {
+  .pg-run-actions { width: 100%; }
+  .pg-run-actions .pg-btn--secondary, .pg-run-actions .pg-btn--primary { flex: 1 1 auto; }
+}

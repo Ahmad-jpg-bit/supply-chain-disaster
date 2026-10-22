@@ -60,7 +60,7 @@ function pickQuestion(windowId, record) {
 
 function recallEmailHtml({ question, resumeChapter, email }) {
     const resumeLine = resumeChapter
-        ? `Your operation is paused at <strong style="color:#8b8fa8;">Chapter ${resumeChapter}</strong>. Enter your email in Save &amp; Resume to pick up exactly where you left off.`
+        ? `Your operation is paused at <strong style="color:#8b8fa8;">Chapter ${resumeChapter}</strong>. Open the game and verify this email under Cloud saves to import that save and pick up where you left off.`
         : `Jump back in — no account needed.`;
     return `<!DOCTYPE html>
 <html lang="en">

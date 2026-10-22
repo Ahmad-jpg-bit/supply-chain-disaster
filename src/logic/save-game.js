@@ -2,33 +2,28 @@
  * Save game — full campaign snapshots that can resume at any turn.
  *
  * Format (saveVersion 2) is a SUPERSET of the original chapter-boundary
- * gameState written by Dashboard._autoSave(): the legacy top-level fields stay
- * (so /api/save-game emails, recall-cron and older readers keep working) and a
- * `snapshot` adds everything needed to continue mid-chapter — the rest of the
- * engine state, the mastery tracker, the debrief log and a few UI extras.
+ * gameState: the legacy top-level fields stay (older readers and old email
+ * backups keep working) and a `snapshot` adds everything needed to continue
+ * mid-chapter — the rest of the engine state, the mastery tracker, the debrief
+ * log and a few UI extras.
  *
- * Used for both the automatic local save (this browser) and the email backup.
+ * Storage (per-campaign runs, checkpoints, cloud sync) lives in run-store.js
+ * and cloud-sync.js; this module only builds and restores snapshots.
  */
 
 import { GAME_PHASES } from './engine.js';
 import { DebriefCollector } from '../game/debrief-collector.js';
 
+/** The previous single-save key — read once by run-store migration. */
 export const LOCAL_SAVE_KEY = 'scd_local_save_v1';
 export const SAVE_VERSION = 2;
 
 /**
  * Packaging version stamped into every campaign started under the free-intro /
- * Core Game Pass model. Saves WITHOUT it were started when the whole campaign
- * was free, so they stay playable to the end (grandfathered). Never deleted.
+ * Core packaging. Kept in snapshots for compatibility; access never depends on
+ * it (pre-packaging grants are recorded on the run by run-store migration).
  */
 export const PACKAGING_VERSION = 2;
-
-/** True when a stored gameState predates the current packaging (→ grandfathered). */
-export function isPrePackagingSave(gs) {
-    const state = gs?.snapshot?.state;
-    if (state?.grandfathered) return true;
-    return !(Number(state?.packagingVersion) >= PACKAGING_VERSION);
-}
 
 /** Phases a campaign can be saved in (and resumed from). */
 export const SAVEABLE_PHASES = [
@@ -106,28 +101,4 @@ export function restoreSnapshot(engine, gs) {
     // A save taken on the chapter-summary screen resumes at the next chapter's intro
     if (engine.state.phase === GAME_PHASES.CHAPTER_SUMMARY) engine.advanceFromChapterSummary();
     return snap.ui || {};
-}
-
-/* ── This-browser storage ───────────────────────────────────────────── */
-
-/** @returns {{ savedAt: number, gameState: Object } | null} */
-export function readLocalSave() {
-    try {
-        const raw = localStorage.getItem(LOCAL_SAVE_KEY);
-        if (!raw) return null;
-        const rec = JSON.parse(raw);
-        return rec?.gameState?.industryId ? rec : null;
-    } catch {
-        return null;
-    }
-}
-
-/** @returns {boolean} whether the write succeeded */
-export function writeLocalSave(gameState) {
-    try {
-        localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify({ savedAt: Date.now(), gameState }));
-        return true;
-    } catch {
-        return false; // storage full or blocked
-    }
 }

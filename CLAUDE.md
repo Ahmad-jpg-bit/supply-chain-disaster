@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-10-19
+> Last updated: 2026-10-22
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -24,7 +24,7 @@ Deploy command: `npx vercel --prod` from the project root.
 
 ---
 
-## Packaging & Entitlements (vanilla game, since 2026-10-19 — NOT yet deployed/launched)
+## Packaging & Entitlements (vanilla game — deployed 2026-10-21)
 | Package | What it includes | Price | Status |
 |---|---|---|---|
 | Free introduction | FMCG Chapter 1 (complete 4-quarter scenario + summary, concept card, debrief), replayable, guest play | — | live in code |
@@ -43,6 +43,17 @@ Deploy command: `npx vercel --prod` from the project root.
 - **Analytics (GA4 via `src/shared/track.js`):** `free_scenario_complete`, `core_offer_view`, `checkout_start`, `purchase_confirmed` (deduped by order ID locally; the ID is never sent), `paid_campaign_open`. No emails, order IDs or payment data in analytics.
 - Dev builds no longer auto-grant premium (`src/main.js`); owner bypass `?dev=nxt2026` works in DEV only.
 - **The Next.js fork** (`D:\supplychaindisaster-next`, play.supplychaindisaster.com) still has its own model (Ch 1–3 free, Starter $19.99, Full $49.99) — not changed here.
+
+## Saves & cloud saves (since 2026-10-22 — NOT yet deployed)
+- **Runs, not slots.** Each campaign is a run; starting a new one never replaces another. Endless/weekly are never saved (unchanged policy).
+- **Device saves** happen at run creation, committed briefing choices, resolved turns (before results; a checkpoint), phase changes, debounced draft edits, before checkout (`scd:before-checkout`), on `visibilitychange: hidden` and `pagehide`. Identical snapshots don't create a new revision (avoids phantom "pending sync"). The status never says "saved" unless the write succeeded.
+- **Cloud saves** need an emailed code → session. Runs are stored under an internal owner ID (`sv:*` keys), never under the email. Verifying never grants purchases. Signing out removes that account's runs from the browser (warns about unsynced changes first).
+- **Conflicts** (the server revision moved on while this device has unsynced changes) keep both versions; the player chooses; the other becomes a device-only copy. Snapshots are never merged.
+- **Grandfathering** comes from `meta.legacyGrant` set once by migration (old local save stamped before 2026-10-21T18:00Z, or an old cloud backup whose *server* `savedAt` predates it). Snapshot flags (`packagingVersion`, `grandfathered`) are kept for compatibility only and never read for access.
+- **Retention:** each cloud run is kept for 12 months after its last sync (KV TTL, refreshed on sync); sessions last 30 days, sliding; codes 10 min. Old `game:{email}` records keep their 180-day TTL and are copied (not moved) into the account on verification.
+- **Secrets:** cloud saves derive their keys from `CLOUD_SAVE_SECRET` (falls back to `ENTITLEMENT_TOKEN_SECRET`). Rotating that secret signs everyone out AND makes existing cloud runs unreachable (owner lookup is keyed by it) — set `CLOUD_SAVE_SECRET` once before launch and don't rotate it casually.
+- **Analytics + funnel:** progress events are de-duplicated per run (`meta.sent`); definitions and BigQuery SQL in `docs/analytics/progress-funnel.md` (also the evidence/hypotheses for the old "Chapter 2 pile-up").
+- **Tests:** `tests/cloud.test.mjs` (server ownership/CSRF/codes/revisions) and `tests/runs.test.mjs` (run store + sync end to end through the real API handlers with `SCD_DEV_MEMORY_STORE=1`). `SCD_DEV_MEMORY_STORE=1` gives the API an in-memory store and captures codes in `globalThis.__scdDevMail` — local testing only, ignored when `VERCEL_ENV=production`.
 
 ---
 
@@ -72,7 +83,12 @@ Deploy command: `npx vercel --prod` from the project root.
 | `src/ui/chapter-transition.js` | Chapter summary overlay (score + next chapter teaser) |
 | `src/ui/concept-card.js` | Chapter intro card (shown before chapter begins) |
 | `src/ui/pregame-page.js` | /play pre-game page (hero, industry picker + mission preview, resume, access, FAQ). Copy in `src/i18n/pregame.js`; industry facts from `src/logic/industry-profiles.js` (engine constants) — never hand-type numbers. Replaced `landing-page.js` (deleted 2026-10-18; `landing-page.css` stays — the homepage uses it) |
-| `src/logic/save-game.js` | Campaign saves (saveVersion 2): full snapshot that resumes at any turn. Auto-saved to localStorage `scd_local_save_v1` at every safe point; HUD "Save" saves now and backs up to email (`/api/save-game`) if one is set. Superset of the legacy chapter-boundary gameState, so old email saves and recall-cron still work |
+| `src/logic/save-game.js` | Builds/restores v2 snapshots (full engine state, resumes at any turn). Storage is NOT here |
+| `src/logic/run-store.js` | Every campaign is its own **run** in localStorage (`scd_runs_v3` index, `scd_run_v3:{id}` latest, `scd_run_v3_cp:{id}` known-good checkpoint). Validated writes, quota-aware eviction, multi-tab guard (`tabRev` + claim lock), idempotent migration of the old `scd_local_save_v1`, pre-packaging grant recorded ONCE on the run (`legacyGrant`) |
+| `src/logic/cloud-sync.js` | Verified-account sync: session, outbox (meta `localRev > ackedLocalRev` + persisted `inflight`), debounce/backoff, revision-safe acks, conflict capture/resolution, other-device download, legacy import. Only the tab holding a run's claim syncs it |
+| `src/ui/save-panel.js` | Save & progress dialog (device/cloud status, Save now, email-code sign-in, sign-out), one-time cloud prompt, conflict chooser, tab-lock dialog |
+| `src/ui/campaigns-panel.js` | /play Continue card + "Your campaigns" (other runs, completed runs, other-device runs, old-backup import, delete with explicit device/cloud scope) |
+| `lib/cloud/*` | Server: email codes → opaque session cookie (`scd_sess`, HttpOnly) bound to an internal owner ID; owner-scoped runs with revisions (409 stale / 410 deleted tombstone / idempotent `writeId`), per-owner KV lock, legacy `game:{email}` copy-on-verify |
 | `src/shared/track.js` | GA4 product events via the existing gtag (no new vendor). Dev builds log to `window.__scdAnalytics` instead of sending |
 | `src/ui/procurement-workspace.js` | /play decision screen markup (situation, 3 decision groups, outlook, consequence summary). All numbers come from `GameEngine.estimateTurn()` — never add game math here |
 | `src/ui/play-workspace.css` | In-game layout/theme, scoped to `body.scd-playing` (set while a run is active) so marketing pages are unaffected |
@@ -90,13 +106,13 @@ Deploy command: `npx vercel --prod` from the project root.
 | `/api/verify-subscription` | Access API: `claim` (pending/active), `refresh` (re-validate token), `restore-request` / `restore-verify` (email one-time code) |
 | `/api/redeem-promo` | Validates promo codes server-side; `SC10Disaster` → 30-day expansion |
 | `/api/ls-webhook` | Verified LS webhooks → KV ledger (idempotent, refund/out-of-order safe); Core welcome email on first paid order |
-| `/api/save-progress` | Sends "operational data secured" email to player + internal notification |
-| `/api/save-game` / `/api/load-game` | Store/restore game state in Vercel KV by email (no-op without KV env) |
-| `/api/recall-cron` | Daily Vercel cron (`vercel.json` crons, 14:00 UTC): sends day-3/day-10 spaced-recall emails to saved players. `CRON_SECRET`-guarded; no-op until KV is configured. Skips anyone with `unsub:{email}` set |
+| `/api/cloud-account` | Cloud-save sign-in: GET session status; POST `request-code` / `verify-code` (sets session cookie) / `sign-out` / `legacy` / `legacy-dismiss`. Never grants purchases |
+| `/api/cloud-runs` | Owner-scoped runs: GET list / one (`?id`, `&head=1`, `&checkpoint=1`), PUT `{runId, expectedRev, writeId, meta, snapshot}`, DELETE `?id&expectedRev`. Session + CSRF header required for mutations. The old unauthenticated `/api/save-game` + `/api/load-game` (and `/api/save-progress`) were removed 2026-10-22 |
+| `/api/recall-cron` | Day-3/day-10 spaced-recall emails to old `game:*` records. **Not scheduled** (`vercel.json` `crons` is empty) and paused by `CAMPAIGNS_PAUSED`. New saves no longer create `game:*` records, so it would only reach pre-2026-10-22 savers. `CRON_SECRET`-guarded; skips `unsub:{email}` |
 | `/api/send-email` | Contact form handler |
 | `/api/unsubscribe` | GET `?email=` — one-click unsubscribe (sets `unsub:{email}` in KV, no expiry). POST `?broadcast=1` — one-off re-engagement broadcast to everyone in the `game:*` saved-progress list; `CRON_SECRET`-guarded, `?dry=1` reports counts without sending. Idempotent via `announced:{email}`. Both live in one file to stay under Vercel Hobby's 12-function cap — see note below |
 
-**Vercel Hobby plan caps serverless functions at 12** (one per file in `/api/`, `polar-webhook.js` included even though it's dead). Adding a new one-off endpoint means either deleting/consolidating an existing file first or folding the new logic into one that already exists — `unsubscribe.js` does the latter (unsubscribe + broadcast in one handler, branched on HTTP method). Check `ls api/*.js | wc -l` before adding a new file.
+**Vercel Hobby plan caps serverless functions at 12** (11 used as of 2026-10-22) (one per file in `/api/`, `polar-webhook.js` included even though it's dead). Adding a new one-off endpoint means either deleting/consolidating an existing file first or folding the new logic into one that already exists — `unsubscribe.js` does the latter (unsubscribe + broadcast in one handler, branched on HTTP method). Check `ls api/*.js | wc -l` before adding a new file.
 
 ---
 
@@ -104,9 +120,9 @@ Deploy command: `npx vercel --prod` from the project root.
 - **From:** `hello@supplychaindisaster.com` (domain verified in Resend — do not change)
 - **Resend account:** ahmad.faruqi1211@gmail.com
 - **Purchase welcome:** triggered by `order_created` LS webhook → tier-specific HTML email to buyer
-- **Save progress:** player-requested checkpoint email; includes visual chapter progress bar
+- **Cloud-save codes:** one-time 6-digit codes for cloud saves (`lib/cloud/http.js`), and for purchase restore (`api/verify-subscription.js`). The old "save progress" checkpoint email and its modal were removed 2026-10-22
 - **Contact form:** forwards message to `ahmad.faruqi1211@gmail.com`
-- **Internal notifications:** save-progress events CC'd to `ahmad.faruqi1211@gmail.com`
+- **Internal notifications:** none for saves any more (the save-progress CC was removed with the modal)
 - `RESEND_API_KEY` is set in `.env` and must also be set in Vercel environment variables
 
 ### Email templates (both in `api/ls-webhook.js`)
@@ -117,7 +133,7 @@ Deploy command: `npx vercel --prod` from the project root.
 ### Unsubscribe / suppression (added 2026-08-31)
 - Every marketing-ish email (recall-cron, the one-off announcement broadcast) must link `GET /api/unsubscribe?email={email}` — sets `unsub:{email}` in KV, no expiry, no confirmation step needed on the recipient's end.
 - Any future sender that iterates the `game:*` saved-progress list **must check `unsub:{email}` before sending** — recall-cron and the broadcast endpoint both do this already.
-- Transactional email (purchase welcome, save-progress checkpoint, contact form) is not gated by this — only re-engagement/marketing sends are.
+- Transactional email (purchase welcome, one-time codes, contact form) is not gated by this — only re-engagement/marketing sends are.
 - One-off re-engagement broadcast: sent 2026-08-31 to the 5 real addresses in the `game:*` list at the time (a 6th, a `kvtest+...` synthetic test address from earlier KV testing, was suppressed instead of emailed). Announced the Next.js-fork rebuild (3 difficulty tiers, 120 scenarios) and linked to `play.supplychaindisaster.com/levels`. Re-running `POST /api/unsubscribe?broadcast=1` is safe — it only reaches players who saved progress after that date and haven't been sent the announcement (tracked via `announced:{email}`).
 
 ---
