@@ -100,7 +100,7 @@ export class CampaignsPanel {
         if (m.cloudDeleted) return `<p class="pg-run-warn">${t('runs.deletedElsewhere')}</p>`;
         if (m.localError) return `<p class="pg-run-warn">${t('runs.localFailed')}</p>`;
         if (needsCore(m)) return `<p class="pg-muted">${t('runs.needsCore', { chapter: nextChapterOf(m) })}</p>`;
-        if (m.copyOf) return `<p class="pg-muted">${t(m.copyLabel === 'cloud' ? 'runs.copyCloud' : 'runs.copyDevice')}</p>`;
+        if (m.copyOf) return `<p class="pg-muted">${t(m.copyLabel === 'cloud' ? 'runs.copyCloud' : m.copyLabel === 'tab' ? 'runs.copyTab' : 'runs.copyDevice')}</p>`;
         if (m.untrustedImport) return `<p class="pg-muted">${t('runs.imported')}</p>`;
         return '';
     }
@@ -108,6 +108,7 @@ export class CampaignsPanel {
     _actionsHTML(m, primary = false) {
         if (m.conflict) return `<button type="button" class="pg-btn pg-btn--primary" data-run="resolve" data-id="${m.runId}">${t('runs.choose')}</button>`;
         if (m.cloudDeleted) return `
+            ${CS.getSession().signedIn ? `<button type="button" class="pg-btn pg-btn--secondary" data-run="recovercloud" data-id="${m.runId}">${t('runs.recoverCloud')}</button>` : ''}
             <button type="button" class="pg-btn pg-btn--secondary" data-run="keeplocal" data-id="${m.runId}">${t('runs.keepLocal')}</button>
             <button type="button" class="pg-btn pg-btn--ghost" data-run="delete" data-id="${m.runId}">${t('runs.delete')}</button>`;
         if (m.status === 'completed') return `
@@ -204,7 +205,11 @@ export class CampaignsPanel {
         if (action === 'details') { this.expanded.has(id) ? this.expanded.delete(id) : this.expanded.add(id); return this.render(); }
         if (action === 'again') return this.cb.onNewFor(d.industry);
         if (action === 'resolve') return showConflict(id, () => this.render());
-        if (action === 'keeplocal') { RS.updateMeta(id, { owner: 'guest', cloud: false, cloudDeleted: false }); return this.render(); }
+        if (action === 'keeplocal' || action === 'recovercloud') {
+            const r = CS.recoverDeleted(id, { toCloud: action === 'recovercloud' });
+            this.notice = t(r.ok ? 'runs.recovered' : 'runs.recoverFailed');
+            return this.render();
+        }
         if (action === 'delete') return this._confirmDelete(id);
         if (action === 'download') {
             const c = this.remoteOnly.find(x => x.runId === id);

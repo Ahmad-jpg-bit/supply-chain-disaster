@@ -299,10 +299,33 @@ export function claimRun(runId, tabId) {
     write(lockKey(runId), JSON.stringify({ tabId, at: now() }));
     channel?.postMessage({ type: 'claimed', runId, tabId });
 }
-/** The tab currently playing a run ({ tabId, at }), if any. Claims older than 6 h are stale. */
+/**
+ * Run ownership between tabs. The playing tab refreshes its claim every
+ * HEARTBEAT_MS; a claim not refreshed for CLAIM_STALE_MS (crashed, killed or
+ * frozen tab) no longer blocks other tabs from syncing the run. Resuming never
+ * waits: Continue always takes the claim. Close/unload cleanup is only a bonus.
+ */
+export const HEARTBEAT_MS = 30_000;
+export const CLAIM_STALE_MS = 90_000;
+
+/** The latest claim, fresh or not (who claimed last). */
+export function rawLock(runId) { return parse(read(lockKey(runId))) || null; }
+
+/** The tab currently playing a run, if its claim is fresh. */
 export function runLock(runId) {
-    const l = parse(read(lockKey(runId)));
-    return l && now() - (l.at || 0) < 6 * 3600 * 1000 ? l : null;
+    const l = rawLock(runId);
+    return l && now() - (l.at || 0) < CLAIM_STALE_MS ? l : null;
+}
+
+/**
+ * Heartbeat: refresh this tab's claim. Returns false when another tab has
+ * claimed the run since (this tab must stop writing).
+ */
+export function touchRun(runId, tabId) {
+    const l = rawLock(runId);
+    if (l && l.tabId !== tabId) return false;
+    write(lockKey(runId), JSON.stringify({ tabId, at: now() }));
+    return true;
 }
 
 export function releaseRun(runId, tabId) {
@@ -323,22 +346,26 @@ function legacyGrantFor(gs, savedAt) {
 }
 
 /**
- * Move scd_local_save_v1 into the run collection. Idempotent: the run ID is
- * derived from the save itself, and the original is removed only after the
- * replacement has been written and read back.
+ * Copy scd_local_save_v1 into the run collection. Idempotent: the run ID is
+ * derived from the save itself, and a fingerprint of the migrated record is
+ * remembered, so the same record is never migrated twice (even if the player
+ * later deletes the migrated run). The original is LEFT IN PLACE so a code
+ * rollback can still read the pre-migration save; if older code writes a new
+ * record there later, that new record migrates as its own run.
  * @returns {{ status: 'none'|'migrated'|'already'|'unreadable'|'failed', runId? }}
  */
 export function migrateLegacyLocal() {
     const raw = read(LOCAL_SAVE_KEY);
     if (raw == null) return { status: 'none' };
+    const markers = parse(read(MIGRATED_KEY)) || {};
+    const sig = `${raw.length}:${hash(raw)}`;
+    if (markers.localV1Sig === sig) return { status: 'already', runId: markers.localV1 };
     const rec = parse(raw);
     const gs = rec?.gameState;
     if (!gs || !validSnapshot(gs)) return { status: 'unreadable' };   // original kept untouched
     const runId = `lv1-${hash(`${rec.savedAt}|${gs.industryId}|${gs.snapshot?.state?.turn ?? gs.turn}|${gs.phase}`)}`;
-    const markers = parse(read(MIGRATED_KEY)) || {};
     if (getMeta(runId)) {
-        const check = loadRun(runId);
-        if (!check.error) { try { storage().removeItem(LOCAL_SAVE_KEY); } catch { /* ignore */ } }
+        write(MIGRATED_KEY, JSON.stringify({ ...markers, localV1: runId, localV1Sig: sig, at: now() }));
         return { status: 'already', runId };
     }
     const { grant, ambiguous } = legacyGrantFor(gs, rec.savedAt);
@@ -352,8 +379,7 @@ export function migrateLegacyLocal() {
     updateMeta(runId, { ...summarize(gs), localRev: 1, updatedAt: rec.savedAt || now() });
     const back = loadRun(runId);
     if (back.error) return { status: 'failed', runId };
-    write(MIGRATED_KEY, JSON.stringify({ ...markers, localV1: runId, at: now() }));
-    try { storage().removeItem(LOCAL_SAVE_KEY); } catch { /* ignore */ }
+    write(MIGRATED_KEY, JSON.stringify({ ...markers, localV1: runId, localV1Sig: sig, at: now() }));
     return { status: 'migrated', runId };
 }
 

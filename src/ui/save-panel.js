@@ -272,7 +272,7 @@ export function showConflict(runId, onChosen) {
 
 /* ── Another tab took over ────────────────────────────────────────────── */
 
-export function showTabLock({ onTakeOver }) {
+export function showTabLock({ onTakeOver, onKeepCopy = null }) {
     if (document.querySelector('.svp-tablock')) return;
     const dlg = document.createElement('dialog');
     dlg.className = 'svp-dialog svp-tablock';
@@ -280,14 +280,22 @@ export function showTabLock({ onTakeOver }) {
     dlg.innerHTML = `
         <div class="svp">
             <h2 class="svp-title" id="svp-tl-title">This campaign is open in another tab</h2>
-            <p>To keep your progress from being overwritten, this tab stopped saving. Everything up to your last save is kept.</p>
+            <p>To keep your progress from being overwritten, this tab stopped saving. Everything up to the last save is kept, and “Continue in this tab” picks up from there.</p>
+            ${onKeepCopy ? `<p>This tab also has progress that isn’t in that save. You can keep it as a separate campaign.</p>` : ''}
             <div class="svp-row">
                 <button type="button" class="svp-btn svp-btn--primary" data-tl="here">Continue in this tab</button>
+                ${onKeepCopy ? `<button type="button" class="svp-btn" data-tl="copy">Keep this tab’s progress as a copy</button>` : ''}
                 <a class="svp-btn svp-btn--ghost" href="/play">Back to the start page</a>
             </div>
+            <p class="svp-msg" role="status" aria-live="polite"></p>
         </div>`;
     document.body.appendChild(dlg);
     dlg.addEventListener('cancel', (e) => e.preventDefault());
     dlg.querySelector('[data-tl="here"]').addEventListener('click', () => { dlg.close(); dlg.remove(); onTakeOver?.(); });
+    dlg.querySelector('[data-tl="copy"]')?.addEventListener('click', (e) => {
+        const ok = onKeepCopy();
+        e.currentTarget.disabled = true;
+        dlg.querySelector('.svp-msg').textContent = ok ? 'Kept. It’s listed in Your campaigns on the start page.' : 'Couldn’t save a copy on this device (storage is full or blocked).';
+    });
     dlg.showModal();
 }

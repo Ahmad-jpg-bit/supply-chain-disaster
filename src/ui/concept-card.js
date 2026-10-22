@@ -64,10 +64,12 @@ export class ConceptCard {
 
     hide() {
         if (this.overlay) {
-            this.overlay.classList.remove('visible');
-            this.overlay.addEventListener('transitionend', () => {
-                this.overlay.remove();
-                this.overlay = null;
+            // Remove THIS overlay when it finishes fading — not whichever card is showing by then
+            const el = this.overlay;
+            el.classList.remove('visible');
+            el.addEventListener('transitionend', () => {
+                el.remove();
+                if (this.overlay === el) this.overlay = null;
             }, { once: true });
         }
     }

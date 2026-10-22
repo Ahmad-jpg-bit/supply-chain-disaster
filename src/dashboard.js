@@ -254,6 +254,9 @@ export class Dashboard {
             if (!this.runId || d.runId !== this.runId || this._standingDown) return;
             if ((d.type === 'claimed' && d.tabId !== this._tabId) || (d.type === 'written' && d.localRev > (this._tabRev ?? 0))) this._standDown();
         });
+        // Heartbeat: keep this tab's claim fresh so a crashed/frozen tab stops blocking others within ~90 s
+        setInterval(() => this._heartbeat(), RS.HEARTBEAT_MS);
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this._heartbeat(); });
         // Same signal through the storage event (fires in other tabs on every claim)
         window.addEventListener('storage', (e) => {
             if (!this.runId || this._standingDown || e.key !== `scd_run_lock:${this.runId}` || !e.newValue) return;
@@ -631,8 +634,9 @@ export class Dashboard {
         const s = this.engine.state;
         if (this._gameMode !== 'story' || !s.industry || !SAVEABLE_PHASES.includes(s.phase) || this._standingDown) return false;
         if (!this.runId) { this._localSaveError = 'blocked'; this._renderSaveStatus(); return false; }
-        // Backstop for missed tab messages: another tab has claimed this run since
-        const lock = RS.runLock(this.runId);
+        // Ownership is checked before every write (backstop for missed tab messages,
+        // and for a suspended tab waking after another tab took over — even if that claim is now stale)
+        const lock = RS.rawLock(this.runId);
         if (lock && lock.tabId !== this._tabId) { this._standDown(); return false; }
         const checkpoint = trigger === 'turn' || (trigger === 'phase' && s.phase === GAME_PHASES.CHAPTER_SUMMARY);
         const res = RS.saveRun(this.runId, this._snapshot(), { tabRev: this._tabRev, checkpoint });
@@ -673,12 +677,37 @@ export class Dashboard {
         el.dataset.state = st.local === 'failed' ? 'failed' : st.cloud;
     }
 
-    /** Another tab is playing this run: stop saving here (no silent overwrite). */
+    /** Refresh this tab's claim on its run; stand down if another tab has taken it. */
+    _heartbeat() {
+        if (!this.runId || this._standingDown || this._gameMode !== 'story') return;
+        if (!RS.touchRun(this.runId, this._tabId)) this._standDown();
+    }
+
+    /**
+     * Another tab is playing this run: stop saving here (no silent overwrite).
+     * If this tab holds progress the stored save doesn't have (e.g. it was
+     * suspended and the player kept going here), offer to keep it as a copy.
+     */
     _standDown() {
         if (this._standingDown) return;
         this._standingDown = true;
         clearTimeout(this._draftSaveTimer);
-        showTabLock({ onTakeOver: () => this._reloadRun(this.runId) });
+        const runId = this.runId;
+        let unsaved = null;
+        try {
+            const mine = this._snapshot();
+            const stored = RS.loadRun(runId);
+            if (!stored.error && JSON.stringify(stored.snapshot) !== JSON.stringify(mine)) unsaved = mine;
+        } catch { /* nothing to offer */ }
+        showTabLock({
+            onTakeOver: () => this._reloadRun(runId),
+            onKeepCopy: unsaved ? () => {
+                const m = RS.getMeta(runId);
+                const copy = RS.createRun({ industryId: unsaved.industryId, owner: 'guest', extra: { copyOf: runId, copyLabel: 'tab', legacyGrant: m?.legacyGrant || null } });
+                if (copy && RS.replaceRun(copy.runId, unsaved, { localRev: 1 }).ok) { track('save_copy_kept', { source: 'tab' }); return true; }
+                return false;
+            } : null,
+        });
     }
 
     /** Re-open a run from its latest saved state (after another tab or a conflict choice). */

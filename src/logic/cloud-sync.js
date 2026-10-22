@@ -224,7 +224,9 @@ export async function flush(runId) {
         if (loaded.error) return failOnce(runId, 'local_unreadable');
         const sentLocalRev = loaded.meta.localRev;
         const writeId = RS.newId('w');
-        RS.updateMeta(runId, { inflight: { writeId, sentLocalRev, expectedRev: m.cloudRev || 0 } });
+        // Remember this device's recent writes: a 409 caused by our own other tab isn't a conflict
+        const recentWrites = [...(m.recentWrites || []), { writeId, sentLocalRev }].slice(-6);
+        RS.updateMeta(runId, { inflight: { writeId, sentLocalRev, expectedRev: m.cloudRev || 0 }, recentWrites });
         const res = await api('PUT', '/api/cloud-runs', {
             runId, expectedRev: m.cloudRev || 0, writeId,
             meta: { ...pickMeta(loaded.meta), schema: RS.RUN_SCHEMA },
@@ -238,7 +240,17 @@ export async function flush(runId) {
             return;
         }
         RS.updateMeta(runId, { inflight: null });
-        if (res.status === 409 && res.body.error === 'conflict') return captureConflict(runId, res.body);
+        if (res.status === 409 && res.body.error === 'conflict') {
+            // Did another tab on THIS device write the newer revision? Then adopt it and resend — not a conflict.
+            const head = await api('GET', `/api/cloud-runs?id=${encodeURIComponent(runId)}&head=1`);
+            const mine = head.status === 200 && (RS.getMeta(runId)?.recentWrites || []).find(w => w.writeId === head.body.writeId);
+            if (mine) {
+                RS.ackSync(runId, { sentLocalRev: mine.sentLocalRev, rev: head.body.rev, updatedAt: head.body.updatedAt });
+                r.again = true;
+                return;
+            }
+            return captureConflict(runId, res.body);
+        }
         if (res.status === 410) {
             RS.updateMeta(runId, { cloudDeleted: true });
             track('cloud_sync_failed', { reason: 'deleted_elsewhere' }, `deleted:${runId}`);
@@ -369,6 +381,29 @@ export async function downloadRemote(c) {
     if (!meta) return { ok: false, error: 'storage' };
     const res = RS.replaceRun(c.runId, full.body.snapshot, { cloudRev: full.body.rev, lastSyncedAt: full.body.updatedAt, updatedAt: full.body.updatedAt, localRev: 1, ackedLocalRev: 1 });
     return res.ok ? { ok: true, runId: c.runId } : { ok: false, error: res.reason };
+}
+
+/**
+ * A run deleted from the cloud on another device, with progress still here:
+ * keep that progress as a NEW run (new ID — the deleted ID stays deleted, so
+ * nothing is silently resurrected). toCloud: sync the new run to the account.
+ */
+export function recoverDeleted(runId, { toCloud = false } = {}) {
+    const m = RS.getMeta(runId);
+    const loaded = RS.loadRun(runId);
+    if (!m || loaded.error) return { ok: false };
+    const cloud = toCloud && session.signedIn;
+    const copy = RS.createRun({
+        industryId: m.industryId, owner: cloud ? session.owner : 'guest',
+        extra: { createdAt: m.createdAt, recoveredFrom: runId, legacyGrant: m.legacyGrant || null, sent: m.sent || [] },
+    });
+    if (!copy) return { ok: false };
+    if (!RS.replaceRun(copy.runId, loaded.snapshot, { localRev: 1, ackedLocalRev: 0, cloudRev: 0 }).ok) { RS.deleteLocalRun(copy.runId); return { ok: false }; }
+    RS.deleteLocalRun(runId);
+    track('deleted_run_recovered', { to: cloud ? 'cloud' : 'device' });
+    if (cloud) schedule(copy.runId, 'urgent');
+    notify();
+    return { ok: true, runId: copy.runId };
 }
 
 /** Delete a run here and (if it's synced) in the cloud. */

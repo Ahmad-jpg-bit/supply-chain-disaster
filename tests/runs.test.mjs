@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { withSeed, scriptedChoices } from './helpers.mjs';
 
 process.env.SCD_DEV_MEMORY_STORE = '1';
-process.env.CLOUD_SAVE_SECRET = 'runs-test-secret';
+process.env.CLOUD_SAVE_ID_SECRET = 'runs-test-secret';
 delete process.env.KV_REST_API_URL;
 
 const { GameEngine, GAME_PHASES } = await import('../src/logic/engine.js');
@@ -58,6 +58,9 @@ async function device(name) {
     const CS = await import(`../src/logic/cloud-sync.js?device=${name}`);
     CS._setFetch(fetchFn);
     dev.CS = CS;
+    dev.fetchFn = fetchFn;
+    /** Another tab in this browser: same storage and cookies, its own sync module instance. */
+    dev.tab = async (tabName) => { const T = await import(`../src/logic/cloud-sync.js?device=${name}-${tabName}`); T._setFetch(fetchFn); await T.refreshSession(); return T; };
     dev.use = () => { RS._setStorage(storage); globalThis.localStorage = storage; return dev; };
     dev.signIn = async (email) => {
         dev.use();
@@ -165,14 +168,23 @@ test('legacy single save migrates once, keeps the original until the copy is sto
     d.storage.setItem(LOCAL_SAVE_KEY, rec);
     const first = RS.migrateLegacyLocal();
     assert.equal(first.status, 'migrated');
-    assert.equal(d.storage.getItem(LOCAL_SAVE_KEY), null);
+    assert.equal(d.storage.getItem(LOCAL_SAVE_KEY), rec, 'original left intact (rollback can still read it)');
     const meta = RS.getMeta(first.runId);
     assert.equal(meta.legacyGrant, 'local-pre-packaging');
     assert.equal(meta.turn, 6);
     assert.equal(meta.phase, GAME_PHASES.PROCUREMENT);
-    // Same save appearing again (e.g. restored by an old tab) → same run, no duplicate
-    d.storage.setItem(LOCAL_SAVE_KEY, rec);
+    // Running again (every page load) → same run, no duplicate — even after the player deletes it
     assert.equal(RS.migrateLegacyLocal().status, 'already');
+    assert.equal(RS.visibleRuns().length, 1);
+    RS.deleteLocalRun(first.runId);
+    assert.equal(RS.migrateLegacyLocal().status, 'already');
+    assert.equal(RS.visibleRuns().length, 0, 'a deleted migrated run is not resurrected');
+    // Lost marker (e.g. storage partly cleared) → deterministic ID still prevents duplicates
+    RS.migrateLegacyLocal();
+    d.storage.removeItem('scd_runs_migrated');
+    d.storage.setItem(LOCAL_SAVE_KEY, rec);
+    const again = RS.migrateLegacyLocal();
+    assert.ok(['migrated', 'already'].includes(again.status));
     assert.equal(RS.visibleRuns().length, 1);
     // Unreadable legacy data is left alone
     d.storage.setItem(LOCAL_SAVE_KEY, '{oops');
@@ -385,3 +397,179 @@ test('saving an unchanged snapshot is not a new revision (no phantom pending syn
     assert.equal(RS.getMeta(r.runId).localRev, first.meta.localRev);
     d.storage.clear();
 });
+
+/* ── Release-readiness regressions (2026-10-22) ──────────────────────── */
+
+test('crashed tab: its claim stops blocking other tabs within the stale window; a fresh claim still does', async () => {
+    const d = await device('crash');
+    await d.signIn('crash@x.io');
+    d.use();
+    const run = RS.createRun({ industryId: 'fmcg', owner: d.CS.getSession().owner });
+    RS.saveRun(run.runId, snapAt('fmcg', 2, GAME_PHASES.STORY));
+    d.CS.setTabId('tab-new');
+    // The playing tab crashed 2 minutes ago (no release, no heartbeat since)
+    d.storage.setItem(`scd_run_lock:${run.runId}`, JSON.stringify({ tabId: 'tab-dead', at: Date.now() - 120_000 }));
+    d.requests.length = 0;
+    await d.CS.flush(run.runId);
+    assert.ok(d.requests.some(r => r.startsWith('PUT')), 'pending progress synced without waiting');
+    assert.equal(RS.isPending(RS.getMeta(run.runId)), false);
+    // A live tab (fresh heartbeat) keeps ownership of syncing
+    RS.saveRun(run.runId, snapAt('fmcg', 3, GAME_PHASES.STORY));
+    d.storage.setItem(`scd_run_lock:${run.runId}`, JSON.stringify({ tabId: 'tab-live', at: Date.now() - 5_000 }));
+    d.requests.length = 0;
+    await d.CS.flush(run.runId);
+    assert.ok(!d.requests.some(r => r.startsWith('PUT')));
+    d.CS.setTabId(null);
+});
+
+test('suspended tab: after another tab takes over, its heartbeat and writes are refused even if that claim is stale', async () => {
+    const d = (await device('suspend')).use();
+    const run = RS.createRun({ industryId: 'fmcg' });
+    const first = RS.saveRun(run.runId, snapAt('fmcg', 2, GAME_PHASES.STORY), { tabRev: 0 });
+    RS.claimRun(run.runId, 'tab-A');
+    assert.equal(RS.touchRun(run.runId, 'tab-A'), true);
+    // Tab A is suspended; tab B continues the run and saves, then goes quiet (its claim goes stale)
+    RS.claimRun(run.runId, 'tab-B');
+    RS.saveRun(run.runId, snapAt('fmcg', 3, GAME_PHASES.STORY), { tabRev: first.meta.localRev });
+    d.storage.setItem(`scd_run_lock:${run.runId}`, JSON.stringify({ tabId: 'tab-B', at: Date.now() - 600_000 }));
+    // Tab A wakes: heartbeat says "not yours", the pre-write ownership check (raw claim) agrees,
+    // and the revision guard refuses its stale write
+    assert.equal(RS.touchRun(run.runId, 'tab-A'), false);
+    assert.equal(RS.rawLock(run.runId).tabId, 'tab-B');
+    assert.equal(RS.saveRun(run.runId, snapAt('fmcg', 2, GAME_PHASES.PROCUREMENT), { tabRev: first.meta.localRev }).reason, 'stale_tab');
+    assert.equal(RS.loadRun(run.runId).snapshot.snapshot.state.turn, 3, 'tab B progress kept');
+    d.storage.clear();
+});
+
+test('two tabs of one device syncing the same run at once never produce a false conflict', async () => {
+    const d = await device('twotabs');
+    await d.signIn('twotabs@x.io');
+    d.use();
+    const run = RS.createRun({ industryId: 'pharma', owner: d.CS.getSession().owner });
+    RS.saveRun(run.runId, snapAt('pharma', 2, GAME_PHASES.STORY));
+    await d.CS.flush(run.runId);
+    const other = await d.tab('t2');
+    RS.saveRun(run.runId, snapAt('pharma', 3, GAME_PHASES.STORY));
+    await Promise.all([d.CS.flush(run.runId), other.flush(run.runId)]);
+    await d.CS.flush(run.runId);
+    await other.flush(run.runId);
+    const m = RS.getMeta(run.runId);
+    assert.equal(Boolean(m.conflict), false, 'no conflict between tabs of the same device');
+    assert.equal(RS.isPending(m), false);
+    assert.equal(RS.readConflictCopy(run.runId), null);
+});
+
+test('delete everywhere while another device is offline with edits: the run is not resurrected; progress can be kept as a NEW run', async () => {
+    const A = await device('delA');
+    const B = await device('delB');
+    await A.signIn('gone@x.io');
+    await B.signIn('gone@x.io');
+    A.use();
+    const run = RS.createRun({ industryId: 'fmcg', owner: A.CS.getSession().owner });
+    RS.saveRun(run.runId, snapAt('fmcg', 2, GAME_PHASES.STORY));
+    await A.CS.flush(run.runId);
+    B.use();
+    await B.CS.downloadRemote((await B.CS.reconcile()).remoteOnly[0]);
+    // B goes offline and keeps playing (pending upload, possibly a request in flight)
+    B.online = false;
+    RS.saveRun(run.runId, snapAt('fmcg', 4, GAME_PHASES.PROCUREMENT));
+    await B.CS.flush(run.runId);
+    const inflight = RS.getMeta(run.runId).inflight;
+    // A deletes everywhere
+    A.use();
+    assert.equal((await A.CS.deleteEverywhere(run.runId)).ok, true);
+    // B reconnects
+    B.use();
+    B.online = true;
+    await B.CS.flush(run.runId);
+    const mb = RS.getMeta(run.runId);
+    assert.equal(mb.cloudDeleted, true, 'B learns the run was deleted');
+    assert.equal(RS.loadRun(run.runId).snapshot.snapshot.state.turn, 4, 'B progress still on B');
+    B.requests.length = 0;
+    await B.CS.flush(run.runId);
+    assert.ok(!B.requests.some(r => r.startsWith('PUT')), 'B stops sending writes for the deleted run');
+    // Requests that arrive late (sent before the delete, or retried after it) also fail
+    const base = { runId: run.runId, meta: { industryId: 'fmcg' }, snapshot: snapAt('fmcg', 4, GAME_PHASES.PROCUREMENT) };
+    assert.equal((await runsHandlerCallAs(B, { method: 'PUT', body: { ...base, expectedRev: mb.cloudRev, writeId: 'w-late-00001' } })).status, 410, 'delayed write');
+    assert.equal((await runsHandlerCallAs(B, { method: 'PUT', body: { ...base, expectedRev: 0, writeId: 'w-late-00002' } })).status, 410, 'write as if new');
+    if (inflight) assert.equal((await runsHandlerCallAs(B, { method: 'PUT', body: { ...base, expectedRev: inflight.expectedRev, writeId: inflight.writeId } })).status, 410, 'retry of the original request');
+    A.use();
+    assert.equal((await A.CS.reconcile()).remoteOnly.length, 0, 'not recreated');
+    // B deliberately keeps its progress — as a new cloud run with a new ID
+    B.use();
+    const rec = B.CS.recoverDeleted(run.runId, { toCloud: true });
+    assert.equal(rec.ok, true);
+    assert.notEqual(rec.runId, run.runId);
+    assert.equal(RS.getMeta(run.runId), null);
+    await B.CS.flush(rec.runId);
+    assert.equal(RS.isPending(RS.getMeta(rec.runId)), false);
+    A.use();
+    const seen = (await A.CS.reconcile()).remoteOnly.map(r => r.runId);
+    assert.deepEqual(seen, [rec.runId], 'only the new run exists; the deleted one stays deleted');
+});
+
+test('old email backup: imported once per source (repeat = no duplicate), pre-packaging grant only from the server timestamp', async () => {
+    const { defaultStore } = await import('../lib/billing/store.js');
+    const store = await defaultStore();
+    const savedAt = Date.parse('2026-09-30T12:00:00Z');
+    await store.set('game:legacy@x.io', { email: 'legacy@x.io', savedAt, version: 1, gameState: { industryId: 'pharma', chapterIndex: 2, turn: 13, maxTurns: 40, cash: 4321, inventory: 10, backlog: 0, inTransit: [] } });
+    const d = await device('legacyimp');
+    await d.signIn('legacy@x.io');
+    d.use();
+    assert.equal(d.CS.getSession().legacy.preLaunch, true);
+    const r1 = await d.CS.importLegacy();
+    assert.equal(r1.ok, true);
+    const m = RS.getMeta(r1.runId);
+    assert.equal(m.legacyGrant, 'cloud-pre-packaging');
+    assert.equal(m.format, 'v1-chapter-end', 'kept as a chapter-end save (resumes at the next chapter)');
+    const again = RS.importRun({ gameState: RS.loadRun(r1.runId).snapshot, owner: m.owner, sourceKey: `${d.CS.getSession().owner}:${savedAt}:pharma` });
+    assert.equal(again.existed, true, 'same source gives the same run');
+    assert.equal(RS.visibleRuns(d.CS.getSession().owner).filter(x => x.importedFrom === 'cloud-legacy').length, 1);
+    assert.equal((await d.CS.importLegacy()).ok, false, 'copy dismissed after import, nothing to import twice');
+    assert.ok(await store.get('game:legacy@x.io'), 'original record intact');
+});
+
+test('attaching a guest campaign to an account adds a run; it never replaces an existing cloud run', async () => {
+    const A = await device('attachA');
+    await A.signIn('attach@x.io');
+    A.use();
+    const existing = RS.createRun({ industryId: 'fmcg', owner: A.CS.getSession().owner });
+    RS.saveRun(existing.runId, snapAt('fmcg', 5, GAME_PHASES.STORY));
+    await A.CS.flush(existing.runId);
+    const B = await device('attachB');
+    B.use();
+    const guest = RS.createRun({ industryId: 'fmcg' });
+    RS.saveRun(guest.runId, snapAt('fmcg', 2, GAME_PHASES.STORY));
+    await B.signIn('attach@x.io');
+    B.use();
+    assert.equal(B.CS.adoptRun(guest.runId), true);
+    await B.CS.flush(guest.runId);
+    const runs = (await B.CS.reconcile()).remoteOnly.map(r => r.runId);
+    assert.deepEqual(runs, [existing.runId], 'the existing cloud run is still there (and new to this device)');
+    A.use();
+    const fromA = (await A.CS.reconcile()).remoteOnly.map(r => r.runId);
+    assert.deepEqual(fromA, [guest.runId]);
+    assert.equal(RS.loadRun(existing.runId).snapshot.snapshot.state.turn, 5);
+});
+
+test('storage provider failure: the API reports an error, the player sees pending, local progress is safe, then it syncs', async () => {
+    const d = await device('kvdown');
+    await d.signIn('kvdown@x.io');
+    d.use();
+    const { defaultStore } = await import('../lib/billing/store.js');
+    const store = await defaultStore();
+    const run = RS.createRun({ industryId: 'fmcg', owner: d.CS.getSession().owner });
+    RS.saveRun(run.runId, snapAt('fmcg', 2, GAME_PHASES.STORY));
+    const realSet = store.set;
+    store.set = async () => { throw new Error('ETIMEDOUT'); };
+    try { await d.CS.flush(run.runId); } finally { store.set = realSet; }
+    assert.equal(d.CS.statusFor(RS.getMeta(run.runId)).cloud, 'pending');
+    assert.equal(RS.loadRun(run.runId).snapshot.snapshot.state.turn, 2);
+    await d.CS.flush(run.runId);
+    assert.equal(d.CS.statusFor(RS.getMeta(run.runId)).cloud, 'synced');
+});
+
+async function runsHandlerCallAs(dev, { method, body }) {
+    const r = await dev.fetchFn('/api/cloud-runs', { method, headers: { 'x-scd-client': '1', 'Content-Type': 'application/json', 'x-scd-csrf': dev.CS.getSession().csrf }, body: JSON.stringify(body) });
+    return { status: r.status, body: await r.json() };
+}
