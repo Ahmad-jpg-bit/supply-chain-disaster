@@ -63,21 +63,29 @@ Every progress event also carries:
 
 ## GA4 setup (one-time)
 
-In **Admin → Custom definitions**, register these as **event-scoped custom
-dimensions**:
-- `run_id`
-- `chapter`
-- `turn`
-- `phase`
-- `cloud`
-- `access`
-- `reason`
-- `trigger`
-- `snapshot_version`
+In **Admin → Custom definitions → Create custom dimension**, scope **Event**,
+register exactly these (dimension name = event parameter):
 
-Without this step they don't appear in Explorations. The BigQuery export
-includes them either way. Note that GA4 caps event-scoped custom dimensions at
-50 per property.
+| Dimension | Event parameter | Values |
+|---|---|---|
+| Chapter | `chapter` | 1–10 |
+| Turn | `turn` | 1–40 (quarter number in the campaign) |
+| Start chapter | `start_chapter` | 1–10 (on `run_started`, `game_start`) |
+| Save phase | `phase` | `PHASE_CHAPTER_INTRO`, `PHASE_STORY`, `PHASE_PROCUREMENT`, `PHASE_CHAPTER_SUMMARY`, `PHASE_GAME_OVER` |
+| Save mode | `cloud` | `device` (guest, saved in this browser) / `verified` (signed in to cloud saves) |
+| Access tier | `access` | `free` / `core` / `pre_packaging` |
+| Industry | `industry_id` | `fmcg` / `pharma` / `electronics` |
+| Error reason | `reason` | e.g. `quota`, `blocked`, `network`, `http_500`, `deleted_elsewhere`, `missing`, `corrupt` |
+| Save trigger | `trigger` | `choice`, `turn`, `phase`, `draft`, `manual`, `hidden`, `navigate`, `resume`, `run_created` |
+| Snapshot version | `snapshot_version` | `1` (old chapter-end save) / `2` |
+
+**Do not register `run_id`.** It's a random, unique-per-campaign identifier:
+as a report dimension it's high-cardinality, collapses into "(other)" and adds
+nothing to GA4 reports. It's sent so the BigQuery export can count unique
+campaigns. It isn't linked to the player's email or account. If a player asks
+for deletion, GA4's user-deletion tools cover it with the rest of their events.
+
+GA4 allows 50 event-scoped custom dimensions per property; this uses 10.
 
 ## Funnel steps (unique `run_id`)
 
@@ -182,6 +190,10 @@ To split Chapter 2 by access tier, group by `access_at_ch2` on the rows where
 **Funnel exploration**, open funnel off:
 - Steps 1–7 as in the table above, each as event name plus parameter condition.
 - Breakdown: `cloud`, or `access` from the custom dimensions.
-- Count users by "Event count" uniqueness on `run_id`, if your property allows a
-  custom unique dimension. Otherwise use BigQuery: GA4 funnels count users, not
-  runs, and one player can have several runs.
+- GA4 funnels count **users**, not campaigns: one player can have several
+  runs, and replaying creates a new run. Use the Exploration for direction and
+  the BigQuery query above for unique-run counts.
+- **Saves are not progress.** A run saves many times per quarter (choices,
+  phases, drafts), so never count save events or cloud records as "players who
+  reached chapter N". Use `chapter_started` (reached) and `chapter_completed`
+  (completed), which fire once per run per chapter.
