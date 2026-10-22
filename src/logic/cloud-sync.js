@@ -43,7 +43,12 @@ const readHint = () => { try { return JSON.parse(localStorage.getItem(HINT_KEY) 
 const writeHint = (h) => { try { h ? localStorage.setItem(HINT_KEY, JSON.stringify(h)) : localStorage.removeItem(HINT_KEY); } catch { /* ignore */ } };
 
 /** Owner tag to use for listing before the session check returns (display only). */
-export function ownerTag() { return session.signedIn ? session.owner : (session.known ? null : readHint()?.owner || null); }
+export function ownerTag() {
+    if (session.signedIn) return session.owner;
+    // Unknown yet, or cloud saves switched off server-side: keep showing this browser's account runs
+    if (!session.known || !session.available) return readHint()?.owner || null;
+    return null;
+}
 export const getSession = () => ({ ...session, hint: readHint() });
 
 async function api(method, path, body) {
@@ -149,6 +154,7 @@ export function statusFor(meta) {
         const rt = runtime.get(meta.runId);
         if (meta.conflict) cloud = 'conflict';
         else if (meta.cloudDeleted) cloud = 'deleted';
+        else if (session.known && !session.available) cloud = 'unavailable';
         else if (!session.signedIn || session.owner !== meta.owner) cloud = 'signin';
         else if (rt?.inflight) cloud = 'syncing';
         else if (RS.isPending(meta)) cloud = 'pending';
@@ -168,6 +174,7 @@ export function statusText(local, cloud) {
         case 'signin': return 'Saved on this device. Sign in again to sync.';
         case 'conflict': return 'Saved on this device. This campaign also changed on another device — choose a version.';
         case 'deleted': return 'Saved on this device. This campaign was deleted from the cloud on another device.';
+        case 'unavailable': return 'Saved on this device. Cloud saves are paused right now — this campaign syncs when they’re back.';
         default: return local === 'saved' ? 'Saved on this device.' : '';
     }
 }

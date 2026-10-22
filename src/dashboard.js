@@ -670,7 +670,7 @@ export class Dashboard {
         const meta = this.runId ? RS.getMeta(this.runId) : null;
         const st = CS.statusFor(meta ? { ...meta, localError: this._localSaveError || null } : { localError: this._localSaveError, localRev: 0 });
         const short = st.local === 'failed' ? 'Not saved on this device'
-            : ({ syncing: 'Syncing…', synced: 'Saved · synced', pending: 'Saved · sync pending', signin: 'Saved · sign in to sync', conflict: 'Saved · choose a version', deleted: 'Saved on this device' }[st.cloud]
+            : ({ syncing: 'Syncing…', synced: 'Saved · synced', pending: 'Saved · sync pending', signin: 'Saved · sign in to sync', conflict: 'Saved · choose a version', deleted: 'Saved on this device', unavailable: 'Saved · cloud paused' }[st.cloud]
                || (st.local === 'saved' ? 'Saved on this device' : ''));
         el.textContent = short;
         el.title = st.text;

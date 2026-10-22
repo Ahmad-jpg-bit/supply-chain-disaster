@@ -260,6 +260,7 @@ function slowStore() {
         set: async (k, v, o) => { await lag(); return s.set(k, v, o); },
         del: async (k) => { await lag(); return s.del(k); },
         incr: async (k, t) => { await lag(); return s.incr(k, t); },
+        commitIfOwner: async (args) => { await lag(); return s.commitIfOwner(args); },
         _map: s._map,
     };
 }
@@ -300,7 +301,7 @@ test('retention: snapshots and index expire 12 months after the last sync; sessi
     const year = 365 * 86400 * 1000, month = 30 * 86400 * 1000;
     const near = (exp, ms) => Math.abs(exp - (Date.now() + ms)) < 60_000;
     const entries = [...deps.store._map.entries()];
-    const blob = entries.find(([k]) => k.startsWith('sv:run:') && k.endsWith(':run-ttl-0001:1'));
+    const blob = entries.find(([k]) => k.startsWith('sv:run:') && k.endsWith(':run-ttl-0001:w-ttl-00001'));
     const index = entries.find(([k]) => k.startsWith('sv:idx:'));
     const session = entries.find(([k]) => k.startsWith('sv:sess:'));
     assert.ok(blob && near(blob[1].exp, year), 'snapshot: 12 months');
@@ -320,4 +321,110 @@ test('superseded snapshots are cleaned up; only the current revision and one che
     assert.equal(blobs.length, 2, blobs.join(' '));
     const cp = await svc.getCheckpoint(deps, as(a), { runId: 'run-gc-00001' });
     assert.equal(cp.body.rev, 3, 'checkpoint = last revision of Chapter 1');
+});
+
+/* ── Real KV client semantics, stale writers, kill switch, expiry ───── */
+
+/**
+ * Stand-in for @upstash/redis 1.25 (what @vercel/kv uses): strings, numbers
+ * and booleans are sent as-is, objects as JSON; reads JSON.parse and fall back
+ * to the raw string. eval mirrors the COMMIT_IF_OWNER contract (the Lua itself
+ * is executed in a Lua VM separately).
+ */
+function fakeUpstash() {
+    const m = new Map();
+    const ser = (v) => (['string', 'number', 'boolean'].includes(typeof v) ? String(v) : JSON.stringify(v));
+    const de = (v) => { if (v == null) return null; try { return JSON.parse(v); } catch { return v; } };
+    return {
+        async get(k) { return de(m.get(k) ?? null); },
+        async set(k, v, o = {}) { if (o.nx && m.has(k)) return null; m.set(k, ser(v)); return 'OK'; },
+        async del(k) { m.delete(k); return 1; },
+        async incr(k) { const n = Number(m.get(k) || 0) + 1; m.set(k, String(n)); return n; },
+        async expire() { return 1; },
+        async eval(_script, [lockKey, verKey, idxKey], [token, expected, value]) {
+            if (m.get(lockKey) !== token) return 'lost_lock';
+            const v = Number(m.get(verKey) || '0');
+            if (v !== Number(expected)) return 'version_moved';
+            m.set(idxKey, value); m.set(verKey, String(v + 1));
+            return 'ok';
+        },
+        _m: m,
+    };
+}
+
+test('KV adapter against the real client semantics: string values (owner ID, lock token) survive a round trip', async () => {
+    const { kvStore } = await import('../lib/billing/store.js');
+    const raw = fakeUpstash();
+    const store = kvStore(raw);
+    await store.set('k:str', 'AbC123-owner');
+    await store.set('k:obj', { a: 1, s: 'x' });
+    assert.equal(await store.get('k:str'), 'AbC123-owner');
+    assert.deepEqual(await store.get('k:obj'), { a: 1, s: 'x' });
+    assert.equal(await store.incr('k:n', 60), 1);
+    assert.equal(await store.get('k:n'), 1);
+    assert.equal(await store.set('k:str', 'other', { nx: true }), null, 'NX refuses an existing key');
+    // The whole cloud flow on the real-client semantics
+    const mail = [];
+    const deps = { store, sendCode: async (to, code) => { mail.push({ to, code }); }, cfg: { secret: 'kv-sem', previousSecrets: [], origins: new Set([ORIGIN]), devInsecureCookies: false } };
+    const a = await signIn(deps, mail, 'kv@x.io');
+    assert.equal((await put(deps, a, 'run-kv-00001', 0, 'w-kv-000001')).status, 200);
+    assert.equal((await put(deps, a, 'run-kv-00001', 1, 'w-kv-000002', 'fmcg', 3)).status, 200);
+    assert.equal((await put(deps, a, 'run-kv-00001', 1, 'w-kv-000003')).status, 409);
+    assert.equal((await svc.getRun(deps, as(a), { runId: 'run-kv-00001' })).body.snapshot.turn, 3);
+    const again = await signIn(deps, mail, 'kv@x.io', '30.0.0.2');
+    assert.equal(again.owner, a.owner, 'owner mapping (a string) is read back correctly');
+    assert.equal((await svc.deleteRun(deps, as(a), { runId: 'run-kv-00001', expectedRev: 2 })).body.deleted, true);
+    assert.equal([...raw._m.keys()].some(k => k.startsWith('sv:lock:')), false, 'locks released');
+});
+
+test('a writer whose lock expired cannot replace the index committed by a newer writer', async () => {
+    const { deps, mail } = setup();
+    const base = deps.store;
+    let release;
+    const gate = new Promise(r => { release = r; });
+    let reachedGate;
+    const atGate = new Promise(r => { reachedGate = r; });
+    // Pause writer A right after it stored its snapshot (inside its lock, before committing)
+    deps.store = { ...base, set: async (k, v, o) => { const r = await base.set(k, v, o); if (k.endsWith(':w-stale-0001')) { reachedGate(); await gate; } return r; } };
+    const a = await signIn(deps, mail, 'stale@x.io');
+    await put(deps, a, 'run-stale-01', 0, 'w-base-00001');
+    const pA = put(deps, a, 'run-stale-01', 1, 'w-stale-0001', 'fmcg', 50);
+    await atGate;
+    // A's lock expires while it is paused; B takes the lock and commits
+    for (const k of [...base._map.keys()]) if (k.startsWith('sv:lock:')) base._map.delete(k);
+    const rB = await put(deps, a, 'run-stale-01', 1, 'w-fresh-0001', 'fmcg', 60);
+    assert.equal(rB.status, 200);
+    release();
+    const rA = await pA;
+    assert.equal(rA.status, 503, 'stale writer refused at commit');
+    const now = await svc.getRun(deps, as(a), { runId: 'run-stale-01' });
+    assert.equal(now.body.rev, 2);
+    assert.equal(now.body.writeId, 'w-fresh-0001');
+    assert.equal(now.body.snapshot.turn, 60, 'the committed snapshot is the newer writer\'s');
+});
+
+test('kill switch: CLOUD_SAVES_ENABLED=false turns every cloud endpoint off and keeps all data', async () => {
+    const { deps, mail } = setup();
+    const a = await signIn(deps, mail, 'switch@x.io');
+    await put(deps, a, 'run-switch-1', 0, 'w-switch-001');
+    const off = { ...deps, cfg: { ...deps.cfg, enabled: false } };
+    assert.equal((await svc.requestCode(off, anon(), { email: 'switch@x.io' })).body.error, 'disabled');
+    assert.equal((await svc.listRuns(off, as(a))).body.error, 'disabled');
+    assert.equal((await svc.getRun(off, as(a), { runId: 'run-switch-1' })).body.error, 'disabled');
+    assert.equal((await put(off, a, 'run-switch-1', 1, 'w-switch-002')).body.error, 'disabled');
+    assert.equal((await svc.deleteRun(off, as(a), { runId: 'run-switch-1' })).body.error, 'disabled');
+    assert.deepEqual((await svc.sessionStatus(off, as(a))).body, { signedIn: false, available: false });
+    // Switched back on: same session, same data
+    const list = await svc.listRuns(deps, as(a));
+    assert.equal(list.status, 200);
+    assert.equal(list.body.runs[0].runId, 'run-switch-1');
+});
+
+test('retention: a run not synced for 12 months is no longer listed or readable', async () => {
+    const { deps, mail } = setup();
+    const a = await signIn(deps, mail, 'old@x.io', '31.0.0.1');
+    await put(deps, a, 'run-old-0001', 0, 'w-old-00001');
+    const later = { ...deps, now: Date.now() + 366 * 86400 * 1000 };
+    assert.equal((await svc.listRuns(later, as(a))).body.runs.length, 0);
+    assert.equal((await svc.getRun(later, as(a), { runId: 'run-old-0001' })).status, 404);
 });

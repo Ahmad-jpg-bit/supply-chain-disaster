@@ -91,6 +91,7 @@ export class SavePanel {
             signin: 'Sign in again to sync this campaign.',
             conflict: 'Changed on another device — choose which version to keep.',
             deleted: 'Deleted from the cloud on another device.',
+            unavailable: 'Cloud saves are paused right now. This campaign syncs automatically when they’re back.',
         }[st.cloud] || '');
         const localLine = !meta ? '' : (meta.localError
             ? `Could not save on this device (storage is full or blocked). Keep this tab open${signedIn && meta.cloud ? ' — your last synced copy is in the cloud' : ', or turn on cloud saves'}.`

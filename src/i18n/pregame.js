@@ -65,6 +65,7 @@ const STRINGS = {
         'runs.sync.signin': 'Saved here · sign in again to sync',
         'runs.sync.conflict': 'Changed on two devices',
         'runs.sync.deleted': 'Deleted from the cloud',
+        'runs.sync.unavailable': 'Saved here · cloud saves paused',
         'runs.legacy.eyebrow': 'Old email backup',
         'runs.legacy.chapter': 'saved after Chapter {chapter}',
         'runs.legacy.body': 'A saved game from the previous email backup for this address ({when}). Import it as a campaign in your cloud saves.',
