@@ -51,6 +51,7 @@ export default defineConfig({
                 blog: resolve(__dirname, 'blog.html'),
                 contact: resolve(__dirname, 'contact.html'),
                 success: resolve(__dirname, 'success.html'),
+                'admin-reviews': resolve(__dirname, 'admin-reviews.html'),
                 pricing: resolve(__dirname, 'pricing.html'),
                 terms: resolve(__dirname, 'terms.html'),
                 privacy: resolve(__dirname, 'privacy.html'),

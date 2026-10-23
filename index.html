@@ -18,17 +18,6 @@
   <!-- Impact.com site verification -->
   <meta name="impact-site-verification" value="b85afc32-620d-484c-81e5-cbabb9b2115a" />
 
-  <!-- Flag scroll-reveal before first paint so entrance animations never flash.
-       No JS / reduced-motion → class absent → all content shows normally. -->
-  <script>
-    (function () {
-      try {
-        if (!window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          document.documentElement.classList.add('reveal-ready');
-        }
-      } catch (e) { /* no-op: content stays visible */ }
-    })();
-  </script>
 
   <!-- Primary SEO -->
   <title>Supply Chain Disaster | Supply Chain Management Simulation Game</title>
@@ -286,44 +275,45 @@
 
   <style>
     /* ── Design tokens ─────────────────────────────────────────────────── */
-    /* Premium dark palette. Green = go / positive / free-CTA. Amber = brand
-       accent, warnings, and the paid/premium CTA. Red = disruption only —
-       never a clickable action. See CLAUDE.md for the token rationale. */
+    /* 2026-10 navy palette (homepage only — the game and other pages keep their
+       own tokens). Contrast checked against --scd-bg / --scd-surface /
+       --scd-surface-elevated: primary 13–17:1, secondary ≥6.9:1, muted ≥4.9:1,
+       teal/sky/amber accents ≥5.6:1; dark ink on the teal CTA 10:1.
+       --scd-green = teal primary action (dark text on it); --scd-amber = sky-blue
+       secondary accent (name kept so existing rules keep working); --scd-warn =
+       amber warnings; --scd-red = disruption only, never a clickable action. */
     :root {
-      /* 2026 light SaaS palette. --scd-green → teal brand (primary CTAs,
-         positive/free actions); --scd-amber → SaaS action blue (secondary
-         accents, KPIs, upgrade CTA); --scd-red → danger. CTA text (--scd-ink)
-         is white on the teal/blue fills. Genuine network-sim status states
-         (normal/watch/disrupted) use literal green/amber/red further down. */
-      --scd-bg:              #f8fafc;
-      --scd-bg-secondary:    #f1f5f9;
-      --scd-surface:         #ffffff;
-      --scd-surface-elevated:#ffffff;
-      --scd-border:          #e2e8f0;
-      --scd-border-strong:   #cbd5e1;
+      --scd-bg:              #0B1220;
+      --scd-bg-secondary:    #0F1A2B;
+      --scd-surface:         #142235;
+      --scd-surface-elevated:#1A2B42;
+      --scd-border:          #24354D;
+      --scd-border-strong:   #3B4F6B;
 
-      --scd-text-primary:    #0f172a;
-      --scd-text-secondary:  #475569;
-      --scd-text-muted:      #64748b;
+      --scd-text-primary:    #F3F5F2;
+      --scd-text-secondary:  #A8B5C5;
+      --scd-text-muted:      #8B99AC;
 
-      --scd-amber:       #2563eb;
-      --scd-amber-hover: #1d4ed8;
-      --scd-green:       #0f766e;
-      --scd-green-hover: #115e59;
-      --scd-red:         #ef4444;
-      --scd-focus:       #0f766e;
-      --scd-ink:         #ffffff;   /* white text on the teal/blue CTA fills */
+      --scd-amber:       #60A5FA;
+      --scd-amber-hover: #93C5FD;
+      --scd-green:       #2DD4BF;
+      --scd-green-hover: #5EEAD4;
+      --scd-warn:        #FBBF24;
+      --scd-red:         #F87171;
+      --scd-focus:       #60A5FA;
+      --scd-ink:         #0B1220;   /* dark text on the teal/sky CTA fills */
 
-      /* Literal semantic status colors for the supply-chain network sim */
-      --scd-status-normal:  #16a34a;
-      --scd-status-watch:   #f59e0b;
-      --scd-status-down:    #ef4444;
+      --scd-status-normal:  #4ADE80;
+      --scd-status-watch:   #FBBF24;
+      --scd-status-down:    #F87171;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+      color-scheme: dark;
     }
 
     /* ── Reset & Base ──────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
+    html body {   /* beats the shared base.css body rule (light marketing default), which loads later */
       background: var(--scd-bg);
       color: var(--scd-text-primary);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -358,10 +348,10 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(11, 18, 32, 0.94);
       backdrop-filter: blur(16px) saturate(1.4);
       -webkit-backdrop-filter: blur(16px) saturate(1.4);
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--scd-border);
       box-shadow: var(--shadow-sm, 0 1px 2px rgba(15,23,42,0.05));
     }
     .hp-nav-inner {
@@ -379,7 +369,7 @@
       gap: 10px;
       font-weight: 600;
       font-size: 15px;
-      color: #0f172a;
+      color: var(--scd-text-primary);
       flex-shrink: 0;
     }
     .hp-nav-logo img {
@@ -396,22 +386,22 @@
     .hp-nav-links a {
       font-size: 14px;
       font-weight: 500;
-      color: #64748b;
+      color: var(--scd-text-muted);
       transition: color 0.2s;
     }
-    .hp-nav-links a:hover { color: #0f172a; }
+    .hp-nav-links a:hover { color: var(--scd-text-primary); }
     .hp-nav-cta {
       margin-left: 1.5rem;
       flex-shrink: 0;
       background: var(--scd-green);
-      color: #ffffff;
+      color: var(--scd-ink);
       font-weight: 700;
       font-size: 14px;
       padding: 8px 20px;
       border-radius: 6px;
       transition: background 0.2s;
     }
-    .hp-nav-cta:hover { background: var(--scd-green-hover); color: #ffffff; }
+    .hp-nav-cta:hover { background: var(--scd-green-hover); color: var(--scd-ink); }
 
     /* ── Shared section wrapper ────────────────────────────────────────── */
     .hp-section {
@@ -449,7 +439,7 @@
       align-items: center;
       gap: 6px;
       background: var(--scd-green);
-      color: #ffffff;
+      color: var(--scd-ink);
       font-weight: 700;
       font-size: 15px;
       padding: 13px 28px;
@@ -493,7 +483,7 @@
       width: 11px;
       height: 11px;
       padding: 6px;
-      color: #ffffff;
+      color: var(--scd-ink);
       background: var(--scd-green);
       border-radius: 50%;
     }
@@ -512,8 +502,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       color: var(--scd-amber);
       font-size: 10px;
       font-weight: 700;
@@ -568,7 +558,7 @@
     }
     .hp-stat + .hp-stat {
       padding-left: 1.25rem;
-      border-left: 1px solid #e2e8f0;
+      border-left: 1px solid var(--scd-border);
     }
     .hp-stat-val {
       font-size: 20px;
@@ -585,88 +575,11 @@
       color: var(--scd-text-muted);
     }
 
-    /* ── Terminal widget ───────────────────────────────────────────────── */
-    .hp-terminal-wrap { position: relative; }
-    .hp-terminal-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      color: #475569;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 12px;
-    }
-    .hp-terminal {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    }
-    .hp-terminal-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      background: #f1f5f9;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .hp-term-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .hp-term-dot--red   { background: #ff5f57; }
-    .hp-term-dot--amber { background: #febc2e; }
-    .hp-term-dot--green { background: #28c840; }
-    .hp-term-title {
-      margin-left: 8px;
-      font-size: 11px;
-      font-family: 'Courier New', Courier, monospace;
-      color: #64748b;
-      letter-spacing: 0.05em;
-    }
-    .hp-terminal-body {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .hp-term-line {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      line-height: 1.5;
-      color: #64748b;
-    }
-    .hp-term-tag {
-      flex-shrink: 0;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 5px;
-      border-radius: 3px;
-      letter-spacing: 0.06em;
-      margin-top: 1px;
-    }
-    .hp-term-line--warn   .hp-term-tag { background: rgba(245,158,11,0.14); color: #b45309; }
-    .hp-term-line--danger .hp-term-tag { background: rgba(239,68,68,0.12);  color: var(--scd-red); }
-    .hp-term-line--ok     .hp-term-tag { background: rgba(22,163,74,0.12);  color: #15803d; }
-    .hp-term-red  { color: var(--scd-red); }
-
     /* ── Social proof bar ──────────────────────────────────────────────── */
     .hp-social-proof {
-      border-top: 1px solid #e2e8f0;
-      border-bottom: 1px solid #e2e8f0;
-      background: #f1f5f9;
+      border-top: 1px solid var(--scd-border);
+      border-bottom: 1px solid var(--scd-border);
+      background: var(--scd-bg-secondary);
     }
     .hp-social-proof-inner {
       max-width: 1200px;
@@ -680,7 +593,7 @@
     }
     .hp-social-proof-label {
       font-size: 13px;
-      color: #64748b;
+      color: var(--scd-text-muted);
       font-weight: 500;
       flex-shrink: 0;
     }
@@ -695,10 +608,10 @@
       align-items: center;
       font-size: 12px;
       font-weight: 700;
-      color: #475569;
+      color: var(--scd-text-secondary);
       letter-spacing: 0.02em;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 999px;
       padding: 0.4rem 0.9rem;
     }
@@ -711,15 +624,15 @@
     }
     .hp-how-card {
       position: relative;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 12px;
       padding: 2rem;
       transition: border-color 0.2s, background 0.2s;
     }
     .hp-how-card:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border-color: var(--scd-text-primary);
     }
     .hp-how-card:not(:last-child)::after {
       content: '→';
@@ -727,7 +640,7 @@
       top: 50%;
       right: -1.7rem;
       transform: translateY(-50%);
-      color: #cbd5e1;
+      color: var(--scd-border-strong);
       font-size: 20px;
       line-height: 1;
     }
@@ -738,26 +651,26 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       color: var(--scd-green);
       font-size: 14px;
       font-weight: 700;
       margin-bottom: 1.25rem;
     }
     /* ASSESS → DECIDE → CONSEQUENCE colour progression (teal → blue → amber) */
-    .hp-how-card:nth-of-type(1) .hp-how-num { color: #0f766e; border-color: rgba(15,118,110,0.35); background: rgba(15,118,110,0.06); }
-    .hp-how-card:nth-of-type(2) .hp-how-num { color: #2563eb; border-color: rgba(37,99,235,0.35); background: rgba(37,99,235,0.06); }
-    .hp-how-card:nth-of-type(3) .hp-how-num { color: #b45309; border-color: rgba(245,158,11,0.40); background: rgba(245,158,11,0.08); }
+    .hp-how-card:nth-of-type(1) .hp-how-num { color: var(--scd-green); border-color: rgba(15,118,110,0.35); background: rgba(15,118,110,0.06); }
+    .hp-how-card:nth-of-type(2) .hp-how-num { color: var(--scd-amber); border-color: rgba(37,99,235,0.35); background: rgba(37,99,235,0.06); }
+    .hp-how-card:nth-of-type(3) .hp-how-num { color: var(--scd-warn); border-color: rgba(245,158,11,0.40); background: rgba(245,158,11,0.08); }
     .hp-how-title {
       font-size: 16px;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--scd-text-primary);
       margin-bottom: 0.5rem;
     }
     .hp-how-desc {
       font-size: 14px;
-      color: #475569;
+      color: var(--scd-text-secondary);
       line-height: 1.75;
     }
 
@@ -768,22 +681,22 @@
       gap: 1.5rem;
     }
     .hp-feat-card {
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 12px;
       padding: 2rem;
       transition: border-color 0.2s, background 0.2s;
     }
     .hp-feat-card:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border-color: var(--scd-text-primary);
     }
     .hp-feat-icon {
       width: 42px;
       height: 42px;
       border-radius: 10px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -811,16 +724,16 @@
     .hp-blog-card {
       display: flex;
       flex-direction: column;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 12px;
       padding: 1.75rem;
       text-decoration: none;
       transition: border-color 0.2s, background 0.2s, transform 0.2s;
     }
     .hp-blog-card:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border-color: var(--scd-text-primary);
       transform: translateY(-3px);
     }
     .hp-blog-tag {
@@ -830,8 +743,8 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--scd-amber);
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 999px;
       padding: 4px 10px;
       margin-bottom: 1rem;
@@ -839,14 +752,14 @@
     .hp-blog-title {
       font-size: 17px;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--scd-text-primary);
       line-height: 1.35;
       margin-bottom: 0.625rem;
     }
-    .hp-blog-card:hover .hp-blog-title { color: #0f172a; }
+    .hp-blog-card:hover .hp-blog-title { color: var(--scd-text-primary); }
     .hp-blog-desc {
       font-size: 14px;
-      color: #475569;
+      color: var(--scd-text-secondary);
       line-height: 1.7;
       margin-bottom: 1.25rem;
     }
@@ -857,7 +770,7 @@
       margin-top: auto;
       padding-top: 0.5rem;
     }
-    .hp-blog-date { font-size: 12px; color: #64748b; }
+    .hp-blog-date { font-size: 12px; color: var(--scd-text-muted); }
     .hp-blog-more { font-size: 13px; font-weight: 600; color: var(--scd-amber); }
     .hp-blog-cta { text-align: center; margin-top: 2.5rem; }
 
@@ -865,8 +778,8 @@
     .hp-founder {
       max-width: 760px;
       margin: 0 auto;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-left: 3px solid var(--scd-amber);
       border-radius: 14px;
       padding: 2.5rem 2.25rem;
@@ -874,18 +787,18 @@
     .hp-founder .hp-section-label { margin-bottom: 0.75rem; }
     .hp-founder-h2 {
       font-size: clamp(1.5rem, 2.4vw, 2rem);
-      color: #0f172a;
+      color: var(--scd-text-primary);
       line-height: 1.25;
       margin-bottom: 1.25rem;
     }
     .hp-founder-body p {
       font-size: 16px;
-      color: #64748b;
+      color: var(--scd-text-muted);
       line-height: 1.8;
       margin: 0 0 1rem;
     }
     .hp-founder-body p:last-child { margin-bottom: 0; }
-    .hp-founder-body em { color: #0f172a; font-style: italic; }
+    .hp-founder-body em { color: var(--scd-text-primary); font-style: italic; }
     .hp-founder-sign {
       margin-top: 1.5rem;
       font-size: 14px;
@@ -899,8 +812,8 @@
     /* ── For educators ─────────────────────────────────────────────────── */
     .hp-educators {
       background: var(--scd-bg-secondary);
-      border-top:    1px solid #e2e8f0;
-      border-bottom: 1px solid #e2e8f0;
+      border-top:    1px solid var(--scd-border);
+      border-bottom: 1px solid var(--scd-border);
     }
     .hp-edu-inner {
       max-width: 1200px;
@@ -944,7 +857,7 @@
       font-size: 12px;
       font-weight: 600;
       color: var(--scd-text-muted);
-      background: #f1f5f9;
+      background: var(--scd-bg-secondary);
       border: 1px solid var(--scd-border);
       border-radius: 999px;
       padding: 5px 12px;
@@ -954,8 +867,8 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -963,19 +876,19 @@
       color: var(--scd-green);
     }
     .hp-edu-visual {
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       border-radius: 12px;
       padding: 1.75rem 2rem;
       font-family: 'Courier New', Courier, monospace;
       font-size: 13px;
       line-height: 2;
-      color: #64748b;
+      color: var(--scd-text-muted);
     }
     .hp-edu-visual .cl-amber { color: var(--scd-amber); }
     .hp-edu-visual .cl-green { color: var(--scd-green); }
     .hp-edu-visual .cl-blue  { color: var(--scd-text-secondary); }
-    .hp-edu-visual .cl-muted { color: #64748b; }
+    .hp-edu-visual .cl-muted { color: var(--scd-text-muted); }
 
     /* ── Pricing ───────────────────────────────────────────────────────── */
     .hp-pricing-grid {
@@ -985,8 +898,8 @@
       align-items: start;
     }
     .hp-tier {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-surface);
+      border: 1px solid var(--scd-border);
       border-radius: 14px;
       box-shadow: 0 1px 2px rgba(15,23,42,0.05);
       padding: 1.75rem;
@@ -995,27 +908,27 @@
       flex-direction: column;
     }
     .hp-tier--popular {
-      border: 2px solid #0f766e;
-      background: #ffffff;
+      border: 2px solid var(--scd-green);
+      background: var(--scd-surface);
       box-shadow: 0 20px 40px rgba(15,118,110,0.12);
     }
     /* Institutions — dark navy slate card (B2B bookend) */
     .hp-tier--inst {
-      background: var(--scd-text-primary);
-      border-color: var(--dark-secondary, #1e293b);
+      background: var(--scd-surface-elevated);
+      border-color: var(--dark-secondary, var(--scd-border));
     }
-    .hp-tier--inst .hp-tier-name { color: #2dd4bf; }
-    .hp-tier--inst .hp-tier-amount { color: #ffffff; }
-    .hp-tier--inst .hp-tier-tagline { color: #94a3b8; border-bottom-color: rgba(255,255,255,0.12); }
-    .hp-tier--inst .hp-tier-features li { color: #cbd5e1; }
-    .hp-tier--inst .hp-tier-features .ic-check { color: #2dd4bf; }
+    .hp-tier--inst .hp-tier-name { color: var(--scd-green); }
+    .hp-tier--inst .hp-tier-amount { color: var(--scd-text-primary); }
+    .hp-tier--inst .hp-tier-tagline { color: var(--scd-text-muted); border-bottom-color: rgba(255,255,255,0.12); }
+    .hp-tier--inst .hp-tier-features li { color: var(--scd-text-secondary); }
+    .hp-tier--inst .hp-tier-features .ic-check { color: var(--scd-green); }
     .hp-tier--inst .hp-tier-cta--muted {
       border-color: rgba(255,255,255,0.28);
-      color: #e2e8f0;
+      color: var(--scd-text-secondary);
     }
     .hp-tier--inst .hp-tier-cta--muted:hover {
-      border-color: #2dd4bf;
-      color: #ffffff;
+      border-color: var(--scd-green);
+      color: var(--scd-text-primary);
       background: rgba(255,255,255,0.06);
     }
     .hp-tier-popular-badge {
@@ -1023,8 +936,8 @@
       top: -11px;
       left: 50%;
       transform: translateX(-50%);
-      background: linear-gradient(135deg, #0f766e, #2563eb);
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--scd-green), var(--scd-amber));
+      color: var(--scd-ink);
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -1036,7 +949,7 @@
     .hp-tier-name {
       font-size: 12px;
       font-weight: 700;
-      color: #475569;
+      color: var(--scd-text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       margin-bottom: 0.625rem;
@@ -1050,21 +963,21 @@
     .hp-tier-amount {
       font-size: 2.375rem;
       font-weight: 800;
-      color: #0f172a;
+      color: var(--scd-text-primary);
       line-height: 1;
     }
     .hp-tier-amount--accent { color: var(--scd-amber); }
     .hp-tier-period {
       font-size: 13px;
-      color: #64748b;
+      color: var(--scd-text-muted);
     }
     .hp-tier-tagline {
       font-size: 13px;
-      color: #475569;
+      color: var(--scd-text-secondary);
       margin-bottom: 1.375rem;
       line-height: 1.55;
       padding-bottom: 1.25rem;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid var(--scd-border);
     }
     .hp-tier-features {
       display: flex;
@@ -1078,13 +991,13 @@
       align-items: flex-start;
       gap: 8px;
       font-size: 13px;
-      color: #64748b;
+      color: var(--scd-text-muted);
       line-height: 1.5;
     }
     .hp-tier-features li svg { flex-shrink: 0; margin-top: 1px; }
     .hp-tier-features .ic-check { color: var(--scd-green); }
-    .hp-tier-features .ic-cross { color: #e2e8f0; }
-    .hp-tier-features .locked   { color: #e2e8f0; }
+    .hp-tier-features .ic-cross { color: var(--scd-text-muted); }
+    .hp-tier-features .locked   { color: var(--scd-text-muted); }
     .hp-tier-cta {
       display: block;
       width: 100%;
@@ -1098,37 +1011,38 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
     .hp-tier-cta--outline {
-      border: 1px solid #e2e8f0;
-      color: #64748b;
+      border: 1px solid var(--scd-border);
+      color: var(--scd-text-muted);
       background: transparent;
     }
-    .hp-tier-cta--outline:hover { border-color: #0f172a; color: #0f172a; }
+    .hp-tier-cta--outline:hover { border-color: var(--scd-text-primary); color: var(--scd-text-primary); }
     .hp-tier-cta--amber {
-      background: linear-gradient(135deg, #0f766e, #2563eb);
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--scd-green), var(--scd-amber));
+      color: var(--scd-ink);
       border: none;
       box-shadow: 0 8px 24px rgba(15,118,110,0.22);
     }
     .hp-tier-cta--amber:hover { filter: brightness(1.06); }
     .hp-tier-cta--green {
       background: linear-gradient(135deg, var(--scd-green), var(--scd-green-hover));
-      color: #fff;
+      color: var(--scd-ink);
       border: none;
       box-shadow: 0 6px 18px rgba(15,118,110,0.18);
     }
     .hp-tier-cta--green:hover { filter: brightness(1.08); }
     .hp-tier-cta--muted {
-      border: 1px solid #e2e8f0;
-      color: #475569;
+      border: 1px solid var(--scd-border);
+      color: var(--scd-text-secondary);
       background: transparent;
     }
-    .hp-tier-cta--muted:hover { border-color: #0f172a; color: #64748b; }
+    .hp-tier-cta--muted:hover { border-color: var(--scd-text-primary); color: var(--scd-text-muted); }
     .hp-tier-guarantee {
       font-size: 11px;
-      color: #64748b;
+      color: var(--scd-text-muted);
       text-align: center;
       margin-top: 0.625rem;
     }
+    .hp-tier-guarantee a { color: var(--scd-amber); }
 
     /* ── FAQ ───────────────────────────────────────────────────────────── */
     .hp-faq-list {
@@ -1141,12 +1055,12 @@
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       font-weight: 700;
-      color: #0f172a;
+      color: var(--scd-text-primary);
       margin-bottom: 6px;
     }
     .hp-faq-item p {
       font-size: 14px;
-      color: #475569;
+      color: var(--scd-text-secondary);
       line-height: 1.75;
     }
 
@@ -1182,7 +1096,7 @@
 
     /* ── Connect ───────────────────────────────────────────────────────── */
     .hp-connect {
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid var(--scd-border);
     }
     .hp-connect-inner {
       max-width: 1200px;
@@ -1214,13 +1128,13 @@
       white-space: nowrap;
     }
     .hp-connect-btn--amber {
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
       color: var(--scd-amber);
     }
     .hp-connect-btn--amber:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border-color: var(--scd-text-primary);
     }
     .hp-connect-btn--blue {
       background: rgba(59,130,246,0.1);
@@ -1232,13 +1146,13 @@
       border-color: rgba(59,130,246,0.55);
     }
     .hp-connect-btn--x {
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border: 1px solid var(--scd-border);
+      color: var(--scd-text-primary);
     }
     .hp-connect-btn--x:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
+      background: var(--scd-bg-secondary);
+      border-color: var(--scd-text-primary);
     }
     @media (max-width: 600px) {
       .hp-connect-inner { flex-direction: column; align-items: flex-start; }
@@ -1248,8 +1162,8 @@
 
     /* ── Footer ────────────────────────────────────────────────────────── */
     .hp-footer {
-      background: var(--dark, #0f172a);
-      border-top: 1px solid var(--dark-secondary, #1e293b);
+      background: var(--dark, var(--scd-text-primary));
+      border-top: 1px solid var(--dark-secondary, var(--scd-border));
       margin-top: 2rem;
     }
     .hp-footer-inner {
@@ -1269,13 +1183,13 @@
       gap: 10px;
       font-weight: 700;
       font-size: 15px;
-      color: #f8fafc;
+      color: var(--scd-text-primary);
       margin-bottom: 0.625rem;
     }
     .hp-footer-logo img { width: 28px; height: 28px; border-radius: 5px; }
     .hp-footer-tagline {
       font-size: 13px;
-      color: #94a3b8;
+      color: var(--scd-text-muted);
       line-height: 1.6;
       max-width: 280px;
     }
@@ -1287,17 +1201,17 @@
     }
     .hp-footer-links a {
       font-size: 13px;
-      color: #94a3b8;
+      color: var(--scd-text-muted);
       transition: color 0.2s;
     }
-    .hp-footer-links a:hover { color: #2dd4bf; }
+    .hp-footer-links a:hover { color: var(--scd-green); }
     .hp-footer-copy {
       max-width: 1200px;
       margin: 0 auto;
       padding: 1.25rem 2rem;
       border-top: 1px solid rgba(255,255,255,0.08);
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--scd-text-muted);
     }
 
     /* ── Suppress game nav & footer injected by home.js ───────────────── */
@@ -1307,183 +1221,15 @@
     .site-nav,
     .page-footer { display: none !important; }
 
-    /* ── Supply-chain network graphic ─────────────────────────────────── */
-    .hp-scm-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    }
-    .hp-scm-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      background: #f1f5f9;
-      border-bottom: 1px solid #e2e8f0;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      color: #64748b;
-      letter-spacing: 0.04em;
-    }
-    .hp-scm-header-dots {
-      display: flex;
-      gap: 6px;
-      margin-right: 10px;
-    }
-    .hp-scm-header-left { display: flex; align-items: center; }
-    .hp-scm-chain {
-      padding: 1.25rem 1rem;
-      display: flex;
-      align-items: stretch;
-      gap: 6px;
-    }
-    .hp-scm-node {
-      flex: 1;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 0.75rem 0.625rem;
-      min-width: 0;
-    }
-    .hp-scm-node--crit {
-      border-color: rgba(239,68,68, 0.35);
-      background: rgba(239,68,68, 0.06);
-      animation: hp-crit-pulse 2.2s ease-in-out infinite;
-    }
-    .hp-scm-node--warn {
-      border-color: rgba(245,158,11, 0.40);
-      background: rgba(245,158,11, 0.06);
-    }
-    .hp-scm-node--ok {
-      border-color: rgba(22,163,74, 0.32);
-      background: rgba(22,163,74, 0.05);
-    }
-    @keyframes hp-crit-pulse {
-      0%, 100% { border-color: rgba(239,68,68,0.35); }
-      50%       { border-color: rgba(239,68,68,0.65);
-                  box-shadow: 0 0 14px rgba(239,68,68,0.18); }
-    }
-    .hp-scm-node-status {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-    }
-    .hp-scm-status-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .hp-scm-node-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #64748b;
-      margin-bottom: 5px;
-      line-height: 1.35;
-    }
-    .hp-scm-node-metric {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 10px;
-      color: #64748b;
-      line-height: 1.6;
-    }
-    .hp-scm-connector {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      flex-shrink: 0;
-      width: 18px;
-    }
-    .hp-scm-connector-line {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.10),
-        rgba(255,255,255,0.18),
-        rgba(255,255,255,0.10));
-    }
-    .hp-scm-connector-arrow {
-      font-size: 9px;
-      color: #64748b;
-      line-height: 1;
-    }
-    .hp-scm-footer {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-top: 1px solid #e2e8f0;
-    }
-    .hp-scm-kpi {
-      padding: 0.875rem 1rem;
-      border-right: 1px solid #e2e8f0;
-    }
-    .hp-scm-kpi:last-child { border-right: none; }
-    .hp-scm-kpi-label {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #64748b;
-      margin-bottom: 4px;
-    }
-    .hp-scm-kpi-val {
-      font-size: 17px;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .hp-scm-decision-bar {
-      padding: 0.75rem 1rem;
-      background: #f1f5f9;
-      border-top: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .hp-scm-decision-text {
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      color: #64748b;
-    }
-    .hp-scm-decision-text strong { color: var(--scd-amber); }
-    .hp-scm-decision-cta {
-      flex-shrink: 0;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      color: #4ade80;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 4px;
-      white-space: nowrap;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .hp-scm-decision-cta:hover {
-      background: #f1f5f9;
-      border-color: #0f172a;
-    }
 
     /* ── Hero friction line ────────────────────────────────────────────── */
     .hp-hero-friction {
       font-size: 13px;
-      color: #64748b;
+      color: var(--scd-text-muted);
       text-align: left;
       padding-top: 1rem;
       margin-top: -0.5rem;
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid var(--scd-border);
     }
 
     /* ── Hero micro-steps ──────────────────────────────────────────────── */
@@ -1529,12 +1275,12 @@
       border-radius: 6px;
       transition: background 0.2s;
     }
-    .hp-hamburger:hover { background: #f1f5f9; }
+    .hp-hamburger:hover { background: var(--scd-bg-secondary); }
     .hp-hamburger span {
       display: block;
       width: 20px;
       height: 2px;
-      background: #94a3b8;
+      background: var(--scd-text-muted);
       border-radius: 2px;
       transition: transform 0.25s ease, opacity 0.2s ease;
     }
@@ -1548,7 +1294,7 @@
       flex-direction: column;
       gap: 0;
       background: rgba(10, 15, 30, 0.98);
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid var(--scd-border);
       padding: 0.75rem 1rem 1rem;
     }
     .hp-nav-mobile.open { display: flex; }
@@ -1556,8 +1302,8 @@
       padding: 0.75rem 0.5rem;
       font-size: 15px;
       font-weight: 500;
-      color: #64748b;
-      border-bottom: 1px solid #e2e8f0;
+      color: var(--scd-text-muted);
+      border-bottom: 1px solid var(--scd-border);
       transition: color 0.2s;
     }
     .hp-nav-mobile a:last-child { border-bottom: none; }
@@ -1567,13 +1313,13 @@
       display: block;
       text-align: center;
       background: var(--scd-green);
-      color: #ffffff;
+      color: var(--scd-ink);
       font-weight: 700;
       border-radius: 6px;
       padding: 11px 20px;
       border-bottom: none;
     }
-    .hp-nav-mobile .hp-nav-mobile-cta:hover { background: var(--scd-green-hover); color: #ffffff; }
+    .hp-nav-mobile .hp-nav-mobile-cta:hover { background: var(--scd-green-hover); color: var(--scd-ink); }
 
     /* ── Responsive ────────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
@@ -1597,15 +1343,11 @@
       .hp-edu-visual    { display: none; }
       .hp-pricing-grid  { grid-template-columns: 1fr; }
       .hp-social-proof-inner { flex-wrap: wrap; gap: 1rem; }
-      .hp-scm-decision-bar  { flex-wrap: wrap; gap: 0.5rem; }
       /* Keep the stacked hero grid tracks from being stretched by the SCM demo
          card (the cause of horizontal page scroll on phones). Instead of
          crushing the network nodes, let the chain scroll left-to-right with
          readable, fixed-width nodes. */
       .hp-hero > *   { min-width: 0; }
-      .hp-scm-card   { max-width: 100%; overflow: hidden; }
-      .hp-scm-chain  { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .hp-scm-node   { flex: 0 0 128px; }
     }
     @media (max-width: 480px) {
       .hp-section { padding: 3rem 1.25rem; }
@@ -1617,66 +1359,15 @@
       .hp-stat + .hp-stat { border-left: none; padding-left: 0; }
       .hp-social-proof-inner { flex-direction: column; align-items: flex-start; gap: 0.875rem; }
       .hp-footer-inner { flex-direction: column; gap: 2rem; }
-      .hp-scm-decision-text { font-size: 10px; }
-      .hp-scm-chain { overflow-x: auto; }
     }
-    /* ── Modern-SaaS motion polish ──────────────────────────────────────
-       Entrance + scroll-reveal micro-animations. All gated on both JS
-       (.reveal-ready, set pre-paint) and prefers-reduced-motion, so the page
-       is fully visible and static when either is unavailable. */
-    @media (prefers-reduced-motion: no-preference) {
-      /* Hero: a gentle, staggered load-in (keyframes → base state stays
-         visible if animations never run). */
-      .reveal-ready .hp-eyebrow,
-      .reveal-ready .hp-h1,
-      .reveal-ready .hp-hero-sub,
-      .reveal-ready .hp-hero-ctas,
-      .reveal-ready .hp-hero-friction,
-      .reveal-ready .hp-hero-stats,
-      .reveal-ready .hp-hero-steps,
-      .reveal-ready .hp-terminal-wrap {
-        animation: hp-enter 0.72s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-      }
-      .reveal-ready .hp-h1            { animation-delay: 0.06s; }
-      .reveal-ready .hp-hero-sub      { animation-delay: 0.12s; }
-      .reveal-ready .hp-hero-ctas     { animation-delay: 0.18s; }
-      .reveal-ready .hp-hero-friction { animation-delay: 0.24s; }
-      .reveal-ready .hp-hero-stats    { animation-delay: 0.30s; }
-      .reveal-ready .hp-hero-steps    { animation-delay: 0.30s; }
-      .reveal-ready .hp-terminal-wrap { animation-delay: 0.14s; }
-      @keyframes hp-enter {
-        from { opacity: 0; transform: translateY(18px); }
-        to   { opacity: 1; transform: none; }
-      }
-
-      /* Below-the-fold sections: fade + rise as they scroll into view.
-         Hidden from first paint (no flash); revealed by the IntersectionObserver
-         in home.js adding .hp-reveal-in. */
-      .reveal-ready .hp-social-proof,
-      .reveal-ready body > .hp-section,
-      .reveal-ready .hp-educators,
-      .reveal-ready #ai-cta-home,
-      .reveal-ready .hp-final-cta,
-      .reveal-ready .hp-connect {
-        opacity: 0;
-        transform: translateY(26px);
-        transition: opacity 0.7s ease, transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
-        will-change: opacity, transform;
-      }
-      .reveal-ready .hp-reveal-in {
-        opacity: 1 !important;
-        transform: none !important;
-      }
-    }
-
     /* Nav gains depth once the page is scrolled (condense-on-scroll). */
     .hp-nav {
       transition: box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
     }
     .hp-nav.hp-nav--scrolled {
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
-      border-bottom-color: #d8e0ea;
+      background: rgba(11, 18, 32, 0.97);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      border-bottom-color: var(--scd-border-strong);
     }
 
     /* Consistent card micro-interaction: lift + deepen shadow on hover. */
@@ -1686,6 +1377,35 @@
     @media (prefers-reduced-motion: no-preference) {
       .hp-how-card:hover { transform: translateY(-3px); }
     }
+
+    /* ── Hero screenshot (real game screen, not a mock) ───────────────── */
+    .hp-hero-shot { margin: 0; align-self: center; }
+    .hp-hero-shot img {
+      display: block; width: 100%; height: auto; border-radius: 14px;
+      border: 1px solid var(--scd-border-strong);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+      background: var(--scd-surface);
+    }
+    .hp-hero-shot figcaption { margin-top: 10px; font-size: 13px; color: var(--scd-text-muted); }
+    .hp-hero-free { margin-top: 10px; font-size: 14px; color: var(--scd-text-secondary); }
+
+    /* ── Choose your industry ─────────────────────────────────────────── */
+    .hp-industries { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+    .hp-industry {
+      display: flex; flex-direction: column; gap: 10px; padding: 20px;
+      background: var(--scd-surface); border: 1px solid var(--scd-border); border-radius: 14px;
+      color: var(--scd-text-primary); text-decoration: none;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+    }
+    .hp-industry:hover { border-color: var(--scd-green); background: var(--scd-surface-elevated); }
+    .hp-industry:focus-visible { outline: 2px solid var(--scd-focus); outline-offset: 3px; }
+    .hp-industry h3 { font-size: 1.1rem; margin: 0; }
+    .hp-industry p { margin: 0; color: var(--scd-text-secondary); font-size: 0.95rem; line-height: 1.55; }
+    .hp-industry-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .hp-industry-tag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--scd-border-strong); color: var(--scd-text-secondary); }
+    .hp-industry-tag--free { color: var(--scd-green); border-color: rgba(45, 212, 191, 0.5); }
+    .hp-industry-go { margin-top: auto; font-weight: 600; color: var(--scd-green); }
+    .hp-industry--free { border-color: rgba(45, 212, 191, 0.45); }
   </style>
 </head>
 
@@ -1767,15 +1487,16 @@
       </h1>
 
       <p class="hp-hero-sub">
-        Simulate supplier failures, demand shocks, and procurement crises &mdash;
-        then see exactly what happens next. This is Supply Chain Disaster:
-        for students and early-career professionals who learn by surviving it,
-        not memorizing it.
+        A browser-based supply chain simulation. Each quarter you read a crisis
+        briefing, then set your supplier, shipping, order quantity, pricing,
+        inspection and safety stock &mdash; and see what it does to cash, stock
+        and customers before the next quarter. Practice for students and
+        early-career professionals, built around APICS CSCP concepts.
       </p>
 
       <div class="hp-hero-ctas">
-        <a href="/play?start=1" class="hp-btn-primary">
-          Play Chapter 1 Free &rarr;
+        <a href="/play?start=1&amp;industry=fmcg" class="hp-btn-primary">
+          Play the free scenario &rarr;
         </a>
         <button class="hp-btn-outline" id="lp-demo-btn" type="button">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -1785,6 +1506,7 @@
       <div class="hp-hero-friction">
         No account. No install. Runs in your browser.
       </div>
+      <p class="hp-hero-free">The free scenario is Chapter 1 of the FMCG campaign &mdash; four quarters with results and a debrief.</p>
 
       <ol class="hp-hero-steps" aria-label="What happens when you click play">
         <li>1. Pick your industry</li>
@@ -1793,110 +1515,11 @@
       </ol>
     </div>
 
-    <!-- Supply chain network graphic -->
-    <div class="hp-terminal-wrap">
-      <div class="hp-terminal-badge">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        Live Supply Chain Network
-      </div>
-      <div class="hp-scm-card">
-
-        <!-- Header bar -->
-        <div class="hp-scm-header">
-          <div class="hp-scm-header-left">
-            <div class="hp-scm-header-dots">
-              <span class="hp-term-dot hp-term-dot--red"></span>
-              <span class="hp-term-dot hp-term-dot--amber"></span>
-              <span class="hp-term-dot hp-term-dot--green"></span>
-            </div>
-            SUPPLY_CHAIN_NETWORK.exe
-          </div>
-          <span>Q3 &nbsp;·&nbsp; Chapter 2 of 8</span>
-        </div>
-
-        <!-- Node chain -->
-        <div class="hp-scm-chain">
-
-          <div class="hp-scm-node hp-scm-node--crit">
-            <div class="hp-scm-node-status" style="color:var(--scd-red)">
-              <span class="hp-scm-status-dot" style="background:var(--scd-red)"></span>
-              Disrupted
-            </div>
-            <div class="hp-scm-node-label">Shenzhen<br>Factory</div>
-            <div class="hp-scm-node-metric">Lead time<br>+8 weeks</div>
-          </div>
-
-          <div class="hp-scm-connector">
-            <div class="hp-scm-connector-line"></div>
-            <div class="hp-scm-connector-arrow">&#8250;</div>
-          </div>
-
-          <div class="hp-scm-node hp-scm-node--warn">
-            <div class="hp-scm-node-status" style="color:var(--scd-status-watch)">
-              <span class="hp-scm-status-dot" style="background:var(--scd-status-watch)"></span>
-              Warning
-            </div>
-            <div class="hp-scm-node-label">Regional<br>Hub</div>
-            <div class="hp-scm-node-metric">Stock: 47<br>units left</div>
-          </div>
-
-          <div class="hp-scm-connector">
-            <div class="hp-scm-connector-line"></div>
-            <div class="hp-scm-connector-arrow">&#8250;</div>
-          </div>
-
-          <div class="hp-scm-node hp-scm-node--ok">
-            <div class="hp-scm-node-status" style="color:var(--scd-status-normal)">
-              <span class="hp-scm-status-dot" style="background:var(--scd-status-normal)"></span>
-              Nominal
-            </div>
-            <div class="hp-scm-node-label">UK<br>Distributor</div>
-            <div class="hp-scm-node-metric">Stock: 2,400<br>units</div>
-          </div>
-
-          <div class="hp-scm-connector">
-            <div class="hp-scm-connector-line"></div>
-            <div class="hp-scm-connector-arrow">&#8250;</div>
-          </div>
-
-          <div class="hp-scm-node hp-scm-node--warn">
-            <div class="hp-scm-node-status" style="color:var(--scd-status-watch)">
-              <span class="hp-scm-status-dot" style="background:var(--scd-status-watch)"></span>
-              Alert
-            </div>
-            <div class="hp-scm-node-label">Retail<br>Network</div>
-            <div class="hp-scm-node-metric">Demand<br>+340%</div>
-          </div>
-
-        </div>
-
-        <!-- KPI row -->
-        <div class="hp-scm-footer">
-          <div class="hp-scm-kpi">
-            <div class="hp-scm-kpi-label">Cash</div>
-            <div class="hp-scm-kpi-val" style="color:var(--scd-amber)">$847K</div>
-          </div>
-          <div class="hp-scm-kpi">
-            <div class="hp-scm-kpi-label">Satisfaction</div>
-            <div class="hp-scm-kpi-val" style="color:var(--scd-red)">62%</div>
-          </div>
-          <div class="hp-scm-kpi">
-            <div class="hp-scm-kpi-label">Bullwhip Ratio</div>
-            <div class="hp-scm-kpi-val" style="color:var(--scd-amber)">2.7&times;</div>
-          </div>
-        </div>
-
-        <!-- Decision prompt -->
-        <div class="hp-scm-decision-bar">
-          <span class="hp-scm-decision-text">
-            &rsaquo; <strong>Your move:</strong> order 1,200 · 2,000 · or 3,500 units?
-          </span>
-          <a href="/play?start=1" class="hp-scm-decision-cta">DECIDE &rarr;</a>
-        </div>
-
-      </div>
-    </div>
-
+    <figure class="hp-hero-shot">
+      <img src="/images/play/how-2.webp" width="960" height="600" fetchpriority="high" decoding="async"
+           alt="The game's quarterly decision screen: supplier, shipping, order quantity, pricing, inspection and safety stock, with cost and arrival estimates">
+      <figcaption>The real decision screen from the game.</figcaption>
+    </figure>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
@@ -1914,6 +1537,37 @@
     <p style="text-align:center;font-size:11px;color:var(--scd-text-muted);padding:0 2rem 1rem;max-width:1200px;margin:0 auto;">
       Independent learning supplement &mdash; not affiliated with or endorsed by ASCM/APICS.
     </p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       CHOOSE YOUR INDUSTRY
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="hp-section" id="industries">
+    <div class="hp-section-header">
+      <div class="hp-section-label">Choose your industry</div>
+      <h2 class="hp-section-h2">Same 10 chapters, three very different businesses</h2>
+      <p class="hp-section-sub">Each industry has its own demand, lead times, margins and suppliers. Start with FMCG for free.</p>
+    </div>
+    <div class="hp-industries">
+      <a class="hp-industry hp-industry--free" href="/play?start=1&amp;industry=fmcg">
+        <span class="hp-industry-tags"><span class="hp-industry-tag hp-industry-tag--free">Free: Chapter 1</span><span class="hp-industry-tag">Easier</span></span>
+        <h3>Fast-Moving Consumer Goods</h3>
+        <p>High volume on a thin margin. Demand is steady, so the money is won or lost on cost discipline and replenishment rhythm.</p>
+        <span class="hp-industry-go">Play the free scenario &rarr;</span>
+      </a>
+      <a class="hp-industry" href="/play?start=1&amp;industry=pharma">
+        <span class="hp-industry-tags"><span class="hp-industry-tag">Core Game Pass</span><span class="hp-industry-tag">Moderate</span></span>
+        <h3>Pharmaceuticals</h3>
+        <p>Long lead times and sudden regulatory demand spikes. Margins are generous, but running out is costly.</p>
+        <span class="hp-industry-go">See the mission &rarr;</span>
+      </a>
+      <a class="hp-industry" href="/play?start=1&amp;industry=electronics">
+        <span class="hp-industry-tags"><span class="hp-industry-tag">Core Game Pass</span><span class="hp-industry-tag">Harder</span></span>
+        <h3>Consumer Electronics</h3>
+        <p>The most volatile demand in the game. Forecasting is hard and cheap suppliers ship more defects.</p>
+        <span class="hp-industry-go">See the mission &rarr;</span>
+      </a>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════

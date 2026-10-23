@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/favicon-32.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Review moderation — Supply Chain Disaster</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0B1220; --panel: #142235; --border: #24354D; --text: #F3F5F2; --muted: #A8B5C5; --teal: #2DD4BF; --amber: #FBBF24; --red: #F87171; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 16px; }
+    h1 { margin: 0; font-size: 1.5rem; }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button, select, input { font: inherit; color: inherit; }
+    .btn { min-height: 40px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; }
+    .btn--primary { background: var(--teal); color: #0B1220; border-color: transparent; font-weight: 600; }
+    .btn:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    select, input { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; min-height: 40px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+    .text { white-space: pre-line; overflow-wrap: anywhere; margin: 0; }
+    .stars { color: var(--amber); }
+    .tag { font-size: 0.85rem; color: var(--muted); }
+    .warn { color: var(--amber); }
+    ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .log { font-size: 0.85rem; color: var(--muted); margin: 0; padding-left: 18px; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>Review moderation</h1>
+    <p class="muted">Owner only. Access is checked on the server: the signed-in cloud-save email must be listed in <code>REVIEW_ADMIN_EMAILS</code>.
+      Moderators can publish, reject or hide a review with a recorded reason — never edit its text or rating. Negative opinions are not a reason to reject.</p>
+    <div id="app" aria-live="polite"></div>
+  </main>
+  <script type="module" src="/src/admin-reviews.js"></script>
+</body>
+
+</html>

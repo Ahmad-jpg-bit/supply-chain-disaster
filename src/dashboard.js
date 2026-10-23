@@ -55,6 +55,8 @@ import { routeFromChoice, LOGISTICS_CHAPTERS } from './logic/route-planner.js';
 import { RoutePlannerOverlay } from './ui/route-planner-overlay.js';
 import { getWeeklyChallenge } from './logic/seeded-rng.js';
 import { showLeaderboard, promptScoreSubmit } from './ui/leaderboard.js';
+import * as CM from './logic/community.js';
+import { ReviewDialog, mountReviewPrompt } from './ui/review-form.js';
 
 export class Dashboard {
     constructor(particleNetwork) {
@@ -229,6 +231,13 @@ export class Dashboard {
             onSaveNow: () => this._saveLocal('manual'),
         });
         document.getElementById('hud-save-btn')?.addEventListener('click', () => this.savePanel.open({ source: 'hud' }));
+        // Ratings & reviews (entry point on /play, prompts after milestones)
+        this.reviewDialog = new ReviewDialog({
+            savePanel: this.savePanel,
+            currentRunId: () => (this._gameMode === 'story' ? this.runId : null),
+            onChange: () => this._pregame?.reviews?.reload(),
+        });
+        CM.applyStatsParam();   // ?stats=off|on — exclude this browser's play from public counts
         // Flush pending local changes when the page is hidden (pagehide as a backstop)
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') this._saveLocal('hidden'); });
         window.addEventListener('pagehide', () => { this._saveLocal('hidden'); if (this.runId) RS.releaseRun(this.runId, this._tabId); });
@@ -311,11 +320,13 @@ export class Dashboard {
         // ?start=1 (homepage CTAs) jumps straight to the industry picker on small screens
         // (used by all homepage CTAs — direct /play navigation preserves the full landing page)
         const _skipHero = new URLSearchParams(window.location.search).get('start') === '1';
+        // Homepage industry cards link here with ?industry=… — preselect it (no game starts)
+        const _preselect = new URLSearchParams(window.location.search).get('industry');
         if (_skipHero) window.history.replaceState({}, '', window.location.pathname);
-        new PregamePage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null, savedGame = null, opts = {}) => {
+        this._pregame = new PregamePage(this.ui.startScreen, (industryId, startChapterIndex = 0, mode = 'story', statePatches = null, savedGame = null, opts = {}) => {
             this.selectedIndustryId = industryId;
             this.startGame(startChapterIndex, mode, statePatches, savedGame, opts);
-        }, { skipHero: _skipHero, savePanel: this.savePanel });
+        }, { skipHero: _skipHero, savePanel: this.savePanel, reviewDialog: this.reviewDialog, preselect: _preselect });
 
         // Landing page is now rendered and visible — dismiss the loading screen.
         this._dismissLoadingScreen();
@@ -2101,8 +2112,14 @@ export class Dashboard {
         if (this.charts.bullwhipLive) { this.charts.bullwhipLive.destroy(); this.charts.bullwhipLive = null; }
         const turnDone = this.engine.state.turn;
         const chapterOfTurn = (this.engine.state.chapterIndex ?? 0) + 1;
+        const scenarioOfTurn = this.engine.state.currentScenario?.id;
+        const chapterIdOfTurn = this.engine.state.currentChapter?.id;
         this.engine.processTurn(choices);
         this._progressEvent('turn_completed', `t${turnDone}`, { chapter: chapterOfTurn, turn: turnDone });
+        // Public participation counts (campaigns only; the server deduplicates per run + scenario)
+        if (this._gameMode === 'story' && this.runId) {
+            CM.recordQuarter({ runId: this.runId, industryId: this.engine.state.industry?.id, chapterId: chapterIdOfTurn, scenarioId: scenarioOfTurn, turn: turnDone });
+        }
         if (!this._firstTurnTracked) {
             this._firstTurnTracked = true;
             track('first_turn_complete', { industry_id: this.engine.state.industry?.id, mode: this._gameMode });
@@ -2447,6 +2464,9 @@ export class Dashboard {
             },
             onMenu: () => { window.location.href = '/play'; },
         });
+        if (isFreeIntro && this._gameMode === 'story') {
+            mountReviewPrompt(screen.el?.querySelector('.ic-card'), { runId: this.runId, dialog: this.reviewDialog, source: 'intro_complete' });
+        }
     }
 
     renderChapterSummary() {
@@ -2663,6 +2683,10 @@ export class Dashboard {
                 certificateAllowed,
                 onUnlock: () => this.paywall.show(() => this._onAccessChanged(), null, { source: 'certificate' }),
             });
+            // Win or lose, the campaign is over: offer a review (never during decisions)
+            if (this._gameMode === 'story') {
+                mountReviewPrompt(this.gameOverScreen.modal.querySelector('.gameover-screen'), { runId: this.runId, dialog: this.reviewDialog, source: 'campaign_complete' });
+            }
         };
 
         const showResults = () => {

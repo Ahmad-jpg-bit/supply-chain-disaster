@@ -30,6 +30,7 @@ import { SAVE_EMAIL_KEY, runLaunchArgs } from '../logic/pregame-state.js';
 import * as RS from '../logic/run-store.js';
 import * as CS from '../logic/cloud-sync.js';
 import { CampaignsPanel, nextChapterOf } from './campaigns-panel.js';
+import { renderStatsStrip, ReviewsSection } from './reviews-section.js';
 import { CORE_PRICE } from './paywall.js';
 import { createFooter } from '../shared/footer.js';
 import { setNavMinimal } from '../shared/nav.js';
@@ -64,6 +65,7 @@ export class PregamePage {
         this.profiles   = listIndustryProfiles();
         this.selectedId = null;
         this.savePanel  = options.savePanel || null;
+        this.reviewDialog = options.reviewDialog || null;
         // Old unverified email from the previous save system: only used to pre-fill verification
         this.legacyEmail = readEmail();
         // One-time move of the old single save into the run collection (idempotent)
@@ -74,6 +76,11 @@ export class PregamePage {
             if (!this.page?.isConnected) { this._offAccess?.(); return; }
             this._render();
         });
+        // Preselect an industry from the homepage link (just shows its mission preview)
+        if (options.preselect && getIndustryProfile(options.preselect)) {
+            const input = this.page.querySelector(`input[name="pg-industry"][value="${options.preselect}"]`);
+            if (input) { input.checked = true; this._select(options.preselect); }
+        }
         this._offCloud = CS.onChange(() => {
             if (!this.page?.isConnected) { this._offCloud?.(); return; }
             this._renderCloud();
@@ -99,6 +106,7 @@ export class PregamePage {
             ${this._howHTML()}
             ${this._moreHTML()}
             ${this._accessHTML()}
+            ${this.reviewDialog ? '<section class="pg-section cm-reviews" id="pg-reviews" aria-labelledby="pg-reviews-title"></section>' : ''}
             <div class="pg-two">
                 ${this._faqHTML()}
                 <section class="pg-section" aria-labelledby="pg-cloud-title" id="pg-cloud"></section>
@@ -121,6 +129,8 @@ export class PregamePage {
         this._renderCloud();
         this._renderPreview();
         this._renderJump();
+        renderStatsStrip(page.querySelector('#pg-community-stats'), { industries: this.profiles.length });
+        if (this.reviewDialog) this.reviews = new ReviewsSection(page.querySelector('#pg-reviews'), { dialog: this.reviewDialog });
 
         if (this.skipHero && window.matchMedia('(max-width: 1023px)').matches) {
             page.querySelector('#pg-picker')?.scrollIntoView({ block: 'start' });
@@ -169,6 +179,7 @@ export class PregamePage {
             <p class="pg-muted">${t('picker.sub')}</p>
             <div class="pg-cards" role="radiogroup" aria-labelledby="pg-picker-title">${cards}</div>
             <p class="pg-visually-hidden" id="pg-select-status" aria-live="polite"></p>
+            <div id="pg-community-stats"></div>
         </section>`;
     }
 

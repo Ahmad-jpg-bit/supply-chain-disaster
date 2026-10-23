@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-10-22
+> Last updated: 2026-10-24
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -64,6 +64,14 @@ Deploy command: `npx vercel --prod` from the project root.
 - **Real-service check:** `scripts/cloud-preview-smoke.mjs` (BASE_URL + designated TEST_EMAIL; refuses the production host). Needs a Preview environment with ISOLATED KV — as of 2026-10-22 Preview shares Production's KV, so it must not be used for this.
 - **Tests:** `tests/cloud.test.mjs` (server ownership/CSRF/codes/revisions) and `tests/runs.test.mjs` (run store + sync end to end through the real API handlers with `SCD_DEV_MEMORY_STORE=1`). `SCD_DEV_MEMORY_STORE=1` gives the API an in-memory store and captures codes in `globalThis.__scdDevMail` — local testing only, ignored when `VERCEL_ENV=production`.
 
+## Community: play statistics + ratings/reviews (2026-10-24 — NOT yet deployed)
+- One function `api/community.js` (+ `lib/community/stats.js`, `lib/community/reviews.js`). Full definitions, exclusions, limitations and moderation policy: `docs/community-metrics.md`.
+- **/play strip** (≤3 metrics): campaigns played (distinct run IDs with ≥1 completed quarter), quarterly scenarios completed (distinct run+scenario), player rating (published only). Counted only when `VERCEL_ENV=production` (`COMMUNITY_STATS_ENABLED=false` pauses); bots/headless/`navigator.webdriver`/`?stats=off` excluded; idempotent SET NX dedupe records → INCR counters; `cm:since` = first counted day, shown as "since". Never seed, estimate or show placeholder numbers; never call runs "players". Fallback when counting hasn't started: "3 industries to choose from".
+- **Reviews:** verified cloud account + a cloud run with `meta.turn ≥ 2`; one per account; rating-only publishes, text → pending, any text edit → pending again; moderators publish/reject/hide with a reason, never edit; reports never unpublish. Index + aggregate committed atomically (`commitIfOwner` on `rv:lock`/`rv:indexv`). Plain text only (`textContent`). No aggregate-rating structured data.
+- **Admin:** `/admin-reviews` (noindex), access = `REVIEW_ADMIN_EMAILS` via the normal cloud-save email code. Also "Recount play statistics" (reconcile from dedupe records).
+- Prompts: `mountReviewPrompt` after the free intro (IntroComplete) and campaign end (game over, win or lose); "Not now" is per run. Entry point: "Rate & review" on /play. Guest drafts live in `scd_review_draft` and survive verification.
+- Public GET views are cached by Vercel's CDN only (`Vercel-CDN-Cache-Control`); browsers revalidate (a browser stale-while-revalidate showed players stale data after their own change).
+
 ---
 
 ## Game Architecture
@@ -118,10 +126,11 @@ Deploy command: `npx vercel --prod` from the project root.
 | `/api/cloud-account` | Cloud-save sign-in: GET session status; POST `request-code` / `verify-code` (sets session cookie) / `sign-out` / `legacy` / `legacy-dismiss`. Never grants purchases |
 | `/api/cloud-runs` | Owner-scoped runs: GET list / one (`?id`, `&head=1`, `&checkpoint=1`), PUT `{runId, expectedRev, writeId, meta, snapshot}`, DELETE `?id&expectedRev`. Session + CSRF header required for mutations. The old unauthenticated `/api/save-game` + `/api/load-game` (and `/api/save-progress`) were removed 2026-10-22 |
 | `/api/recall-cron` | Day-3/day-10 spaced-recall emails to old `game:*` records. **Not scheduled** (`vercel.json` `crons` is empty) and paused by `CAMPAIGNS_PAUSED`. New saves no longer create `game:*` records, so it would only reach pre-2026-10-22 savers. `CRON_SECRET`-guarded; skips `unsub:{email}` |
+| `/api/community` | Public play stats + reviews (GET `?view=stats|reviews|mine|admin`; POST `progress`, `review`, `delete-review`, `report`, `moderate`, `reconcile`). See "Community" above |
 | `/api/send-email` | Contact form handler |
 | `/api/unsubscribe` | GET `?email=` — one-click unsubscribe (sets `unsub:{email}` in KV, no expiry). POST `?broadcast=1` — one-off re-engagement broadcast to everyone in the `game:*` saved-progress list; `CRON_SECRET`-guarded, `?dry=1` reports counts without sending. Idempotent via `announced:{email}`. Both live in one file to stay under Vercel Hobby's 12-function cap — see note below |
 
-**Vercel Hobby plan caps serverless functions at 12** (11 used as of 2026-10-22) (one per file in `/api/`, `polar-webhook.js` included even though it's dead). Adding a new one-off endpoint means either deleting/consolidating an existing file first or folding the new logic into one that already exists — `unsubscribe.js` does the latter (unsubscribe + broadcast in one handler, branched on HTTP method). Check `ls api/*.js | wc -l` before adding a new file.
+**Vercel Hobby plan caps serverless functions at 12** (**12 used as of 2026-10-24 — the cap is reached**) (one per file in `/api/`, `polar-webhook.js` included even though it's dead). Adding a new one-off endpoint means either deleting/consolidating an existing file first or folding the new logic into one that already exists — `unsubscribe.js` does the latter (unsubscribe + broadcast in one handler, branched on HTTP method). Check `ls api/*.js | wc -l` before adding a new file.
 
 ---
 

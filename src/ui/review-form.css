@@ -1,0 +1,92 @@
+/* Review dialog (reuses .svp-* from save-panel.css), milestone prompt, and the
+   /play stats strip + reviews list (inside .pg-page, which defines --pg-*). */
+
+.rvf-sr {
+  position: absolute !important; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.rvf-dialog { width: min(600px, calc(100vw - 32px)); }
+.rvf-status { font-weight: 600; }
+.rvf-rating { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 6px; }
+.rvf-rating legend { padding: 0; margin-bottom: 6px; }
+.rvf-stars { display: flex; gap: 4px; }
+.rvf-star-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.rvf-star {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 8px; cursor: pointer;
+  font-size: 1.75rem; line-height: 1; color: var(--text-secondary, #8b99ac);
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+}
+.rvf-star.is-on { color: #fbbf24; border-color: rgba(251, 191, 36, 0.55); }
+.rvf-star-input:focus-visible + .rvf-star { outline: 2px solid var(--accent-color, #38bdf8); outline-offset: 2px; }
+.rvf-rating-value { margin: 0; font-size: 0.92rem; color: var(--text-secondary, #a8b5c5); }
+.rvf-text { resize: vertical; min-height: 110px; width: 100%; box-sizing: border-box; line-height: 1.5; }
+.rvf-hint { margin: 0; font-size: 0.85rem; color: var(--text-secondary, #a8b5c5); line-height: 1.45; }
+.rvf-count { white-space: nowrap; }
+.rvf-public {
+  display: grid; gap: 6px; padding: 12px; border-radius: 10px; font-size: 0.88rem; line-height: 1.5;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+}
+.rvf-public p { margin: 0; }
+.rvf-note { margin: 0; line-height: 1.5; font-size: 0.92rem; }
+.rvf select.svp-input { background: var(--bg-elevated, #142235); }
+
+/* Milestone prompt (inside results screens) */
+.rvp {
+  margin-top: 16px; padding: 14px 16px; border-radius: 12px; display: grid; gap: 8px; text-align: left;
+  border: 1px solid var(--border-color, rgba(148, 163, 184, 0.3));
+}
+.rvp-h { margin: 0; font-size: 1rem; }
+.rvp-p { margin: 0; font-size: 0.92rem; line-height: 1.5; color: var(--text-secondary, #a8b5c5); }
+.rvp-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* /play stats strip */
+.cm-strip { margin-top: 16px; display: grid; gap: 8px; }
+.cm-metrics { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+.cm-metric {
+  display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 2px;
+  padding: 12px 14px; border-radius: var(--pg-radius, 12px);
+  border: 1px solid var(--pg-border, rgba(148, 163, 184, 0.2)); background: var(--pg-panel, #142235);
+}
+.cm-value { margin: 0; font-size: 1.375rem; font-weight: 700; line-height: 1.2; color: var(--pg-text, #f3f5f2); font-variant-numeric: tabular-nums; }
+.cm-value--cta { font-size: 1rem; }
+.cm-value a { color: var(--pg-accent, #2dd4bf); text-underline-offset: 3px; }
+.cm-label { font-size: 0.875rem; color: var(--pg-muted, #a8b5c5); }
+.cm-how { font-size: 0.875rem; color: var(--pg-muted, #a8b5c5); }
+.cm-how summary { cursor: pointer; color: var(--pg-accent, #2dd4bf); width: fit-content; }
+.cm-how summary:focus-visible { outline: 2px solid var(--pg-accent, #2dd4bf); outline-offset: 2px; border-radius: 4px; }
+.cm-how ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; line-height: 1.5; max-width: 72ch; }
+
+/* /play reviews */
+.cm-reviews { display: grid; gap: 16px; }
+.cm-reviews-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.cm-summary { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; }
+.cm-empty { margin: 0; color: var(--pg-text, #f3f5f2); }
+.cm-avg { display: grid; gap: 2px; }
+.cm-avg p { margin: 0; }
+.cm-avg-num { font-size: 2.25rem; font-weight: 700; line-height: 1; }
+.cm-avg-label { font-size: 0.875rem; color: var(--pg-muted, #a8b5c5); max-width: 32ch; }
+.cm-stars { color: #fbbf24; letter-spacing: 1px; }
+.cm-dist { border-collapse: collapse; font-size: 0.875rem; min-width: min(320px, 100%); }
+.cm-dist th { text-align: left; font-weight: 500; padding: 2px 10px 2px 0; white-space: nowrap; color: var(--pg-muted, #a8b5c5); }
+.cm-bar { width: 100%; min-width: 120px; padding: 2px 0; }
+.cm-bar-fill { display: block; height: 8px; border-radius: 4px; background: #fbbf24; min-width: 0; }
+.cm-bar { background-clip: content-box; }
+.cm-bar-n { padding-left: 10px; text-align: right; font-variant-numeric: tabular-nums; }
+.cm-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cm-review {
+  padding: 14px 16px; border-radius: var(--pg-radius, 12px); display: grid; gap: 6px; min-width: 0;
+  border: 1px solid var(--pg-border, rgba(148, 163, 184, 0.2)); background: var(--pg-panel, #142235);
+}
+.cm-review-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.cm-review-name { font-weight: 600; overflow-wrap: anywhere; }
+.cm-review-date, .cm-review-tag { font-size: 0.85rem; color: var(--pg-muted, #a8b5c5); margin: 0; }
+.cm-review-text { margin: 0; white-space: pre-line; overflow-wrap: anywhere; line-height: 1.55; max-width: 72ch; }
+.cm-report { font-size: 0.85rem; color: var(--pg-muted, #a8b5c5); }
+.cm-report summary { cursor: pointer; width: fit-content; }
+.cm-report summary:focus-visible { outline: 2px solid var(--pg-accent, #2dd4bf); outline-offset: 2px; border-radius: 4px; }
+.cm-report-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.cm-report-form .svp-input { flex: 0 1 260px; background: var(--pg-panel-2, #0f1a2b); color: inherit; }
+.cm-report-msg { margin: 0; flex-basis: 100%; }
+.cm-more { justify-self: start; }
+.cm-policy { margin: 0; font-size: 0.85rem; color: var(--pg-muted, #a8b5c5); line-height: 1.5; max-width: 72ch; }
