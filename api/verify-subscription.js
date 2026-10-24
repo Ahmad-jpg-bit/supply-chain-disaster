@@ -16,7 +16,7 @@ import { claimStatus, refresh, requestRestoreCode, verifyRestoreCode } from '../
 
 async function sendCode(email, code) {
   if (!process.env.RESEND_API_KEY) throw new Error('email not configured');
-  await new Resend(process.env.RESEND_API_KEY).emails.send({
+  const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
     from:    'Supply Chain Disaster <hello@supplychaindisaster.com>',
     to:      email,
     subject: `${code} is your Supply Chain Disaster code`,
@@ -24,6 +24,8 @@ async function sendCode(email, code) {
               <p style="font-size:28px;font-weight:700;letter-spacing:0.15em;">${code}</p>
               <p>It expires in 10 minutes. If you didn't ask for it, you can ignore this email.</p>`,
   });
+  // Resend returns { error } instead of throwing — a rejected send must not look like success
+  if (error) throw Object.assign(new Error(`email send failed: ${error.name}`), { name: 'EmailSendError' });
 }
 
 export default async function handler(req, res) {
