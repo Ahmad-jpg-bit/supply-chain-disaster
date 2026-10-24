@@ -146,7 +146,7 @@
       <p><strong>Action:</strong> Connect monitoring tools to your risk scoring system via API or scheduled exports.</p>
       <p>Manual data entry defeats the purpose of digital tools. Configure automated feeds that update supplier risk scores without human intervention. Most platforms offer REST APIs or scheduled CSV exports.</p>
       <p>```</p>
-      <h1>Example: Pulling supplier financial scores via API</h1>
+      <p># Example: Pulling supplier financial scores via API</p>
       <p>import requests import pandas as pd</p>
       <p>api_key = "your_api_key_here"  # Replace with actual key base_url = "https://api.financialmonitor.example/v2/scores"</p>
       <p>def get_financial_scores(supplier_ids):     scores = []     for supplier_id in supplier_ids:         response = requests.get(             f"{base_url}/{supplier_id}",             headers={"Authorization": f"Bearer {api_key}"}         )         if response.status_code == 200:             data = response.json()             scores.append({                 "supplier_id": supplier_id,                 "financial_score": data["risk_rating"],                 "last_updated": data["timestamp"]             })     return pd.DataFrame(scores) ```</p>

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import { normalize } from 'path'
+import { blogPlugin } from './scripts/blog/vite-plugin.mjs'
 
 /**
  * Static nav links injected into every content page at build time.
@@ -230,5 +231,9 @@ export default defineConfig({
                 },
             },
         },
+
+        // Blog template (breadcrumbs, contents, module, related, index pages) — after the
+        // SEO nav, which matches the literal <body> tag this plugin adds a class to.
+        blogPlugin({ root: __dirname }),
     ],
 })

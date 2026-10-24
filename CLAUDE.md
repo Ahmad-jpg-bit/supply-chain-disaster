@@ -226,6 +226,15 @@ Definitions live in `src/data/cscp-definitions.js`, keyed by chapter ID.
 
 ---
 
+## Blog template (2026-10-24 — NOT yet deployed)
+- Article sources stay as authored HTML. At build (and in `npm run dev`) `scripts/blog/transform.mjs` (Vite plugin `scripts/blog/vite-plugin.mjs`, parser `node-html-parser` pinned devDependency, build-time only) adds: breadcrumbs + BreadcrumbList JSON-LD, standard meta line (author, published, "Updated" only when the article's own `dateModified` is later, reading time = words/230), "On this page" (≥4 sections and ≥6 min), table scroll regions, ONE game/tool module (built from the article's last CTA block's heading/paragraph minus offer/duration claim sentences + catalog-derived offer lines from `src/data/offer-copy.js`), share/copy + "Suggest a correction" (/contact?subject=…), related reading (same topic newest first, then newest overall).
+- The index (`blog.html`) has an empty `#ab-index` filled from the articles (cards, search + topic filter over an embedded catalog, Blog JSON-LD listing every post). Pagination: `/blog-page-N` (flat files — a `blog/` directory next to `blog.html` would make `/blog` ambiguous).
+- The build FAILS on missing structure (one H1 in `.article-header`, `.article-content`, `.article-meta`, `.article-tag`, canonical = `/slug`, BlogPosting `datePublished`, meta description, author; images need width/height) and refuses sources that already contain generated `ab-*` components.
+- New article checklist: `.article-header` (h1, `.article-tag` topic, `.article-meta`), `.article-content`, BlogPosting JSON-LD, optional `.mission-briefing` CTA, `<script type="module" src="/src/blog.js">`, add to `vite.config.js` input + sitemap. Don't hand-write a "Table of Contents" or breadcrumbs.
+- `tests/blog.test.mjs` verifies all articles: normalized content/links/lists/tables/heading IDs preserved, metadata + existing JSON-LD unchanged, components exactly once, anchors resolve, reading time, related links, no stale offer claims.
+- FAQPage JSON-LD is kept where it mirrors visible FAQ text (9 articles, aligned 2026-10-24). Google stopped showing FAQ rich results for all sites on 2026-05-07; the markup isn't invalid, it just earns no rich result. Never add review/aggregate-rating markup.
+- Search: query/topic are text only (textContent / DOM-built `<mark>`); never `innerHTML` with user input.
+
 ## Static SEO / AISEO Files
 - `public/robots.txt` — crawl rules
 - `public/sitemap.xml` — sitemap

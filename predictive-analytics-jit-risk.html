@@ -118,7 +118,7 @@
       <p><strong>Action:</strong> Configure automated data feeds from internal systems and external risk sources into a centralized data lake.</p>
       <p>Connect your ERP, warehouse management system, and transportation management system via API to your cloud data platform. Add external data feeds including weather APIs for supplier regions, geopolitical risk indices, and commodity price trackers. NGK Ceramics demonstrates this approach effectively, using <a href="https://www.riministreet.com/blog/7-manufacturing-industry-trends-driving-change-in-2025/" rel="noopener noreferrer" target="_blank">IoT-enabled tracking to monitor pallets in real-time</a> for precise inventory control.</p>
       <p>```</p>
-      <h1>Example: Basic data ingestion pipeline structure</h1>
+      <p># Example: Basic data ingestion pipeline structure</p>
       <p>import requests from datetime import datetime</p>
       <p>def fetch_supplier_metrics(supplier_id, api_endpoint):     response = requests.get(         f"{api_endpoint}/suppliers/{supplier_id}/performance",         headers={"Authorization": f"Bearer {API_KEY}"}     )     return {         "supplier_id": supplier_id,         "timestamp": datetime.utcnow().isoformat(),         "on_time_rate": response.json()["on_time_delivery_rate"],         "defect_rate": response.json()["quality_defect_rate"],         "lead_time_variance": response.json()["lead_time_std_dev"]     } ```</p>
       <p><strong>Expected result:</strong> Data flowing into your lake at minimum daily intervals, with supplier performance metrics, external risk signals, and inventory positions all accessible via unified queries.</p>
@@ -133,9 +133,9 @@
       <p><strong>Action:</strong> Train a machine learning model to predict disruption probability based on your collected indicators.</p>
       <p>Start with a gradient boosting classifier (XGBoost or LightGBM) using historical disruption events as your target variable. Feature engineering should include rolling averages, trend indicators, and cross-supplier correlation metrics. <a href="https://e-bi.com/50-manufacturing-statistics-that-will-shape-the-industry-in-2025/" rel="noopener noreferrer" target="_blank">AI in manufacturing reduces defect rates by 30%</a> through this type of advanced pattern recognition.</p>
       <p>```</p>
-      <h1>Example: Basic model training structure</h1>
+      <p># Example: Basic model training structure</p>
       <p>import lightgbm as lgb from sklearn.model_selection import train_test_split</p>
-      <h1>Features: supplier metrics, external signals, temporal patterns</h1>
+      <p># Features: supplier metrics, external signals, temporal patterns</p>
       <p>X = prepared_features_dataframe y = disruption_labels  # 1 = disruption within 7 days, 0 = no disruption</p>
       <p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)</p>
       <p>model = lgb.LGBMClassifier(     objective='binary',     n_estimators=500,     learning_rate=0.05,     max_depth=6 )</p>
