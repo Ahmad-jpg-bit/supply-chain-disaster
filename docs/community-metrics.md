@@ -30,9 +30,10 @@ The **primary controls are server-side** and don't depend on what the browser sa
 2. **Request origin.** A progress POST needs our own Origin (when the browser sends one) plus the `x-scd-client` header, which a cross-site form can't add.
 3. **Catalogue validation.** The run ID format, industry, chapter and scenario must exist in the real catalogue, the scenario must belong to that chapter, and the turn must fall within the chapter.
 4. **Idempotent dedupe.** `SET NX` records per run and per (run, scenario), so retries, reloads, resumes, two tabs and concurrent deliveries count once (tested with 25 concurrent copies).
-5. **Caps.** At most 40 scenarios per run, and 240 events per IP per hour (the IP is used only as a keyed hash and isn't stored). A shared network (school or office NAT) can hit the hourly cap; events above it are simply not counted.
+5. **Owner/moderator exclusion.** A progress event sent with a signed-in session whose verified email is in `REVIEW_ADMIN_EMAILS` is answered `202 counted:false` and never stored. Owner testing in production should therefore happen signed in (cloud saves → email code) with that address.
+6. **Caps.** At most 40 scenarios per run, and 240 events per IP per hour (the IP is used only as a keyed hash and isn't stored). A shared network (school or office NAT) can hit the hourly cap; events above it are simply not counted.
 
-**Supplemental filters only** (easy to bypass, used to keep honest automation out): the user-agent filter (bots, crawlers, headless browsers, Lighthouse, curl and similar), the client skipping counting when `navigator.webdriver` is set, and the owner/tester opt-out `/play?stats=off` (once per browser; `?stats=on` undoes it).
+**Supplemental filters only** (easy to bypass, used to keep honest automation out): the user-agent filter (bots, crawlers, headless browsers, Lighthouse, curl and similar), the client skipping counting when `navigator.webdriver` is set, and `/play?stats=off` (once per browser; `?stats=on` undoes it) — a per-browser convenience for signed-out testing, not the protection against test contamination.
 
 ## Limitations
 

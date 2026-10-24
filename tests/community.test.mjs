@@ -445,3 +445,14 @@ test('caching: public views are CDN-cached only; personal, admin and mutation re
         }
     } finally { process.env = saved; }
 });
+
+test('stats: play from a signed-in admin (owner) session is never counted; ordinary players are', async () => {
+    const { deps, mail } = setup();
+    const admin = await signIn(deps, mail, 'owner@example.com');
+    const player = await signIn(deps, mail, 'someone@example.com');
+    const post = (ctx, runId) => handle(deps, ctx, { method: 'POST', body: { action: 'progress', ...ev(runId) } });
+    assert.deepEqual((await post(as(admin), 'r-ownertest')).body, { counted: false, reason: 'admin' });
+    assert.equal((await post(as(player), 'r-playerrun')).body.counted, true);
+    assert.equal((await post(anon(), 'r-guestrun')).body.counted, true);
+    assert.deepEqual([(await readCounts(deps.store)).campaigns, await deps.store.get(SK.run('r-ownertest'))], [2, null]);
+});

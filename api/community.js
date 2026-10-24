@@ -53,6 +53,12 @@ export async function handle(deps, ctx, req) {
         case 'progress': {
             if (!deps.store) return { status: 202, body: { counted: false } };
             const bad = checkMutation(deps, ctx); if (bad) return bad;
+            // Owner/moderator test play never counts — enforced server-side from the signed-in
+            // session (the cookie is sent to /api). ?stats=off is only a per-browser convenience.
+            if (deps.countingEnabled && ctx.sid && deps.cfg.secret && deps.adminEmails?.length) {
+                const s = await readSession(deps, ctx.sid);
+                if (s && await isAdmin(deps, s.owner)) return { status: 202, body: { counted: false, reason: 'admin' } };
+            }
             return recordProgress({ store: deps.store, countingEnabled: deps.countingEnabled, secret: deps.cfg.secret, now: deps.now }, ctx, b);
         }
         case 'review': return submitReview(deps, ctx, b);
