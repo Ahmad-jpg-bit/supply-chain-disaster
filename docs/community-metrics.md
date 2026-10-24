@@ -22,18 +22,21 @@ Public numbers on `/play` (the strip under the industry picker and the "Player r
 
 `dashboard._resolveTurn` → `CM.recordQuarter()` runs after a campaign (story mode) quarter resolves. The event is `{ runId, industryId, chapterId, scenarioId, turn }`. Endless mode, the weekly challenge and cloud-save writes never send it.
 
-## Exclusions
+## Exclusions and abuse controls
 
-* **Environment:** events are counted only when `VERCEL_ENV=production`. Preview, local and tests answer `202 counted:false`. Set `COMMUNITY_STATS_ENABLED=false` to pause counting.
-* **Automated traffic:** a server-side user-agent filter (bots, crawlers, headless browsers, Lighthouse, curl and similar), plus the client skips counting when `navigator.webdriver` is set.
-* **Owner and tester play:** visit `/play?stats=off` once per browser (`?stats=on` undoes it).
-* **Invalid data:** the run ID format, industry, chapter and scenario must exist in the real catalogue, the scenario must belong to that chapter, and the turn must fall within the chapter.
-* **Abuse:** 240 events per IP per hour (the IP is a keyed hash and isn't stored), and at most 40 scenarios per run.
-* **Duplicates:** the dedupe records above.
+The **primary controls are server-side** and don't depend on what the browser says about itself:
+
+1. **Environment gate.** Events are counted only when the function runs with `VERCEL_ENV=production`. Preview deployments share Production's KV database, but a Preview function answers `202 counted:false` *before touching storage*, so Preview, local and test traffic can't reach the production totals. Set `COMMUNITY_STATS_ENABLED=false` to pause counting.
+2. **Request origin.** A progress POST needs our own Origin (when the browser sends one) plus the `x-scd-client` header, which a cross-site form can't add.
+3. **Catalogue validation.** The run ID format, industry, chapter and scenario must exist in the real catalogue, the scenario must belong to that chapter, and the turn must fall within the chapter.
+4. **Idempotent dedupe.** `SET NX` records per run and per (run, scenario), so retries, reloads, resumes, two tabs and concurrent deliveries count once (tested with 25 concurrent copies).
+5. **Caps.** At most 40 scenarios per run, and 240 events per IP per hour (the IP is used only as a keyed hash and isn't stored). A shared network (school or office NAT) can hit the hourly cap; events above it are simply not counted.
+
+**Supplemental filters only** (easy to bypass, used to keep honest automation out): the user-agent filter (bots, crawlers, headless browsers, Lighthouse, curl and similar), the client skipping counting when `navigator.webdriver` is set, and the owner/tester opt-out `/play?stats=off` (once per browser; `?stats=on` undoes it).
 
 ## Limitations
 
-The game runs in the browser, so a determined person could forge plausible events. The validation, per-run cap and IP limit bound the damage but cannot prove that play happened. Lost events (offline, a closed tab before the request) are not retried, so the totals are slight undercounts. Dedupe records expire after 400 days. Counters stay, but a later reconcile only sees records from the last 400 days.
+**Gameplay is client-reported.** The game runs in the browser, so the server can check that an event is *plausible*, not that the quarter was actually played: a determined person could script valid-looking events with fresh run IDs. The controls above bound how fast that can happen (240 events per hour per IP, 40 scenarios per run) but can't prove play, so the numbers should be read as "campaigns and quarters reported by the game", not audited totals. Lost events (offline, a closed tab before the request) are not retried, so the totals are slight undercounts. Dedupe records expire after 400 days. Counters stay, but a later reconcile only sees records from the last 400 days.
 
 ## Reconciliation
 
@@ -41,7 +44,14 @@ The admin page (`/admin-reviews`, "Recount play statistics") calls `POST {action
 
 ## Reviews
 
-* **Who:** a verified cloud-save account (email code) whose cloud campaigns include at least one completed quarter (`meta.turn ≥ 2`). This server record substantiates the "Played a scenario" and "Played the {industry} campaign" labels. The industry is shown only if the account actually played it. There is no "verified buyer" label.
+* **Who:** a verified cloud-save account (email code) with at least one stored cloud campaign whose **snapshot** proves a completed quarter (`lib/community/evidence.js`). The run's client-supplied meta is only a pre-filter. The stored snapshot must be internally consistent with the real catalogue:
+  * every history turn sits in a real chapter with the right chapter number;
+  * the scenario at that position of the run's own shuffled order exists for that chapter, and the history names it;
+  * turns increase, and the run's position is past the last completed one;
+  * results are numbers;
+  * the engine state names the same industry as the run.
+
+  An arbitrary, empty or tampered upload doesn't qualify (tested). **Limit:** a determined person could still hand-craft a consistent snapshot, since the game runs in the browser. One review per verified email, rate limits and moderation bound that. This evidence is what the "Played a scenario" and "Played the {industry} campaign" labels mean. The industry is shown only if the account has evidence for it. There is no "verified buyer" label.
 * **One per account.** Editing replaces the review and deleting erases its text. The player can post again later.
 * **Statuses:** `pending`, `published`, `rejected`, `hidden` and `deleted`.
   * Rating-only reviews publish immediately.
@@ -60,6 +70,19 @@ The admin page (`/admin-reviews`, "Recount play statistics") calls `POST {action
   No curated selection.
 * **Safety:** text is plain text. Control and bidi characters are stripped on the server, and the client inserts text with `textContent`. Over-length text is rejected (1,000 / 40 characters), never truncated.
 * **No aggregate-rating structured data** is emitted.
+
+## Caching and delays (as deployed on Vercel)
+
+| Response | Browser | Vercel CDN | Longest a visitor can see an old value |
+|---|---|---|---|
+| `GET ?view=stats` | `public, max-age=0, must-revalidate` (revalidates every time) | `Vercel-CDN-Cache-Control: max-age=300, stale-while-revalidate=1200` | 5 min normally. After a quiet spell, the first visitor can get one stale copy up to 25 min old while the CDN refreshes in the background. |
+| `GET ?view=reviews` | same | `max-age=60, stale-while-revalidate=240` | 1 min normally, up to 5 min after a quiet spell |
+| `GET ?view=mine`, `?view=admin`, every POST | `no-store` | not cached (no CDN header) | none |
+
+* The CDN cache key is the full URL (including `offset`). The public responses contain only aggregates and published review fields, so sharing them between visitors is safe even when the request carried a session cookie.
+* Within one page load, `/play` fetches the stats once.
+* The author's own review status comes from `?view=mine` (never cached), so their change shows immediately in the dialog, even while the public list is still catching up.
+* Tested in `tests/community.test.mjs` ("caching").
 
 ## Where the owner manages reviews
 

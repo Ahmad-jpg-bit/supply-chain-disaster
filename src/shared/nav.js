@@ -57,10 +57,10 @@ export function createNav(activePage = 'game') {
         </li>
         <li>
           <a
-            href="${activePage === 'game' ? '#' : '/?upgrade=1'}"
+            href="${activePage === 'game' ? '#' : '/play?upgrade=1'}"
             id="nav-upgrade-btn"
             class="nav-link nav-upgrade-btn"
-          >Unlock All ✦</a>
+          >Core Game Pass</a>
         </li>
       </ul>
     </div>
