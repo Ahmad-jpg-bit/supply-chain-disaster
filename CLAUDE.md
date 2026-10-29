@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-10-25
+> Last updated: 2026-10-29
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -73,6 +73,15 @@ Deploy command: `npx vercel --prod` from the project root.
 - Public GET views are cached by Vercel's CDN only (`Vercel-CDN-Cache-Control`); browsers revalidate (a browser stale-while-revalidate showed players stale data after their own change).
 - Primary stats controls are server-side (production-only gate before any KV write — Preview shares Production KV; origin/header check; catalogue validation; SET NX dedupe; per-run and per-IP caps). Owner testing is excluded server-side: progress events from a signed-in `REVIEW_ADMIN_EMAILS` session are never counted (`api/community.js`). User-agent/webdriver/`?stats=off` filters are supplemental. Max public delay: stats 5 min (≤25 min once after a quiet spell), reviews 1 min (≤5 min); `mine`/`admin`/POST are `no-store`.
 - Homepage offers (2026-10-24): no Institutions/classroom plan, no "coming soon" classroom features or fake course-management UI — classroom products are deferred; only a contact link. Nav purchase button = "Core Game Pass" → `/play?upgrade=1` (the only page that opens the offer).
+
+## Gameplay comprehension (deployed 2026-10-29, `ca29663` / dpl_9BR8RyJJLFGdfYEBT54v5awXQCew)
+- Rollback target that keeps secure cloud saves: dpl_Ao1Msr9CbhuYF3KiWinEQbUtAAvQ (`b367662`, the 2026-10-25 release).
+- Decision screen: "Quarter N at a glance" brief (`turnGoal`/`turnNote` in `src/ui/procurement-workspace.js`, from `estimateTurn` + `computeProjection` only — never a recommended quantity), quantity block first, groups `supply`/`pricing`/`protection` phrased as questions, `explainHTML` disclosures (one delegated listener in `dashboard.init`), known/estimate/unknown legend, `choicesSummary`.
+- State strip: money/stock/last demand primary; in-transit shown whenever non-zero; profit behind "More details" (`_updateMetricSubs`).
+- Guided start: `src/logic/guide-state.js` (pure, tested) + `src/ui/guide-coach.js`; stored in localStorage `scd_guide_v1`, **never in snapshots**. Auto-starts only on a new player's first campaign quarter (not Endless/weekly, not returning players); Help dialog (`src/ui/help-dialog.js`, HUD "Help") replays it in any mode.
+- Results card leads with `src/logic/turn-story.js` (what happened / your choices vs starting position vs events vs demand variation / one thing to remember). Extra context goes on a display copy — `lastTurnResult` is the saved history entry, don't add fields to it. Crisis `consequenceText` is a function in live data (use `crisisText`).
+- Analytics: `guide_started|skipped|completed`, `guide_explain_open`, `guide` param on `turn_completed`/`first_turn_complete`; comparison method in `docs/analytics/progress-funnel.md`. No data yet — don't claim improvement.
+- Browser-pane testing: a hidden pane stalls View Transitions/rAF; set `document.startViewTransition = undefined` in the test page. Production checks: `?stats=off` (no progress POST) + `window['ga-disable-G-2Z03B7JFE1']=true`.
 
 ---
 
