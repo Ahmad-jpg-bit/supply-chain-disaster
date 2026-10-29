@@ -902,6 +902,132 @@ body.scd-playing .tsc-card { max-width: 600px; }
   .tsc-why li { flex-direction: column; gap: 2px; }
 }
 
+/* ═══ Beginner Chapter 1: stock flow, opening note, quick check, recap ═══ */
+
+/* Story header: sender + Intelligence/Financials wrap instead of widening the card on phones */
+body.scd-playing .story-brief-head { flex-wrap: wrap; }
+body.scd-playing .story-sheet-btns { flex-wrap: wrap; }
+
+.pw-flowfig {
+  margin: 4px 0 10px;
+  border: 1px solid var(--pw-border);
+  border-radius: 10px;
+  background: var(--pw-panel-2);
+}
+.pw-flowfig > summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  align-items: baseline;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.pw-flowfig-title { font-weight: 700; color: var(--pw-accent); }
+.pw-flowfig-sum { color: var(--pw-muted); font-variant-numeric: tabular-nums; }
+.pw-flowfig[open] .pw-flowfig-sum { display: none; }
+.pw-flowfig-rows { list-style: none; margin: 0; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+.pw-flowfig-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: stretch; }
+.pw-flowfig-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--pw-border-2);
+  background: var(--pw-panel);
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+.pw-flowfig-box strong { font-size: 1rem; }
+.pw-flowfig-note { font-size: 0.75rem; color: var(--pw-muted); }
+.pw-flowfig-arrow { align-self: center; color: var(--pw-accent); font-weight: 700; }
+
+.pw-opening {
+  padding: 12px 14px;
+  border-radius: var(--pw-radius);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: var(--pw-warn-bg);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.pw-opening[hidden] { display: none; }
+.pw-opening p { margin: 0 0 6px; }
+.pw-opening-title { font-weight: 700; color: var(--pw-warn); }
+.pw-opening-list { margin: 6px 0 0; padding-left: 18px; }
+.pw-opening-list li + li { margin-top: 4px; }
+
+/* Quick check (replaces the first quarter's demand guess) */
+.pp-choices { display: grid; gap: 8px; margin: 14px 0 8px; }
+.pp-choice {
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e6ebf4;
+  font: 600 0.9375rem var(--font-main);
+  text-align: left;
+  cursor: pointer;
+}
+.pp-choice:hover, .pp-choice:focus-visible { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5); }
+.pp-skip {
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  color: #a3afc4;
+  font: 600 0.875rem var(--font-main);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.tsc-reflection {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-left: 3px solid var(--pw-accent);
+  background: var(--pw-panel-2);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Chapter recap inside the concept card */
+.defcard-recap {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.07);
+  color: #e6ebf4;
+}
+.defcard-recap-title { margin: 0 0 8px; font-size: 1rem; font-weight: 700; }
+.defcard-recap-list { margin: 0; display: grid; gap: 8px; }
+.defcard-recap-list dt { font-size: 0.75rem; font-weight: 700; color: #7dd3fc; text-transform: uppercase; letter-spacing: 0.04em; }
+.defcard-recap-list dd { margin: 2px 0 0; font-size: 0.9375rem; line-height: 1.5; }
+.defcard-recap-outside { margin: 10px 0 0; font-size: 0.875rem; color: #cbd5e1; line-height: 1.5; }
+.defcard-transfer { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.25); font-size: 0.9375rem; line-height: 1.5; }
+.defcard-transfer p { margin: 0 0 8px; }
+.defcard-transfer-label { font-size: 0.75rem; font-weight: 700; color: #a3afc4; text-transform: uppercase; letter-spacing: 0.04em; }
+.defcard-transfer-options { display: flex; gap: 8px; margin-bottom: 8px; }
+.defcard-transfer-btn {
+  min-width: 72px;
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: transparent;
+  color: #e6ebf4;
+  font: 600 0.9375rem var(--font-main);
+  cursor: pointer;
+}
+.defcard-transfer-btn[aria-pressed="true"] { border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+.defcard-transfer-btn:disabled { cursor: default; }
+.defcard-transfer-answer:empty { display: none; }
+
+@media (max-width: 640px) {
+  .pw-flowfig-row { grid-template-columns: minmax(0, 1fr); }
+  .pw-flowfig-arrow { transform: rotate(90deg); justify-self: center; }
+}
+
 /* ═══ Responsive ═══════════════════════════════════════════════════ */
 
 /* Medium desktop: consequences move under the decisions; the action bar

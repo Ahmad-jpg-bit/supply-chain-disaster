@@ -80,6 +80,42 @@ export class PredictionPrompt {
         });
     }
 
+    /**
+     * Beginner Chapter 1, first quarter: a conceptual check in place of the
+     * demand guess — will this order reach this quarter's customers? Optional;
+     * the answer is only reflected back after the quarter (no marking here).
+     * @param {Object} opts
+     * @param {number} opts.turn          — current quarter
+     * @param {number} opts.qty           — units being ordered
+     * @param {Function} opts.onAnswer    — receives 'yes' | 'no' | null (skipped)
+     */
+    askArrival({ turn, qty, onAnswer }) {
+        this._dismissed = false;
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'pp-overlay';
+        this.overlay.innerHTML = `
+            <div class="pp-card glass-panel" role="dialog" aria-modal="true" aria-labelledby="pp-arrival-title">
+                <div class="pp-eyebrow">QUICK CHECK · OPTIONAL</div>
+                <h3 class="pp-title" id="pp-arrival-title">Will your order of ${qty.toLocaleString()} units arrive in time for Q${turn}'s customers?</h3>
+                <p class="pp-context">There's no score for this — you'll see how it played out in the results.</p>
+                <div class="pp-choices">
+                    <button type="button" class="pp-choice" data-answer="yes">Yes, in time for this quarter</button>
+                    <button type="button" class="pp-choice" data-answer="no">No, it arrives later</button>
+                </div>
+                <button type="button" class="pp-skip" data-answer="">Skip and play the quarter</button>
+            </div>
+        `;
+        document.body.appendChild(this.overlay);
+        requestAnimationFrame(() => this.overlay?.classList.add('pp-overlay--visible'));
+        this.overlay.querySelector('.pp-choice').focus();
+        this.overlay.querySelectorAll('[data-answer]').forEach(btn => btn.addEventListener('click', () => {
+            if (this._dismissed) return;
+            this._dismissed = true;
+            this._hide();
+            onAnswer(btn.dataset.answer || null);
+        }));
+    }
+
     _hide() {
         if (!this.overlay) return;
         const el = this.overlay;

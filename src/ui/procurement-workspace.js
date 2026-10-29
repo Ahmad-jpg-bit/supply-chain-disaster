@@ -186,7 +186,7 @@ const stat = (k, v, attrs = '') => `<span class="pw-opt-stat"><span class="pw-k"
  * @param {Object} ctx — { state, suppliers, draft, openGroups }
  */
 export function buildWorkspaceHTML(ctx) {
-    const { state: s, suppliers, draft, openGroups } = ctx;
+    const { state: s, suppliers, draft, openGroups, beginner } = ctx;
     const archMods = describeModifiers(s.archetypeModifiers || {});
     const archetypeChips = (archMods.length && s.startingArchetype)
         ? `<div class="pw-archetype"><p class="pw-k">Ongoing market condition · ${s.startingArchetype.label}</p>${chips(archMods, 'Ongoing market condition effects')}</div>`
@@ -263,6 +263,11 @@ export function buildWorkspaceHTML(ctx) {
                 <label class="pw-group-title" id="pw-q-title" for="order-input">How much should I buy?</label>
                 <span class="pw-group-sub">Units to order</span>
             </h3>
+            ${beginner ? `
+            <details class="pw-flowfig" id="pw-flowfig"${beginner.flowOpen ? ' open' : ''}>
+                <summary><span class="pw-flowfig-title">How stock flows</span> <span class="pw-flowfig-sum" id="pw-flowfig-sum"></span></summary>
+                <ol class="pw-flowfig-rows" id="pw-flowfig-rows"></ol>
+            </details>` : ''}
             <div class="pw-field pw-qty-field">
                 <div class="pw-qty">
                     <button type="button" class="pw-qty-btn" data-qty-add="-500" aria-label="Remove 500 units">−500</button>
@@ -291,6 +296,7 @@ export function buildWorkspaceHTML(ctx) {
             <section class="pw-decide" aria-label="Decisions and consequences">
                 <div class="pw-groups">
                     <h2 class="pw-section-title">Quarter ${s.turn} decisions</h2>
+                    ${beginner ? '<div class="pw-opening" id="pw-opening" role="note" hidden></div>' : ''}
                     ${quantityHTML}
                     ${groupHTML('supply', '2', 'Who supplies it, and how fast?', 'Supplier &amp; shipping', openGroups.supply, supplyBody)}
                     ${groupHTML('pricing', '3', 'What price will I charge?', 'Pricing', openGroups.pricing, pricingBody)}
@@ -323,7 +329,7 @@ export function buildWorkspaceHTML(ctx) {
                     <div class="pw-actionbar">
                         <p class="pw-actionbar-sum" id="pw-actionbar-sum" aria-hidden="true"></p>
                         <button id="place-order-btn" class="pw-confirm" type="button" aria-describedby="pw-confirm-note">Confirm &amp; play the quarter</button>
-                        <p class="pw-confirm-note" id="pw-confirm-note">Locks in all choices above and plays out Q${s.turn}.${s.isEndless ? '' : ' You\'ll be asked to guess demand first.'}</p>
+                        <p class="pw-confirm-note" id="pw-confirm-note">Locks in all choices above and plays out Q${s.turn}.${s.isEndless ? '' : beginner && s.history.length === 0 ? ' You\'ll get one quick optional question first.' : ' You\'ll be asked to guess demand first.'}</p>
                     </div>
                 </aside>
             </section>
@@ -365,6 +371,42 @@ export function buildWorkspaceHTML(ctx) {
             </section>
         </div>
     </div>`;
+}
+
+// ── Beginner Chapter 1: supply flow + opening shortage (logic/beginner.js) ──
+
+/**
+ * Two-step flow: stock available now → this quarter's customers; this order →
+ * the quarter it arrives. Quantities and timing from the engine estimate.
+ */
+export function flowRowsHTML(state, est) {
+    const available = state.inventory + est.arrivingThisTurn;
+    const arriving = est.arrivingThisTurn > 0 ? ` (incl. ${fmtNum(est.arrivingThisTurn)} arriving now)` : '';
+    const last = state.lastTurnResult ? `Last quarter's demand: ${fmtNum(state.lastTurnResult.demand)}.` : 'No quarter played yet.';
+    const box = (k, v, note = '') => `<span class="pw-flowfig-box"><span class="pw-k">${k}</span><strong>${v}</strong>${note ? `<span class="pw-flowfig-note">${note}</span>` : ''}</span>`;
+    const arrow = '<span class="pw-flowfig-arrow" aria-hidden="true">→</span>';
+    const order = est.orderQuantity > 0
+        ? box('Arrives', `Q${est.arrivesOnTurn}`, `in ${plural(est.leadTimeTurns, 'quarter')}, after this quarter's customers`)
+        : box('Arrives', '—', 'no order');
+    return `
+        <li class="pw-flowfig-row">${box('Stock available now', `${fmtNum(available)} units`, arriving)}${arrow}${box('Customers this quarter', `about ${fmtNum(est.expectedDemand)}`, `expected (estimate). ${last}`)}</li>
+        <li class="pw-flowfig-row">${box('This order', `${fmtNum(est.orderQuantity)} units`)}${arrow}${order}</li>`;
+}
+
+export function flowSummaryText(state, est) {
+    const available = state.inventory + est.arrivingThisTurn;
+    return `${fmtNum(available)} units for this quarter's customers · ${est.orderQuantity > 0 ? `this order arrives Q${est.arrivesOnTurn}` : 'no order'}`;
+}
+
+/** @param {ReturnType<import('../logic/beginner.js').openingShortage>} o */
+export function openingHTML(o, est) {
+    return `
+        <p class="pw-opening-title">${o.priceCanCover ? 'This quarter may run short' : 'This quarter will likely run short'}</p>
+        <p>You inherited <strong>${fmtNum(o.available)} units</strong> — less than the ${fmtNum(o.expected)} customers are expected to want. New orders arrive in Q${o.earliest} at the earliest, so this quarter is mostly about preparing for the next delivery.</p>
+        <ul class="pw-opening-list">
+            <li><strong>You can influence now:</strong> your price — it changes how many customers buy this quarter (expected demand ranges from about ${fmtNum(o.minDemand)} to ${fmtNum(o.maxDemand)} across the price options).</li>
+            <li><strong>Your order affects:</strong> the stock you'll have from Q${est.orderQuantity > 0 ? est.arrivesOnTurn : o.earliest}, not this quarter.</li>
+        </ul>`;
 }
 
 // ── Outlook (shipments + projection) ──────────────────────────────────────

@@ -39,6 +39,11 @@ const TOKENS = {
     },
 };
 
+/** The narrative shown after a response is picked, from the current data (saves may hold older copies). */
+export function optionOutcome(scenario, index) {
+    return BY_ID.get(scenario?.id)?.options?.[index]?.outcomeText ?? scenario?.options?.[index]?.outcomeText ?? '';
+}
+
 /** @param {{ id?: string, text: string }} scenario  @param {Object} state — engine state */
 export function scenarioText(scenario, state) {
     const text = BY_ID.get(scenario?.id)?.text ?? scenario?.text ?? '';

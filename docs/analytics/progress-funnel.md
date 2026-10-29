@@ -99,6 +99,37 @@ the guidance caused it (seasonality, traffic sources and other changes also
 move these numbers). Don't report a retention or comprehension improvement
 until several complete weekly cohorts on each side agree.
 
+## Beginner Chapter 1 learning layer (Preview since 2026-10-30)
+
+FMCG Chapter 1 campaigns get a stock-flow illustration, an opening-shortage
+note, an optional "will this order arrive in time?" check on the first quarter
+(in place of that quarter's demand guess) and a chapter recap with one optional
+hypothetical question. One new event records the two optional questions:
+
+| Event | Fires when | Key params |
+|---|---|---|
+| `reflection_answer` | The arrival check is answered or skipped; the recap question is answered | `question` (`arrival_q1` / `transfer_ch1`), `answered` (true/false), `correct` (true/false, or `skipped`) |
+
+It carries the same context as the guide events (`industry_id`, `mode`,
+`chapter`, `phase`, opaque `run_id`). No answer text beyond the fixed option, no
+email, no save contents. Register `question` and `correct` as event-scoped
+dimensions if you want them in GA4 reports (16 in total).
+
+**Progression (existing events, `industry_id = fmcg`, `start_chapter = 1`):**
+campaign start → first quarter (`run_started` → `turn_completed` `turn = 1`) →
+second quarter (`turn = 2`) → Chapter 1 complete (`chapter_completed`
+`chapter = 1`). Compare start cohorts before and after the release.
+
+**Read with care:**
+- Guided vs skipped cohorts are self-selected: people who skip guidance differ
+  from people who follow it (experience, motivation, device). Differences
+  between them cannot by themselves show that guidance caused better
+  progression or understanding.
+- Correct answers to the two questions show recognition in the moment, not
+  lasting understanding; the arrival check also follows the guided tips that
+  explain the same idea. Use them alongside observed beginner sessions, not as
+  a mastery score.
+
 ## GA4 setup (one-time)
 
 In **Admin → Custom definitions → Create custom dimension**, scope **Event**,

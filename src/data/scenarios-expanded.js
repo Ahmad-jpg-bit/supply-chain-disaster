@@ -12,19 +12,19 @@ export const CHAPTER_SCENARIOS = {
             options: [
                 {
                     label: 'Match Forecast Exactly (Lean Start)',
-                    outcomeText: 'You ordered precisely what the forecast suggested. Minimal waste, but no buffer if anything changes.',
+                    outcomeText: 'You chose to order close to the forecast. That keeps waste low but leaves little buffer if demand changes. You still set the actual quantity on the next screen.',
                     conceptAlignment: 'optimal',
                     modifiers: { leadTime: 0, unitCost: 1.0, customerSatisfaction: 5 }
                 },
                 {
                     label: 'Order 50% Extra (Play It Safe)',
-                    outcomeText: 'You built up a comfortable buffer. Your warehouse is full, but so are your holding costs.',
+                    outcomeText: 'You chose a buffer-first policy. Extra stock protects against surprises, but this response raises your price per unit, and more stock means more storage cost. You still set the actual quantity on the next screen.',
                     conceptAlignment: 'cautious',
                     modifiers: { leadTime: 0, unitCost: 1.15, customerSatisfaction: 5 }
                 },
                 {
                     label: 'Order Minimum (Cut Costs)',
-                    outcomeText: 'You kept orders razor-thin. If demand ticks up even slightly, you\'ll be caught short.',
+                    outcomeText: 'You chose a lean, cost-first policy with cheaper units. If demand rises, a thin order could leave you short. You still set the actual quantity on the next screen.',
                     conceptAlignment: 'risky',
                     modifiers: { leadTime: 0, unitCost: 0.85, customerSatisfaction: -5 }
                 }
@@ -38,19 +38,19 @@ export const CHAPTER_SCENARIOS = {
             options: [
                 {
                     label: 'Scale Up Gradually (Data-Driven)',
-                    outcomeText: 'You increased orders by 80% based on historical trends. Smart use of data left you well-positioned.',
+                    outcomeText: 'You planned a measured increase based on past holiday data. Demand is expected to rise this quarter; how much to order is still your call.',
                     conceptAlignment: 'optimal',
                     modifiers: { leadTime: 0, unitCost: 1.1, customerSatisfaction: 10, demandMultiplier: 1.5 }
                 },
                 {
                     label: 'Double Everything (Max Prep)',
-                    outcomeText: 'You went all-in on holiday prep. If demand matches, you\'re golden. If not, you\'re sitting on expensive stock.',
+                    outcomeText: 'You prepared aggressively for the holiday, at a higher price per unit. If demand matches your preparation it can pay off; if not, extra stock costs money to keep.',
                     conceptAlignment: 'cautious',
                     modifiers: { leadTime: -1, unitCost: 1.3, customerSatisfaction: 5, demandMultiplier: 1.4 }
                 },
                 {
                     label: 'Wait and React (See What Happens)',
-                    outcomeText: 'You decided to wait for real demand signals. By the time orders spiked, your lead time worked against you.',
+                    outcomeText: 'You chose to wait for real demand signals. Holiday demand may arrive before new stock can, because orders take time to arrive.',
                     conceptAlignment: 'risky',
                     modifiers: { leadTime: 2, unitCost: 1.0, customerSatisfaction: -15, demandMultiplier: 1.6 }
                 }
@@ -64,19 +64,19 @@ export const CHAPTER_SCENARIOS = {
             options: [
                 {
                     label: 'Reduce Forecast by 15% (Realistic Adjustment)',
-                    outcomeText: 'You adjusted your forecast to reflect the new market reality. Inventory levels stayed efficient.',
+                    outcomeText: 'You lowered your demand expectations to reflect the new competitor. Ordering for lower demand can keep stock lean — if demand really does fall.',
                     conceptAlignment: 'optimal',
                     modifiers: { leadTime: 0, unitCost: 0.95, customerSatisfaction: 0, demandMultiplier: 0.85 }
                 },
                 {
                     label: 'Maintain Current Levels (Hold Steady)',
-                    outcomeText: 'You kept ordering the same amounts. Some excess inventory built up as demand softened.',
+                    outcomeText: 'You kept your plans unchanged. If the competitor does win customers, stock may build up.',
                     conceptAlignment: 'cautious',
                     modifiers: { leadTime: 0, unitCost: 1.1, customerSatisfaction: -5, demandMultiplier: 0.92 }
                 },
                 {
                     label: 'Increase Orders to Compete (Price War)',
-                    outcomeText: 'You ramped up orders and slashed prices to fight back. Margins are bleeding, but you\'re holding market share.',
+                    outcomeText: 'You chose to fight for market share with a costlier push. It may protect sales, but it raises your cost per unit.',
                     conceptAlignment: 'risky',
                     modifiers: { leadTime: 0, unitCost: 1.4, customerSatisfaction: 5, demandMultiplier: 1.18 }
                 }
@@ -90,19 +90,19 @@ export const CHAPTER_SCENARIOS = {
             options: [
                 {
                     label: 'Deploy with Human Oversight (Hybrid)',
-                    outcomeText: 'You let the AI generate forecasts while planners reviewed and adjusted outliers. Forecast accuracy improved 18% and your team learned to trust — and challenge — the model.',
+                    outcomeText: 'You deployed the AI with planners reviewing its forecasts. The aim: better accuracy, with people still checking for unusual events.',
                     conceptAlignment: 'optimal',
                     modifiers: { leadTime: 0, unitCost: 1.05, customerSatisfaction: 10 }
                 },
                 {
                     label: 'Full Automation (Trust the Algorithm)',
-                    outcomeText: 'The AI ran forecasts end-to-end. It nailed routine weeks, but a regional event the model had never seen caused a massive misforecast. No human was in the loop to catch it.',
+                    outcomeText: 'You let the AI run forecasts on its own. It may handle routine quarters well, but nobody is checking for events it has never seen.',
                     conceptAlignment: 'risky',
                     modifiers: { leadTime: 0, unitCost: 1.0, customerSatisfaction: -15 }
                 },
                 {
                     label: 'Reject the Platform (Stick to Spreadsheets)',
-                    outcomeText: 'You stayed with manual forecasting. Competitors using AI-driven demand sensing reacted faster to market shifts and started winning shelf space.',
+                    outcomeText: 'You stayed with manual forecasting. It\'s familiar, but competitors using demand sensing may react to market shifts faster.',
                     conceptAlignment: 'cautious',
                     modifiers: { leadTime: 0, unitCost: 1.1, customerSatisfaction: -5 }
                 }
@@ -763,7 +763,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'perfect_storm',
             title: 'The Perfect Storm',
-            text: 'Tuesday morning — three alerts open simultaneously. (1) Kinpo Electronics warns that typhoon damage at Kaohsiung Port will slow new shipments by about 4 weeks. (2) Marketing sent a promotional email early, and pre-order sign-ups suggest demand could run above plan. (3) The yuan weakened 6% overnight, raising the cost of open purchase orders priced in yuan. Your team is looking at you. Every lesson from the past 4 chapters leads to this moment. How do you respond?',
+            text: 'Tuesday morning — three alerts open simultaneously. (1) Kinpo Electronics warns that typhoon damage at Kaohsiung Port will slow new shipments by about 4 weeks. (2) Marketing sent a promotional email early, and pre-order sign-ups suggest demand could run above plan. (3) The yuan weakened 6% overnight, raising the cost of open purchase orders priced in yuan. Your team is looking at you. This tests everything the campaign covers. How do you respond?',
             highlightNode: 'supplier',
             options: [
                 {

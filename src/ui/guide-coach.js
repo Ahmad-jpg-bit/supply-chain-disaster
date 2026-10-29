@@ -8,6 +8,7 @@
  */
 
 import { fmtMoney, fmtNum } from './procurement-workspace.js';
+import { isBeginnerChapter } from '../logic/beginner.js';
 
 /**
  * @param {{ id: string, index: number, total: number, last: boolean, phaseEnd: boolean }} step
@@ -35,6 +36,7 @@ export function coachHTML(step, content) {
 export function guideContent(id, ctx) {
     const s = ctx.state;
     const est = ctx.est;
+    const firstBeginner = isBeginnerChapter(s, 'story') && s.history.length === 0;
     switch (id) {
         case 'story':
             return {
@@ -84,7 +86,7 @@ export function guideContent(id, ctx) {
             return {
                 anchor: '.pw-actionbar', where: 'beforebegin', highlight: '.pw-actionbar',
                 title: 'Confirm when you\'re ready',
-                text: `Check “Your choices”, then press Confirm. ${s.isEndless ? '' : 'You\'ll guess this quarter\'s demand first — it\'s practice and doesn\'t change what happens. '}Sometimes an urgent message arrives before the quarter plays out. Then you'll see what happened and why.`,
+                text: `Check “Your choices”, then press Confirm. ${s.isEndless ? '' : firstBeginner ? 'You\'ll get one quick optional question about your order first — it doesn\'t change what happens. ' : 'You\'ll guess this quarter\'s demand first — it\'s practice and doesn\'t change what happens. '}Sometimes an urgent message arrives before the quarter plays out. Then you'll see what happened and why.`,
             };
         default:
             return null;

@@ -36,9 +36,10 @@ import { PredictionPrompt } from './ui/prediction-prompt.js';
 import { BoardQuestion } from './ui/board-question.js';
 import { RECALL_QUESTIONS } from './data/recall-questions.js';
 import { getConceptInsight } from './logic/concept-insights.js';
-import { scenarioText } from './logic/scenario-text.js';
+import { scenarioText, optionOutcome } from './logic/scenario-text.js';
+import { isBeginnerChapter, openingShortage, arrivesInTime, buildChapterRecap, TRANSFER_QUESTION } from './logic/beginner.js';
 import { computeProjection } from './ui/planning-workbench.js';
-import { buildWorkspaceHTML, renderShipmentsHTML, renderProjectionRowsHTML, pickWarning, describeModifiers, turnGoal, turnNote, choicesSummary, fmtMoney, fmtMoney2, fmtNum } from './ui/procurement-workspace.js';
+import { buildWorkspaceHTML, renderShipmentsHTML, renderProjectionRowsHTML, pickWarning, describeModifiers, turnGoal, turnNote, choicesSummary, flowRowsHTML, flowSummaryText, openingHTML, fmtMoney, fmtMoney2, fmtNum } from './ui/procurement-workspace.js';
 import { readGuide, writeGuide, isReturningPlayer, shouldAutoStart, currentStep, startGuide, nextGuide, skipGuide, finishGuide } from './logic/guide-state.js';
 import { coachHTML, guideContent } from './ui/guide-coach.js';
 import { openHelpDialog } from './ui/help-dialog.js';
@@ -1565,8 +1566,8 @@ export class Dashboard {
                             ${getIcon(feedback.icon, 28)}
                             <span>${feedback.label}</span>
                         </div>
-                        <h2 class="outcome-text">Decision Executed</h2>
-                        <p style="margin-bottom: 2rem; font-size: 1.2rem;">${outcome}</p>
+                        <h2 class="outcome-text">Response chosen</h2>
+                        <p style="margin-bottom: 2rem; font-size: 1.2rem;">${optionOutcome(scenario, index) || outcome}</p>
                         <button id="continue-btn" class="btn-primary">Next: plan this quarter's order →</button>
                     </div>
                 `;
@@ -1901,12 +1902,21 @@ export class Dashboard {
             suppliers,
             draft: this._draft,
             openGroups: this._openGroups,
+            // Beginner Chapter 1: the flow illustration starts open on a guided first quarter, as a
+            // one-line reminder (closed) afterwards; the player's own toggle holds for the quarter
+            beginner: isBeginnerChapter(s, this._gameMode)
+                ? { flowOpen: this._flowOpenTurn === s.turn ? this._flowOpen : (this._guideRun === 'guided' && s.history.length === 0) }
+                : null,
         });
         this.ui.actionPanel.style.display = 'none';
 
         // The network diagram is the workspace's only network visual — dock it
         // into the situation column for this phase.
         const flow = document.getElementById('supply-chain-flow');
+        this.ui.mainView.querySelector('#pw-flowfig')?.addEventListener('toggle', (e) => {
+            this._flowOpen = e.currentTarget.open;
+            this._flowOpenTurn = s.turn;
+        });
         const slot = this.ui.mainView.querySelector('.pw-flow-slot');
         if (flow && slot) slot.appendChild(flow);
 
@@ -2140,6 +2150,20 @@ export class Dashboard {
         this._guideCtx = { state: s, est, rows, earliest };
         this._refreshGuideText();
 
+        // Beginner Chapter 1: stock-flow illustration and the opening-shortage note
+        if (document.getElementById('pw-flowfig')) {
+            setEl('pw-flowfig-rows', flowRowsHTML(s, est));
+            const sum = document.getElementById('pw-flowfig-sum');
+            if (sum) sum.textContent = flowSummaryText(s, est);
+        }
+        const openingEl = document.getElementById('pw-opening');
+        if (openingEl) {
+            const pricingDemands = PRICING_STRATEGIES.map(p => this.engine.estimateTurn({ ...choices, pricingId: p.id }).expectedDemand);
+            const o = openingShortage({ state: s, est, rows, earliest, pricingDemands });
+            openingEl.hidden = !o;
+            if (o) openingEl.innerHTML = openingHTML(o, est);
+        }
+
         setEl('pw-defect-est', qty > 0
             ? `This order: about ${fmtNum(est.totalDefective)} faulty units expected at ${est.supplier.name}'s ${(est.supplier.defectRate * 100).toFixed(1)}% rate — ` +
               `${fmtNum(est.caughtDefects)} found and thrown away (${fmtMoney(est.defectDisposalCost)}), ${fmtNum(est.passedDefects)} reach customers.`
@@ -2208,7 +2232,7 @@ export class Dashboard {
                 <ul class="pw-dlg-options">
                     ${scenario.options.map(o => `<li${o === picked ? ' class="pw-dlg-picked"' : ''}>${o.label}${o === picked ? ' <strong>— your response</strong>' : ''}</li>`).join('')}
                 </ul>
-                ${picked?.outcomeText ? `<h3>What happened (narrative)</h3><p>${picked.outcomeText}</p>` : ''}
+                ${picked ? `<h3>Your response (narrative)</h3><p>${optionOutcome(scenario, scenario.options.indexOf(picked))}</p>` : ''}
                 <h3>Game effects actually applied this quarter</h3>
                 ${effects.length ? `<ul class="pw-chips">${effects.map(c => `<li class="pw-chip pw-chip--${c.tone}">${c.text}</li>`).join('')}</ul>` : '<p>No mechanical effect on costs, lead time or demand.</p>'}
                 <p class="pw-note">Concept alignment: <strong>${alignText}</strong> — this scores how well the response applies the chapter's supply chain concept. It is not a prediction of this quarter's profit. Responses can't be changed once chosen.</p>
@@ -2241,8 +2265,27 @@ export class Dashboard {
             return;
         }
 
-        // Predict-before-reveal: forecast the quarter's demand before it resolves
         const s = this.engine.state;
+        this._reflection = null;
+        let arrivalSeen = false;
+        try { arrivalSeen = localStorage.getItem('scd_arrival_check_seen') === '1'; } catch { /* storage blocked: ask */ }
+        if (isBeginnerChapter(s, this._gameMode) && s.history.length === 0 && choices.orderQuantity > 0 && !arrivalSeen) {
+            const est = this.engine.estimateTurn(choices);
+            this.predictionPrompt.askArrival({
+                turn: s.turn,
+                qty: choices.orderQuantity,
+                onAnswer: (answer) => {
+                    try { localStorage.setItem('scd_arrival_check_seen', '1'); } catch { /* ignore */ }   // asked once per browser
+                    const correct = answer ? (answer === 'yes') === arrivesInTime(est, s.turn) : null;
+                    this._reflection = answer ? { answer, correct } : null;
+                    this._guideTrack('reflection_answer', { question: 'arrival_q1', answered: Boolean(answer), correct: correct ?? 'skipped' });
+                    this._maybeCrisisInterrupt(choices, null);
+                },
+            });
+            return;
+        }
+
+        // Predict-before-reveal: forecast the quarter's demand before it resolves
         const arriving = s.inTransit
             .filter(o => o.arrivesOnTurn <= s.turn)
             .reduce((sum, o) => sum + o.usableUnits + o.passedDefects, 0);
@@ -2359,6 +2402,7 @@ export class Dashboard {
             _expectedDemand: expectedDemand,
             _storyResponse: storyResponse,
             _storyEffects: storyEffects,
+            _reflection: this._reflection || null,
             _firstQuarter: this.engine.state.history.length === 1,
         };
 
@@ -2710,7 +2754,14 @@ export class Dashboard {
         const chapterId = allChapters[prevChapterIdx]?.id;
         const chapterNum = allChapters[prevChapterIdx]?.number;
         const playerDiagnosis = this._computePlayerDiagnosis(chapterNum);
-        const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback, playerDiagnosis);
+        const learning = isBeginnerChapter(this.engine.state, this._gameMode)
+            ? {
+                recap: buildChapterRecap(this.engine.state.history.filter(h => h.chapter === chapterNum)),
+                transfer: TRANSFER_QUESTION,
+                onTransfer: (answer) => this._guideTrack('reflection_answer', { question: TRANSFER_QUESTION.id, answered: true, correct: answer === TRANSFER_QUESTION.correct }),
+            }
+            : null;
+        const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback, playerDiagnosis, learning);
 
         this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state, ctaLabel: blocked ? 'Continue' : null }, withDefinition);
 

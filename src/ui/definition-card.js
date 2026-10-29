@@ -17,8 +17,10 @@ export class DefinitionCard {
      * @param {Function} onDismiss      — called when the player clicks Continue
      * @param {Object}   [playerDiagnosis] — optional: { icon, headline, detail, type }
      *   type: 'warn' | 'good' | 'info'
+     * @param {Object} [learning] — beginner Chapter 1 only: { recap, transfer, onTransfer }
+     *   (logic/beginner.js buildChapterRecap + TRANSFER_QUESTION)
      */
-    show(chapterId, onDismiss, playerDiagnosis) {
+    show(chapterId, onDismiss, playerDiagnosis, learning = null) {
         const def = CSCP_DEFINITIONS[chapterId];
         if (!def) {
             // No definition for this chapter — skip silently
@@ -48,6 +50,31 @@ export class DefinitionCard {
                 </div>`;
         }
 
+        // Beginner recap: your decision → its recorded outcome → trade-off → idea; events and
+        // demand variation kept apart; one optional, clearly hypothetical transfer question
+        const r = learning?.recap;
+        const q = learning?.transfer;
+        const recapHtml = r ? `
+                <section class="defcard-recap" aria-labelledby="defcard-recap-title">
+                    <h3 class="defcard-recap-title" id="defcard-recap-title">Your chapter recap</h3>
+                    <dl class="defcard-recap-list">
+                        <div><dt>A decision you made</dt><dd>${r.decision}</dd></div>
+                        <div><dt>What happened</dt><dd>${r.outcome}</dd></div>
+                        <div><dt>The trade-off</dt><dd>${r.tradeoff}</dd></div>
+                        <div><dt>Try in another run</dt><dd>${r.tryNext}</dd></div>
+                    </dl>
+                    <p class="defcard-recap-outside"><strong>Outside your control:</strong> ${r.events} ${r.uncertainty}</p>
+                    ${q ? `
+                    <div class="defcard-transfer" role="group" aria-labelledby="defcard-transfer-q">
+                        <p class="defcard-transfer-label">Optional question</p>
+                        <p id="defcard-transfer-q">${q.prompt}</p>
+                        <div class="defcard-transfer-options">
+                            ${q.options.map(o => `<button type="button" class="defcard-transfer-btn" data-transfer="${o.id}">${o.label}</button>`).join('')}
+                        </div>
+                        <p class="defcard-transfer-answer" aria-live="polite"></p>
+                    </div>` : ''}
+                </section>` : '';
+
         this.overlay = document.createElement('div');
         this.overlay.className = 'defcard-overlay';
         this.overlay.innerHTML = `
@@ -67,6 +94,8 @@ export class DefinitionCard {
 
                 <!-- Body -->
                 <div class="defcard-body">
+
+                    ${recapHtml}
 
                     ${diagnosisHtml}
 
@@ -112,6 +141,16 @@ export class DefinitionCard {
         `;
 
         document.body.appendChild(this.overlay);
+        if (q) {
+            const card = this.overlay;   // this card only (this.overlay is reassigned if the card is shown again)
+            const answerEl = card.querySelector('.defcard-transfer-answer');
+            card.querySelectorAll('.defcard-transfer-btn').forEach(btn => btn.addEventListener('click', () => {
+                if (answerEl.textContent) return;   // one attempt; the explanation stays visible
+                card.querySelectorAll('.defcard-transfer-btn').forEach(b => { b.disabled = true; b.setAttribute('aria-pressed', String(b === btn)); });
+                answerEl.textContent = `${btn.dataset.transfer === q.correct ? 'That\'s right.' : 'Not quite.'} ${q.explanation}`;
+                learning.onTransfer?.(btn.dataset.transfer);
+            }));
+        }
         requestAnimationFrame(() => this.overlay.classList.add('visible'));
 
         this.overlay.querySelector('.defcard-continue-btn')

@@ -10,6 +10,7 @@
  */
 
 import { PRICING_STRATEGIES } from '../data/procurement-options.js';
+import { reflectionLine } from './beginner.js';
 
 const n = (x) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(x || 0);
 const money = (x) => (x < 0 ? '−' : '') + new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Math.abs(x || 0));
@@ -32,7 +33,7 @@ export const PLAIN_CONCEPTS = {
 
 /**
  * @param {Object} r — engine lastTurnResult, decorated by the Dashboard
- * @returns {{ happened: string, money: string, beforeAfter: Array, contributions: Array, remember: Object|null }}
+ * @returns {{ happened: string, money: string, beforeAfter: Array, contributions: Array, remember: Object|null, reflection: string|null }}
  */
 export function buildTurnStory(r) {
     const available = r.sales + r.inventory;           // stock customers could buy this quarter
@@ -124,5 +125,5 @@ export function buildTurnStory(r) {
         ? { plain: PLAIN_CONCEPTS[insight.term] || null, term: insight.term, detail: insight.text }
         : null;
 
-    return { happened, money: moneyLine, beforeAfter, contributions, remember };
+    return { happened, money: moneyLine, beforeAfter, contributions, remember, reflection: reflectionLine(r._reflection, r) };
 }

@@ -165,6 +165,7 @@ export class TurnSummaryCard {
                 <h3 class="tsc-h" id="tsc-h-what">What happened</h3>
                 <p class="tsc-lead">${story.happened}</p>
                 <p class="tsc-lead">${story.money}</p>
+                ${story.reflection ? `<p class="tsc-reflection"><strong>Your quick check:</strong> ${story.reflection}</p>` : ''}
                 <table class="tsc-ba">
                     <caption class="pw-visually-hidden">Before and after this quarter</caption>
                     <thead><tr><th scope="col"><span class="pw-visually-hidden">Measure</span></th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
@@ -196,7 +197,7 @@ export class TurnSummaryCard {
                     <div><dt>Units fulfilled</dt><dd>${n(result.sales)}</dd></div>
                     <div class="${result.missedSales > 0 ? 'tsc-ops--bad' : ''}"><dt>Shortage</dt><dd>${result.missedSales > 0 ? n(result.missedSales) : 'None'}</dd></div>
                     <div><dt>Stock at quarter end</dt><dd>${n(result.inventory)}</dd></div>
-                    <div><dt>Cash at quarter close</dt><dd>${(result.cash < 0 ? '−' : '') + fmt(result.cash)}</dd></div>
+                    <div><dt>Money now</dt><dd>${((result._cashAfter ?? result.cash) < 0 ? '−' : '') + fmt(result._cashAfter ?? result.cash)}</dd></div>
                 </dl>
                 <ul class="tsc-ops-next" aria-label="Carried into next quarter">${unresolved.map(t => `<li>${t}</li>`).join('')}</ul>
             </div>`;
