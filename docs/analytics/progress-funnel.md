@@ -61,6 +61,44 @@ Every progress event also carries:
 - `access`: `free`, `core` or `pre_packaging`;
 - `industry_id`, `mode: story`, `locale` and `variant`.
 
+## Guided start and explanations (since 2026-10-29)
+
+The decision screen has an optional guided start (inline tips on the first
+quarter of a new player's first campaign; replayable from the in-game Help) and
+"Explain" buttons next to the main terms. These events measure whether that
+helps. They carry no email, review text or save contents.
+
+| Event | Fires when | Key params |
+|---|---|---|
+| `guide_started` | Guidance begins | `trigger` (`auto` = first quarter of a new player's campaign, `replay` = from Help) |
+| `guide_skipped` | The player presses Skip guidance, or Stop guidance in Help | `step_id`, `step_index` (1–6), `source` (`help` when stopped from Help) |
+| `guide_completed` | The guided quarter resolves, or the last tip is finished | `how` (`turn_confirmed` / `finished`), `steps_seen` |
+| `guide_explain_open` | An "Explain" disclosure is opened | `term` (`quarter`, `supplier`, `shipping`, `pricing`, `inspection`, `safety`); once per term per page load |
+| `first_turn_complete` (existing) | First quarter resolved in this page load | now also `chapter`, `guide` |
+| `turn_completed` (existing) | A quarter resolves | now also `guide`: `guided` / `skipped` / `none` for this game session |
+
+All guide events also carry `industry_id`, `mode`, `chapter` (0 in Endless),
+`phase`, and — in campaigns — the run's opaque `run_id`. A guide is never started
+automatically in Endless or the weekly challenge, or for a player who has played
+before (another campaign past its first quarter, a skipped chapter intro or a
+pre-2026-10-22 save).
+
+**Comparisons** (start cohorts ≥ 14 days old; `start_chapter = 1`; split by
+`industry_id` and `access`):
+
+| Question | Definition |
+|---|---|
+| Campaign start → first completed quarter | runs with `run_started` → `turn_completed` with `turn = 1`. Compare start cohorts before and after 2026-10-29 (the release), not guided vs unguided players — new players are guided, returning players are not, so those groups differ by experience. |
+| First quarter → next quarter | `turn_completed` `turn = 1` → `turn = 2`, segmented by `guide` on the `turn = 1` event. |
+| Guidance completion / skip rate | per `run_id` with `guide_started` (`trigger = auto`): share with `guide_completed` vs `guide_skipped`; `step_id` on skips shows where people leave. |
+| Explanations used | `guide_explain_open` by `term`, per run that reached the procurement phase. |
+| Save / resume failures | unchanged: `local_save_failed`, `resume_failed`, `save_recovered` per run, before vs after the release. The guide is stored in the browser (`scd_guide_v1`), not in saves, so a change here would point elsewhere. |
+
+Comparing before/after cohorts shows correlation with the release, not proof
+the guidance caused it (seasonality, traffic sources and other changes also
+move these numbers). Don't report a retention or comprehension improvement
+until several complete weekly cohorts on each side agree.
+
 ## GA4 setup (one-time)
 
 In **Admin → Custom definitions → Create custom dimension**, scope **Event**,
@@ -78,6 +116,11 @@ register exactly these (dimension name = event parameter):
 | Error reason | `reason` | e.g. `quota`, `blocked`, `network`, `http_500`, `deleted_elsewhere`, `missing`, `corrupt` |
 | Save trigger | `trigger` | `choice`, `turn`, `phase`, `draft`, `manual`, `hidden`, `navigate`, `resume`, `run_created` |
 | Snapshot version | `snapshot_version` | `1` (old chapter-end save) / `2` |
+| Guide state | `guide` | `guided` / `skipped` / `none` |
+| (Guide trigger) | `trigger` | `auto` / `replay` — reuses the Save trigger dimension above; no new registration |
+| Guide step | `step_id` | `story`, `brief`, `stock`, `order`, `cost`, `confirm`, `none` |
+| Explained term | `term` | `quarter`, `supplier`, `shipping`, `pricing`, `inspection`, `safety` |
+| Guide outcome | `how` | `turn_confirmed` / `finished` |
 
 **Do not register `run_id`.** It's a random, unique-per-campaign identifier:
 as a report dimension it's high-cardinality, collapses into "(other)" and adds
@@ -85,7 +128,7 @@ nothing to GA4 reports. It's sent so the BigQuery export can count unique
 campaigns. It isn't linked to the player's email or account. If a player asks
 for deletion, GA4's user-deletion tools cover it with the rest of their events.
 
-GA4 allows 50 event-scoped custom dimensions per property; this uses 10.
+GA4 allows 50 event-scoped custom dimensions per property; this uses 14.
 
 ## Funnel steps (unique `run_id`)
 

@@ -1,11 +1,13 @@
 /**
  * TurnSummaryCard — full-screen modal shown after every procurement turn.
- * Displays an animated income statement (revenue → costs → net profit)
- * so the player understands exactly why their cash changed, plus a
- * counterfactual replay ("what if you'd had X units available?").
+ * Leads with a plain-language story (what happened → what contributed →
+ * one thing to remember, from logic/turn-story.js); the animated income
+ * statement, operations detail and counterfactual replay ("what if you'd
+ * had X units available?") sit under "Full results".
  */
 
 import { buildCounterfactual } from '../logic/counterfactual.js';
+import { buildTurnStory } from '../logic/turn-story.js';
 import { getIcon, iconify } from '../graphics/svg-icons.js';
 
 const fmt = (n) =>
@@ -42,7 +44,7 @@ function buildKeyDriver(r) {
         return {
             icon: getIcon('warning', 16),
             label: 'Stock-out',
-            message: `${r.missedSales.toLocaleString()} units went unfulfilled — ≈${fmt(lostRev)} in lost revenue. Raise your order quantity or safety stock target.`,
+            message: `${r.missedSales.toLocaleString()} units went unfulfilled — ≈${fmt(lostRev)} in lost revenue. More stock arriving before demand (a bigger or earlier order, or a higher extra-stock target) reduces this, at the cost of holding more.`,
             type: 'warn',
         };
     }
@@ -52,7 +54,7 @@ function buildKeyDriver(r) {
         return {
             icon: getIcon('box', 16),
             label: 'Overstock penalty',
-            message: `${fmt(r.holdingCost)} tied up in holding costs — your inventory exceeds demand. Lean down your order quantity.`,
+            message: `${fmt(r.holdingCost)} in storage (holding) costs — stock was well above demand. Smaller orders would cost less to store but leave less cover for surprises.`,
             type: 'warn',
         };
     }
@@ -62,7 +64,7 @@ function buildKeyDriver(r) {
         return {
             icon: getIcon('plane', 16),
             label: 'Freight premium',
-            message: `${fmt(r.shippingCost)} in shipping ate ${Math.round((r.shippingCost / r.totalCost) * 100)}% of your total cost. Shift to sea or rail if lead time allows.`,
+            message: `${fmt(r.shippingCost)} in shipping was ${Math.round((r.shippingCost / r.totalCost) * 100)}% of your total cost. Slower shipping costs less if you can wait longer for the stock.`,
             type: 'warn',
         };
     }
@@ -72,7 +74,7 @@ function buildKeyDriver(r) {
         return {
             icon: getIcon('alertCircle', 16),
             label: 'Quality escape',
-            message: `${r.defectsPassed.toLocaleString()} defective units shipped to customers — satisfaction took a hit. Step up to Standard or Rigorous inspection.`,
+            message: `${r.defectsPassed.toLocaleString()} faulty units reached customers — satisfaction took a hit. Stricter inspection finds more of them, at a higher cost per unit.`,
             type: 'warn',
         };
     }
@@ -154,6 +156,30 @@ export class TurnSummaryCard {
                           : driver.type === 'warn' ? 'tsc-driver--warn'
                           :                          'tsc-driver--info';
 
+        // Plain-language story — what happened, what contributed, one thing to remember
+        const story = buildTurnStory(result);
+        const KIND = { choice: 'Your choice', start: 'Starting position', event: 'Event', uncertainty: 'Uncertainty' };
+        const remember = story.remember;
+        const storyHtml = `
+            <section class="tsc-story" aria-labelledby="tsc-h-what">
+                <h3 class="tsc-h" id="tsc-h-what">What happened</h3>
+                <p class="tsc-lead">${story.happened}</p>
+                <p class="tsc-lead">${story.money}</p>
+                <table class="tsc-ba">
+                    <caption class="pw-visually-hidden">Before and after this quarter</caption>
+                    <thead><tr><th scope="col"><span class="pw-visually-hidden">Measure</span></th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+                    <tbody>${story.beforeAfter.map(row => `<tr class="tsc-ba--${row.tone}"><th scope="row">${row.label}</th><td>${row.before}</td><td>${row.after}</td></tr>`).join('')}</tbody>
+                </table>
+                <h3 class="tsc-h">What contributed</h3>
+                <ul class="tsc-why">${story.contributions.map(c => `<li><span class="tsc-tag tsc-tag--${c.kind}">${KIND[c.kind]}</span> <span>${c.text}</span></li>`).join('')}</ul>
+                ${remember ? `
+                <div class="tsc-remember">
+                    <h3 class="tsc-h">One thing to remember</h3>
+                    ${remember.plain ? `<p class="tsc-remember-plain">${remember.plain}</p>` : ''}
+                    <p class="tsc-remember-term">In supply-chain terms: <strong>${remember.term}</strong>. ${remember.detail}</p>
+                </div>` : ''}
+            </section>`;
+
         // Operations — what physically happened this quarter (resolved engine data only)
         const n = (x) => (x || 0).toLocaleString();
         const next = (result._nextArrivals || []).slice(0, 3);
@@ -232,17 +258,7 @@ export class TurnSummaryCard {
                     </div>`).join('')}
             </div>` : '';
 
-        // Concept-in-action block, decorated by dashboard
-        const insight = result._conceptInsight;
-        const insightHtml = insight ? `
-            <div class="tsc-concept" data-delay="${costRows.length + 5}">
-                <div class="tsc-concept-header">
-                    <span class="tsc-concept-icon">${getIcon('book', 14)}</span>
-                    <span class="tsc-concept-label">CONCEPT IN ACTION</span>
-                    <span class="tsc-concept-term">${insight.term}</span>
-                </div>
-                <p class="tsc-concept-text">${insight.text}</p>
-            </div>` : '';
+        // The concept-in-action insight leads the card as "One thing to remember" (storyHtml)
 
         // Counterfactual replay — same quarter, different availability
         const cf = buildCounterfactual(result);
@@ -274,18 +290,23 @@ export class TurnSummaryCard {
         this.overlay = document.createElement('div');
         this.overlay.className = 'tsc-overlay';
         this.overlay.innerHTML = `
-            <div class="tsc-card glass-panel">
+            <div class="tsc-card glass-panel" role="dialog" aria-modal="true" aria-labelledby="tsc-title">
 
                 <div class="tsc-header">
                     <div class="tsc-eyebrow">${chapterLabel}</div>
-                    <h2 class="tsc-title">Quarterly Results</h2>
+                    <h2 class="tsc-title" id="tsc-title" tabindex="-1">Quarter ${result.turn} results</h2>
                 </div>
 
                 <div class="tsc-body">
 
-                    ${opsHtml}
+                    ${storyHtml}
 
                     ${predictionHtml}
+
+                    <details class="tsc-details">
+                    <summary>Full results: money, operations and replay</summary>
+
+                    ${opsHtml}
 
                     <!-- Income Statement -->
                     <div class="tsc-statement">
@@ -334,14 +355,14 @@ export class TurnSummaryCard {
 
                     ${echoesHtml}
 
-                    ${insightHtml}
-
                     ${cfHtml}
+
+                    </details>
 
                 </div>
 
                 <div class="tsc-footer">
-                    <button class="btn-primary tsc-continue-btn">Next Turn &rarr;</button>
+                    <button class="btn-primary tsc-continue-btn">Continue &rarr;</button>
                 </div>
 
             </div>
@@ -353,6 +374,7 @@ export class TurnSummaryCard {
         requestAnimationFrame(() => {
             this.overlay.classList.add('tsc-overlay--visible');
             this._staggerRows();
+            this.overlay.querySelector('#tsc-title')?.focus({ preventScroll: true });
         });
 
         this.overlay.querySelector('.tsc-continue-btn')

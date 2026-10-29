@@ -70,6 +70,7 @@
           <button id="hud-save-btn" class="hud-btn" type="button" hidden aria-describedby="hud-save-status">Save &amp; progress</button>
           <span id="hud-save-status" class="hud-save-status" role="status" aria-live="polite"></span>
           <button id="hud-unlock-btn" class="hud-btn hud-unlock-btn" type="button" hidden>Core Game Pass</button>
+          <button id="hud-help-btn" class="hud-btn" type="button" aria-haspopup="dialog">Help</button>
           <button id="hud-news-btn" class="hud-btn" type="button" aria-expanded="false" aria-controls="crisis-ticker">News<span class="hud-news-count" id="hud-news-count" hidden></span></button>
           <button id="audio-toggle" class="hud-audio-btn" aria-pressed="true" title="Mute audio"></button>
           <div class="turn-indicator" aria-label="Quarter"><span aria-hidden="true">Q</span><span id="turn-display">1</span></div>
@@ -83,30 +84,32 @@
       <!-- State strip — single horizontal band shared by all phases -->
       <section class="metrics-panel glass-panel" aria-label="Company state">
         <div class="metric-card" data-metric="cash">
-          <span class="label">Cash</span>
+          <span class="label">Money available</span>
           <span class="value" id="cash-display">$0</span>
           <span class="metric-sub" id="cash-sub">Available now</span>
         </div>
         <div class="metric-card" data-metric="inventory">
-          <span class="label">Available inventory</span>
+          <span class="label">Stock available now</span>
           <span class="value" id="inventory-display">0</span>
           <span class="metric-sub" id="inventory-sub">Units on hand</span>
         </div>
-        <div class="metric-card" data-metric="in-transit">
-          <span class="label">In transit</span>
-          <span class="value" id="in-transit-display">0</span>
-          <span class="metric-sub" id="in-transit-sub">No shipments en route</span>
-        </div>
         <div class="metric-card" data-metric="demand">
-          <span class="label">Last demand</span>
+          <span class="label">Customer demand · last quarter</span>
           <span class="value" id="demand-display">--</span>
           <span class="metric-sub" id="demand-sub">No quarter played yet</span>
         </div>
-        <div class="metric-card" data-metric="profit">
-          <span class="label">Net profit · last quarter</span>
+        <!-- Secondary metrics: behind "More details" unless they matter right now (dashboard._updateMetricSubs) -->
+        <div class="metric-card" data-metric="in-transit" id="metric-in-transit">
+          <span class="label">Stock on the way</span>
+          <span class="value" id="in-transit-display">0</span>
+          <span class="metric-sub" id="in-transit-sub">No shipments on the way</span>
+        </div>
+        <div class="metric-card" data-metric="profit" id="metric-profit" hidden>
+          <span class="label">Profit · last quarter</span>
           <span class="value" id="profit-display">$0</span>
           <span class="metric-sub" id="profit-sub">Cumulative: $0</span>
         </div>
+        <button type="button" id="metrics-more" class="metrics-more" aria-expanded="false" aria-controls="metric-in-transit metric-profit">More details</button>
       </section>
 
       <!-- Supply Chain Flow Diagram (condensed band; the only network visual) -->

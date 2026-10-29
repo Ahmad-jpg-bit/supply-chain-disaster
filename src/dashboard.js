@@ -10,7 +10,7 @@ import { SupplyChainFlow } from './graphics/supply-chain-flow.js';
 import { getIcon, iconify } from './graphics/svg-icons.js';
 import { PregamePage } from './ui/pregame-page.js';
 import { track } from './shared/track.js';
-import { buildSnapshot, restoreSnapshot, SAVEABLE_PHASES, PACKAGING_VERSION } from './logic/save-game.js';
+import { buildSnapshot, restoreSnapshot, SAVEABLE_PHASES, PACKAGING_VERSION, LOCAL_SAVE_KEY } from './logic/save-game.js';
 import * as RS from './logic/run-store.js';
 import * as CS from './logic/cloud-sync.js';
 import { SavePanel, showCloudPrompt, showConflict, showTabLock } from './ui/save-panel.js';
@@ -37,7 +37,10 @@ import { BoardQuestion } from './ui/board-question.js';
 import { RECALL_QUESTIONS } from './data/recall-questions.js';
 import { getConceptInsight } from './logic/concept-insights.js';
 import { computeProjection } from './ui/planning-workbench.js';
-import { buildWorkspaceHTML, renderShipmentsHTML, renderProjectionRowsHTML, pickWarning, describeModifiers, fmtMoney, fmtMoney2, fmtNum } from './ui/procurement-workspace.js';
+import { buildWorkspaceHTML, renderShipmentsHTML, renderProjectionRowsHTML, pickWarning, describeModifiers, turnGoal, turnNote, choicesSummary, fmtMoney, fmtMoney2, fmtNum } from './ui/procurement-workspace.js';
+import { readGuide, writeGuide, isReturningPlayer, shouldAutoStart, currentStep, startGuide, nextGuide, skipGuide, finishGuide } from './logic/guide-state.js';
+import { coachHTML, guideContent } from './ui/guide-coach.js';
+import { openHelpDialog } from './ui/help-dialog.js';
 import { checkTurnAchievements, checkChapterAchievements } from './logic/achievements.js';
 import { showAchievementToasts } from './ui/achievement-toast.js';
 import { buildAllocationScenario, applyAllocation } from './logic/allocation.js';
@@ -277,6 +280,31 @@ export class Dashboard {
             document.dispatchEvent(new CustomEvent('scd:open-paywall', { detail: { source: 'hud' } }));
         });
 
+        // Help: how a turn works, plain-language glossary, guided-start controls
+        document.getElementById('hud-help-btn')?.addEventListener('click', (e) => openHelpDialog({
+            mode: this._gameMode,
+            guideActive: this._guide?.status === 'active',
+            onReplay: () => this._replayGuide(),
+            onStop: () => this._stopGuide(),
+            returnFocus: e.currentTarget,
+        }));
+        // "Explain" disclosures anywhere in the game (buttons built by explainHTML)
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest?.('.gx-btn');
+            const panel = btn && document.getElementById(btn.getAttribute('aria-controls'));
+            if (!panel) return;
+            const open = btn.getAttribute('aria-expanded') !== 'true';
+            btn.setAttribute('aria-expanded', String(open));
+            btn.textContent = open ? 'Hide' : 'Explain';
+            panel.hidden = !open;
+            if (open) this._guideTrack('guide_explain_open', { term: btn.dataset.explain }, btn.dataset.explain);
+        });
+        // State strip: secondary metrics behind "More details"
+        document.getElementById('metrics-more')?.addEventListener('click', () => {
+            this._metricsOpen = !this._metricsOpen;
+            this._updateMetricSubs(this.engine.state);
+        });
+
         // Weekly challenge: start a seeded run, or view the leaderboard
         document.addEventListener('scd:start-weekly', () => {
             setNavMinimal(false);
@@ -507,6 +535,7 @@ export class Dashboard {
             this._draftTurn = null; // fresh game: drafts start from the engine defaults
         }
         if (mode === 'story') this._attachRun(resumeMeta, Boolean(savedGame || _statePatches));
+        this._initGuide(mode);
 
         this.ui.startScreen.classList.add('hidden');
         this.ui.dashboard.classList.remove('hidden');
@@ -736,6 +765,135 @@ export class Dashboard {
         const s = this.engine.state;
         const session = CS.getSession();
         track(name, { run_id: this.runId, industry_id: s.industry?.id, mode: 'story', cloud: session.signedIn ? 'verified' : 'device', access: Entitlements.ownsCore() ? 'core' : (this._runGrant() ? 'pre_packaging' : 'free'), ...params });
+    }
+
+    /* ── Guided start (logic/guide-state.js, ui/guide-coach.js) ─────────── */
+
+    /** At game start: should this player get the automatic guided start? */
+    _initGuide(mode) {
+        const s = this.engine.state;
+        let g = readGuide();
+        this._guideRun = 'none';   // this game's guide state, reported on first_turn_complete
+        if (g.status === 'active' && !g.replay && s.history.length > 0) g = writeGuide(finishGuide());
+        if (g.status === 'unseen') {
+            let skippedIntros = false;
+            let legacySave = false;
+            try {
+                skippedIntros = JSON.parse(localStorage.getItem('scd_skipped_intros') || '[]').length > 0;
+                legacySave = Boolean(localStorage.getItem(LOCAL_SAVE_KEY));
+            } catch { /* storage blocked: treat as new */ }
+            const returning = isReturningPlayer({ metas: RS.allMetas(), currentRunId: this.runId, skippedIntros, legacySave });
+            if (shouldAutoStart({ mode, historyLength: s.history.length, guide: g, returning })) {
+                g = writeGuide(startGuide(false));
+                this._guideTrack('guide_started', { trigger: 'auto' });
+            }
+        }
+        if (g.status === 'active' && (mode === 'story' || g.replay)) this._guideRun = 'guided';
+        this._guide = g;
+    }
+
+    /** Non-personal guide analytics: industry, mode, chapter, phase. */
+    _guideTrack(name, params = {}, onceKey) {
+        const s = this.engine.state;
+        track(name, {
+            industry_id: s.industry?.id,
+            mode: this._gameMode,
+            chapter: s.isEndless ? 0 : (s.chapterIndex ?? 0) + 1,
+            phase: String(s.phase || '').replace('PHASE_', '').toLowerCase(),
+            ...(this._gameMode === 'story' && this.runId ? { run_id: this.runId } : {}),
+            ...params,
+        }, onceKey);
+    }
+
+    _guideStep() {
+        const s = this.engine.state;
+        // Endless / weekly: only a guide the player replayed from Help
+        if (this._gameMode !== 'story' && !this._guide?.replay) return null;
+        const step = currentStep(this._guide, s.phase, s.history.length);
+        if (step && step.index !== this._guide.step) this._guide = writeGuide({ ...this._guide, step: step.index });
+        return step;
+    }
+
+    _guideContentFor(step) {
+        const ctx = this.engine.state.phase === GAME_PHASES.PROCUREMENT && this._guideCtx ? this._guideCtx : { state: this.engine.state };
+        return guideContent(step.id, ctx);
+    }
+
+    /** Place (or remove) the inline tip for the current phase. Never blocks play. */
+    _renderGuide() {
+        document.getElementById('gc-coach')?.remove();
+        document.querySelectorAll('.gc-target').forEach(el => el.classList.remove('gc-target'));
+        const step = this._guideStep();
+        const content = step && this._guideContentFor(step);
+        const anchor = content && document.querySelector(content.anchor);
+        if (!anchor) return;
+        anchor.insertAdjacentHTML(content.where, coachHTML(step, content));
+        document.querySelectorAll(content.highlight).forEach(el => el.classList.add('gc-target'));
+        const coach = document.getElementById('gc-coach');
+        coach.querySelector('[data-gc="next"]').addEventListener('click', () => this._guideNext(step));
+        coach.querySelector('[data-gc="skip"]').addEventListener('click', () => this._guideSkip(step));
+        if (this._guideFocus) {
+            this._guideFocus = false;
+            coach.querySelector('.gc-title').focus();
+        }
+    }
+
+    /** Keep live numbers in the current tip in step with the decision draft. */
+    _refreshGuideText() {
+        const coach = document.getElementById('gc-coach');
+        if (!coach) return;
+        const step = this._guideStep();
+        const content = step && step.id === coach.dataset.step && this._guideContentFor(step);
+        const el = coach.querySelector('#gc-text');
+        if (content && el && el.innerHTML !== content.text) el.innerHTML = content.text;
+    }
+
+    _guideNext(step) {
+        this._guide = writeGuide(nextGuide(this._guide, step.index));
+        if (this._guide.status === 'done') {
+            this._guideTrack('guide_completed', { how: 'finished', steps_seen: step.total });
+            this._renderGuide();
+            document.getElementById('place-order-btn')?.focus();
+            return;
+        }
+        this._guideFocus = true;   // move focus to the next tip (now, or when its phase renders)
+        this._renderGuide();
+    }
+
+    /** Focus the main control of the current phase after the guide goes away. */
+    _focusPhaseControl() {
+        const el = this.engine.state.phase === GAME_PHASES.STORY
+            ? this.ui.mainView.querySelector('.story-option-btn')
+            : document.getElementById('order-input');
+        el?.focus();
+    }
+
+    _guideSkip(step) {
+        this._guide = writeGuide(skipGuide());
+        this._guideRun = 'skipped';
+        this._guideFocus = false;
+        this._guideTrack('guide_skipped', { step_id: step.id, step_index: step.index + 1 });
+        this._renderGuide();
+        this._focusPhaseControl();
+    }
+
+    /** Help → Replay the guided start (any mode, any turn; steps follow the current phase). */
+    _replayGuide() {
+        this._guide = writeGuide(startGuide(true));
+        this._guideRun = 'guided';
+        this._guideTrack('guide_started', { trigger: 'replay' });
+        this._guideFocus = true;
+        this._renderGuide();
+    }
+
+    /** Help → Stop guidance. */
+    _stopGuide() {
+        const step = this._guideStep();
+        this._guide = writeGuide(skipGuide());
+        this._guideRun = 'skipped';
+        this._guideTrack('guide_skipped', { step_id: step?.id ?? 'none', step_index: (step?.index ?? -1) + 1, source: 'help' });
+        this._renderGuide();
+        this._focusPhaseControl();
     }
 
 
@@ -1345,6 +1503,7 @@ export class Dashboard {
         this.ui.mainView.appendChild(sheetBackdrop);
         this.ui.mainView.appendChild(sheet);
         this.ui.actionPanel.style.display = 'none';
+        this._renderGuide();
 
         // Consequence overlay — surfaces last turn's key financial outcome
         this._maybeShowConsequenceOverlay();
@@ -1407,7 +1566,7 @@ export class Dashboard {
                         </div>
                         <h2 class="outcome-text">Decision Executed</h2>
                         <p style="margin-bottom: 2rem; font-size: 1.2rem;">${outcome}</p>
-                        <button id="continue-btn" class="btn-primary">Continue to Procurement →</button>
+                        <button id="continue-btn" class="btn-primary">Next: plan this quarter's order →</button>
                     </div>
                 `;
                 document.getElementById('continue-btn').onclick = () => this.renderGameState();
@@ -1734,7 +1893,7 @@ export class Dashboard {
         }
         this._qtyText    = String(this._draft.orderQuantity);
         this._submitting = false;
-        this._openGroups = this._openGroups || { procurement: true, commercial: true, protection: false };
+        this._openGroups = this._openGroups || { supply: true, pricing: false, protection: false };
 
         this.ui.mainView.innerHTML = buildWorkspaceHTML({
             state: s,
@@ -1753,6 +1912,7 @@ export class Dashboard {
         this._initBullwhipLiveChart();
         this.attachProcurementListeners();
         this.updateCostEstimate();
+        this._renderGuide();
     }
 
     attachProcurementListeners() {
@@ -1841,6 +2001,16 @@ export class Dashboard {
         return { ...this._draft };
     }
 
+    /** Earliest quarter any supplier + shipping combination could deliver (same engine estimate). */
+    _earliestArrival(choices) {
+        const suppliers = SUPPLIERS[this.engine.state.industry.id] || SUPPLIERS.electronics;
+        let best = Infinity;
+        suppliers.forEach(sup => SHIPPING_METHODS.forEach(m => {
+            best = Math.min(best, this.engine.estimateTurn({ ...choices, supplierId: sup.id, shippingId: m.id, orderQuantity: 1 }).arrivesOnTurn);
+        }));
+        return best;
+    }
+
     updateCostEstimate() {
         const s = this.engine.state;
         const industryId = s.industry.id;
@@ -1896,8 +2066,8 @@ export class Dashboard {
         const tbody = document.querySelector('#pw-proj tbody');
         if (tbody) tbody.innerHTML = renderProjectionRowsHTML(rows, est, s.turn);
         setEl('pw-proj-assumptions',
-            `Assumes demand of ${fmtNum(est.expectedDemand)} units each quarter (base demand × your pricing and current event effects), ` +
-            `shipments on schedule and no crises. Each quarter: shipments arrive → demand is served (backlog first) → your new order is dispatched.`);
+            `Assumes customers want about ${fmtNum(est.expectedDemand)} units each quarter (base demand × your pricing and current event effects), ` +
+            `shipments on time and no surprise events. Each quarter: shipments arrive → customers buy (waiting orders first) → your new order leaves the supplier.`);
 
         // ── Consequence summary ────────────────────────────────────────
         const cashAfter = s.cash - est.purchaseCost;
@@ -1911,12 +2081,12 @@ export class Dashboard {
         document.getElementById('pw-c-cash-wrap')?.setAttribute('data-tone', cashAfter < 0 ? 'critical' : cashAfter < 80000 ? 'warn' : 'ok');
         setEl('pw-c-arrival', qty > 0 ? `Q${est.arrivesOnTurn}` : '—');
         setEl('pw-c-arrival-note', qty > 0
-            ? `In ${est.leadTimeTurns} quarter${est.leadTimeTurns === 1 ? '' : 's'} · usable for Q${est.arrivesOnTurn} demand`
+            ? `In ${est.leadTimeTurns} quarter${est.leadTimeTurns === 1 ? '' : 's'} · ready to sell in Q${est.arrivesOnTurn}`
             : 'No order placed');
         setEl('pw-c-inv', `${fmtNum(now.endInv)} units`);
         setEl('pw-c-inv-note', now.stockout
-            ? `Estimate · after demand · ~${fmtNum(now.short)} short`
-            : `Estimate · after expected demand of ${fmtNum(est.expectedDemand)}`);
+            ? `About ${fmtNum(now.short)} units short of expected demand`
+            : `After expected demand of ${fmtNum(est.expectedDemand)}`);
         document.getElementById('pw-c-inv-wrap')?.setAttribute('data-tone', now.stockout ? 'critical' : now.belowSafety ? 'warn' : 'ok');
 
         const warning = pickWarning({ state: s, est, rows, cashAfter, safetyStock: choices.safetyStockTarget });
@@ -1931,39 +2101,47 @@ export class Dashboard {
             [`Purchase (${fmtNum(qty)} × ${fmtMoney2(est.unitCost)})`, est.orderCost],
             ['Shipping', est.shippingCost],
             ['Inspection', est.inspectionCost],
-            [`Defect disposal (~${fmtNum(est.caughtDefects)} caught units)`, est.defectDisposalCost],
+            [`Faulty-unit disposal (~${fmtNum(est.caughtDefects)} found)`, est.defectDisposalCost],
             ...(est.contractFee ? [['Contract shortfall fee', est.contractFee]] : []),
         ].map(([k, val]) => `<tr><th scope="row">${k}</th><td>${fmtMoney(val)}</td></tr>`).join('')
-          + `<tr class="pw-bd-total"><th scope="row">Order commitment</th><td>${fmtMoney(est.purchaseCost)}</td></tr>`
-          + `<tr class="pw-bd-extra"><th scope="row">Also this quarter: holding cost on stock on hand</th><td>${fmtMoney(est.holdingCost)}</td></tr>`;
+          + `<tr class="pw-bd-total"><th scope="row">This order costs</th><td>${fmtMoney(est.purchaseCost)}</td></tr>`
+          + `<tr class="pw-bd-extra"><th scope="row">Also this quarter: storage cost (holding cost) on stock you have</th><td>${fmtMoney(est.holdingCost)}</td></tr>`;
         setEl('pw-breakdown-rows', rowsHtml);
 
         // ── Group summaries (always visible, incl. warnings when collapsed) ──
         const sumChip = (t, tone = '') => `<span class="pw-sum${tone ? ` pw-sum--${tone}` : ''}">${t}</span>`;
         const lateOrder = qty > 0 && rows.some(r => r.stockout && r.turn < est.arrivesOnTurn);
-        setEl('pw-sum-procurement', [
+        setEl('pw-sum-supply', [
             sumChip(`${est.supplier.tier} · ${est.supplier.name}`),
-            sumChip(`${fmtMoney2(est.landedUnitCost)}/unit landed`),
+            sumChip(`${est.shippingMethod.name}`),
+            sumChip(`${fmtMoney2(est.landedUnitCost)}/unit incl. shipping`),
             sumChip(qty > 0 ? `Arrives Q${est.arrivesOnTurn}` : 'No order'),
-            ...(lateOrder ? [sumChip('⚠ Arrives after a projected shortfall', 'warn')] : []),
+            ...(lateOrder ? [sumChip('⚠ Arrives after an expected shortfall', 'warn')] : []),
             ...(est.contractApplies && est.contractHonoured === false ? [sumChip('⚠ Contract shortfall fee', 'warn')] : []),
         ].join(''));
-        setEl('pw-sum-commercial', [
-            sumChip(`${fmtNum(qty)} units`),
-            sumChip(`${est.pricingStrategy.name} · sells ${fmtMoney2(est.unitPrice)}/unit`),
-            sumChip(`${fmtMoney(est.purchaseCost)} commitment`),
-            ...(this._qtyError ? [sumChip('⚠ Invalid quantity', 'critical')] : []),
+        setEl('pw-sum-pricing', [
+            sumChip(`${est.pricingStrategy.name} · you sell at ${fmtMoney2(est.unitPrice)}/unit`),
+            sumChip(`Expected demand ${fmtNum(est.expectedDemand)}`),
         ].join(''));
         const firstBelow = rows.find(r => r.belowSafety);
         setEl('pw-sum-protection', [
             sumChip(`${est.inspection.name}${est.inspectionCost ? ` · ${fmtMoney(est.inspectionCost)}` : ''}`),
-            sumChip(`Safety target ${fmtNum(choices.safetyStockTarget)}`),
+            sumChip(`Extra-stock target ${fmtNum(choices.safetyStockTarget)}`),
             ...(firstBelow ? [sumChip(`⚠ Below target in Q${firstBelow.turn}`, 'warn')] : []),
         ].join(''));
 
+        // Turn brief, quantity hint and readable selections (all from the same estimate)
+        const earliest = this._earliestArrival(choices);
+        setEl('pw-brief-goal', turnGoal({ state: s, est, rows, earliest }));
+        setEl('pw-brief-note', turnNote({ state: s, est, earliest }));
+        setEl('pw-qty-hint', `Customers are expected to want about ${fmtNum(est.expectedDemand)} units a quarter at your current price${s.backlog > 0 ? `, plus ${fmtNum(s.backlog)} still waiting` : ''}.`);
+        setEl('pw-choices-text', choicesSummary(est, choices.safetyStockTarget));
+        this._guideCtx = { state: s, est, rows, earliest };
+        this._refreshGuideText();
+
         setEl('pw-defect-est', qty > 0
-            ? `This order: ~${fmtNum(est.totalDefective)} defective units expected at ${est.supplier.name}'s ${(est.supplier.defectRate * 100).toFixed(1)}% rate — ` +
-              `${fmtNum(est.caughtDefects)} caught and disposed (${fmtMoney(est.defectDisposalCost)}), ${fmtNum(est.passedDefects)} reach customers.`
+            ? `This order: about ${fmtNum(est.totalDefective)} faulty units expected at ${est.supplier.name}'s ${(est.supplier.defectRate * 100).toFixed(1)}% rate — ` +
+              `${fmtNum(est.caughtDefects)} found and thrown away (${fmtMoney(est.defectDisposalCost)}), ${fmtNum(est.passedDefects)} reach customers.`
             : 'No order this quarter.');
 
         // Chapter lane + contract reminders
@@ -1992,7 +2170,7 @@ export class Dashboard {
         }
 
         // Compact action-bar line (narrow layouts) + submit availability
-        setEl('pw-actionbar-sum', `${fmtMoney(est.purchaseCost)} · ${qty > 0 ? `arrives Q${est.arrivesOnTurn}` : 'no order'}${warning.tone === 'ok' ? '' : ' · see warning'}`);
+        setEl('pw-actionbar-sum', `${qty > 0 ? `${fmtNum(qty)} units · ${fmtMoney(est.purchaseCost)} · arrives Q${est.arrivesOnTurn}` : 'No order'}${warning.tone === 'ok' ? '' : ' · see warning'}`);
         const btn = document.getElementById('place-order-btn');
         if (btn && !this._submitting) btn.disabled = Boolean(this._qtyError);
 
@@ -2050,6 +2228,9 @@ export class Dashboard {
 
     handleProcurement() {
         const choices = this.getSelectedProcurementChoices();
+        // Confirmed position at decision time — the results card's "before" values
+        const s0 = this.engine.state;
+        this._turnStart = { cash: s0.cash, inventory: s0.inventory, backlog: s0.backlog };
         AudioHapticManager.play('confirm');
         AudioHapticManager.haptic('medium');
 
@@ -2114,15 +2295,26 @@ export class Dashboard {
         const chapterOfTurn = (this.engine.state.chapterIndex ?? 0) + 1;
         const scenarioOfTurn = this.engine.state.currentScenario?.id;
         const chapterIdOfTurn = this.engine.state.currentChapter?.id;
+        // Pre-resolution context for the results card (engine estimate + the event response in force)
+        const expectedDemand = this.engine.estimateTurn(choices).expectedDemand;
+        const storyEffects = this.engine.state.isEndless ? [] : describeModifiers(this.engine.state.modifiers).map(c => c.text);
+        const storyResponse = this.engine.state.isEndless ? null : this.engine.state.lastStoryChoice?.optionLabel ?? null;
+        const guideWasActive = this._guide?.status === 'active' && (this._gameMode === 'story' || this._guide.replay);
         this.engine.processTurn(choices);
-        this._progressEvent('turn_completed', `t${turnDone}`, { chapter: chapterOfTurn, turn: turnDone });
+        this._progressEvent('turn_completed', `t${turnDone}`, { chapter: chapterOfTurn, turn: turnDone, guide: this._guideRun || 'none' });
+        // The guided turn is complete once it resolves
+        if (guideWasActive) {
+            this._guideTrack('guide_completed', { how: 'turn_confirmed', steps_seen: (this._guide.step ?? 0) + 1, phase: 'procurement' });
+            this._guide = writeGuide(finishGuide());
+            this._renderGuide();
+        }
         // Public participation counts (campaigns only; the server deduplicates per run + scenario)
         if (this._gameMode === 'story' && this.runId) {
             CM.recordQuarter({ runId: this.runId, industryId: this.engine.state.industry?.id, chapterId: chapterIdOfTurn, scenarioId: scenarioOfTurn, turn: turnDone });
         }
         if (!this._firstTurnTracked) {
             this._firstTurnTracked = true;
-            track('first_turn_complete', { industry_id: this.engine.state.industry?.id, mode: this._gameMode });
+            track('first_turn_complete', { industry_id: this.engine.state.industry?.id, mode: this._gameMode, chapter: chapterOfTurn, guide: this._guideRun || 'none' });
         }
 
         // Surface any micro-crisis that fired this turn into the live ticker
@@ -2159,6 +2351,16 @@ export class Dashboard {
         // Concept-in-action insight (also shown in endless mode)
         result._conceptInsight = getConceptInsight(result, this.engine.state.history);
 
+        // "What happened / what contributed" inputs for the results card only —
+        // kept off `result`, which is also the history entry saved in snapshots
+        const storyCtx = {
+            _before: this._turnStart || null,
+            _expectedDemand: expectedDemand,
+            _storyResponse: storyResponse,
+            _storyEffects: storyEffects,
+            _firstQuarter: this.engine.state.history.length === 1,
+        };
+
         // Crisis response record + human vignette for the summary card
         if (crisisResponse) result._crisisResponse = crisisResponse;
         result._vignette = pickVignette(result);
@@ -2181,7 +2383,7 @@ export class Dashboard {
         if (savedTurn && this._gameMode === 'story' && RS.getMeta(this.runId)?.turn === 2) {
             showCloudPrompt({ onEnable: () => this.savePanel.open({ focus: 'email', adoptRunId: this.runId, source: 'first_turn_prompt' }) });
         }
-        const showSummary = () => this.turnSummaryCard.show(result, chapter, () => {
+        const showSummary = () => this.turnSummaryCard.show({ ...result, ...storyCtx }, chapter, () => {
             if (!this.engine.state.isEndless && this.engine.state.boardConfidence <= 0) {
                 this._boardDismissal();
                 return;
@@ -2623,13 +2825,26 @@ export class Dashboard {
         const fmtM = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
         set('cash-sub', s.cash < 0 ? 'Below zero' : s.cash < 80000 ? 'Low-cash alert level' : 'Available now');
-        set('inventory-sub', s.backlog > 0 ? `${fmtN(s.backlog)} owed to customers (backlog)` : 'Units on hand now');
+        set('inventory-sub', s.backlog > 0 ? `${fmtN(s.backlog)} customer orders still waiting` : 'Units customers can buy now');
 
         // In-transit breakdown by arrival quarter
         const byTurn = new Map();
         s.inTransit.forEach(o => byTurn.set(o.arrivesOnTurn, (byTurn.get(o.arrivesOnTurn) || 0) + o.usableUnits + o.passedDefects));
         const parts = [...byTurn.entries()].sort((a, b) => a[0] - b[0]).map(([t, u]) => `${fmtN(u)} → Q${t}`);
-        set('in-transit-sub', parts.length ? parts.slice(0, 3).join(' · ') + (parts.length > 3 ? ' …' : '') : 'No shipments en route');
+        set('in-transit-sub', parts.length ? parts.slice(0, 3).join(' · ') + (parts.length > 3 ? ' …' : '') : 'No shipments on the way');
+
+        // Money, stock and demand always show; stock on the way appears whenever
+        // something is on the way, profit sits behind "More details"
+        const open = Boolean(this._metricsOpen);
+        const transitCard = document.getElementById('metric-in-transit');
+        const profitCard = document.getElementById('metric-profit');
+        if (transitCard) transitCard.hidden = !(open || byTurn.size > 0);
+        if (profitCard) profitCard.hidden = !open;
+        const more = document.getElementById('metrics-more');
+        if (more) {
+            more.setAttribute('aria-expanded', String(open));
+            more.textContent = open ? 'Fewer details' : 'More details';
+        }
 
         const last = s.lastTurnResult;
         if (last) {
@@ -2639,8 +2854,8 @@ export class Dashboard {
             const cumulative = s.history.reduce((sum, h) => sum + (h.profit || 0), 0);
             set('profit-sub', `Q${last.turn} result · run total ${fmtM(cumulative)}`);
         } else {
-            set('demand-sub', 'No quarter resolved yet');
-            set('profit-sub', 'No quarter resolved yet');
+            set('demand-sub', 'None yet · base demand ≈ 1,000 a quarter');
+            set('profit-sub', 'No quarter played yet');
         }
     }
 

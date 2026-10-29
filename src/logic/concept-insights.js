@@ -40,7 +40,7 @@ export function getConceptInsight(result, history = []) {
         const lostRev = r.sales > 0 ? Math.round(r.missedSales * (r.revenue / r.sales)) : r.missedSales * 120;
         return {
             term: 'Reorder Point & Safety Stock',
-            text: `${r.missedSales.toLocaleString()} units short ≈ ${fmt(lostRev)} lost. ROP = (demand × lead time) + safety stock — with a ${r.leadTimeTurns}-turn lead time, this stockout was locked in by an order placed too small, too late.`,
+            text: `${r.missedSales.toLocaleString()} units short ≈ ${fmt(lostRev)} lost. ROP = (demand × lead time) + safety stock — with a ${r.leadTimeTurns}-turn lead time, stock for a quarter has to be ordered at least ${r.leadTimeTurns} turn${r.leadTimeTurns === 1 ? '' : 's'} ahead.`,
         };
     }
 

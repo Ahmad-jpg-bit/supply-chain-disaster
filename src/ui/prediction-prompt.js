@@ -58,12 +58,12 @@ export class PredictionPrompt {
                 </div>
 
                 <button class="btn-primary pp-confirm-btn">Lock Forecast &rarr;</button>
-                <p class="pp-note">Your accuracy is tracked as MAPE — the same metric real planners are graded on.</p>
+                <p class="pp-note">This guess doesn't change sales or costs. Your accuracy is tracked as MAPE — the same metric real planners are graded on.</p>
             </div>
         `;
 
         document.body.appendChild(this.overlay);
-        requestAnimationFrame(() => this.overlay.classList.add('pp-overlay--visible'));
+        requestAnimationFrame(() => this.overlay?.classList.add('pp-overlay--visible'));
 
         const slider  = this.overlay.querySelector('#pp-forecast-slider');
         const valueEl = this.overlay.querySelector('#pp-forecast-value');
