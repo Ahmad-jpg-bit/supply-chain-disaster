@@ -234,8 +234,9 @@ test('results story: later quarters, profit/loss wording and events are reported
         pricing: 'Market Price', inspection: 'Standard QC', defectsPassed: 0, defectsFound: 0, safetyBreach: false,
         crisis: null, worldEchoes: [], _before: { cash: 102000, inventory: 1400, backlog: 0 }, _expectedDemand: 1000, _firstQuarter: false,
     };
-    let story = buildTurnStory(base);
+    let story = buildTurnStory({ ...base, totalCost: 95000, holdingCost: 7000 });
     assert.equal(story.money, 'The quarter made a loss of $12,000.');
+    assert.match(story.contributions.find(c => c.kind === 'choice').text, /800 units for \$88,000, paid this quarter\. They're due in Q8/);
     assert.match(story.happened, /every order was served\. 400 units are left/);
     assert.ok(!story.contributions.some(c => c.kind === 'start'));
     assert.match(story.contributions.find(c => c.kind === 'uncertainty').text, /close to the estimate/);

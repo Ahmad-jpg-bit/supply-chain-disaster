@@ -62,8 +62,10 @@ export function buildTurnStory(r) {
     if (r._firstQuarter && (r.backlog > 0 || r.missedSales > 0)) {
         add('start', 'This quarter\'s stock was set before you started — no order placed this quarter could arrive in time.');
     }
+    // Order costs (purchase, shipping, inspection, disposal, contract fee) = total cost minus storage
+    const orderCosts = (r.totalCost || 0) - (r.holdingCost || 0);
     add('choice', r.orderQuantity > 0
-        ? `You ordered ${n(r.orderQuantity)} units, due in Q${r.arrivesOnTurn} — orders always take at least a quarter, so none of it could be sold this quarter.`
+        ? `You ordered ${n(r.orderQuantity)} units for ${money(orderCosts)}, paid this quarter. They're due in Q${r.arrivesOnTurn} — orders always take at least a quarter — so they earn money only when sold later.`
         : 'You didn\'t order anything this quarter.');
     if (r.unitsReceived > 0) add('choice', `${n(r.unitsReceived)} units from earlier orders arrived in time to sell.`);
 
