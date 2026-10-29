@@ -27,7 +27,7 @@ export const PLAIN_CONCEPTS = {
     'Total Cost of Ownership (TCO)': 'The cheapest price per unit isn\'t always the cheapest overall — shipping, storage and quality costs add up.',
     'Service Level & Backorders': 'Customers you can\'t serve now wait for later stock. The share of demand you serve on time is called your service level.',
     'Forecast Error (MAPE)': 'Demand rarely matches the estimate exactly. Keeping some extra stock is one way to absorb the difference.',
-    'Order-Up-To Level': 'Having enough stock for expected demand plus a small buffer kept this quarter steady.',
+    'Order-Up-To Level': 'Keeping enough stock for expected demand plus a small buffer lets you serve customers even when demand varies a little.',
 };
 
 /**
@@ -42,13 +42,24 @@ export function buildTurnStory(r) {
     const happened = r.backlog > 0
         ? `Customers wanted ${n(wanted)} units${waitingNote}. You had ${n(available)} to sell, so ${n(r.sales)} were served and ${n(r.backlog)} orders are still waiting.`
         : `Customers wanted ${n(wanted)} units${waitingNote} and you had ${n(available)} to sell, so every order was served. ${n(r.inventory)} units are left in stock.`;
-    const moneyLine = r.profit >= 0
-        ? `The quarter made a profit of ${money(r.profit)}.`
-        : `The quarter made a loss of ${money(-r.profit)}.`;
+    // The game's quarterly result counts every cost paid this quarter, including the whole new order
+    let moneyLine = `Sales brought in ${money(r.revenue)} and this quarter's costs, including the new order, came to ${money(r.totalCost)}: `
+        + (r.profit >= 0 ? `a profit of ${money(r.profit)}.` : `a loss of ${money(-r.profit)}.`);
 
     const b = r._before;
+    const cashAfter = r._cashAfter ?? r.cash;   // live cash when shown (rationing premiums land after the result)
+    if (b && Math.abs((cashAfter - b.cash) - r.profit) >= 1) {
+        // Cash also moved outside the result; name only the parts the data records
+        const fx = r.crisis?.effects || {};
+        const parts = [];
+        if (r._crisisResponse?.mitigated && r._crisisResponse.cost) parts.push(`${money(r._crisisResponse.cost)} for your crisis response`);
+        if (fx.cashPenalty) parts.push(`a ${money(fx.cashPenalty)} event charge`);
+        if (fx.cashBonus) parts.push(`a ${money(fx.cashBonus)} event payment`);
+        const delta = cashAfter - b.cash;
+        moneyLine += ` In total your money ${delta < 0 ? 'fell' : 'rose'} by ${money(Math.abs(delta))}${parts.length ? `, including ${parts.join(' and ')}` : ''}.`;
+    }
     const beforeAfter = [];
-    if (b) beforeAfter.push({ label: 'Money', before: money(b.cash), after: money(r.cash), tone: r.cash < b.cash ? 'down' : r.cash > b.cash ? 'up' : 'same' });
+    if (b) beforeAfter.push({ label: 'Money', before: money(b.cash), after: money(cashAfter), tone: cashAfter < b.cash ? 'down' : cashAfter > b.cash ? 'up' : 'same' });
     const stockBefore = b ? b.inventory : r.startingInventory;
     beforeAfter.push({ label: 'Stock', before: n(stockBefore), after: n(r.inventory), tone: r.inventory < stockBefore ? 'down' : r.inventory > stockBefore ? 'up' : 'same' });
     const waitBefore = b ? b.backlog : (r.backlogBefore || 0);
@@ -59,13 +70,17 @@ export function buildTurnStory(r) {
     const contributions = [];
     const add = (kind, text) => contributions.push({ kind, text });
 
-    if (r._firstQuarter && (r.backlog > 0 || r.missedSales > 0)) {
-        add('start', 'This quarter\'s stock was set before you started — no order placed this quarter could arrive in time.');
+    // A run's first quarter can only sell the starting stock (nothing is on the way at the start).
+    // Stated as the constraint, not as the whole cause: pricing, events and demand variation follow.
+    if (r._firstQuarter && !r.unitsReceived && (r.backlog > 0 || r.missedSales > 0)) {
+        const lost = r.crisis?.crisisInventoryLost || 0;
+        add('start', `You started with ${n(r.startingInventory)} units and nothing on the way${lost ? `, and ${n(lost)} were lost to the event` : ''}. No order placed this quarter could arrive in time.`);
     }
     // Order costs (purchase, shipping, inspection, disposal, contract fee) = total cost minus storage
     const orderCosts = (r.totalCost || 0) - (r.holdingCost || 0);
+    const due = r.arrivesOnTurn + (r.crisis?.effects?.transitDelay || 0);
     add('choice', r.orderQuantity > 0
-        ? `You ordered ${n(r.orderQuantity)} units for ${money(orderCosts)}, paid this quarter. They're due in Q${r.arrivesOnTurn} — orders always take at least a quarter — so they earn money only when sold later.`
+        ? `You ordered ${n(r.orderQuantity)} units for ${money(orderCosts)}, counted in this quarter's costs. They're due in Q${due} and can only be sold once they arrive.`
         : 'You didn\'t order anything this quarter.');
     if (r.unitsReceived > 0) add('choice', `${n(r.unitsReceived)} units from earlier orders arrived in time to sell.`);
 

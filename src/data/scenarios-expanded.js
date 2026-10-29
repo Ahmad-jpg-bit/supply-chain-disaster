@@ -7,7 +7,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'steady_seas',
             title: 'Steady Seas',
-            text: 'Q1 just closed with 987 units sold — nearly matching your 1,000-unit forecast. Your Shenzhen-based supplier confirmed on-time delivery for the next 3 months and your warehouse holds 1,450 units. The board wants a documented ordering policy before Q2 begins. How do you set your initial inventory strategy?',
+            text: '{lastQuarter} Your Shenzhen-based supplier reports no new delays, and your warehouse holds {stock} units. The board wants a documented ordering policy before {nextQuarter} begins. How do you set your inventory strategy?',
             highlightNode: 'warehouse',
             options: [
                 {
@@ -33,7 +33,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'holiday_approaching',
             title: 'Holiday Season Approaching',
-            text: 'Three years of POS data shows Q4 demand averaging 2,340 units — 2.1× your Q1–Q3 baseline of 1,100. Marketing just confirmed a $200K Black Friday campaign launching in 6 weeks. Your current inventory sits at 800 units and your Shenzhen supplier needs 6 weeks lead time to fill a large order. Miss the window and you miss the quarter. How do you prepare?',
+            text: 'Three years of past POS data show Q4 demand averaging 2,340 units — 2.1× the Q1–Q3 average of 1,100 over those years. Marketing just confirmed a $200K Black Friday campaign launching in 6 weeks. You hold {stock} units, and an order placed now can\'t arrive before {nextQuarter}. Miss the window and you miss the peak. How do you prepare?',
             highlightNode: 'store',
             options: [
                 {
@@ -115,7 +115,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'retailer_panic',
             title: 'The Bullwhip Surge',
-            text: 'A TikTok video showing your product used in a DIY hack hit 14M views in 48 hours. Your top 3 retail accounts — Costco, Amazon, and Home Depot — are now submitting a combined 9,200-unit rush order against their normal 3,100-unit quarterly cadence. Your demand planners pulled the actual POS data: consumer sell-through is up only 28%. The retailers are padding safety stock, not selling more product. Do you match the retailer orders or anchor to the consumer data?',
+            text: 'A TikTok video showing your product used in a DIY hack hit 14M views in 48 hours. Your top 3 retail accounts — Costco, Amazon, and Home Depot — are now submitting a combined rush order of about 3× their normal quarterly volume. Your demand planners pulled the actual POS data: consumer sell-through is up only 28%. The retailers are padding safety stock, not selling more product. Do you match the retailer orders or anchor to the consumer data?',
             highlightNode: 'factory',
             options: [
                 {
@@ -167,7 +167,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'regional_bullwhip',
             title: 'Regional Panic Buying',
-            text: 'The Thai baht fell 18% against the dollar overnight after an emergency rate cut. Your Bangkok distributor immediately placed a 4,200-unit rush order — 3× their normal quarterly volume — to lock in pre-devaluation pricing. Your ERP\'s auto-replenishment logic treated it as a real demand signal and began inflating orders across Europe and North America too. Your warehouse manager is flagging a potential $1.8M overstock exposure if this plays out globally. What do you do?',
+            text: 'The Thai baht fell 18% against the dollar overnight after an emergency rate cut. Your Bangkok distributor immediately placed a rush order of 3× their normal quarterly volume to lock in pre-devaluation pricing. Your ERP\'s auto-replenishment logic treated it as a real demand signal and began inflating orders across Europe and North America too. Your warehouse manager is flagging a potential $1.8M overstock exposure if this plays out globally. What do you do?',
             highlightNode: 'ship',
             options: [
                 {
@@ -193,7 +193,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'smoothing_the_wave',
             title: 'Smoothing the Wave',
-            text: 'Three consecutive quarters of chaos: 800 units ordered, then 2,400, then 650 — with no change in underlying consumer demand. Your Guangzhou factory alternates between mandatory overtime and 40% idle capacity. The culprit: each distributor is re-ordering based on their own safety stock fear, not actual consumer pull. Your VP of Supply Chain proposes replacing quarterly batch orders with a VMI arrangement backed by real-time POS data sharing. Setup cost: $180,000. Expected bullwhip reduction: 40%. Do you commit?',
+            text: 'Last year brought three quarters of chaos: distributor orders of 800 units, then 2,400, then 650 — with no change in underlying consumer demand. Your Guangzhou factory alternates between mandatory overtime and 40% idle capacity. The culprit: each distributor is re-ordering based on their own safety stock fear, not actual consumer pull. Your VP of Supply Chain proposes replacing quarterly batch orders with a VMI arrangement backed by real-time POS data sharing. Setup cost: $180,000. Expected bullwhip reduction: 40%. Do you commit?',
             highlightNode: 'factory',
             options: [
                 {
@@ -275,7 +275,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'delayed_shipment',
             title: 'Delayed Shipment',
-            text: 'Friday 4:47pm — an email from Foxlink Technology, your primary PCB supplier and 65% of your component volume: their Zhengzhou facility is under an emergency lockdown. The $340,000 shipment scheduled to arrive Monday is frozen in their warehouse. Under your current JIT policy you have 3 days of production stock left. Your line goes dark Wednesday morning unless something changes. What\'s your move?',
+            text: 'Friday 4:47pm — an email from Foxlink Technology, your primary PCB supplier and 65% of your component volume: their Zhengzhou facility is under an emergency lockdown. The $340,000 component shipment scheduled to arrive Monday is frozen in their warehouse. Under your current JIT policy the line has 3 days of PCB components left. Production stops Wednesday morning unless something changes. What\'s your move?',
             highlightNode: 'truck',
             options: [
                 {
@@ -409,7 +409,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'trade_war',
             title: 'Trade War',
-            text: 'The White House announced Section 232 tariffs of 25% on consumer electronics components from China, effective in 60 days. At your current run rate of 4,200 units/quarter, this adds $504,000/year to your cost base at today\'s volume. Your stock is down 8% on the news. Competitors are scrambling. The board wants a response strategy before markets open tomorrow.',
+            text: 'The White House announced Section 232 tariffs of 25% on consumer electronics components from China, effective in 60 days. That raises the cost of every affected component by a quarter. Your share price is down 8% on the news. Competitors are scrambling. The board wants a response strategy before markets open tomorrow.',
             highlightNode: 'ship',
             options: [
                 {
@@ -439,7 +439,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'last_mile_dilemma',
             title: 'The Last Mile Dilemma',
-            text: 'Your 3PL invoice hit $1.4M this quarter — up 31% year-on-year. The breakdown is uncomfortable: last-mile delivery is $742,000, or 53% of total freight spend, averaging 8.3 miles per stop. Amazon\'s same-day delivery guarantee has permanently reset customer expectations. Your Columbus regional hub can\'t match it without going to premium courier rates that wipe out your margin. Three options are modelled out. Which do you choose?',
+            text: 'Your 3PL bill is up 31% year-on-year, and the breakdown is uncomfortable: last-mile delivery is 53% of total freight spend, averaging 8.3 miles per stop. Amazon\'s same-day delivery guarantee has permanently reset customer expectations. Your Columbus regional hub can\'t match it without going to premium courier rates that wipe out your margin. Three options are modelled out. Which do you choose?',
             highlightNode: 'truck',
             options: [
                 {
@@ -465,7 +465,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'transport_mode_selection',
             title: 'Multi-Modal Decision',
-            text: 'Your Suzhou factory just finished a 6,400-unit production run for your biggest European retail account — a €2.1M order with a firm shelf date of October 15th. Today is September 1st. Ocean freight: 28-35 days, $4.20/kg. China-Europe rail: 18-22 days, $6.80/kg. Air freight: 5-7 days, $18.40/kg. The order weighs 14,200 kg. Miss the shelf date and you forfeit a €40,000 late penalty. Pick the wrong mode and you burn margin.',
+            text: 'Your Suzhou factory just finished a production run for your biggest European retail account — a €2.1M order with a firm shelf date of October 15th. Today is September 1st. Ocean freight: 28-35 days, $4.20/kg. China-Europe rail: 18-22 days, $6.80/kg. Air freight: 5-7 days, $18.40/kg. The order weighs 14,200 kg. Miss the shelf date and you forfeit a €40,000 late penalty. Pick the wrong mode and you burn margin.',
             highlightNode: 'ship',
             options: [
                 {
@@ -547,7 +547,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'defect_discovery',
             title: 'Defect Discovery',
-            text: '6:00pm Wednesday: your QA lead ran AQL Level II sampling on the latest production batch — 42,000 units scheduled to ship to Home Depot at 8:00am tomorrow. Result: 4.2% defect rate, double the 2.0% AQL threshold. Batch value: $1.8M. Full rework takes 12 days. Home Depot\'s penalty clause for a missed delivery is $45,000 plus potential delisting. Your team has 14 hours and three options.',
+            text: '6:00pm Wednesday: your QA lead ran AQL Level II sampling on the latest production batch, due to ship to Home Depot at 8:00am tomorrow. Result: 4.2% defect rate, double the 2.0% AQL threshold. Full rework takes 12 days. Home Depot\'s penalty clause for a missed delivery is $45,000 plus potential delisting. Your team has 14 hours and three options.',
             highlightNode: 'factory',
             options: [
                 {
@@ -763,7 +763,7 @@ export const CHAPTER_SCENARIOS = {
         {
             id: 'perfect_storm',
             title: 'The Perfect Storm',
-            text: 'Tuesday morning — three alerts open simultaneously. (1) Kinpo Electronics flagged a 4-week delay on 2,000 units: typhoon damage at Kaohsiung Port. (2) A promotional email sent prematurely by marketing has generated 3,400 pre-orders against a 1,200-unit plan. (3) The yuan weakened 6% overnight, adding ~$62,000 to your open PO values. Your team is looking at you. Every lesson from the past 4 chapters leads to this moment. How do you respond?',
+            text: 'Tuesday morning — three alerts open simultaneously. (1) Kinpo Electronics warns that typhoon damage at Kaohsiung Port will slow new shipments by about 4 weeks. (2) Marketing sent a promotional email early, and pre-order sign-ups suggest demand could run above plan. (3) The yuan weakened 6% overnight, raising the cost of open purchase orders priced in yuan. Your team is looking at you. Every lesson from the past 4 chapters leads to this moment. How do you respond?',
             highlightNode: 'supplier',
             options: [
                 {

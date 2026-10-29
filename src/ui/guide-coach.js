@@ -40,7 +40,7 @@ export function guideContent(id, ctx) {
             return {
                 anchor: '.story-options', where: 'beforebegin', highlight: '.story-options',
                 title: 'Start with this quarter\'s event',
-                text: 'Each turn is one quarter (3 months), and it starts with an event like this one. Read it, then pick a response — it can change your costs, delivery times or customer demand this quarter. There is no single right answer. The briefing tells a story; your real numbers are always in the bar at the top of the screen.',
+                text: 'Each turn is one quarter (3 months), and it starts with an event like this one. Read it, then pick a response — it can change your costs, delivery times or customer demand this quarter. There is no single right answer.',
             };
         case 'brief':
             return {

@@ -36,6 +36,7 @@ import { PredictionPrompt } from './ui/prediction-prompt.js';
 import { BoardQuestion } from './ui/board-question.js';
 import { RECALL_QUESTIONS } from './data/recall-questions.js';
 import { getConceptInsight } from './logic/concept-insights.js';
+import { scenarioText } from './logic/scenario-text.js';
 import { computeProjection } from './ui/planning-workbench.js';
 import { buildWorkspaceHTML, renderShipmentsHTML, renderProjectionRowsHTML, pickWarning, describeModifiers, turnGoal, turnNote, choicesSummary, fmtMoney, fmtMoney2, fmtNum } from './ui/procurement-workspace.js';
 import { readGuide, writeGuide, isReturningPlayer, shouldAutoStart, currentStep, startGuide, nextGuide, skipGuide, finishGuide } from './logic/guide-state.js';
@@ -1389,7 +1390,7 @@ export class Dashboard {
         // Typewriter reveal — fast, skippable, instant under reduced motion
         const textEl    = storyCard.querySelector('.story-text');
         const optionsEl = storyCard.querySelector('.story-options');
-        const fullText  = scenario.text;
+        const fullText  = scenarioText(scenario, this.engine.state);
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         const finishReveal = () => {
@@ -2202,7 +2203,7 @@ export class Dashboard {
             </div>
             <div class="pw-dialog-body">
                 <h3>Situation</h3>
-                <p>${scenario.text}</p>
+                <p>${scenarioText(scenario, s)}</p>
                 <h3>Responses offered</h3>
                 <ul class="pw-dlg-options">
                     ${scenario.options.map(o => `<li${o === picked ? ' class="pw-dlg-picked"' : ''}>${o.label}${o === picked ? ' <strong>— your response</strong>' : ''}</li>`).join('')}
@@ -2383,7 +2384,7 @@ export class Dashboard {
         if (savedTurn && this._gameMode === 'story' && RS.getMeta(this.runId)?.turn === 2) {
             showCloudPrompt({ onEnable: () => this.savePanel.open({ focus: 'email', adoptRunId: this.runId, source: 'first_turn_prompt' }) });
         }
-        const showSummary = () => this.turnSummaryCard.show({ ...result, ...storyCtx }, chapter, () => {
+        const showSummary = () => this.turnSummaryCard.show({ ...result, ...storyCtx, _cashAfter: this.engine.state.cash }, chapter, () => {
             if (!this.engine.state.isEndless && this.engine.state.boardConfidence <= 0) {
                 this._boardDismissal();
                 return;

@@ -9,7 +9,7 @@ export const EXPANSION_CHAPTER_SCENARIOS = {
         {
             id: 'port_strike',
             title: 'Port Strike — Rotterdam Closed',
-            text: "Dockworkers at the Port of Rotterdam — Europe's largest — have gone on strike with no end in sight. Three weeks of your inbound shipments are stuck. Alternative ports (Hamburg, Antwerp) are at capacity. How do you respond?",
+            text: "Dockworkers at the Port of Rotterdam — Europe's largest — have gone on strike with no end in sight. New shipments into Europe face weeks of delay, and alternative ports (Hamburg, Antwerp) are at capacity. How do you respond?",
             highlightNode: 'ship',
             expansionOnly: true,
             options: [
@@ -63,7 +63,7 @@ export const EXPANSION_CHAPTER_SCENARIOS = {
         {
             id: 'red_sea_rerouting',
             title: 'Red Sea Crisis — Primary Route Disrupted',
-            text: 'Attacks on commercial shipping in the Red Sea have forced your primary carrier to suspend all Suez Canal transits. The Cape of Good Hope reroute adds 10–14 days and $2,000 per container. You have 45 days of stock remaining. What do you do?',
+            text: 'Attacks on commercial shipping in the Red Sea have forced your primary carrier to suspend all Suez Canal transits. The Cape of Good Hope reroute adds 10–14 days and $2,000 per container. You hold {stock} units, with {onTheWay}. What do you do?',
             highlightNode: 'ship',
             expansionOnly: true,
             options: [
@@ -90,7 +90,7 @@ export const EXPANSION_CHAPTER_SCENARIOS = {
         {
             id: 'customs_delay_crisis',
             title: 'Regulatory Shock — New Customs Requirements',
-            text: 'Your largest import market has introduced new product certification requirements effective immediately, with no transition period. 40% of your inbound shipments are held at customs pending documentation review. How do you respond?',
+            text: 'Your largest import market has introduced new product certification requirements effective immediately, with no transition period. Shipments without the new paperwork are being held at customs, and new orders will face the same checks. How do you respond?',
             highlightNode: 'warehouse',
             expansionOnly: true,
             options: [

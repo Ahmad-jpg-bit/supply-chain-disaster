@@ -210,17 +210,19 @@ function resolveDecorated(engine, choices, extra = {}) {
     return r;
 }
 
-test('results story: a first-quarter shortage is attributed to the starting position, not the player', () => {
+test("results story: a first-quarter shortage states the starting-stock constraint alongside the player's own choices", () => {
     withSeed(31, () => {
         const engine = procurementEngine('fmcg');
         engine.state.inventory = 150;
         engine.state.pendingCrisis = null;
-        const r = resolveDecorated(engine, { ...engine.state.procurementChoices });
+        const r = resolveDecorated(engine, { ...engine.state.procurementChoices, pricingId: 'discount' });
         r.crisis = null;
         const story = buildTurnStory(r);
         assert.ok(r.backlog > 0);
         assert.match(story.happened, new RegExp(`${r.sales.toLocaleString('en-US')} were served and ${r.backlog.toLocaleString('en-US')} orders are still waiting`));
         assert.equal(story.contributions[0].kind, 'start');
+        assert.equal(story.contributions[0].text, 'You started with 150 units and nothing on the way. No order placed this quarter could arrive in time.');
+        assert.ok(story.contributions.some(c => c.kind === 'choice' && /raised customer demand/.test(c.text)), "the player's pricing is listed too");
         assert.ok(story.contributions.some(c => c.kind === 'uncertainty'));
         assert.ok(!story.contributions.some(c => c.kind === 'event'), 'no event without a crisis');
         assert.deepEqual(story.beforeAfter.map(b => b.label), ['Money', 'Stock', 'Customer orders waiting']);
@@ -234,9 +236,10 @@ test('results story: later quarters, profit/loss wording and events are reported
         pricing: 'Market Price', inspection: 'Standard QC', defectsPassed: 0, defectsFound: 0, safetyBreach: false,
         crisis: null, worldEchoes: [], _before: { cash: 102000, inventory: 1400, backlog: 0 }, _expectedDemand: 1000, _firstQuarter: false,
     };
-    let story = buildTurnStory({ ...base, totalCost: 95000, holdingCost: 7000 });
-    assert.equal(story.money, 'The quarter made a loss of $12,000.');
-    assert.match(story.contributions.find(c => c.kind === 'choice').text, /800 units for \$88,000, paid this quarter\. They're due in Q8/);
+    let story = buildTurnStory({ ...base, revenue: 83000, totalCost: 95000, holdingCost: 7000 });
+    assert.equal(story.money, "Sales brought in $83,000 and this quarter's costs, including the new order, came to $95,000: a loss of $12,000.");
+    assert.equal(story.contributions.find(c => c.kind === 'choice').text, "You ordered 800 units for $88,000, counted in this quarter's costs. They're due in Q8 and can only be sold once they arrive.");
+    for (const c of story.contributions) assert.doesNotMatch(c.text, /will (earn|sell|recover)|earn money|guarantee/i, 'no promised future sales');
     assert.match(story.happened, /every order was served\. 400 units are left/);
     assert.ok(!story.contributions.some(c => c.kind === 'start'));
     assert.match(story.contributions.find(c => c.kind === 'uncertainty').text, /close to the estimate/);
@@ -249,6 +252,21 @@ test('results story: later quarters, profit/loss wording and events are reported
     // Live crisis data holds the consequence line as a function of its effects
     story = buildTurnStory({ ...base, crisis: { name: 'Tariff waiver', ticker: 't', effects: {}, consequenceText: () => 'Costs fell 15%.' } });
     assert.equal(story.contributions.find(c => c.kind === 'event').text, 'Tariff waiver: Costs fell 15%.');
+
+    // Cash that moved outside the quarter's result is reported separately, naming only recorded parts
+    story = buildTurnStory({ ...base, revenue: 83000, totalCost: 95000, _cashAfter: 75000, _crisisResponse: { mitigated: true, cost: 15000 } });
+    assert.match(story.money, /a loss of \$12,000\. In total your money fell by \$27,000, including \$15,000 for your crisis response\.$/);
+    assert.deepEqual(story.beforeAfter[0], { label: 'Money', before: '$102,000', after: '$75,000', tone: 'down' });
+    story = buildTurnStory({ ...base, revenue: 83000, totalCost: 95000, _cashAfter: 93000 });
+    assert.match(story.money, /In total your money fell by \$9,000\.$/, 'an unexplained difference is stated without a cause');
+
+    // A transit-delay event moves the due quarter
+    story = buildTurnStory({ ...base, totalCost: 95000, holdingCost: 7000, crisis: { name: 'Port strike', ticker: 't', effects: { transitDelay: 1 } } });
+    assert.match(story.contributions.find(c => c.kind === 'choice').text, /due in Q9/);
+
+    // First quarter: no starting-stock line when stock arrived, or when nobody went short
+    assert.ok(!buildTurnStory({ ...base, _firstQuarter: true, backlog: 50, unitsReceived: 300 }).contributions.some(c => c.kind === 'start'));
+    assert.ok(!buildTurnStory({ ...base, _firstQuarter: true }).contributions.some(c => c.kind === 'start'));
 
     story = buildTurnStory({ ...base, safetyBreach: true, safetyStockTarget: 500, _conceptInsight: { term: 'Reorder Point & Safety Stock', text: 'Detail.' } });
     assert.ok(story.contributions.some(c => c.kind === 'choice' && /extra-stock target of 500/.test(c.text)));
