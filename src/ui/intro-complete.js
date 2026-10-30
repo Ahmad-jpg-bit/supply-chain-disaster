@@ -37,7 +37,7 @@ export class IntroComplete {
                     <div><dt>Cash now</dt><dd>${fmtMoney(s.cash)}</dd></div>
                     <div><dt>Chapter profit</dt><dd>${fmtMoney(s.profit)}</dd></div>
                     <div><dt>Units short</dt><dd>${(s.missedSales || 0).toLocaleString()}</dd></div>
-                    <div><dt>Concept mastery</dt><dd>${s.score} / ${s.maxScore}${s.mastered ? ' · mastered' : ''}</dd></div>
+                    <div><dt>Concepts practised</dt><dd>${s.score} / ${s.maxScore} points from event responses</dd></div>
                 </dl>
                 ${o.diagnosis ? `<div class="ic-debrief"><h3>Debrief: ${esc(o.diagnosis.headline)}</h3><p>${esc(o.diagnosis.detail)}</p></div>` : `
                 <div class="ic-debrief"><h3>Debrief</h3><p>Your results above came from your own forecasts, orders and responses. Replay the chapter to try a different strategy — demand and events change each run.</p></div>`}

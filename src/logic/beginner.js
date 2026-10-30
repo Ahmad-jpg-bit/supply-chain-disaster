@@ -64,39 +64,77 @@ export const TRANSFER_QUESTION = {
 };
 
 /**
+ * Quarter an order actually arrives: its due quarter, pushed back by every
+ * transit-delay event that fired while it was still on the way (the engine
+ * delays in-transit orders at the end of the crisis quarter, after that
+ * quarter's deliveries were received).
+ */
+function arrivalQuarter(order, turns) {
+    let due = order.arrivesOnTurn;
+    for (const t of turns) {
+        if (t.turn >= order.turn && t.turn < due && t.crisis?.effects?.transitDelay) due += t.crisis.effects.transitDelay;
+    }
+    return due;
+}
+
+/**
  * Chapter-end recap from the recorded quarters of the chapter.
- * Decision = the first quarter's order; outcome = what arrived and happened
- * when stock from earlier orders first arrived; trade-off and next idea follow
- * from that outcome. Events and demand variation are listed separately.
+ * Decision = the player's first order this chapter. Its outcome is stated only
+ * as far as the records establish it: arrival quarter (incl. transit delays),
+ * units shipped after inspection (unknown when a supply cut hit it), whether
+ * other orders arrived in the same quarter, and what customers saw then.
+ * Events and demand variation are listed separately.
  * @param {Array} turns — history entries for the chapter, in play order
  */
 export function buildChapterRecap(turns) {
     if (!turns?.length) return null;
     const first = turns[0];
-    const later = turns.slice(1);
+    const last = turns[turns.length - 1];
+    const order = turns.find(t => t.orderQuantity > 0);
 
-    const decision = first.orderQuantity > 0
-        ? `In Q${first.turn} you ordered ${n(first.orderQuantity)} units from ${first.supplier} by ${first.shipping}, due in Q${first.arrivesOnTurn}.`
-        : `In Q${first.turn} you didn't place an order.`;
+    // What the first quarter's customers could buy (a run's first quarter has nothing on the way)
+    const startText = first.unitsReceived
+        ? ''
+        : `In Q${first.turn}, customers could only buy the ${n(first.sales + first.inventory)} units already in stock${first.backlog > 0 ? `; ${n(first.backlog)} had to wait` : ''}. `;
+    const servedText = (t) => `customers wanted ${n(t.demand + (t.backlogBefore || 0))}: `
+        + (t.backlog > 0 ? `${n(t.sales)} were served and ${n(t.backlog)} waited.` : `all were served and ${n(t.inventory)} units were left.`);
+    const endState = `By the end of Q${last.turn}, ${n(last.backlog)} customer orders were waiting and ${n(last.inventory)} units were in stock.`;
 
-    const startText = `In Q${first.turn}, customers could only buy the ${n(first.sales + first.inventory)} units already in stock${first.backlog > 0 ? `; ${n(first.backlog)} had to wait` : ''}.`;
-    const arrival = later.find(t => t.unitsReceived > 0);
+    let decision;
     let outcome;
+    let at = null;   // the quarter the decision's order arrived, when within the chapter
+    if (!order) {
+        decision = 'You didn\'t place any orders this chapter.';
+        outcome = `${startText}${endState}`;
+    } else {
+        decision = `${order === first ? '' : `You didn't order in Q${first.turn}. `}In Q${order.turn} you ordered ${n(order.orderQuantity)} units from ${order.supplier} by ${order.shipping}, due in Q${order.arrivesOnTurn}.`;
+        const due = arrivalQuarter(order, turns);
+        const late = due - order.arrivesOnTurn;
+        const delayed = late > 0 ? ` (${late} quarter${late === 1 ? '' : 's'} late, after a transit delay)` : '';
+        const cut = Boolean(order.crisis?.effects?.capacityCut);
+        const shipped = order.orderQuantity - (order.defectsFound || 0);   // engine: arriving = usable + passed defects
+        const inspected = order.defectsFound > 0 ? ` (inspection removed ${n(order.defectsFound)} faulty units)` : '';
+        at = turns.find(t => t.turn === due) || null;
+        if (!at) {
+            outcome = `${startText}That order was still on the way when the chapter ended, due in Q${due}${delayed}. ${endState}`;
+        } else {
+            const together = turns.some(o => o !== order && o.orderQuantity > 0 && arrivalQuarter(o, turns) === due);
+            const arrived = (!together && !cut && at.unitsReceived === shipped)
+                ? `It arrived in Q${due}${delayed}: ${n(shipped)} units${inspected}. `
+                : `In Q${due}${delayed}, ${n(at.unitsReceived)} units arrived, including that order${together ? ' and another order due the same quarter' : ''}${cut ? ' (a supply cut meant only part of it shipped)' : ''}. `;
+            outcome = `${startText}${arrived}That quarter, ${servedText(at)}`;
+        }
+    }
+
     let tradeoff;
     let tryNext;
-    if (arrival) {
-        const wanted = arrival.demand + (arrival.backlogBefore || 0);
-        outcome = `${startText} In Q${arrival.turn}, ${n(arrival.unitsReceived)} units from your earlier orders arrived before customers bought: they wanted ${n(wanted)}, `
-            + (arrival.backlog > 0 ? `${n(arrival.sales)} were served and ${n(arrival.backlog)} waited.` : `all were served and ${n(arrival.inventory)} units were left.`);
-        if (arrival.backlog > 0) {
-            tradeoff = 'Stock that arrives later can\'t serve customers who are waiting now. A bigger or earlier order means more stock in later quarters — but it costs more up front, and leftover stock adds storage cost if demand comes in lower.';
-            tryNext = `In another run, try ordering in Q${first.turn} with Q${first.arrivesOnTurn}'s customers in mind, then compare how many customers wait with how much you spend.`;
-        } else {
-            tradeoff = `The ${n(arrival.inventory)} units left after Q${arrival.turn} were protection against a demand surprise, but stock costs money to keep: storage cost ${money(arrival.holdingCost)} that quarter.`;
-            tryNext = 'In another run, try a smaller order or a lower extra-stock target, then compare storage costs with how many customers wait.';
-        }
+    if (at && at.backlog > 0) {
+        tradeoff = 'Stock that arrives later can\'t serve customers who are waiting now. A bigger or earlier order means more stock in later quarters — but it costs more up front, and leftover stock adds storage cost if demand comes in lower.';
+        tryNext = `In another run, try ordering in Q${first.turn} with the customers of your order's arrival quarter in mind, then compare how many customers wait with how much you spend.`;
+    } else if (at) {
+        tradeoff = `The ${n(at.inventory)} units left after Q${at.turn} were protection against a demand surprise, but stock costs money to keep: storage cost ${money(at.holdingCost)} that quarter.`;
+        tryNext = 'In another run, try a smaller order or a lower extra-stock target, then compare storage costs with how many customers wait.';
     } else {
-        outcome = `${startText} No stock from your orders had arrived by the end of the chapter.`;
         tradeoff = 'Orders take at least a quarter, so what you order now shapes later quarters, not the current one.';
         tryNext = 'In another run, check the "Order arrives" quarter before you confirm, and plan for the customers of that quarter.';
     }

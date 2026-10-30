@@ -2763,7 +2763,7 @@ export class Dashboard {
             : null;
         const withDefinition = () => this.definitionCard.show(chapterId, gatedCallback, playerDiagnosis, learning);
 
-        this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state, ctaLabel: blocked ? 'Continue' : null }, withDefinition);
+        this.chapterTransition.show(prevChapterIdx, summary, { engineState: this.engine.state, ctaLabel: blocked ? 'Continue' : null, beginner: isBeginnerChapter(this.engine.state, this._gameMode) }, withDefinition);
 
         // Show waiting state in main view
         this.ui.mainView.innerHTML = `

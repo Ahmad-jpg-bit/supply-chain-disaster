@@ -151,21 +151,27 @@ export class DefinitionCard {
                 learning.onTransfer?.(btn.dataset.transfer);
             }));
         }
-        requestAnimationFrame(() => this.overlay.classList.add('visible'));
+        requestAnimationFrame(() => this.overlay?.classList.add('visible'));
 
+        // Dismiss exactly once, even on rapid clicks while the card fades out
+        let dismissed = false;
         this.overlay.querySelector('.defcard-continue-btn')
             .addEventListener('click', () => {
+                if (dismissed) return;
+                dismissed = true;
                 this._hide();
                 if (onDismiss) onDismiss();
             });
     }
 
     _hide() {
-        if (!this.overlay) return;
-        this.overlay.classList.remove('visible');
-        this.overlay.addEventListener('transitionend', () => {
-            this.overlay?.remove();
-            this.overlay = null;
-        }, { once: true });
+        const el = this.overlay;
+        if (!el) return;
+        this.overlay = null;
+        el.classList.remove('visible');
+        el.querySelector('.defcard-continue-btn')?.setAttribute('disabled', '');
+        const remove = () => el.remove();
+        el.addEventListener('transitionend', remove, { once: true });
+        setTimeout(remove, 600);   // no transition (reduced motion / hidden tab): remove anyway
     }
 }

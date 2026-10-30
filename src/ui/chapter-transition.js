@@ -7,7 +7,14 @@ export class ChapterTransition {
         this.overlay = null;
     }
 
+    /**
+     * @param {Object} [gameStats] — { engineState, ctaLabel, beginner }
+     *   beginner: beginner Chapter 1 — no auto-advance (read at your own pace) and
+     *   "Concepts practised" wording; the points measure event-response alignment,
+     *   not mastery.
+     */
     show(chapterIndex, masterySummary, gameStats, onContinue) {
+        const beginner = Boolean(gameStats?.beginner);
         const allChapters = [...CHAPTERS, ...EXPANSION_CHAPTERS];
         const chapter     = allChapters[chapterIndex];
         if (!chapter) { console.error(`ChapterTransition: invalid chapterIndex ${chapterIndex}`); return; }
@@ -91,15 +98,15 @@ export class ChapterTransition {
                 ${narrativeHtml}
 
                 <div class="chapter-mastery-section">
-                    <div class="mastery-label">Concept Mastery</div>
+                    <div class="mastery-label">${beginner ? 'Concepts practised · points from your 4 event responses' : 'Concept Mastery'}</div>
                     <div class="mastery-bar-container">
                         <div class="mastery-bar" style="width: ${scorePercent}%"></div>
                     </div>
                     <div class="mastery-score">
                         ${masterySummary.score} / ${masterySummary.maxScore} points
-                        <span class="mastery-badge ${mastered ? 'mastered' : 'learning'}">
-                            ${mastered ? 'Mastered' : 'Learning'}
-                        </span>
+                        ${beginner
+                            ? '<span class="mastery-badge learning">Chapter completed</span>'
+                            : `<span class="mastery-badge ${mastered ? 'mastered' : 'learning'}">${mastered ? 'Mastered' : 'Learning'}</span>`}
                     </div>
                 </div>
 
@@ -123,9 +130,9 @@ export class ChapterTransition {
                 <button class="btn-primary chapter-continue-btn">
                     ${ctaBtnLabel}
                 </button>
-                <div class="chapter-auto-bar-wrap" aria-hidden="true">
+                ${beginner ? '' : `<div class="chapter-auto-bar-wrap" aria-hidden="true">
                     <div class="chapter-auto-bar"></div>
-                </div>
+                </div>`}
             </div>
         `;
 
@@ -135,25 +142,32 @@ export class ChapterTransition {
             this.overlay.classList.add('visible');
         });
 
-        // Auto-advance after 6 s; cancelled immediately on manual click
-        const autoTimer = setTimeout(() => {
-            if (this.overlay) { this.hide(); if (onContinue) onContinue(); }
-        }, 6000);
-
-        this.overlay.querySelector('.chapter-continue-btn').addEventListener('click', () => {
+        // Advance exactly once — the timer, rapid clicks and the fading overlay
+        // (still in the DOM until its transition ends) can't call onContinue twice
+        let advanced = false;
+        const advance = () => {
+            if (advanced) return;
+            advanced = true;
             clearTimeout(autoTimer);
             this.hide();
             if (onContinue) onContinue();
-        });
+        };
+        // Auto-advance after 6 s (not for beginner Chapter 1: the recap follows and needs reading time)
+        const autoTimer = beginner ? null : setTimeout(advance, 6000);
+
+        const btn = this.overlay.querySelector('.chapter-continue-btn');
+        btn.addEventListener('click', advance);
+        if (beginner) btn.focus({ preventScroll: true });
     }
 
     hide() {
-        if (this.overlay) {
-            this.overlay.classList.remove('visible');
-            this.overlay.addEventListener('transitionend', () => {
-                this.overlay.remove();
-                this.overlay = null;
-            }, { once: true });
-        }
+        const el = this.overlay;
+        if (!el) return;
+        this.overlay = null;
+        el.classList.remove('visible');
+        el.querySelector('.chapter-continue-btn')?.setAttribute('disabled', '');
+        const remove = () => el.remove();
+        el.addEventListener('transitionend', remove, { once: true });
+        setTimeout(remove, 600);   // no transition (reduced motion / hidden tab): remove anyway
     }
 }
