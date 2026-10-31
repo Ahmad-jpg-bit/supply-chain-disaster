@@ -1,6 +1,6 @@
 # Supply Chain Disaster — CLAUDE.md
 
-> Last updated: 2026-10-29
+> Last updated: 2026-10-31
 
 ## Project Overview
 Supply chain management simulation game at **supplychaindisaster.com**.
@@ -82,6 +82,9 @@ Deploy command: `npx vercel --prod` from the project root.
 - Results card leads with `src/logic/turn-story.js` (what happened / your choices vs starting position vs events vs demand variation / one thing to remember). Extra context goes on a display copy — `lastTurnResult` is the saved history entry, don't add fields to it. Crisis `consequenceText` is a function in live data (use `crisisText`).
 - Analytics: `guide_started|skipped|completed`, `guide_explain_open`, `guide` param on `turn_completed`/`first_turn_complete`; comparison method in `docs/analytics/progress-funnel.md`. No data yet — don't claim improvement.
 - Briefing consistency patch (deployed 2026-10-29, `168a8e5` / dpl_A4K1iqHGqxEHz1UdioaoopR1Mu1P; rollback dpl_9BR8RyJJLFGdfYEBT54v5awXQCew): briefings that describe the player's position use tokens (`{stock}`, `{nextQuarter}`, `{lastQuarter}`, `{onTheWay}`) filled by `src/logic/scenario-text.js`, which looks text up by scenario id (saves carry old scenario copies). Never hard-code current stock/shipment/demand numbers in scenario text; `tests/scenario-text.test.mjs` guards it. Results money line = sales vs this quarter's costs (the engine expenses the whole order) + total cash change naming only recorded extras.
+- Beginner FMCG Chapter 1 layer (deployed 2026-10-31, `0f071fe` / dpl_DCoXKrVDPFSFQ85rjD6B9jLZNCTS; rollback dpl_A4K1iqHGqxEHz1UdioaoopR1Mu1P): `src/logic/beginner.js` (isBeginnerChapter, opening shortage, arrival check, chapter recap that attributes arrivals only via due quarter + transit delays), stock-flow box + opening note in the quantity block, recap + transfer question inside DefinitionCard before the free-intro offer, beginner summary with no auto-advance and "Concepts practised" wording.
+- Full-screen overlays use `src/ui/modal-focus.js`: `holdModal` (page `#app` + cloud-save toast inert while open, focus moved in, counted holds) and `readyAfter` (ignore clicks for 450 ms after opening — a double-click once opened checkout from the concept card). Any new overlay appended to <body> should use both. Rationing sliders must step by 1 (Commit needs every unit allocated).
+- Browser acceptance: a visible Chrome via puppeteer-core with `--disable-backgrounding-occluded-windows --disable-renderer-backgrounding` (the in-app pane pauses rendering when the window is covered). Clicks during a View Transition cross-fade are swallowed (root snapshot layer) — wait for `document.getAnimations()` on `::view-transition*` to finish before clicking. Production checks: inject the GA opt-out + `scd_stats_optout` with evaluateOnNewDocument and block GA requests.
 - Browser-pane testing: a hidden pane stalls View Transitions/rAF; set `document.startViewTransition = undefined` in the test page. Production checks: `?stats=off` (no progress POST) + `window['ga-disable-G-2Z03B7JFE1']=true`.
 
 ---
