@@ -6,6 +6,7 @@
  * running session MAPE is rendered by TurnSummaryCard. The player *is* the
  * forecaster — MAPE stops being a flashcard and becomes their own score.
  */
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const MIN_FORECAST = 500;
 const MAX_FORECAST = 1600;
@@ -63,6 +64,7 @@ export class PredictionPrompt {
         `;
 
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('#pp-forecast-slider'));
         requestAnimationFrame(() => this.overlay?.classList.add('pp-overlay--visible'));
 
         const slider  = this.overlay.querySelector('#pp-forecast-slider');
@@ -71,8 +73,9 @@ export class PredictionPrompt {
             valueEl.textContent = parseInt(slider.value, 10).toLocaleString();
         });
 
+        const ready = readyAfter();   // ignore the tail of a double-click on Confirm
         this.overlay.querySelector('.pp-confirm-btn').addEventListener('click', () => {
-            if (this._dismissed) return;
+            if (this._dismissed || !ready()) return;
             this._dismissed = true;
             const forecast = parseInt(slider.value, 10);
             this._hide();
@@ -106,10 +109,11 @@ export class PredictionPrompt {
             </div>
         `;
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('.pp-choice'));
         requestAnimationFrame(() => this.overlay?.classList.add('pp-overlay--visible'));
-        this.overlay.querySelector('.pp-choice').focus();
+        const ready = readyAfter();   // ignore the tail of a double-click on Confirm
         this.overlay.querySelectorAll('[data-answer]').forEach(btn => btn.addEventListener('click', () => {
-            if (this._dismissed) return;
+            if (this._dismissed || !ready()) return;
             this._dismissed = true;
             this._hide();
             onAnswer(btn.dataset.answer || null);
@@ -117,6 +121,8 @@ export class PredictionPrompt {
     }
 
     _hide() {
+        this._release?.();
+        this._release = null;
         if (!this.overlay) return;
         const el = this.overlay;
         this.overlay = null;

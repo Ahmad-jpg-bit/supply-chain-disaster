@@ -4,6 +4,7 @@
  */
 
 import { getIcon } from '../graphics/svg-icons.js';
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const fmtMoney = (n) =>
     new Intl.NumberFormat('en-US', {
@@ -69,11 +70,13 @@ export class CrisisInboxOverlay {
         `;
 
         document.body.appendChild(this.overlay);
-        requestAnimationFrame(() => this.overlay.classList.add('ci-overlay--visible'));
+        this._release = holdModal(this.overlay, this.overlay.querySelector('.ci-option'));
+        requestAnimationFrame(() => this.overlay?.classList.add('ci-overlay--visible'));
 
+        const ready = readyAfter();   // ignore the tail of a double-click on the previous screen
         this.overlay.querySelectorAll('.ci-option').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (this._done || btn.disabled) return;
+                if (this._done || btn.disabled || !ready()) return;
                 this._done = true;
                 const option = message.options.find(o => o.id === btn.dataset.id);
                 this._hide();
@@ -83,6 +86,8 @@ export class CrisisInboxOverlay {
     }
 
     _hide() {
+        this._release?.();
+        this._release = null;
         if (!this.overlay) return;
         const el = this.overlay;
         this.overlay = null;

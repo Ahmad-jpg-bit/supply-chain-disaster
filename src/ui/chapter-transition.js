@@ -1,6 +1,7 @@
 import { getIcon } from '../graphics/svg-icons.js';
 import { CHAPTERS } from '../data/chapters.js';
 import { EXPANSION_CHAPTERS } from '../data/expansion-chapters.js';
+import { holdModal, readyAfter } from './modal-focus.js';
 
 export class ChapterTransition {
     constructor() {
@@ -137,6 +138,7 @@ export class ChapterTransition {
         `;
 
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('.chapter-continue-btn'));
 
         requestAnimationFrame(() => {
             this.overlay.classList.add('visible');
@@ -156,11 +158,14 @@ export class ChapterTransition {
         const autoTimer = beginner ? null : setTimeout(advance, 6000);
 
         const btn = this.overlay.querySelector('.chapter-continue-btn');
-        btn.addEventListener('click', advance);
+        const ready = readyAfter();   // a double-click on the last results card must not skip the summary
+        btn.addEventListener('click', () => { if (ready()) advance(); });
         if (beginner) btn.focus({ preventScroll: true });
     }
 
     hide() {
+        this._release?.();
+        this._release = null;
         const el = this.overlay;
         if (!el) return;
         this.overlay = null;

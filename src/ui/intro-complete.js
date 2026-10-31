@@ -6,6 +6,7 @@
  */
 
 import { CORE_PRICE } from './paywall.js';
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const fmtMoney = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -57,13 +58,16 @@ export class IntroComplete {
         document.body.appendChild(el);
         this.el = el;
         requestAnimationFrame(() => el.classList.add('ic-overlay--visible'));
-        el.querySelector('[data-ic="unlock"]').addEventListener('click', () => o.onUnlock?.());
-        el.querySelector('[data-ic="replay"]')?.addEventListener('click', () => { this.hide(); o.onReplay?.(); });
-        el.querySelector('[data-ic="menu"]').addEventListener('click', () => { this.hide(); o.onMenu?.(); });
-        el.querySelector('[data-ic="unlock"]').focus();
+        const ready = readyAfter();   // a double-click on the previous screen must not buy/replay/leave
+        el.querySelector('[data-ic="unlock"]').addEventListener('click', () => { if (ready()) o.onUnlock?.(); });
+        el.querySelector('[data-ic="replay"]')?.addEventListener('click', () => { if (!ready()) return; this.hide(); o.onReplay?.(); });
+        el.querySelector('[data-ic="menu"]').addEventListener('click', () => { if (!ready()) return; this.hide(); o.onMenu?.(); });
+        this._release = holdModal(el, el.querySelector('[data-ic="unlock"]'));
     }
 
     hide() {
+        this._release?.();
+        this._release = null;
         this.el?.remove();
         this.el = null;
     }

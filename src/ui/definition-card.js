@@ -1,4 +1,5 @@
 import { CSCP_DEFINITIONS } from '../data/cscp-definitions.js';
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const DOMAIN_COLORS = {
     SCD:   { bg: 'rgba(251,146,60,0.10)', border: 'rgba(251,146,60,0.35)', text: '#fb923c' },
@@ -141,11 +142,13 @@ export class DefinitionCard {
         `;
 
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('.defcard-continue-btn'));
+        const ready = readyAfter();   // ignore the tail of a double-click on the summary's Continue
         if (q) {
             const card = this.overlay;   // this card only (this.overlay is reassigned if the card is shown again)
             const answerEl = card.querySelector('.defcard-transfer-answer');
             card.querySelectorAll('.defcard-transfer-btn').forEach(btn => btn.addEventListener('click', () => {
-                if (answerEl.textContent) return;   // one attempt; the explanation stays visible
+                if (answerEl.textContent || !ready()) return;   // one attempt; the explanation stays visible
                 card.querySelectorAll('.defcard-transfer-btn').forEach(b => { b.disabled = true; b.setAttribute('aria-pressed', String(b === btn)); });
                 answerEl.textContent = `${btn.dataset.transfer === q.correct ? 'That\'s right.' : 'Not quite.'} ${q.explanation}`;
                 learning.onTransfer?.(btn.dataset.transfer);
@@ -157,7 +160,7 @@ export class DefinitionCard {
         let dismissed = false;
         this.overlay.querySelector('.defcard-continue-btn')
             .addEventListener('click', () => {
-                if (dismissed) return;
+                if (dismissed || !ready()) return;
                 dismissed = true;
                 this._hide();
                 if (onDismiss) onDismiss();
@@ -165,6 +168,8 @@ export class DefinitionCard {
     }
 
     _hide() {
+        this._release?.();
+        this._release = null;
         const el = this.overlay;
         if (!el) return;
         this.overlay = null;

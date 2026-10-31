@@ -60,6 +60,11 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
 .svp-toast p { margin: 0; line-height: 1.45; }
+/* While the toast is up, the page can scroll its last control above it, and the
+   sticky Confirm bar (narrow layouts) sits above it instead of underneath */
+html.svp-toast-open body { padding-bottom: var(--svp-toast-space, 0px); }
+html.svp-toast-open { scroll-padding-bottom: var(--svp-toast-space, 0px); }
+html.svp-toast-open body.scd-playing .pw-actionbar { bottom: var(--svp-toast-space, 0px); }
 
 /* In-game header status */
 .hud-save-status[data-state="failed"] { color: var(--danger-text, #f87171); }

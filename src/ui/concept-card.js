@@ -1,4 +1,5 @@
 import { getIcon } from '../graphics/svg-icons.js';
+import { holdModal } from './modal-focus.js';
 
 export class ConceptCard {
     constructor() {
@@ -48,6 +49,7 @@ export class ConceptCard {
         `;
 
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('.concept-dismiss-btn'));
 
         // Trigger entrance animation
         requestAnimationFrame(() => {
@@ -63,6 +65,8 @@ export class ConceptCard {
     }
 
     hide() {
+        this._release?.();
+        this._release = null;
         if (this.overlay) {
             // Remove THIS overlay when it finishes fading — not whichever card is showing by then
             const el = this.overlay;

@@ -227,8 +227,12 @@ export function showCloudPrompt({ onEnable }) {
             <button type="button" class="svp-btn svp-btn--ghost" data-t="off">Not now</button>
         </div>`;
     document.body.appendChild(el);
+    // Reserve room for the toast so it never covers the last control or the sticky Confirm bar
+    const root = document.documentElement;
+    root.style.setProperty('--svp-toast-space', `${el.offsetHeight + 24}px`);
+    root.classList.add('svp-toast-open');
     track('cloud_save_prompt_shown', {});
-    const done = () => el.remove();
+    const done = () => { el.remove(); root.classList.remove('svp-toast-open'); root.style.removeProperty('--svp-toast-space'); };
     el.querySelector('[data-t="on"]').addEventListener('click', () => { done(); onEnable(); });
     el.querySelector('[data-t="off"]').addEventListener('click', () => { done(); try { localStorage.setItem(PROMPT_KEY, 'dismissed'); } catch { /* ignore */ } track('cloud_save_prompt_dismissed', {}); });
 }

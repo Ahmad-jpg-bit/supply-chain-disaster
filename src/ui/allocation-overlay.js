@@ -4,6 +4,7 @@
  * Three customer segments, one pool of scarce units, three sliders.
  * No right answer; the player feels the rationing trade-off directly.
  */
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const fmtN = (n) => n.toLocaleString();
 
@@ -23,7 +24,9 @@ export class AllocationOverlay {
         const segs = scenario.segments;
         const pool = scenario.available;
 
-        // Initial allocation: pro-rata by demand, clamped to the pool
+        // Initial allocation: pro-rata by demand, clamped to the pool. Sliders step by 1 unit:
+        // with coarser steps any pool that isn't a multiple of the step can never be fully
+        // allocated, and Commit (which requires 0 unallocated) stays disabled for good.
         const totalDemand = segs.reduce((s, x) => s + x.demand, 0);
         const initial = {};
         let assigned = 0;
@@ -55,7 +58,7 @@ export class AllocationOverlay {
                             <p class="alloc-note">${s.note}</p>
                             <div class="alloc-slider-row">
                                 <input type="range" class="alloc-slider" data-slider="${s.id}"
-                                       min="0" max="${s.demand}" step="10" value="${initial[s.id]}"
+                                       min="0" max="${s.demand}" step="1" value="${initial[s.id]}"
                                        aria-label="Units for ${s.name}"/>
                                 <span class="alloc-units" data-units="${s.id}">${fmtN(initial[s.id])} / ${fmtN(s.demand)}</span>
                             </div>
@@ -73,7 +76,8 @@ export class AllocationOverlay {
         `;
 
         document.body.appendChild(this.overlay);
-        requestAnimationFrame(() => this.overlay.classList.add('alloc-overlay--visible'));
+        this._release = holdModal(this.overlay);
+        requestAnimationFrame(() => this.overlay?.classList.add('alloc-overlay--visible'));
 
         const sliders = [...this.overlay.querySelectorAll('.alloc-slider')];
         const poolEl  = this.overlay.querySelector('[data-pool]');
@@ -118,8 +122,9 @@ export class AllocationOverlay {
         sliders.forEach(sl => sl.addEventListener('input', () => refresh(sl)));
         refresh(null);
 
+        const ready = readyAfter();   // ignore the tail of a double-click on the previous screen
         btn.addEventListener('click', () => {
-            if (this._done || btn.disabled) return;
+            if (this._done || btn.disabled || !ready()) return;
             this._done = true;
             const alloc = readAlloc();
             // Freeze inputs; caller injects consequences via showConsequences()
@@ -147,13 +152,19 @@ export class AllocationOverlay {
         btn.disabled = false;
         const fresh = btn.cloneNode(true);
         btn.replaceWith(fresh);
+        const readyNext = readyAfter();
+        let continued = false;
         fresh.addEventListener('click', () => {
+            if (continued || !readyNext()) return;
+            continued = true;
             this._hide();
             onContinue();
         });
     }
 
     _hide() {
+        this._release?.();
+        this._release = null;
         if (!this.overlay) return;
         const el = this.overlay;
         this.overlay = null;

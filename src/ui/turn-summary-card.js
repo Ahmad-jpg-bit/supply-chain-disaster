@@ -9,6 +9,7 @@
 import { buildCounterfactual } from '../logic/counterfactual.js';
 import { buildTurnStory } from '../logic/turn-story.js';
 import { getIcon, iconify } from '../graphics/svg-icons.js';
+import { holdModal, readyAfter } from './modal-focus.js';
 
 const fmt = (n) =>
     new Intl.NumberFormat('en-US', {
@@ -370,6 +371,7 @@ export class TurnSummaryCard {
         `;
 
         document.body.appendChild(this.overlay);
+        this._release = holdModal(this.overlay, this.overlay.querySelector('#tsc-title'));
 
         // Animate overlay in
         requestAnimationFrame(() => {
@@ -378,8 +380,12 @@ export class TurnSummaryCard {
             this.overlay.querySelector('#tsc-title')?.focus({ preventScroll: true });
         });
 
+        const ready = readyAfter();   // ignore the tail of a double-click on the previous screen
+        let dismissed = false;
         this.overlay.querySelector('.tsc-continue-btn')
             .addEventListener('click', () => {
+                if (dismissed || !ready()) return;
+                dismissed = true;
                 this._hide();
                 onDismiss?.();
             });
@@ -436,6 +442,8 @@ export class TurnSummaryCard {
     }
 
     _hide() {
+        this._release?.();
+        this._release = null;
         if (!this.overlay) return;
         this.overlay.classList.remove('tsc-overlay--visible');
         this.overlay.classList.add('tsc-overlay--exit');
