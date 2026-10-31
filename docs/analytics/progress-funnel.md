@@ -99,7 +99,7 @@ the guidance caused it (seasonality, traffic sources and other changes also
 move these numbers). Don't report a retention or comprehension improvement
 until several complete weekly cohorts on each side agree.
 
-## Beginner Chapter 1 learning layer (Preview since 2026-10-30)
+## Beginner Chapter 1 learning layer (live since 2026-10-31 07:24:47 UTC)
 
 FMCG Chapter 1 campaigns get a stock-flow illustration, an opening-shortage
 note, an optional "will this order arrive in time?" check on the first quarter
@@ -129,6 +129,136 @@ second quarter (`turn = 2`) → Chapter 1 complete (`chapter_completed`
   lasting understanding; the arrival check also follows the guided tips that
   explain the same idea. Use them alongside observed beginner sessions, not as
   a mastery score.
+
+## Beginner FMCG Chapter 1 funnel — measurement handoff
+
+**Release baseline:** production deployment `dpl_DCoXKrVDPFSFQ85rjD6B9jLZNCTS`
+(commit `0f071fe`) created **2026-10-31 07:24:47 UTC** (12:24:47 PKT), build ~24 s.
+Treat events from 2026-10-31 07:25 UTC onward as post-release. The previous
+release (`168a8e5`, 2026-10-29) had no beginner layer.
+
+Reference snapshot (public community counts, server-side, production only,
+bots and owner sessions excluded; cumulative since 2026-10-25, not split by
+industry, start chapter or date): **52 campaigns with ≥1 completed quarter,
+184 completed quarterly scenarios** at 2026-10-31 07:46 UTC. Re-read
+`/api/community?view=stats` later for a post-release delta. Not a funnel.
+
+### Event-to-funnel mapping (actual events)
+
+| Step | Event | Fires when | Key params | Has `run_id`? |
+|---|---|---|---|---|
+| /play viewed | `pregame_view` (+ GA's automatic `page_view`) | the pre-game page renders, once per page load | `entry`, `runs`, `in_progress`, `cloud` | no |
+| Campaign started | `run_started` | a new campaign run is created (not on resume) | `industry_id`, `start_chapter`, `mode` (=story), `cloud` | **yes** |
+| — (don't use for campaigns) | `game_start` | every game start in a page load, incl. resumes, Endless, weekly | `industry_id`, `mode`, `start_chapter`, `resumed` | no |
+| First turn completed | `turn_completed` with `turn = 1` | quarter 1 resolves (once per run) | `chapter`, `turn`, `guide`, `industry_id`, `access`, `cloud` | **yes** |
+| — (don't use for campaigns) | `first_turn_complete` | first quarter resolved **in that page load** (also after a resume, also Endless) | `industry_id`, `mode`, `chapter`, `guide` | no |
+| Second turn completed | `turn_completed` with `turn = 2` | quarter 2 resolves (once per run) | as above | **yes** |
+| FMCG Chapter 1 completed | `chapter_completed` with `chapter = 1` | the chapter summary opens (once per run) | `chapter`, `turn`, `industry_id`, `access` | **yes** |
+| Free-intro end screen shown | `free_scenario_complete` | the free-intro completion screen (recap already shown) opens for a player without Core | `industry_id`, `chapter` | no |
+| Upgrade offer viewed | `core_offer_view` | the Core Game Pass modal opens; from the free-intro screen `source = intro_complete` | `source`, `owned` | no |
+| (offer requested elsewhere) | `paid_offer_open` | HUD button, locked content or `?upgrade=1` asks for the modal (not fired from the free-intro screen) | `source` | no |
+| Checkout started | `checkout_start` | the server returned a checkout URL, just before redirecting to Lemon Squeezy — **intent only** | `offer`, `source` | no |
+| Purchase confirmed | `purchase_confirmed` | on `/success`, only after the server-verified claim (signed webhook → KV ledger) reports `active`; once per order per browser | `offer` | no |
+
+`purchase_confirmed` is reliable when it fires but **undercounts** (the buyer
+must stay on `/success` until confirmation; blocked GA loses it). Revenue and
+order counts come from Lemon Squeezy / the KV ledger, not GA. A checkout click
+or a `/success` page view is never a purchase.
+
+### Restricting to FMCG campaigns that start at Chapter 1
+
+- **Campaign-based (BigQuery export):** cohort = `run_started` with
+  `industry_id = 'fmcg'` and `start_chapter = 1`; join `turn_completed`
+  (`turn = 1`, `turn = 2`) and `chapter_completed` (`chapter = 1`) on `run_id`.
+  Later-chapter starts drop out via `start_chapter`; replays are separate runs.
+- **GA4 Exploration (no BigQuery):** same conditions as step parameters
+  (below). Funnels count **users**, not campaigns — a replaying player counts
+  once; use it for direction.
+- **Exclude test activity** (GA does not honour `?stats=off`; that flag only
+  excludes the public community counts):
+  1. Hostname exactly `www.supplychaindisaster.com` (drops localhost and
+     `*.vercel.app` previews; dev builds never send).
+  2. GA4 internal-traffic rule for the owner's IP address(es), with the
+     "Internal traffic" data filter switched to **Active**.
+  3. Known owner sessions: on 2026-10-29 and 2026-10-30 a few production
+     verification sessions set the GA opt-out only after the page loaded, so a
+     handful of `page_view`/`pregame_view` hits from the owner may exist —
+     exclude by IP or those time windows. The 2026-10-31 release checks
+     blocked GA before page scripts (nothing sent).
+
+### What can be linked
+
+- **Per campaign (via `run_id`, BigQuery only):** `run_started`,
+  `chapter_started`, `turn_completed`, `chapter_completed`, `run_completed`,
+  `resume_started`/`resume_succeeded`, `local_save_failed`, `guide_started`/
+  `guide_skipped`/`guide_completed`/`guide_explain_open` and
+  `reflection_answer` (campaign mode).
+- **Per user/session only:** `pregame_view`, `game_start`,
+  `first_turn_complete`, `free_scenario_complete`, `paid_offer_open`,
+  `core_offer_view`, `checkout_start`, `purchase_confirmed`. In BigQuery they
+  can be joined to campaigns only approximately, by `user_pseudo_id` (same
+  browser/cookie) and `ga_session_id`. "/play viewed → campaign started" and
+  "Chapter 1 completed → purchase" are therefore user/session-level rates.
+- **Guide cohorts:** use `guide` on the `turn = 1` event. Guided vs skipped are
+  self-selected and returning players are never auto-guided — compare
+  before/after release cohorts, not guided vs skipped, for effect claims.
+
+### GA4 setup (owner steps)
+
+1. **Admin → Custom definitions → Create custom dimension** (scope: Event) for
+   any not yet registered: `industry_id`, `start_chapter`, `chapter`, `turn`,
+   `guide`, `access`, and `source` (offer source; low cardinality). Skip
+   `run_id` (high cardinality; BigQuery has it anyway). Dimensions aren't
+   retroactive in GA4 reports — register them now.
+2. **Admin → Data streams → (web stream) → Configure tag settings → Define
+   internal traffic:** add the owner's IP. Then **Admin → Data filters →
+   Internal traffic → Active**.
+3. **Admin → Events:** mark `purchase_confirmed` as a key event.
+4. **Explore → Funnel exploration** "Beginner FMCG Ch1", open funnel off,
+   date range from 2026-10-31, filter Hostname = `www.supplychaindisaster.com`:
+   1. `run_started` — `industry_id` = fmcg, `start_chapter` = 1
+   2. `turn_completed` — `turn` = 1, `industry_id` = fmcg
+   3. `turn_completed` — `turn` = 2, `industry_id` = fmcg
+   4. `chapter_completed` — `chapter` = 1, `industry_id` = fmcg
+   5. `core_offer_view` — `source` = intro_complete
+   6. `checkout_start` — `source` = intro_complete
+   7. `purchase_confirmed`
+
+   Steps 5–7 are user-level and include players who own nothing yet; read
+   them as rates among users who reached step 4.
+5. Optional, for campaign counts: **Admin → Product links → BigQuery** (daily
+   export) and use the SQL in "BigQuery (GA4 export)" below with
+   `industry_id = 'fmcg'` and `start_chapter = 1`.
+
+### Measurement gaps (practical impact)
+
+- Top-of-funnel and purchase events carry no `run_id` → conversion to offer,
+  checkout and purchase is per user/session, not per campaign.
+- `purchase_confirmed` undercounts → use Lemon Squeezy / KV ledger for purchases.
+- GA has no test-traffic marker → owner play counts unless IP/hostname filters are set.
+- Custom dimensions aren't retroactive → events before registration lack those
+  parameters in GA4 reports (BigQuery keeps them).
+- The free-intro end screen has no own view event → `free_scenario_complete`
+  (fires as it opens) is the proxy.
+- No client error telemetry → stuck UI (like the rationing trap fixed in
+  `0f071fe`) only shows up as drop-off between steps.
+- Without BigQuery, campaign-level funnels aren't available; GA4 explorations
+  count users.
+
+### Symptoms worth investigating if they recur
+
+- Runs with `turn_completed` `turn = 1` but no `turn = 2` rising, especially
+  after short first quarters (rationing, crisis messages).
+- `chapter_completed` `chapter = 1` falling relative to `turn_completed`
+  `turn = 4` (chapter-end screens).
+- `reflection_answer` with `answered = false` dominating, or `guide_skipped`
+  concentrated at one `step_id`.
+- `checkout_start` with `source = intro_complete` rising without matching
+  `core_offer_view` (unintended clicks) or without purchases in the ledger.
+- `resume_failed`, `save_recovered` or `local_save_failed` increasing.
+- Player reports of an unresponsive Confirm or Continue button (see the
+  unconfirmed quarter-2 stop in CLAUDE.md), keyboard focus stuck behind an
+  overlay, or an overlay that doesn't close.
 
 ## GA4 setup (one-time)
 
