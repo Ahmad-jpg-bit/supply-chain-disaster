@@ -137,11 +137,14 @@ second quarter (`turn = 2`) → Chapter 1 complete (`chapter_completed`
 Treat events from 2026-10-31 07:25 UTC onward as post-release. The previous
 release (`168a8e5`, 2026-10-29) had no beginner layer.
 
-Reference snapshot (public community counts, server-side, production only,
-bots and owner sessions excluded; cumulative since 2026-10-25, not split by
-industry, start chapter or date): **52 campaigns with ≥1 completed quarter,
-184 completed quarterly scenarios** at 2026-10-31 07:46 UTC. Re-read
-`/api/community?view=stats` later for a post-release delta. Not a funnel.
+Cumulative activity snapshot (public community counts: server-side,
+production only, bots and owner sessions excluded; cumulative since
+2026-10-25; not split by industry, start chapter or date):
+**52 campaigns with ≥1 completed quarter, 184 completed quarterly scenarios**,
+read at **2026-10-31 07:46 UTC — 21 minutes after the 07:24:47 UTC deploy**.
+A later re-read minus this snapshot is activity after 07:46 UTC only; it
+excludes those first minutes after release. These totals are activity counts,
+not onboarding conversion or retention metrics.
 
 ### Event-to-funnel mapping (actual events)
 
@@ -178,8 +181,9 @@ or a `/success` page view is never a purchase.
   excludes the public community counts):
   1. Hostname exactly `www.supplychaindisaster.com` (drops localhost and
      `*.vercel.app` previews; dev builds never send).
-  2. GA4 internal-traffic rule for the owner's IP address(es), with the
-     "Internal traffic" data filter switched to **Active**.
+  2. GA4 internal-traffic rule for the owner's IP address(es) and the
+     "Internal traffic" data filter — left in **Testing** until matching
+     traffic has been verified, then switched to **Active** (see GA4 setup).
   3. Known owner sessions: on 2026-10-29 and 2026-10-30 a few production
      verification sessions set the GA opt-out only after the page loaded, so a
      handful of `page_view`/`pregame_view` hits from the owner may exist —
@@ -207,28 +211,138 @@ or a `/success` page view is never a purchase.
 
 1. **Admin → Custom definitions → Create custom dimension** (scope: Event) for
    any not yet registered: `industry_id`, `start_chapter`, `chapter`, `turn`,
-   `guide`, `access`, and `source` (offer source; low cardinality). Skip
+   `guide`, `access`, and `source` — display name **Offer source (event param)**
+   so it can't be confused with GA4's built-in Source / Session source /
+   First user source traffic dimensions; low cardinality. Skip
    `run_id` (high cardinality; BigQuery has it anyway). Dimensions aren't
    retroactive in GA4 reports — register them now.
 2. **Admin → Data streams → (web stream) → Configure tag settings → Define
-   internal traffic:** add the owner's IP. Then **Admin → Data filters →
-   Internal traffic → Active**.
+   internal traffic:** add the owner's IP(s). **Admin → Data filters →
+   Internal traffic** must stay in **Testing** first. Verify: play a little
+   from that IP, then in an exploration add the dimension **Test data filter
+   name** and confirm those events show "Internal traffic" (and others show
+   "(not set)"). Only then switch the filter to **Active**. Active filters
+   permanently drop matching data; Testing only labels it.
 3. **Admin → Events:** mark `purchase_confirmed` as a key event.
-4. **Explore → Funnel exploration** "Beginner FMCG Ch1", open funnel off,
-   date range from 2026-10-31, filter Hostname = `www.supplychaindisaster.com`:
-   1. `run_started` — `industry_id` = fmcg, `start_chapter` = 1
-   2. `turn_completed` — `turn` = 1, `industry_id` = fmcg
-   3. `turn_completed` — `turn` = 2, `industry_id` = fmcg
-   4. `chapter_completed` — `chapter` = 1, `industry_id` = fmcg
-   5. `core_offer_view` — `source` = intro_complete
-   6. `checkout_start` — `source` = intro_complete
-   7. `purchase_confirmed`
-
-   Steps 5–7 are user-level and include players who own nothing yet; read
-   them as rates among users who reached step 4.
+4. **Explore:** build the two funnel explorations in "GA4 exploration recipes"
+   below (A. Beginner progression, B. Free-intro purchase interest). Keep them
+   separate: B is user-level purchase interest, not attribution of A's
+   campaigns.
 5. Optional, for campaign counts: **Admin → Product links → BigQuery** (daily
    export) and use the SQL in "BigQuery (GA4 export)" below with
-   `industry_id = 'fmcg'` and `start_chapter = 1`.
+   `industry_id = 'fmcg'` and `start_chapter = 1`. The export starts from the
+   day it's linked — it **cannot recover events from before export began**.
+
+### GA4 exploration recipes
+
+Parameters present per event (from the code): `run_started` — `industry_id`,
+`start_chapter`, `mode`, `cloud`, `run_id`; `turn_completed` — `industry_id`,
+`chapter`, `turn`, `guide`, `access`, `mode`, `cloud`, `run_id`;
+`chapter_completed` — `industry_id`, `chapter`, `turn`, `access`, `mode`,
+`cloud`, `run_id`; `core_offer_view` — `source`, `owned`; `checkout_start` —
+`offer`, `source`; `purchase_confirmed` — `offer` only. All events also carry
+`locale` and `variant`. So `start_chapter` exists only on `run_started` and
+`source` is missing from `purchase_confirmed`: neither may be used as a
+tab-wide filter — put them in step conditions only.
+
+Shared settings (both recipes):
+- **Technique:** Funnel exploration. **Visualization:** standard funnel.
+- **Closed funnel** (leave "Make open funnel" off): users must enter at step 1.
+- **Step sequencing:** for every step after the first, keep "is indirectly
+  followed by" (the default) — never "directly followed by" — so gameplay,
+  page and other events may occur between steps. No "within" time limit.
+- **Tab filter:** Hostname exactly matches `www.supplychaindisaster.com`
+  (built-in dimension, present on every event). Nothing else at tab level.
+- **Date range:** check **Admin → Property details → Reporting time zone**
+  first. Explorations use whole days in that zone. The deploy was 2026-10-31
+  07:24:47 UTC (12:24:47 in UTC+5); a range starting 2026-10-31 mixes in the
+  hours before release in any time zone, so use **2026-11-01 → latest full
+  day** for clean post-release figures (or label a 2026-10-31 start "includes
+  pre-release hours"). Internal-traffic exclusion only applies from when the
+  filter became Active.
+- **Breakdown (optional):** Device category, only if each device row has
+  enough users to read (see template).
+
+**A. Beginner progression (user-level)**
+
+Import — Dimensions: Device category, Hostname, Event name, `industry_id`,
+`start_chapter`, `turn`, `chapter`. Metric: Active users.
+
+| Step | Event | Parameter conditions (AND) |
+|---|---|---|
+| 1 Campaign started | `run_started` | `industry_id` exactly matches `fmcg`; `start_chapter` exactly matches `1` |
+| 2 First quarter | `turn_completed` | `turn` exactly matches `1`; `industry_id` exactly matches `fmcg` |
+| 3 Second quarter | `turn_completed` | `turn` exactly matches `2`; `industry_id` exactly matches `fmcg` |
+| 4 Chapter 1 complete | `chapter_completed` | `chapter` exactly matches `1`; `industry_id` exactly matches `fmcg` |
+
+(`turn = 1` and `chapter_completed chapter = 1` can only come from campaigns
+that started at Chapter 1; `start_chapter` is therefore needed only at step 1.)
+
+Limitations: counts **users**, not campaigns. Steps are matched by event
+order, not by `run_id` — a user who abandons one FMCG campaign and finishes
+quarter 1 in another still progresses. A user counts once however many
+campaigns they play. Campaigns started before the date range (resumed later)
+can't enter a closed funnel. Players who block GA or clear cookies are missing
+or split into new users. Same-campaign linkage needs the BigQuery export.
+
+**B. Free-intro purchase interest (user-level — not campaign attribution)**
+
+Import — Dimensions: Device category, Hostname, Event name, `source`
+(Offer source (event param)). Metric: Active users.
+
+| Step | Event | Parameter conditions | Meaning |
+|---|---|---|---|
+| 1 Offer viewed from free-intro end | `core_offer_view` | `source` exactly matches `intro_complete` | the Core Game Pass modal opened from the free-intro end screen |
+| 2 Checkout intent | `checkout_start` | `source` exactly matches `intro_complete` | a checkout link was obtained and the browser was sent to Lemon Squeezy — intent, not payment |
+| 3 Browser-observed purchase | `purchase_confirmed` | (none — the event has no `source`) | server-confirmed order seen by this browser on `/success`; incomplete measure |
+
+Limitations: step 3 isn't tied to step 2's checkout — any purchase confirmed
+later in the date range by the same user counts. Buyers who don't return to
+`/success` until confirmation, pay on another device, or block GA are missing
+(undercount). Users who saw the offer in a later session still enter if the
+view is in range. Purchases and revenue come from Lemon Squeezy, reported
+separately.
+
+### First report template (fill from GA4 and Lemon Squeezy — no counts yet)
+
+**Period:** ____ to ____ (property time zone: ____). Internal-traffic filter:
+Active since ____ / still Testing. Hostname filter applied: yes.
+
+A. Beginner progression
+
+| Step | Users | Conversion from previous step (users ÷ users) | From step 1 |
+|---|---|---|---|
+| 1 `run_started` (fmcg, start_chapter 1) | __ | — | 100% |
+| 2 `turn_completed` turn 1 | __ | __% (step 2 ÷ step 1 = __/__) | __% |
+| 3 `turn_completed` turn 2 | __ | __% (step 3 ÷ step 2 = __/__) | __% |
+| 4 `chapter_completed` chapter 1 | __ | __% (step 4 ÷ step 3 = __/__) | __% |
+
+Device breakdown: report desktop / mobile / tablet rows only if that row has
+at least ~30 users at step 1; otherwise write "sample too small". Mark the
+whole table **preliminary** while step 1 is under ~100 users.
+
+B. Free-intro purchase interest (user-level)
+
+| Step | Users | Conversion from previous step |
+|---|---|---|
+| 1 `core_offer_view` (intro_complete) | __ | — |
+| 2 `checkout_start` (intro_complete) — checkout intent | __ | __% (__/__) |
+| 3 `purchase_confirmed` — browser-observed, incomplete | __ | __% (__/__) |
+
+Lemon Squeezy (separate, authoritative): store 295627, product 1460354 /
+variant 2278087 (Core Game Pass), **live mode only**, same period: orders __,
+gross __, refunds __, net __. Do not divide these by GA users.
+
+Data-quality notes to keep with every report: user-level, not campaign-level;
+GA blocked by some browsers (undercount); owner traffic excluded only once the
+internal-traffic filter is Active; custom dimensions report only from their
+registration date; guided vs skipped users are self-selected; community
+totals are cumulative activity, not conversion.
+
+**Export:** in each exploration, set the date range, add Device category as
+breakdown, then **Share/Export → Download file (CSV or Google Sheets)** for
+the funnel table (the "Users", "Completion rate" and "Abandonments" columns).
+Lemon Squeezy: **Orders**, filter by product and date range, export CSV.
 
 ### Measurement gaps (practical impact)
 
@@ -236,8 +350,10 @@ or a `/success` page view is never a purchase.
   checkout and purchase is per user/session, not per campaign.
 - `purchase_confirmed` undercounts → use Lemon Squeezy / KV ledger for purchases.
 - GA has no test-traffic marker → owner play counts unless IP/hostname filters are set.
-- Custom dimensions aren't retroactive → events before registration lack those
-  parameters in GA4 reports (BigQuery keeps them).
+- Custom dimensions aren't retroactive → events collected before registration
+  lack those parameters in GA4 reports. A BigQuery export keeps all parameters,
+  but only for events after the export was linked; nothing earlier can be
+  recovered.
 - The free-intro end screen has no own view event → `free_scenario_complete`
   (fires as it opens) is the proxy.
 - No client error telemetry → stuck UI (like the rationing trap fixed in
