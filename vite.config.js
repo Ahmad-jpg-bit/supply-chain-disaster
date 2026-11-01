@@ -11,7 +11,8 @@ import { blogPlugin } from './scripts/blog/vite-plugin.mjs'
  */
 const STATIC_SEO_NAV = `<noscript id="seo-nav">
 <nav aria-label="Site navigation (static fallback)">
-<a href="/">Play Free</a>
+<a href="/play">Play Free</a>
+<a href="/">Home</a>
 <a href="/blog">Supply Chain Blog</a>
 <a href="/pricing">Pricing</a>
 <a href="/about">About</a>

@@ -18,7 +18,7 @@ export function createNav(activePage = 'game') {
         <span></span><span></span><span></span>
       </button>
       <ul class="nav-links">
-        <li><a href="/" class="nav-link nav-link--cta${activePage === 'game' ? ' active' : ''}">Play Free</a></li>
+        <li><a href="/play" class="nav-link nav-link--cta${activePage === 'game' ? ' active' : ''}">Play Free</a></li>
         <li class="nav-dropdown-item">
           <button class="nav-link nav-dropdown-toggle${activePage === 'about' || activePage === 'blog' ? ' active' : ''}" aria-expanded="false" aria-haspopup="true">
             Resources

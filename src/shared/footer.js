@@ -26,7 +26,7 @@ export function createFooter(container) {
       <nav class="footer-links" aria-label="Footer navigation">
         <div class="footer-link-group">
           <span class="footer-group-label">Explore</span>
-          <a href="/" class="footer-link">Play Game</a>
+          <a href="/play" class="footer-link">Play Game</a>
           <a href="/pricing" class="footer-link">Pricing</a>
           <a href="/about" class="footer-link">About</a>
           <a href="/blog" class="footer-link">Blog</a>
