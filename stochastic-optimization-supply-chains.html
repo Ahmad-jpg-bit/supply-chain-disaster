@@ -13,8 +13,8 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Build a Stochastic Optimization Framework for Supply Chains | Supply Chain Disaster</title>
-  <meta name="description" content="Learn to build a working stochastic optimization framework that integrates Bayesian learning with robust optimization. This tutorial guides you through pro..." />
+  <title>Stochastic Optimization for Supply Chains: A Small, Tested Example | Supply Chain Disaster</title>
+  <meta name="description" content="A complete, tested Python example of Bayesian demand updating and an order-up-to rule, with assumptions, hand-checkable numbers, and the limits of the method." />
   <link rel="canonical" href="https://www.supplychaindisaster.com/stochastic-optimization-supply-chains" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Ahmad Faruqi" />
@@ -22,8 +22,8 @@
   <!-- Open Graph -->
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://www.supplychaindisaster.com/stochastic-optimization-supply-chains" />
-  <meta property="og:title" content="Build a Stochastic Optimization Framework for Supply Chains" />
-  <meta property="og:description" content="Learn to build a working stochastic optimization framework that integrates Bayesian learning with robust optimization. This tutorial guides you through pro..." />
+  <meta property="og:title" content="Stochastic Optimization for Supply Chains: A Small, Tested Example" />
+  <meta property="og:description" content="A complete, tested Python example of Bayesian demand updating and an order-up-to rule, with assumptions, hand-checkable numbers, and the limits of the method." />
   <meta property="og:image" content="https://www.supplychaindisaster.com/og-image.png" />
   <meta property="og:site_name" content="Supply Chain Disaster" />
   <meta property="article:published_time" content="2026-04-13" />
@@ -31,8 +31,8 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Build a Stochastic Optimization Framework for Supply Chains" />
-  <meta name="twitter:description" content="Learn to build a working stochastic optimization framework that integrates Bayesian learning with robust optimization. This tutorial guides you through pro..." />
+  <meta name="twitter:title" content="Stochastic Optimization for Supply Chains: A Small, Tested Example" />
+  <meta name="twitter:description" content="A complete, tested Python example of Bayesian demand updating and an order-up-to rule, with assumptions, hand-checkable numbers, and the limits of the method." />
   <meta name="twitter:image" content="https://www.supplychaindisaster.com/og-image.png" />
 
   <!-- JSON-LD: BlogPosting -->
@@ -40,10 +40,10 @@
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": "Build a Stochastic Optimization Framework for Supply Chains",
-    "description": "Learn to build a working stochastic optimization framework that integrates Bayesian learning with robust optimization. This tutorial guides you through pro...",
+    "headline": "Stochastic Optimization for Supply Chains: A Small, Tested Example",
+    "description": "A complete, tested Python example of Bayesian demand updating and an order-up-to rule, with assumptions, hand-checkable numbers, and the limits of the method.",
     "datePublished": "2026-04-13",
-    "dateModified": "2026-04-13",
+    "dateModified": "2026-11-08",
     "author": {
       "@type": "Person",
       "name": "Ahmad Faruqi",
@@ -56,7 +56,7 @@
     },
     "url": "https://www.supplychaindisaster.com/stochastic-optimization-supply-chains",
     "mainEntityOfPage": "https://www.supplychaindisaster.com/stochastic-optimization-supply-chains",
-    "keywords": ["build supply chain", "stochastic supply chain", "optimization supply chain", "framework supply chain", "supply supply chain", "chains supply chain"]
+    "keywords": ["stochastic optimization supply chain", "bayesian demand estimation", "base-stock policy", "inventory simulation python", "newsvendor"]
   }
   </script>
 
@@ -82,6 +82,8 @@
 .mission-btn:hover { transform: translateY(-2px); text-decoration: none; }
 @keyframes mission-glow { 0%, 100% { box-shadow: 0 0 6px rgba(255,255,255,0.25), 0 3px 10px rgba(0,0,0,0.4); } 50% { box-shadow: 0 0 14px rgba(255,255,255,0.45), 0 3px 10px rgba(0,0,0,0.4); } }
 .mission-briefing-note { display: block; margin-top: 0.875rem; font-size: 0.78rem; color: rgba(226,232,240,0.85); font-family: 'Courier New', monospace; }
+.article-content pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.25rem; overflow-x: auto; margin: 1.25rem 0 1.75rem; }
+.article-content pre code { display: block; font-family: 'Courier New', Courier, monospace; font-size: 0.82rem; line-height: 1.6; color: #0f172a; white-space: pre; overflow-wrap: normal; background: none; padding: 0; }
   </style>
 </head>
 <body>
@@ -90,8 +92,8 @@
     <header class="article-header">
       <a href="/blog" class="article-back-link">&#8592; Back to Blog</a>
       <span class="article-tag">Analytics</span>
-      <h1>Build a Stochastic Optimization Framework for Supply Chains</h1>
-      <p class="article-subtitle">Step-by-step implementation of Bayesian learning and robust optimization for automotive resilience</p>
+      <h1>Stochastic Optimization for Supply Chains: A Small, Tested Example</h1>
+      <p class="article-subtitle">A small, tested example of Bayesian demand updating and an order-up-to rule, with its assumptions stated</p>
       <div class="article-meta">
         <span>April 13, 2026</span>
         <span class="article-meta-sep">·</span>
@@ -102,158 +104,339 @@
     </header>
 
     <article class="article-content">
-      
       <div class="tldr-box">
-        <h3>TL;DR — Key Takeaways</h3>
+        <h3>In brief</h3>
         <ul>
-          <li><strong>Stochastic optimization handles uncertainty mathematically</strong> — Unlike deterministic planning, this framework generates decisions that remain feasible across multiple demand and supply scenarios, achieving 7.4% cost reduction in stable conditions.</li>
-          <li><strong>Bayesian learning enables continuous adaptation</strong> — The framework updates probability distributions as new data arrives, improving service levels by 2.0% over static approaches while maintaining computational efficiency.</li>
-          <li><strong>Robust optimization (Bertsimas-Sim) provides tunable conservatism</strong> — The gamma parameter lets you balance cost minimization against worst-case protection based on component criticality and risk tolerance.</li>
-          <li><strong>Simulation validates decisions before deployment</strong> — Monte Carlo testing across 1000+ scenarios provides confidence intervals for costs and service levels, enabling informed budgeting and risk assessment.</li>
-          <li><strong>Multi-echelon extension captures network effects</strong> — Extending beyond single-location optimization to include supplier tiers and distribution networks addresses the interconnected nature of automotive supply chains.</li>
+          <li><strong>What this is.</strong> A small, complete, tested Python example (standard library only) that updates a demand estimate with Bayesian inference, turns the posterior into an order-up-to level, and checks the policy in a simulation.</li>
+          <li><strong>What it is not.</strong> It is not a production system and it does not implement robust optimisation. It makes strong assumptions (one item, i.i.d. normal demand, backorders, linear costs) that are listed below.</li>
+          <li><strong>Evidence.</strong> The tests check arithmetic and inventory bookkeeping. We have not benchmarked accuracy, runtime or savings, and we make no such claims.</li>
         </ul>
       </div>
 
-      <h2>What You Will Build: A Working Stochastic Optimization Framework</h2>
-      <p>You'll implement a functional <strong>stochastic optimization framework</strong> for <strong>automotive supply chain resilience</strong>. The system integrates Bayesian learning with robust optimization to dynamically adjust inventory policies under demand and supply uncertainty.</p>
-      <p><a href="https://arxiv.org/html/2511.06479v1" rel="noopener noreferrer" target="_blank">Recent research validates</a> that integrated stochastic learning-optimization achieves 7.4% cost reduction in stable environments and 5.7% improvement during supply disruptions.</p>
-      <p>The working prototype processes historical demand data, updates probability distributions in real-time, and generates optimized procurement and production decisions. The framework follows the Bertsimas-Sim adjustable robust optimization approach, validated against realistic automotive operating conditions.</p>
-      <h2>Prerequisites and Setup Checklist</h2>
-      <p>Gather these requirements before starting. Missing components will cause failures in later steps.</p>
-      <ul><li><strong>Python 3.9+</strong> with NumPy, SciPy, and pandas installed</li><li><strong>Optimization solver:</strong> Gurobi (academic license free) or open-source CBC/GLPK</li><li><strong>Historical demand data:</strong> Minimum 12 months of daily or weekly records</li><li><strong>Supplier lead time data:</strong> Mean and variance for each supplier tier</li><li><strong>Computing resources:</strong> 8GB RAM minimum; 16GB recommended for simulation runs</li><li><strong>Access credentials:</strong> ERP or inventory management system API (read access)</li></ul>
-      <p><strong>Time estimate:</strong> 8-12 hours for initial implementation; 2-4 weeks for calibration and validation. Primary blockers include incomplete historical data and solver licensing issues.</p>
-      <h2>Context: Why Stochastic Optimization for Automotive Supply Chain Resilience</h2>
-      <p>Deterministic optimization assumes perfect forecasts. Reality delivers demand shocks, supplier failures, and logistics disruptions. Stochastic optimization explicitly models uncertainty, generating decisions that perform well across multiple scenarios.</p>
-      <p>The approach in this tutorial combines two proven methods. Bayesian inference continuously updates demand probability distributions as new data arrives. Robust optimization (Bertsimas-Sim) then generates decisions that remain feasible even when parameters deviate from expected values.</p>
-      <p>Alternative approaches exist. Scenario-based stochastic programming requires explicit scenario enumeration, which becomes computationally expensive. Pure machine learning approaches lack the mathematical guarantees that optimization provides. <a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">The integrated robust optimization and simulation framework</a> from Aston University demonstrates that combining optimization with simulation improves supply chain resilience while supporting sustainable operational decision-making.</p>
-      <h2>Step 1: Structure Your Data Pipeline</h2>
-      <p><strong>Action:</strong> Create a standardized data ingestion module that pulls historical demand, inventory levels, and supplier performance metrics.</p>
-      <p>Create a new Python file named <code>data_pipeline.py</code>. Your module must output three dataframes: demand history (indexed by date and SKU), inventory snapshots (daily positions by location), and supplier metrics (lead times, fill rates, capacity).</p>
-      <p>``` import pandas as pd from datetime import datetime, timedelta</p>
-      <p>class SupplyChainDataPipeline:     def __init__(self, erp_connection):         self.conn = erp_connection         self.demand_df = None         self.inventory_df = None         self.supplier_df = None</p>
-      <p>    def extract_demand_history(self, lookback_days=365):         """Pull daily demand by SKU for Bayesian prior estimation"""         query = f"""         SELECT date, sku_id, quantity_demanded, quantity_fulfilled         FROM demand_history         WHERE date >= CURRENT_DATE - INTERVAL '{lookback_days} days'         """         self.demand_df = pd.read_sql(query, self.conn)         self.demand_df['date'] = pd.to_datetime(self.demand_df['date'])         return self.demand_df ```</p>
-      <p><strong>Expected result:</strong> Running <code>pipeline.extract_demand_history()</code> returns a dataframe with 365+ rows per active SKU. <strong>Checkpoint:</strong> Verify no null values in quantity columns and date coverage is continuous.</p>
-      <p><strong>Common failure:</strong> Missing dates in demand history. <strong>Fix:</strong> Impute missing dates with zero demand or interpolated values before proceeding.</p>
-      <h2>Step 2: Implement Bayesian Demand Estimation</h2>
-      <p><strong>Action:</strong> Build the Bayesian inference engine that updates demand distribution parameters as new observations arrive.</p>
-      <p>Create <code>bayesian_estimator.py</code>. Use conjugate priors for computational efficiency. For demand data following a normal distribution, use Normal-Inverse-Gamma conjugate pairs.</p>
-      <p>``` import numpy as np from scipy import stats</p>
-      <p>class BayesianDemandEstimator:     def __init__(self, prior_mu=100, prior_kappa=1, prior_alpha=2, prior_beta=100):         """Initialize with weakly informative priors"""         self.mu_0 = prior_mu      # Prior mean estimate         self.kappa_0 = prior_kappa # Prior precision weight         self.alpha_0 = prior_alpha # Prior shape for variance         self.beta_0 = prior_beta   # Prior scale for variance</p>
-      <p>    def update_posterior(self, observations):         """Update parameters given new demand observations"""         n = len(observations)         x_bar = np.mean(observations)</p>
-      <p>        # Posterior parameters         kappa_n = self.kappa_0 + n         mu_n = (self.kappa_0 <em> self.mu_0 + n </em> x_bar) / kappa_n         alpha_n = self.alpha_0 + n / 2         beta_n = (self.beta_0 + 0.5 <em> np.sum((observations - x_bar)<strong>2) +                   (self.kappa_0 </strong></em><strong> n <em> (x_bar - self.mu_0)</em></strong><em>2) / (2 </em> kappa_n))</p>
-      <p>        return {             'mean': mu_n,             'variance': beta_n / (alpha_n - 1) if alpha_n > 1 else np.inf,             'confidence_interval': self._compute_ci(mu_n, kappa_n, alpha_n, beta_n)         } ```</p>
-      <p><strong>Expected result:</strong> Posterior mean converges toward sample mean as observations accumulate. With 100+ observations, posterior variance decreases significantly.</p>
-      <p><strong>Checkpoint:</strong> Compare posterior mean to simple moving average. Difference should be less than 5% with sufficient data.</p>
-      <p><strong>Common failure:</strong> Posterior variance explodes with outliers. <strong>Fix:</strong> Implement outlier detection (values beyond 3 standard deviations) and use robust estimation or winsorization.</p>
-      <h2>Step 3: Build the Robust Optimization Model</h2>
-      <p><strong>Action:</strong> Implement the Bertsimas-Sim robust optimization formulation for inventory decisions under uncertainty.</p>
-      <p>Create <code>robust_optimizer.py</code>. The model minimizes worst-case costs while ensuring feasibility across the uncertainty set defined by your Bayesian estimates.</p>
-      <p>``` from gurobipy import Model, GRB, quicksum import numpy as np</p>
-      <p>class RobustInventoryOptimizer:     def __init__(self, gamma=1.5):         """         gamma: Bertsimas-Sim budget of uncertainty parameter         Higher gamma = more conservative (robust) solutions         """         self.gamma = gamma         self.model = None</p>
-      <p>    def build_model(self, demand_params, holding_cost, shortage_cost,                      order_cost, lead_time, planning_horizon):         """Construct robust inventory optimization model"""         self.model = Model("RobustInventory")         T = planning_horizon</p>
-      <p>        # Decision variables         order_qty = self.model.addVars(T, name="order", lb=0)         inventory = self.model.addVars(T, name="inventory", lb=0)         shortage = self.model.addVars(T, name="shortage", lb=0)</p>
-      <p>        # Auxiliary variables for robust counterpart         z = self.model.addVars(T, name="z", lb=0)  # Dual variables         p = self.model.addVar(name="p", lb=0)       # Budget constraint dual</p>
-      <p>        # Objective: minimize expected cost plus robustness term         self.model.setObjective(             quicksum(holding_cost <em> inventory[t] +                       shortage_cost </em> shortage[t] +                       order_cost <em> order_qty[t] for t in range(T)) +             self.gamma </em> p + quicksum(z[t] for t in range(T)),             GRB.MINIMIZE         )</p>
-      <p>        # Inventory balance constraints with uncertainty         for t in range(T):             if t == 0:                 self.model.addConstr(                     inventory[t] + shortage[t] >=                      demand_params[t]['mean'] - order_qty[t]                 )             else:                 lt = min(lead_time, t)                 self.model.addConstr(                     inventory[t] + shortage[t] >=                      demand_params[t]['mean'] + inventory[t-1] - order_qty[t-lt]                 )</p>
-      <p>        return self.model ```</p>
-      <p><strong>Expected result:</strong> Model solves in under 60 seconds for 90-day planning horizon with 50 SKUs. Optimal objective value represents worst-case cost.</p>
-      <p><strong>Checkpoint:</strong> Verify solution feasibility by substituting demand realizations at upper bound of uncertainty set. Inventory should remain non-negative.</p>
-      <p><strong>Common failure:</strong> Model infeasible. <strong>Fix:</strong> Reduce gamma parameter or increase initial inventory bounds. Check that lead time does not exceed planning horizon.</p>
-      <h2>Step 4: Integrate Simulation for Validation</h2>
-      <p><strong>Action:</strong> Build a discrete-event simulation module to test optimization decisions against realistic demand scenarios.</p>
-      <p>Create <code>supply_chain_simulator.py</code>. The simulator generates demand realizations from your Bayesian distributions and tracks inventory, orders, and costs over the planning horizon.</p>
-      <p>``` import numpy as np from collections import defaultdict</p>
-      <p>class SupplyChainSimulator:     def __init__(self, optimizer, estimator, num_scenarios=1000):         self.optimizer = optimizer         self.estimator = estimator         self.num_scenarios = num_scenarios         self.results = defaultdict(list)</p>
-      <p>    def run_simulation(self, initial_inventory, demand_params,                         holding_cost, shortage_cost, periods=365):         """Monte Carlo simulation over planning horizon"""         for scenario in range(self.num_scenarios):             inventory = initial_inventory.copy()             total_cost = 0             service_level_hits = 0</p>
-      <p>            for t in range(periods):                 # Generate demand realization                 demand = np.random.normal(                     demand_params[t]['mean'],                     np.sqrt(demand_params[t]['variance'])                 )                 demand = max(0, demand)  # Non-negative demand</p>
-      <p>                # Apply optimized order decision                 order = self.optimizer.get_order_decision(t, inventory)</p>
-      <p>                # Update inventory                 inventory = inventory + order - demand</p>
-      <p>                # Calculate costs                 if inventory >= 0:                     total_cost += holding_cost <em> inventory                     service_level_hits += 1                 else:                     total_cost += shortage_cost </em> abs(inventory)                     inventory = 0  # Lost sales assumption</p>
-      <p>            self.results['total_cost'].append(total_cost)             self.results['service_level'].append(service_level_hits / periods)</p>
-      <p>        return self._compute_statistics() ```</p>
-      <p><strong>Expected result:</strong> After 1000 scenarios, mean service level should exceed 95% with well-calibrated parameters. Cost distribution provides confidence intervals for budgeting.</p>
-      <p><strong>Checkpoint:</strong> Service level variance should decrease as gamma increases (more robust solutions). If variance increases, check demand parameter estimation.</p>
-      <h2>Step 5: Implement Adaptive Learning Loop</h2>
-      <p><strong>Action:</strong> Connect the Bayesian estimator to real-time demand feeds for continuous parameter updates.</p>
-      <p>Create <code>adaptive_controller.py</code>. This module orchestrates the learning-optimization cycle: observe demand, update beliefs, re-optimize decisions.</p>
-      <p>``` import schedule import time from datetime import datetime</p>
-      <p>class AdaptiveSupplyChainController:     def __init__(self, data_pipeline, estimator, optimizer,                   update_frequency='daily'):         self.pipeline = data_pipeline         self.estimator = estimator         self.optimizer = optimizer         self.update_frequency = update_frequency         self.decision_log = []</p>
-      <p>    def update_cycle(self):         """Execute one learning-optimization cycle"""         # Step 1: Pull latest demand observations         new_demand = self.pipeline.get_recent_demand(lookback_days=7)</p>
-      <p>        # Step 2: Update Bayesian posteriors         for sku in new_demand['sku_id'].unique():             sku_demand = new_demand[new_demand['sku_id'] == sku]['quantity']             posterior = self.estimator.update_posterior(sku_demand.values)             self.estimator.store_posterior(sku, posterior)</p>
-      <p>        # Step 3: Re-optimize with updated parameters         demand_params = self.estimator.get_all_posteriors()         self.optimizer.build_model(demand_params,                                      holding_cost=2.5,                                     shortage_cost=15.0,                                     order_cost=50.0,                                     lead_time=3,                                     planning_horizon=30)         self.optimizer.solve()</p>
-      <p>        # Step 4: Log decisions for audit         decisions = self.optimizer.get_decisions()         self.decision_log.append({             'timestamp': datetime.now(),             'decisions': decisions,             'demand_params': demand_params         })</p>
-      <p>        return decisions ```</p>
-      <p><strong>Expected result:</strong> <a href="https://arxiv.org/html/2511.06479v1" rel="noopener noreferrer" target="_blank">Simulations over 365 periods</a> show adaptive Bayesian learning with stochastic optimization improves service levels by 2.0% in stable scenarios.</p>
-      <p><strong>Checkpoint:</strong> Decision log should show posterior means converging over time. Erratic swings indicate insufficient data or outlier contamination.</p>
-      <h2>Step 6: Configure Multi-Echelon Extension</h2>
-      <p><strong>Action:</strong> Extend the single-location model to handle supplier tiers and distribution networks.</p>
-      <p>Modify <code>robust_optimizer.py</code> to include upstream supplier constraints and downstream distribution requirements. This matches the <a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">Aston University case study</a> that applies adjustable robust optimization to multi-echelon automotive systems.</p>
-      <p>``` def build_multi_echelon_model(self, nodes, arcs, demand_params,                                 supply_capacity, transport_cost):     """Extend to multi-echelon network"""     self.model = Model("MultiEchelonRobust")</p>
-      <p>    # Index sets     suppliers = [n for n in nodes if n['type'] == 'supplier']     plants = [n for n in nodes if n['type'] == 'plant']     warehouses = [n for n in nodes if n['type'] == 'warehouse']</p>
-      <p>    # Flow variables for each arc     flow = self.model.addVars(         [(a['from'], a['to'], t) for a in arcs for t in range(T)],         name="flow", lb=0     )</p>
-      <p>    # Supplier capacity constraints with uncertainty     for s in suppliers:         for t in range(T):             self.model.addConstr(                 quicksum(flow[s['id'], p['id'], t] for p in plants                           if (s['id'], p['id']) in arcs)  ```</p>
-      <p><strong>Expected result:</strong> Multi-echelon model captures supply-side uncertainty in addition to demand uncertainty. Solution balances inventory across network tiers.</p>
-      <h2>Configuration and Customization Parameters</h2>
-      <p>These parameters require adjustment for your specific supply chain context. Default values work for typical automotive components with moderate demand variability.</p>
-      <ul><li><strong>gamma (robustness budget):</strong> Default 1.5. Increase to 2.0-2.5 for critical components where stockouts are unacceptable. Decrease to 1.0 for commodity items where cost minimization dominates.</li><li><strong>prior\_kappa (prior weight):</strong> Default 1. Set to 0.1 for new SKUs with little historical data (let data dominate quickly). Set to 5-10 for stable SKUs where historical patterns are reliable.</li><li><strong>update\_frequency:</strong> Default daily. Use weekly for slow-moving items. Use hourly for high-velocity components in JIT environments.</li><li><strong>planning\_horizon:</strong> Default 30 days. Extend to 90 days for long lead time suppliers. Reduce to 7 days for responsive supply networks.</li><li><strong>num\_scenarios:</strong> Default 1000. Increase to 5000 for high-stakes decisions. Reduce to 500 for rapid prototyping.</li></ul>
-      <p><strong>Must-change settings:</strong> Replace <code>holding_cost</code>, <code>shortage_cost</code>, and <code>order_cost</code> with your actual cost parameters. These directly impact optimization decisions.</p>
-      <h2>Verification and Testing Protocol</h2>
-      <p>Execute this test sequence to validate your implementation before production deployment.</p>
-      <p><strong>Unit tests:</strong> Verify Bayesian estimator converges to known parameters when fed synthetic data with known mean and variance. Tolerance: 5% deviation after 100 observations.</p>
-      <p><strong>Integration test:</strong> Run full pipeline with 6 months of historical data. Compare optimized decisions against naive (order-up-to) policy. Optimization should show measurable cost improvement.</p>
-      <p><strong>Stress test:</strong> Inject demand shock (50% increase) at simulation day 180. Monitor recovery time. Framework should detect shift within 7-14 days and adjust parameters accordingly.</p>
-      <p><strong>Edge cases to verify:</strong></p>
-      <ul><li>Zero demand periods (holidays, shutdowns): Posterior should not collapse</li><li>Supplier failure (capacity drops to zero): Model should remain feasible with alternative sourcing</li><li>Demand spike beyond historical range: Check that robust solution maintains service level</li></ul>
-      <p><strong>Success definition:</strong> Simulation shows service level above 95% and cost within 10% of theoretical optimum across 1000 scenarios.</p>
-      <h2>Common Errors and Fixes</h2>
-      <p><strong>Error:</strong> <code>GurobiError: Model is infeasible</code></p>
-      <p><strong>Cause:</strong> Uncertainty set too large relative to available capacity or initial inventory.</p>
-      <p><strong>Fix:</strong> Reduce gamma parameter by 0.5 increments until feasible. Alternatively, increase initial inventory bounds or add slack variables with high penalty costs.</p>
-      <p><strong>Error:</strong> Posterior variance increases over time instead of decreasing</p>
-      <p><strong>Cause:</strong> Non-stationary demand pattern (trend or seasonality) violates model assumptions.</p>
-      <p><strong>Fix:</strong> Detrend data before estimation. Implement seasonal decomposition or use time-varying prior parameters.</p>
-      <p><strong>Error:</strong> <code>MemoryError</code> during simulation with large scenario counts</p>
-      <p><strong>Cause:</strong> Storing full trajectory for each scenario exhausts RAM.</p>
-      <p><strong>Fix:</strong> Compute summary statistics incrementally. Store only final metrics per scenario, not full time series.</p>
-      <p><strong>Error:</strong> Optimization decisions oscillate wildly between periods</p>
-      <p><strong>Cause:</strong> Insufficient regularization or overfitting to recent observations.</p>
-      <p><strong>Fix:</strong> Increase prior\_kappa to weight historical patterns more heavily. Add smoothing constraints to limit period-over-period order changes.</p>
-      <p><strong>Error:</strong> Service level drops during demand shocks despite robust formulation</p>
-      <p><strong>Cause:</strong> <a href="https://arxiv.org/html/2511.06479v1" rel="noopener noreferrer" target="_blank">Research confirms</a> that Bayesian updating conservatism limits responsiveness during sudden demand shocks.</p>
-      <p><strong>Fix:</strong> Implement change-point detection to trigger faster prior updates when distribution shifts are detected. Consider hybrid approach with scenario-based planning for extreme events.</p>
-      <h2>Next Steps and Extensions</h2>
-      <p>Your working framework provides the foundation for advanced capabilities. Consider these extensions based on your operational priorities.</p>
-      <p><strong>Multi-objective optimization:</strong> Extend the model to balance cost, sustainability, and social factors. The <a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">Aston University framework</a> demonstrates that robust optimization with adjustable parameters supports economic and social sustainability in stochastic automotive operations.</p>
-      <p><strong>Real-time integration:</strong> Connect your adaptive controller to <a href="https://supplychaindisaster.com" rel="noopener noreferrer" target="_blank">Supply Chain Disaster's hazard intelligence platform</a> for early warning of supplier disruptions. Trigger immediate re-optimization when risk alerts arrive.</p>
-      <p><strong>Machine learning enhancement:</strong> Replace Bayesian estimation with neural network forecasters for complex demand patterns. Maintain robust optimization layer for decision-making with uncertainty quantification.</p>
-      <p>For <strong>longitudinal studies on SCRES</strong>, track your framework's performance over 12-24 months. Document cost savings, service level improvements, and response times during actual disruptions. This empirical evidence validates the approach and supports continuous refinement.</p>
-      
+      <p><strong>Editor's note (8 November 2026).</strong> An earlier version of this article presented a "working" framework that combined Bayesian learning with a Bertsimas–Sim robust optimisation model. Its code was not runnable: formulas had been corrupted by formatting, helper methods such as <code>_compute_ci</code>, <code>get_order_decision</code> and <code>solve</code> were never defined, and the robust model's uncertainty variables appeared in the objective without the constraints that give them meaning, so it did not formulate a robust counterpart. We replaced it with the smaller example below.</p>
+
+      <h2>Stochastic Optimisation in One Paragraph</h2>
+      <p>Deterministic planning plugs one forecast into an optimisation model. Stochastic optimisation treats demand (and sometimes supply) as random and chooses decisions that perform well on average or against a chosen risk measure. The simplest case in supply chains is the newsvendor-style rule used here: order up to the level at which the probability of covering demand equals a ratio set by the cost of shortage and the cost of excess stock.</p>
+
+      <h2>The Problem and Its Assumptions</h2>
+      <ul>
+        <li>One item at one location, reviewed every period, with an integer lead time of <code>L</code> periods.</li>
+        <li>Per-period demand is independent and identically distributed Normal(μ, σ²), with <strong>unknown</strong> μ and σ². Real demand is often trending, seasonal, intermittent or skewed; this example ignores all of that, and negative demand is only a limitation of the normal model.</li>
+        <li>Unmet demand is backordered, so on-hand stock can go negative. Costs are linear, in currency per unit per period: <code>holding_cost</code> on stock on hand and <code>shortage_cost</code> on backorders, both charged on end-of-period stock.</li>
+        <li>No fixed ordering cost, capacity limit, minimum order quantity or supplier failure.</li>
+      </ul>
+      <p>Under these assumptions the classical base-stock result (see Zipkin, <em>Foundations of Inventory Management</em>, 2000) says the best order-up-to level for inventory position (on hand plus on order) is the quantile of demand over <code>L + 1</code> periods at the critical ratio <code>shortage_cost / (shortage_cost + holding_cost)</code>.</p>
+
+      <h2>The Code</h2>
+      <p>Save this as <code>bayes_inventory.py</code>. It uses only the Python standard library. We ran it and its tests on Python 3.14 only; we have not tested older versions.</p>
+      <pre><code class="language-python" data-source="bayes_inventory.py">"""Educational example: Bayesian demand updating, a base-stock rule and an inventory simulation.
+
+Standard library only. It is a teaching sketch, not a production system.
+
+Assumptions (all of them are simplifications):
+  * one item, one location, periodic review, integer lead time in periods
+  * per-period demand is i.i.d. Normal(mu, sigma^2) with unknown mu and sigma^2
+  * unmet demand is backordered (negative on-hand stock)
+  * linear costs, in currency per unit per period: holding_cost and shortage_cost
+  * no fixed ordering cost, no capacity limits, no supplier failures
+"""
+import math
+import random
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Posterior:
+    """Normal-Inverse-Gamma parameters for (mu, sigma^2)."""
+    mu: float
+    kappa: float
+    alpha: float
+    beta: float
+
+
+# Hypothetical, weak prior used for illustration. Replace it with your own and test how much it matters.
+DEFAULT_PRIOR = Posterior(mu=100.0, kappa=1.0, alpha=2.0, beta=100.0)
+
+
+def clean_demand(observations):
+    """Return usable demand values.
+
+    None and NaN mean "not observed" and are dropped. 0 means "demand was confirmed to be zero"
+    and is kept. Negative or infinite values are errors, not data.
+    """
+    cleaned = []
+    for x in observations:
+        if x is None or (isinstance(x, float) and math.isnan(x)):
+            continue
+        if not math.isfinite(x) or x &lt; 0:
+            raise ValueError(f"invalid demand value: {x!r}")
+        cleaned.append(float(x))
+    if not cleaned:
+        raise ValueError("no usable demand observations")
+    return cleaned
+
+
+def update(prior, observations):
+    """Conjugate update of the Normal-Inverse-Gamma posterior."""
+    xs = clean_demand(observations)
+    n = len(xs)
+    x_bar = sum(xs) / n
+    ss = sum((x - x_bar) ** 2 for x in xs)
+    kappa_n = prior.kappa + n
+    return Posterior(
+        mu=(prior.kappa * prior.mu + n * x_bar) / kappa_n,
+        kappa=kappa_n,
+        alpha=prior.alpha + n / 2,
+        beta=prior.beta + 0.5 * ss + prior.kappa * n * (x_bar - prior.mu) ** 2 / (2 * kappa_n),
+    )
+
+
+def expected_variance(post):
+    """Posterior mean of the per-period demand variance sigma^2 (needs alpha &gt; 1)."""
+    if post.alpha &lt;= 1:
+        raise ValueError("posterior mean of the variance is undefined for alpha &lt;= 1")
+    return post.beta / (post.alpha - 1)
+
+
+def mean_scale2(post):
+    """Squared scale of the Student-t posterior of the demand MEAN: uncertainty about the parameter."""
+    return post.beta / (post.alpha * post.kappa)
+
+
+def predictive_params(post, periods=1):
+    """Student-t posterior predictive of total demand over `periods` periods: (df, loc, scale^2).
+
+    It includes both parameter uncertainty and ordinary demand noise, so it is wider than mean_scale2.
+    """
+    scale2 = (post.beta / post.alpha) * (periods + periods ** 2 / post.kappa)
+    return 2 * post.alpha, periods * post.mu, scale2
+
+
+def sample_predictive_sum(post, periods, n, rng):
+    """Draw n samples of total demand over `periods` periods from the posterior predictive."""
+    out = []
+    for _ in range(n):
+        sigma2 = post.beta / rng.gammavariate(post.alpha, 1.0)  # Inverse-Gamma(alpha, beta)
+        mu = rng.gauss(post.mu, math.sqrt(sigma2 / post.kappa))
+        out.append(rng.gauss(periods * mu, math.sqrt(periods * sigma2)))
+    return out
+
+
+def base_stock_level(post, lead_time, holding_cost, shortage_cost, n=200_000, seed=1):
+    """Order-up-to level S for inventory position (on hand + on order).
+
+    With backorders and linear costs, the classical base-stock result sets S at the critical-ratio
+    quantile q = shortage_cost / (shortage_cost + holding_cost) of demand over lead_time + 1 periods.
+    Here that demand is the Bayesian predictive, estimated by sampling (seeded, so it is repeatable).
+    """
+    if lead_time &lt; 0 or int(lead_time) != lead_time:
+        raise ValueError("lead_time must be a non-negative integer")
+    if holding_cost &lt;= 0 or shortage_cost &lt;= 0:
+        raise ValueError("costs must be positive")
+    q = shortage_cost / (shortage_cost + holding_cost)
+    samples = sorted(sample_predictive_sum(post, lead_time + 1, n, random.Random(seed)))
+    return max(0.0, samples[min(n - 1, int(q * n))])
+
+
+def simulate(base_stock, demands, lead_time, initial_on_hand, holding_cost, shortage_cost):
+    """Run the base-stock policy against given demands. Returns (rows, totals).
+
+    Each period: (1) orders due this period arrive, (2) order up to base_stock, (3) demand occurs,
+    (4) costs are charged on end-of-period stock. An order placed in period t arrives in period t + lead_time.
+    """
+    arrivals = {}
+    on_hand = float(initial_on_hand)
+    on_order = 0.0
+    rows = []
+    total_holding = total_shortage = 0.0
+    for t, d in enumerate(demands):
+        start = on_hand
+        received = arrivals.pop(t, 0.0)
+        on_hand += received
+        on_order -= received
+        order = max(0.0, base_stock - (on_hand + on_order))
+        if order:
+            if lead_time == 0:
+                on_hand += order
+            else:
+                arrivals[t + lead_time] = arrivals.get(t + lead_time, 0.0) + order
+                on_order += order
+        on_hand -= d
+        holding = holding_cost * max(on_hand, 0.0)
+        shortage = shortage_cost * max(-on_hand, 0.0)
+        total_holding += holding
+        total_shortage += shortage
+        rows.append({"t": t, "start": start, "received": received, "order": order, "demand": d,
+                     "end": on_hand, "holding": holding, "shortage": shortage})
+    totals = {"holding": total_holding, "shortage": total_shortage, "total": total_holding + total_shortage}
+    return rows, totals</code></pre>
+
+      <h3>What each part does</h3>
+      <ul>
+        <li><strong>Missing versus zero demand.</strong> <code>clean_demand</code> drops <code>None</code> and NaN (not observed) but keeps <code>0</code> (confirmed zero demand). Treating a missing day as zero would pull the estimate down, so the two are never mixed. Negative or infinite values raise an error, and so does an empty input.</li>
+        <li><strong>Bayesian update.</strong> <code>update</code> applies the conjugate Normal-Inverse-Gamma update. The prior in <code>DEFAULT_PRIOR</code> is hypothetical and weak; with little data it matters a lot, so replace it with your own and check how sensitive the result is.</li>
+        <li><strong>Parameter uncertainty versus predictive uncertainty.</strong> <code>mean_scale2</code> describes uncertainty about the <em>average demand</em>, which shrinks as data accumulates. <code>predictive_params</code> describes uncertainty about <em>future demand</em>, which also includes ordinary demand noise, so it is always wider. Safety stock must cover the predictive spread, not just the uncertainty about the mean.</li>
+        <li><strong>Base-stock level.</strong> <code>base_stock_level</code> samples the predictive distribution for <code>L + 1</code> periods and takes the critical-ratio quantile. Sampling is seeded, so results are repeatable.</li>
+        <li><strong>Simulation.</strong> <code>simulate</code> records, for each period, starting stock, arrivals, the order placed, demand, ending stock and the two cost components, so the inventory balance can be checked by hand.</li>
+      </ul>
+
+      <h2>A Hand-Checkable Example</h2>
+      <p>Using the hypothetical prior (μ₀ = 100, κ₀ = 1, α₀ = 2, β₀ = 100) and four observed demands 90, 110, 100 and 100:</p>
+      <ul>
+        <li>n = 4, sample mean 100, sum of squared deviations 200.</li>
+        <li>κ = 1 + 4 = 5; μ = (1 × 100 + 4 × 100) / 5 = 100; α = 2 + 4/2 = 4; β = 100 + 0.5 × 200 + 0 = 200.</li>
+        <li>Expected variance = β / (α − 1) = 200 / 3 ≈ 66.7 per period squared.</li>
+        <li>Uncertainty about the mean: scale² = β / (α κ) = 200 / (4 × 5) = 10. Predictive demand for one period: scale² = (β / α)(1 + 1/κ) = 50 × 1.2 = 60, with 2α = 8 degrees of freedom.</li>
+        <li>For a lead time of 2 periods the demand cover is 3 periods: location 3 × 100 = 300 and scale² = 50 × (3 + 9/5) = 240. With holding cost 1 and shortage cost 9 the critical ratio is 9 / 10 = 0.9, the Student-t (8 degrees of freedom) 0.90 quantile from standard tables is 1.3968, and the order-up-to level is about 300 + 1.3968 × √240 ≈ 321.6.</li>
+      </ul>
+      <p>The simulation can be checked by hand as well. With demand of 10 per period, a lead time of 2 and an order-up-to level of 30 (exactly three periods of demand), ending stock is 20, 10, 0, 0, 0 over five periods and the holding cost is 30 with no shortage. Lowering the level to 20 gives ending stock of 10, 0, −10, −10, −10: a holding cost of 10 and 30 backordered unit-periods at a shortage cost of 5, a total of 160.</p>
+
+      <h2>The Tests</h2>
+      <p>Save this as <code>test_bayes_inventory.py</code> in the same folder and run <code>python -m unittest</code>. The tests reproduce the hand calculations above, check that missing values do not change the posterior, check invalid inputs, and verify the inventory balance and unit conservation in a randomised simulation. We also deliberately broke the predictive-scale formula and the arrival timing to confirm the tests fail when the code is wrong.</p>
+      <pre><code class="language-python" data-source="test_bayes_inventory.py">import math
+import random
+import unittest
+
+import bayes_inventory as bi
+
+
+class CleanDemand(unittest.TestCase):
+    def test_missing_dropped_zero_kept(self):
+        self.assertEqual(bi.clean_demand([0, None, float("nan"), 5]), [0.0, 5.0])
+
+    def test_empty_and_all_missing_raise(self):
+        with self.assertRaises(ValueError):
+            bi.clean_demand([])
+        with self.assertRaises(ValueError):
+            bi.clean_demand([None, float("nan")])
+
+    def test_invalid_values_raise(self):
+        for bad in (-1, float("inf")):
+            with self.assertRaises(ValueError):
+                bi.clean_demand([10, bad])
+
+
+class Posterior(unittest.TestCase):
+    # Hand calculation: n=4, mean 100, sum of squares 200, prior (100, 1, 2, 100)
+    # kappa=5, mu=100, alpha=4, beta=100 + 0.5*200 + 0 = 200
+    post = bi.update(bi.DEFAULT_PRIOR, [90, 110, 100, 100])
+
+    def test_update_matches_hand_calculation(self):
+        self.assertAlmostEqual(self.post.mu, 100.0)
+        self.assertAlmostEqual(self.post.kappa, 5.0)
+        self.assertAlmostEqual(self.post.alpha, 4.0)
+        self.assertAlmostEqual(self.post.beta, 200.0)
+
+    def test_expected_variance(self):
+        self.assertAlmostEqual(bi.expected_variance(self.post), 200 / 3)
+
+    def test_parameter_uncertainty_is_narrower_than_predictive(self):
+        self.assertAlmostEqual(bi.mean_scale2(self.post), 10.0)        # 200 / (4 * 5)
+        df, loc, scale2 = bi.predictive_params(self.post, 1)
+        self.assertAlmostEqual(scale2, 60.0)                          # (200 / 4) * (1 + 1/5)
+        self.assertEqual((df, loc), (8.0, 100.0))
+        self.assertGreater(scale2, bi.mean_scale2(self.post))
+
+    def test_missing_values_do_not_change_the_posterior(self):
+        with_gaps = bi.update(bi.DEFAULT_PRIOR, [90, None, 110, 100, float("nan"), 100])
+        self.assertEqual(with_gaps, self.post)
+
+    def test_sampled_predictive_matches_student_t_quantile(self):
+        # Lead time 2 -&gt; 3 periods: loc 300, scale^2 = 50 * (3 + 9/5) = 240.
+        # t(8) 0.90 quantile = 1.3968 (standard table) -&gt; 300 + 1.3968 * sqrt(240) = 321.64
+        s = bi.base_stock_level(self.post, lead_time=2, holding_cost=1.0, shortage_cost=9.0)
+        self.assertAlmostEqual(s, 300 + 1.3968 * math.sqrt(240), delta=0.5)
+
+    def test_base_stock_is_repeatable_and_validates_inputs(self):
+        a = bi.base_stock_level(self.post, 1, 1.0, 4.0, n=5000, seed=7)
+        b = bi.base_stock_level(self.post, 1, 1.0, 4.0, n=5000, seed=7)
+        self.assertEqual(a, b)
+        for args in ((-1, 1.0, 4.0), (1.5, 1.0, 4.0), (1, 0.0, 4.0), (1, 1.0, -1.0)):
+            with self.assertRaises(ValueError):
+                bi.base_stock_level(self.post, *args)
+
+
+class Simulation(unittest.TestCase):
+    def test_exact_cover_has_no_shortage(self):
+        # Demand 10 per period, lead time 2, S = 30 = 3 periods of demand.
+        rows, totals = bi.simulate(30, [10] * 5, 2, 30, holding_cost=1.0, shortage_cost=5.0)
+        self.assertEqual([r["end"] for r in rows], [20, 10, 0, 0, 0])
+        self.assertEqual(totals, {"holding": 30.0, "shortage": 0.0, "total": 30.0})
+
+    def test_too_low_base_stock_creates_backorders(self):
+        rows, totals = bi.simulate(20, [10] * 5, 2, 20, holding_cost=1.0, shortage_cost=5.0)
+        self.assertEqual([r["end"] for r in rows], [10, 0, -10, -10, -10])
+        self.assertEqual(totals, {"holding": 10.0, "shortage": 150.0, "total": 160.0})
+
+    def test_inventory_balance_and_unit_conservation(self):
+        rng = random.Random(3)
+        demands = [max(0.0, rng.gauss(100, 20)) for _ in range(200)]
+        for lead_time in (0, 1, 3):
+            rows, _ = bi.simulate(350, demands, lead_time, 350, 1.0, 5.0)
+            for r in rows:
+                placed_now = r["order"] if lead_time == 0 else 0.0
+                self.assertAlmostEqual(r["end"], r["start"] + r["received"] + placed_now - r["demand"])
+            ordered = sum(r["order"] for r in rows)
+            received = sum(r["received"] for r in rows) + (ordered if lead_time == 0 else 0.0)
+            in_pipeline = ordered - received
+            self.assertGreaterEqual(in_pipeline, -1e-9)
+            self.assertAlmostEqual(rows[-1]["end"], 350 + received - sum(demands))
+
+    def test_empty_demand_gives_empty_result(self):
+        rows, totals = bi.simulate(10, [], 1, 5, 1.0, 1.0)
+        self.assertEqual((rows, totals["total"]), ([], 0.0))
+
+
+if __name__ == "__main__":
+    unittest.main()</code></pre>
+      <p>These tests show that the code does what the stated formulas say. They do not show that the policy is good for any real supply chain.</p>
+
+      <h2>Solvers and Licensing</h2>
+      <p>This example needs no optimisation solver; it uses a closed-form rule and a simulation. If you extend it to a linear or mixed-integer model, you will need one. Commercial solvers such as Gurobi are licensed under the vendor's terms, which differ between commercial, academic and evaluation use, so check the current terms for your situation. Open-source solvers such as HiGHS, CBC and GLPK each have their own open-source licence; check that it suits your use.</p>
+
+      <h2>What About Robust Optimisation?</h2>
+      <p>Bertsimas and Sim's "The Price of Robustness" (<em>Operations Research</em> 52(1), 2004, pp. 35–53) proposes protecting each uncertain constraint against a limited number of coefficients taking their worst-case values at once; a parameter Γ per constraint sets how many, so the modeller can trade cost against conservatism. The robust counterpart of a linear program stays a linear program, with extra variables and constraints linked to each uncertain constraint. A correct implementation has to include those linking constraints, which is why we do not offer a quick version here. If you need one, work from the paper.</p>
+
+      <h2>What Published Research Shows, and Its Limits</h2>
+      <p>A <a href="https://arxiv.org/abs/2511.06479" rel="noopener noreferrer" target="_blank">November 2025 arXiv preprint by Shahnawaz and Safder</a> proposes a stochastic learning-optimisation model for automotive supply chains and compares a static policy with an adaptive policy that updates its estimates by Bayesian inference. Its abstract reports a 7.4% cost reduction in stable conditions and a 5.7% improvement during supply disruptions. These come from simulations with synthetic data (for example constant demand of 10 per period, a static (s,S) baseline of 25 and 50, 30 replications), and the paper is a preprint. The reported service-level gain of 2.0% is two percentage points (from 93.4% to 95.4%). The authors also report that the approach struggled in a sudden demand shock, where service fell to 77.0% against 93.4% for the baseline, which they attribute to the conservatism of Bayesian updating. Treat these numbers as one simulation study, not as expected results for your business.</p>
+      <p>An Aston University paper, <a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">"An Integrated Robust Optimization and Simulation Framework for Sustainable and Resilient Automotive Supply Chain Management"</a>, combines robust optimisation with simulation for automotive supply chains. We did not review it in detail, so we cite it as further reading only.</p>
+
+      <h2>Where to Go Next</h2>
+      <ul>
+        <li><strong>Validate first.</strong> Compare any policy against your current one on held-out historical periods before trusting it.</li>
+        <li><strong>Relax the assumptions one at a time:</strong> trend and seasonality, intermittent demand (many zero periods), non-normal demand, fixed ordering costs and service-level constraints.</li>
+        <li><strong>Extend the structure:</strong> several items, several echelons, supplier failures.</li>
+        <li><strong>Try the intuition in a game.</strong> <a href="/play">FMCG Chapter 1 is free to play</a>; the game does not use this code.</li>
+      </ul>
+
       <div class="faq-section">
         <h2>Frequently Asked Questions</h2>
-        <h3>What is Supply Chain Resilience (SCRES)?</h3>
-      <p>Supply Chain Resilience is an organization's ability to anticipate, prepare for, respond to, and recover from supply chain disruptions. It combines proactive risk identification, adaptive capacity during disruptions, and rapid recovery to normal operations.</p>
-      <h3>Why is building supply chain resilience important for businesses?</h3>
-      <p>Disruptions cost automotive manufacturers millions in lost production and expedited shipping. <a href="https://arxiv.org/abs/2511.06479" rel="noopener noreferrer" target="_blank">Research shows</a> that stochastic learning-optimization improves costs by 5.7% during supply disruptions — a measurable financial return on resilience investment.</p>
-      <h3>How can companies improve their supply chain resilience?</h3>
-      <p>Implement predictive analytics for early warning, diversify supplier bases, maintain strategic inventory buffers, and develop flexible production policies. The stochastic optimization framework in this tutorial addresses uncertainty through mathematical modeling, enabling data-driven decisions that balance cost efficiency with risk mitigation.</p>
-      <h3>When should organizations implement resilience strategies in their supply chains?</h3>
-      <p>Before disruptions occur, not in response to them. The optimal time is during stable operations when historical data is available for model calibration. Start with critical components and high-value suppliers, then expand coverage systematically.</p>
-      <h3>Which strategies are most effective for enhancing supply chain resilience?</h3>
-      <p>The most effective strategies combine visibility, flexibility, and adaptive decision-making. Visibility enables early warning. Flexibility allows rapid response. The Bertsimas-Sim robust optimization approach handles uncertainty without requiring explicit scenario enumeration.</p>
-      <h3>What role does collaboration play in supply chain resilience?</h3>
-      <p>Collaboration enables information sharing that improves demand forecasting and risk detection across the network. Shared visibility reduces the bullwhip effect where demand variability amplifies upstream. The multi-echelon extension in this tutorial models these interdependencies mathematically, optimizing decisions across organizational boundaries.</p>
-      <h3>Sources</h3>
-      <ol><li><a href="https://arxiv.org/html/2511.06479v1" rel="noopener noreferrer" target="_blank">https://arxiv.org/html/2511.06479v1</a></li><li><a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">https://publications.aston.ac.uk/id/eprint/48756/1/An\_Integrated\_Robust\_Optimization\_and\_Simulation\_Framework\_for\_Sustainable\_and\_Resilient\_Automotive\_Supply\_Chain\_Management.pdf</a></li><li><a href="https://supplychaindisaster.com" rel="noopener noreferrer" target="_blank">https://supplychaindisaster.com</a></li><li><a href="https://arxiv.org/abs/2511.06479" rel="noopener noreferrer" target="_blank">https://arxiv.org/abs/2511.06479</a></li></ol>
-      <p>​</p>
+        <h3>Is this code ready for production use?</h3>
+      <p>No. It is an educational example with strong assumptions and tests for its arithmetic and bookkeeping, not for real-world performance.</p>
+        <h3>Does it need Gurobi or another solver?</h3>
+      <p>No. It uses only the Python standard library. A solver becomes necessary only if you extend it to a linear or mixed-integer model.</p>
+        <h3>Why does the example use Bayesian updating?</h3>
+      <p>Because demand parameters are unknown and must be estimated from limited data. The Bayesian posterior carries that uncertainty into the order-up-to level. It does not remove the need to check the assumptions, such as stable, independent demand.</p>
+        <h3>What is the difference between parameter uncertainty and demand uncertainty?</h3>
+      <p>Parameter uncertainty is how unsure you are about the true average demand; it falls as data accumulates. Demand uncertainty is the period-to-period randomness that remains even if the parameters were known. Safety stock needs to cover both.</p>
+        <h3>How is missing demand different from zero demand?</h3>
+      <p>A missing observation means the demand was not recorded; it should be left out of the estimate. A zero means demand was observed and was zero; it is information and should be kept.</p>
+        <h3>Sources</h3>
+        <ol>
+          <li>Shahnawaz, M. and Safder, A. (2025). Bridging theory and practice: a stochastic learning-optimization model for resilient automotive supply chains. arXiv:2511.06479. <a href="https://arxiv.org/abs/2511.06479" rel="noopener noreferrer" target="_blank">arXiv</a> (preprint; accessed 8 November 2026).</li>
+          <li>Bertsimas, D. and Sim, M. (2004). The price of robustness. <em>Operations Research</em> 52(1), 35–53. doi:10.1287/opre.1030.0065.</li>
+          <li>Zipkin, P. (2000). <em>Foundations of Inventory Management</em>. McGraw-Hill.</li>
+          <li>Aston University. An integrated robust optimization and simulation framework for sustainable and resilient automotive supply chain management. <a href="https://publications.aston.ac.uk/id/eprint/48756/1/An_Integrated_Robust_Optimization_and_Simulation_Framework_for_Sustainable_and_Resilient_Automotive_Supply_Chain_Management.pdf" rel="noopener noreferrer" target="_blank">PDF</a>.</li>
+        </ol>
       </div>
 
       <div class="mission-briefing">
         <p class="mission-briefing-label">&#9889; Mission Briefing &#8212; Command Center</p>
-        <h2>Optimize Under Uncertainty &#8212; For Real This Time</h2>
-        <p>Stochastic optimization treats demand as a probability distribution instead of a guess. Chapter 4 gives you the same uncertainty without the math notation &#8212; just a decision, a range of outcomes, and real consequences.</p>
+        <h2>Practise Deciding Under Uncertainty</h2>
+        <p>Demand is uncertain in the game too, with no code needed: you decide, see a range of outcomes and live with the consequences. Chapter 1 (FMCG) is free; Chapter 4 is part of the Core Game Pass.</p>
         <a href="/play?start=1" class="mission-btn">Play the first crisis — free &rarr;</a>
-        <p class="mission-note" style="margin:0.9rem 0 0;font-size:0.78rem;color:#475569;letter-spacing:0.02em">No download &middot; No account &middot; Chapters 1&ndash;3 free</p>
-        <span class="mission-briefing-note">Free &#8212; no account required &middot; All 10 chapters always free</span>
+        <p class="mission-note" style="margin:0.9rem 0 0;font-size:0.78rem;color:#475569;letter-spacing:0.02em">No download &middot; No account &middot; FMCG Chapter 1 free</p>
+        <span class="mission-briefing-note">FMCG Chapter 1 free &middot; Core Game Pass $19.99 one-time for the rest</span>
       </div>
 
     </article>

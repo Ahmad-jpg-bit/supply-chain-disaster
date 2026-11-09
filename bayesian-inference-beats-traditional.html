@@ -13,8 +13,8 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Why Bayesian Inference Beats Traditional Risk Models | Supply Chain Disaster</title>
-  <meta name="description" content="Most supply chain risk dashboards light up after the disruption hits. The hurricane makes landfall, the port congests, the supplier goes dark, and then the..." />
+  <title>Bayesian Inference for Supply Chain Risk: Uses, Examples and Limitations | Supply Chain Disaster</title>
+  <meta name="description" content="What Bayesian inference can and cannot do for supply chain risk: how priors and evidence combine, a worked example with checked arithmetic, and the limits." />
   <link rel="canonical" href="https://www.supplychaindisaster.com/bayesian-inference-beats-traditional" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Ahmad Faruqi" />
@@ -22,8 +22,8 @@
   <!-- Open Graph -->
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://www.supplychaindisaster.com/bayesian-inference-beats-traditional" />
-  <meta property="og:title" content="Why Bayesian Inference Beats Traditional Risk Models" />
-  <meta property="og:description" content="Most supply chain risk dashboards light up after the disruption hits. The hurricane makes landfall, the port congests, the supplier goes dark, and then the..." />
+  <meta property="og:title" content="Bayesian Inference for Supply Chain Risk: Uses, Examples and Limitations" />
+  <meta property="og:description" content="What Bayesian inference can and cannot do for supply chain risk: how priors and evidence combine, a worked example with checked arithmetic, and the limits." />
   <meta property="og:image" content="https://www.supplychaindisaster.com/og-image.png" />
   <meta property="og:site_name" content="Supply Chain Disaster" />
   <meta property="article:published_time" content="2026-04-09" />
@@ -31,8 +31,8 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Why Bayesian Inference Beats Traditional Risk Models" />
-  <meta name="twitter:description" content="Most supply chain risk dashboards light up after the disruption hits. The hurricane makes landfall, the port congests, the supplier goes dark, and then the..." />
+  <meta name="twitter:title" content="Bayesian Inference for Supply Chain Risk: Uses, Examples and Limitations" />
+  <meta name="twitter:description" content="What Bayesian inference can and cannot do for supply chain risk: how priors and evidence combine, a worked example with checked arithmetic, and the limits." />
   <meta name="twitter:image" content="https://www.supplychaindisaster.com/og-image.png" />
 
   <!-- JSON-LD: BlogPosting -->
@@ -40,10 +40,10 @@
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": "Why Bayesian Inference Beats Traditional Risk Models",
-    "description": "Most supply chain risk dashboards light up after the disruption hits. The hurricane makes landfall, the port congests, the supplier goes dark, and then the...",
+    "headline": "Bayesian Inference for Supply Chain Risk: Uses, Examples and Limitations",
+    "description": "What Bayesian inference can and cannot do for supply chain risk: how priors and evidence combine, a worked example with checked arithmetic, and the limits.",
     "datePublished": "2026-04-09",
-    "dateModified": "2026-04-09",
+    "dateModified": "2026-11-08",
     "author": {
       "@type": "Person",
       "name": "Ahmad Faruqi",
@@ -56,7 +56,7 @@
     },
     "url": "https://www.supplychaindisaster.com/bayesian-inference-beats-traditional",
     "mainEntityOfPage": "https://www.supplychaindisaster.com/bayesian-inference-beats-traditional",
-    "keywords": ["bayesian supply chain", "inference supply chain", "beats supply chain", "traditional supply chain", "risk supply chain", "models supply chain"]
+    "keywords": ["bayesian inference supply chain risk", "bayesian network supply chain", "supply chain risk modelling", "prior and posterior", "supply chain risk limitations"]
   }
   </script>
 
@@ -90,8 +90,8 @@
     <header class="article-header">
       <a href="/blog" class="article-back-link">&#8592; Back to Blog</a>
       <span class="article-tag">Analytics</span>
-      <h1>Why Bayesian Inference Beats Traditional Risk Models</h1>
-      <p class="article-subtitle">How updating beliefs with new evidence transforms supply chain resilience from reactive to predictive</p>
+      <h1>Bayesian Inference for Supply Chain Risk: Uses, Examples and Limitations</h1>
+      <p class="article-subtitle">How priors and new evidence combine, a worked example, and where the method stops helping</p>
       <div class="article-meta">
         <span>April 9, 2026</span>
         <span class="article-meta-sep">·</span>
@@ -102,62 +102,94 @@
     </header>
 
     <article class="article-content">
-      
+      <p>Many supply chain risk dashboards react after the event: the storm has made landfall, the port is congested, the supplier has gone quiet. Bayesian methods are one way to turn early signals into updated probability estimates before the full impact arrives. They are also easy to oversell. This article explains what Bayesian inference does for supply chain risk, works through a small example with the arithmetic shown, and sets out what the method cannot do.</p>
 
-      <p>The uncomfortable truth: most supply chain risk management is reactive dressed up as proactive. And the statistical methods underpinning it are partly to blame.</p>
-      <h2>Why Traditional Statistics Keep Failing You</h2>
-      <p>The dominant approach to supply chain risk relies on frequentist statistics. You gather historical data, calculate probabilities based on past events, and build models that assume the future will resemble the past.</p>
-      <p>This worked reasonably well in stable environments. When disruptions were rare and patterns were predictable, historical averages told you something useful. But the world has changed. Supply chains now face compounding, interconnected risks that historical data cannot capture. A pandemic, a canal blockage, a semiconductor shortage, and an energy crisis all within four years. Your historical models never saw this coming because they could not.</p>
-      <p>Frequentist methods treat each event as independent. They struggle with cascading failures, novel threats, and the kind of uncertainty that defines modern global supply chains.</p>
-      <h2>Bayesian Inference Changes the Game</h2>
-      <p>Bayesian inference in supply chains is not just a better statistical method. It is a fundamentally different way of thinking about risk — one that matches how disruptions actually unfold.</p>
-      <p>Instead of asking "what happened before?" Bayesian models ask "what do we believe now, and how should new information update that belief?"</p>
-      <p>That distinction has real operational consequences.</p>
-      <h2>How Bayesian Models Actually Work in Supply Chain Risk</h2>
-      <p>Consider how a Bayesian network handles a hurricane approaching your supplier's region. Traditional models might tell you the historical probability of hurricane damage to that facility. Useful, but static.</p>
-      <p>A Bayesian approach continuously updates as new information arrives. The storm's trajectory shifts. Energy prices spike. Port congestion increases. Each signal refines the probability estimate in real time.</p>
-      <p>​<a href="https://www.tandfonline.com/doi/abs/10.1080/00207543.2025.2532136" rel="noopener noreferrer" target="_blank">Recent multilayer Bayesian network analysis</a> identified delivery reliability, hurricanes, and net working capital as the top three most critical risk triggers in resilient supply chains. Targeted interventions based on these models reduced overall costs significantly.</p>
-      <p>This is not theoretical. Researchers have built hybrid systems combining knowledge graphs with dependency Bayesian networks to analyze resilience for critical goods like medical supplies. These models trace how vulnerabilities propagate through supply networks, enabling response before disruption spreads.</p>
-      <h3>The Stochastic Optimization Framework Connection</h3>
-      <p>Bayesian inference becomes even more powerful when integrated into a stochastic optimization framework. Rather than optimizing for a single predicted scenario, you optimize across a distribution of possible futures. Your inventory decisions, routing choices, and supplier allocations all account for uncertainty explicitly. You are not betting on one outcome. You are building resilience across many.</p>
-      <p>​<a href="https://www.bostonfed.org/-/media/Documents/events/2025/us-economy-changing-global-landscape/supply_chain_uncertainty_energy_prices_and_inflation_monacelli_merendino.pdf" rel="noopener noreferrer" target="_blank">Boston Fed research</a> shows that firms using Bayesian estimates of delay costs for specialized inputs like microchips exhibit more adaptive responses during disruptions. They are reading noisy signals — energy prices, shipping delays — and updating their models continuously.</p>
-      <h3>What the Evidence Actually Shows</h3>
-      <p>​<a href="https://digitalcommons.georgiasouthern.edu/cgi/viewcontent.cgi?article=1034\&context=pmhr_2025" rel="noopener noreferrer" target="_blank">Empirical studies on supply chain resilience</a> demonstrate that Bayesian network models provide assessable robustness and resilience metrics that traditional disruption probability modeling cannot match. The causal relationships between triggers, risk events, and consequences become visible and actionable.</p>
-      <p>​<a href="https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2546029" rel="noopener noreferrer" target="_blank">Hierarchical Bayesian models</a> for payment delay prediction incorporate partial pooling of supplier-specific patterns. They learn from your entire supplier base while respecting individual supplier behavior. The result is better accuracy than treating each supplier independently. You are not just tracking suppliers — you are understanding how their risks connect to yours and how those connections evolve.</p>
-      <h2>What Changes If This Is Right</h2>
-      <p>If Bayesian inference truly transforms supply chain resilience, several implications follow.</p>
-      <p>Your data strategy shifts. You need continuous signal feeds, not quarterly reports. Energy prices, shipping indices, weather patterns, supplier financial health — all become inputs to a living model.</p>
-      <p>Your team needs different skills. Statistical literacy becomes operational necessity. The gap between data science and supply chain operations must close.</p>
-      <p>Your vendor relationships change. Suppliers who share data enable better predictions. Transparency becomes a competitive advantage, not just a compliance checkbox.</p>
-      <p>The cost of ignoring this shift is measured in recovery time, expedited shipping fees, lost customers, and damaged reputation.</p>
-      <h2>A New Mental Model for Supply Chain Risk</h2>
-      <p>Stop thinking of risk management as insurance. Start thinking of it as navigation.</p>
-      <p>Insurance pays out after the crash. Navigation helps you avoid it. Bayesian inference is your navigation system, constantly recalculating the route as conditions change.</p>
-      <p>Traditional risk management asks: "What is the probability of disruption?" Bayesian risk management asks: "Given everything we know right now, what should we do next?"</p>
-      <p>That reframe changes everything. You move from probability tables to decision support. From static reports to dynamic response.</p>
-      <p>Supply chain disruptions will not slow down. Global interdependence is not reversing. Bayesian inference is not a silver bullet — it requires investment in data infrastructure, analytical capability, and organizational change. But it offers something traditional methods cannot: a framework that gets smarter as uncertainty increases.</p>
-      <p>Put these frameworks to the test in the simulation at supplychaindisaster.com.</p>
-      
+      <h2>What Bayesian Inference Is</h2>
+      <p>Bayesian inference starts from a <strong>prior</strong>: a probability estimate you hold before seeing the latest evidence. It then combines that prior with a <strong>likelihood</strong>, which describes how probable the observed evidence would be under each possible state of the world, to produce a <strong>posterior</strong>. When new evidence arrives, the posterior becomes the next prior.</p>
+      <p>The prior can come from historical data, from expert judgement, or from both. That is a strength when history is thin, because you can state your assumptions openly and test how much they matter. It is also a weakness: a poorly chosen prior gives poor early estimates, and two analysts with different priors can reach different answers from the same data.</p>
+
+      <h2>What This Article Does Not Claim: Frequentist Models Are Not Independence Models</h2>
+      <p>A common argument says that frequentist or "traditional" statistics treat every event as independent and therefore cannot handle cascading failures. That is not accurate. <strong>Independence is a modelling assumption, not a property of a school of statistics.</strong> Both approaches can assume independence, and both can represent dependence:</p>
+      <ul>
+        <li>Frequentist models routinely include dependence: regression with several predictors, time-series models such as ARIMA, survival models for time to failure, and multivariate models of correlated demand or lead times.</li>
+        <li>Bayesian models can also be simplistic. A naive Bayes classifier assumes the signals are conditionally independent given the outcome, and the worked example below makes that same assumption on purpose so that you can see its effect.</li>
+        <li>The main difference is in how uncertainty is represented and how prior information is used: a Bayesian model returns a distribution over unknowns and has a built-in place for prior knowledge, while a frequentist model reports estimates and confidence intervals that are interpreted over repeated sampling.</li>
+      </ul>
+      <p>A frequentist model can also be re-estimated as new data arrives, and a Bayesian model that is never refreshed or checked will be as stale as any other. Updating continuously is something you build, not something either method gives you for free.</p>
+
+      <h2>A Worked Example With Explicit Assumptions</h2>
+      <p>The numbers below are <strong>hypothetical</strong>. They are chosen to show the mechanics, not to describe any real supplier, port or dataset.</p>
+      <p><strong>Question.</strong> Is a supplier's inbound lane about to suffer a serious delay (more than two weeks) this quarter? Call that event D.</p>
+      <p><strong>Assumptions.</strong></p>
+      <ul>
+        <li>Prior: P(D) = 0.10, a planner's estimate before any new signal.</li>
+        <li>Signal 1, a regional shipping-delay index rising above a threshold: P(S1 | D) = 0.80 and P(S1 | not D) = 0.20.</li>
+        <li>Signal 2, the supplier reporting a delay: P(S2 | D) = 0.70 and P(S2 | not D) = 0.30.</li>
+        <li>For the second update we assume S1 and S2 are <em>conditionally independent</em> given D. This is an assumption, and it is checked below.</li>
+      </ul>
+      <p><strong>Update 1: the index rises.</strong></p>
+      <p>P(D | S1) = (0.80 × 0.10) / (0.80 × 0.10 + 0.20 × 0.90) = 0.08 / (0.08 + 0.18) = 0.08 / 0.26 ≈ 0.308.</p>
+      <p>One signal moves the estimate from 10% to about 31%, so it is informative but far from conclusive.</p>
+      <p><strong>Update 2: the supplier also reports a delay.</strong> Use the posterior as the new prior. The prior odds are 0.308 / 0.692 = 4/9 ≈ 0.444. The likelihood ratio for S2 is 0.70 / 0.30 = 7/3 ≈ 2.33. The posterior odds are 4/9 × 7/3 = 28/27 ≈ 1.037, which is a probability of 28 / (28 + 27) = 28/55 ≈ 0.509.</p>
+      <p>Two signals take the estimate to about 51%.</p>
+      <table>
+        <thead>
+          <tr><th>Step</th><th>Probability of a serious delay</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prior (hypothetical)</td><td>10.0%</td></tr>
+          <tr><td>After signal 1</td><td>30.8%</td></tr>
+          <tr><td>After signals 1 and 2 (assuming conditional independence)</td><td>50.9%</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Check the assumptions.</strong> If both signals mostly reflect the same congestion event, they are not independent, and multiplying their likelihood ratios counts the same evidence twice. The real posterior would then be lower than 50.9%. A model that fits the joint behaviour of the two signals from data, in either a Bayesian or a frequentist framework, would handle this better than the simple product.</p>
+      <p><strong>Check the prior.</strong> With the same likelihoods, a prior of 5% gives a posterior after signal 1 of 0.04 / (0.04 + 0.19) ≈ 17.4%, and a prior of 20% gives 0.16 / (0.16 + 0.16) = 50.0%. A prior that doubles or halves can move the answer a lot, so state it and test it.</p>
+
+      <h2>What the Research Shows, and What It Does Not</h2>
+      <p>Bayesian networks have been used to model supply chain risk, resilience and ripple effects. A literature review by <a href="https://aquila.usm.edu/fac_pubs/17998" rel="noopener noreferrer" target="_blank">Hosseini and Ivanov (2020)</a> surveys that work, covering research articles published from 2007 to 2019. These are models of dependence between risk events, which is one reason they are attractive.</p>
+      <p>A <a href="https://www.tandfonline.com/doi/abs/10.1080/00207543.2025.2532136" rel="noopener noreferrer" target="_blank">2025 paper in the <em>International Journal of Production Research</em></a> builds a multilayer Bayesian network for resilient and sustainable supply chains. We have not been able to read its full text, so we do not repeat its specific findings here.</p>
+      <p>A <a href="https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2546029" rel="noopener noreferrer" target="_blank">hierarchical Bayesian model for payment delay prediction</a> uses partial pooling, so that suppliers with little history borrow strength from similar suppliers. In the aerospace supply chain case study reported in the paper, it predicted more accurately than non-hierarchical models. That is one case study with one dataset; it does not show that the approach wins in general.</p>
+      <p>A <a href="https://www.bostonfed.org/-/media/Documents/events/2025/us-economy-changing-global-landscape/supply_chain_uncertainty_energy_prices_and_inflation_monacelli_merendino.pdf" rel="noopener noreferrer" target="_blank">2025 conference paper by Merendino and Monacelli</a> (Boston Fed) is a macroeconomic model. It assumes firms treat energy prices as noisy signals of delivery delays for a specialised input such as microchips and update their beliefs by Bayesian learning. In that model the learning raises perceived marginal costs and increases how strongly energy shocks pass through to prices. It illustrates the mechanism; it is not evidence that firms using Bayesian methods respond better to disruptions.</p>
+
+      <h2>Limitations</h2>
+      <ul>
+        <li><strong>Data quality.</strong> Noisy, biased or sparse signals give unreliable posteriors, whichever method you use.</li>
+        <li><strong>Model specification.</strong> The probabilities in a Bayesian network, and the structure connecting the nodes, are assumptions that need justification and review.</li>
+        <li><strong>Calibration and validation.</strong> A useful model gives probabilities that match observed frequencies. Test this on data the model did not see, and compare it with a simpler baseline before relying on it.</li>
+        <li><strong>Unprecedented events.</strong> A model can only update on the kinds of evidence it was built to read. A genuinely new kind of disruption is not foreseen by a method that has no variable for it.</li>
+        <li><strong>Cost and skills.</strong> Building, maintaining and explaining probabilistic models takes data engineering and statistical skill, and the output still has to be tied to a decision.</li>
+      </ul>
+
+      <h2>When It Is Worth Considering</h2>
+      <p>Bayesian approaches suit problems where there is some prior knowledge, evidence arrives in pieces, data on rare events is limited, and a decision-maker needs probabilities and not just point estimates. A simpler model may be a better first step where data is plentiful and the relationships are stable. A sensible way to start is a small pilot on one decision, such as expediting a critical component, with the model's probabilities compared against a simple baseline over time.</p>
+      <p>You can try decision-making under uncertainty in a simulation: <a href="/play">play FMCG Chapter 1 free</a>. The game does not teach Bayesian methods.</p>
+
       <div class="faq-section">
         <h2>Frequently Asked Questions</h2>
-        <h3>What is Supply Chain Resilience (SCRES)?</h3>
-      <p>SCRES is an organization's capacity to anticipate disruptions, adapt to changing conditions, and recover quickly when supply chain failures occur. It combines flexibility, redundancy, and visibility to maintain operations under stress.</p>
-      <h3>How does Bayesian inference differ from traditional risk modeling?</h3>
-      <p>Traditional models calculate fixed probabilities from historical data. Bayesian inference continuously updates probability estimates as new information arrives, making it far more responsive to emerging threats and changing conditions.</p>
-      <h3>When should organizations implement Bayesian approaches to supply chain risk?</h3>
-      <p>Organizations facing complex, interconnected supplier networks or operating in volatile environments benefit most. Start when traditional models consistently fail to provide actionable early warning of disruptions.</p>
-      <h3>Sources</h3>
-      <ol><li><a href="https://www.tandfonline.com/doi/abs/10.1080/00207543.2025.2532136" rel="noopener noreferrer" target="_blank">https://www.tandfonline.com/doi/abs/10.1080/00207543.2025.2532136</a></li><li><a href="https://www.bostonfed.org/-/media/Documents/events/2025/us-economy-changing-global-landscape/supply_chain_uncertainty_energy_prices_and_inflation_monacelli_merendino.pdf" rel="noopener noreferrer" target="_blank">https://www.bostonfed.org/-/media/Documents/events/2025/us-economy-changing-global-landscape/supply\_chain\_uncertainty\_energy\_prices\_and\_inflation\_monacelli\_merendino.pdf</a></li><li><a href="https://digitalcommons.georgiasouthern.edu/cgi/viewcontent.cgi?article=1034\&context=pmhr_2025" rel="noopener noreferrer" target="_blank">https://digitalcommons.georgiasouthern.edu/cgi/viewcontent.cgi?article=1034\&context=pmhr\_2025</a></li><li><a href="https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2546029" rel="noopener noreferrer" target="_blank">https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2546029</a></li></ol>
-      <p>​</p>
+        <h3>Do frequentist methods assume events are independent?</h3>
+      <p>No. Independence is a modelling assumption that either a frequentist or a Bayesian model can make or relax. Frequentist regression, time-series and survival models can represent dependence, and a Bayesian model can assume independence between signals.</p>
+        <h3>How does Bayesian inference differ from other statistical approaches?</h3>
+      <p>Bayesian inference combines a prior with observed evidence to give a posterior distribution, and it treats unknowns as having probability distributions. Frequentist methods report estimates and confidence intervals interpreted over repeated sampling. Both can be updated as new data arrives, and both depend on data quality, model specification, calibration and validation.</p>
+        <h3>Does Bayesian inference predict unprecedented disruptions?</h3>
+      <p>Not automatically. A Bayesian model updates on the evidence it was designed to read. A new kind of event that the model has no variable or prior for will not be foreseen, although signals that correlate with it may still raise the estimated risk.</p>
+        <h3>When should organizations consider Bayesian approaches to supply chain risk?</h3>
+      <p>When prior knowledge or expert judgement matters, data on rare events is sparse, evidence arrives in pieces, and decisions need probabilities. Start with a small pilot and compare it against a simple baseline.</p>
+        <h3>Sources</h3>
+        <ol>
+          <li>Hosseini, S. and Ivanov, D. (2020). Bayesian networks for supply chain risk, resilience and ripple effect analysis: a literature review. <a href="https://aquila.usm.edu/fac_pubs/17998" rel="noopener noreferrer" target="_blank">Repository record</a>.</li>
+          <li>Lu, J., Wu, D. and Dolgui, A. (2025). Construction of resilient and sustainable supply chain based on multilayer Bayesian network. <em>International Journal of Production Research</em> 63(23). <a href="https://www.tandfonline.com/doi/abs/10.1080/00207543.2025.2532136" rel="noopener noreferrer" target="_blank">Publisher page</a>.</li>
+          <li>A hierarchical Bayesian model for payment delay prediction in supply chain financing. <a href="https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2546029" rel="noopener noreferrer" target="_blank">Publisher page</a>.</li>
+          <li>Merendino, A. and Monacelli, T. (2025). Supply chain uncertainty, energy prices, and inflation. Conference paper, Federal Reserve Bank of Boston, 21–22 November 2025. <a href="https://www.bostonfed.org/-/media/Documents/events/2025/us-economy-changing-global-landscape/supply_chain_uncertainty_energy_prices_and_inflation_monacelli_merendino.pdf" rel="noopener noreferrer" target="_blank">PDF</a>.</li>
+        </ol>
       </div>
 
       <div class="mission-briefing">
         <p class="mission-briefing-label">&#9889; Mission Briefing &#8212; Command Center</p>
-        <h2>Traditional Risk Models Fail Here Too</h2>
-        <p>This article argues static risk scoring misses what matters. Chapter 4 gives you a live supply chain and a static playbook &#8212; see how far probability-based thinking gets you when the disruption doesn't follow the script.</p>
+        <h2>Practise Deciding Under Uncertainty</h2>
+        <p>Probability estimates only help if you act on them. Chapter 4 puts you in a disruption with limited information and a decision to make, so you can see how far an estimate gets you. It is part of the Core Game Pass; FMCG Chapter 1 is free.</p>
         <a href="/play?start=1" class="mission-btn">Play the first crisis — free &rarr;</a>
-        <p class="mission-note" style="margin:0.9rem 0 0;font-size:0.78rem;color:#475569;letter-spacing:0.02em">No download &middot; No account &middot; Chapters 1&ndash;3 free</p>
-        <span class="mission-briefing-note">Free &#8212; no account required &middot; All 10 chapters always free</span>
+        <p class="mission-note" style="margin:0.9rem 0 0;font-size:0.78rem;color:#475569;letter-spacing:0.02em">No download &middot; No account &middot; FMCG Chapter 1 free</p>
+        <span class="mission-briefing-note">FMCG Chapter 1 free &middot; Core Game Pass $19.99 one-time for the rest</span>
       </div>
 
     </article>

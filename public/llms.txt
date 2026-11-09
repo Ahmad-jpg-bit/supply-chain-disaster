@@ -73,21 +73,23 @@ Each chapter flashcard includes: CSCP exam domain badge, exam-ready definition, 
 
 ## Competitor Comparison
 
+_Editorial summary. The Fresh Connection column was checked against Inchainge's published pages on 8 November 2026; other competitor columns are unverified editorial summaries that may be out of date, so check each provider._
+
 | Feature | Supply Chain Disaster | Beer Game (Zensimu) | The Fresh Connection | Capsim SCM | Kinaxis SCM Game |
 |---------|----------------------|--------------------|----------------------|------------|-----------------|
-| Price | Free Chapter 1 / $19.99 one-time Core Game Pass (all campaigns, report, certificate) | Free | ~$150–$300/license | ~$50–$200 | Free |
-| Solo play | ✅ Yes | ✅ Yes | ❌ Requires 4 players | ✅ Yes | ✅ Yes |
+| Price | Free Chapter 1 / $19.99 one-time Core Game Pass (all campaigns, report, certificate) | Free | Sold to universities and companies (see Inchainge) | ~$50–$200 | Free |
+| Solo play | ✅ Yes | ✅ Yes | ❌ Team simulation | ✅ Yes | ✅ Yes |
 | Browser-based | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
 | CSCP mapped | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
 | Story-driven | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
-| Free tier | ✅ Chapter 1 (complete scenario) | ✅ Full | ❌ No | ❌ No | ✅ Full |
-| Concepts covered | 10 CSCP topics | Bullwhip only | Operations strategy | General business | Supply planning |
+| Free tier | ✅ Chapter 1 (complete scenario) | ✅ Full | Free-trial request form | ❌ No | ✅ Full |
+| Concepts covered | 10 CSCP topics | Bullwhip only | Cross-functional supply chain trade-offs | General business | Supply planning |
 | Real case studies | ✅ NVIDIA, P&G, Suez, Samsung | ❌ No | ❌ No | ❌ No | ❌ No |
 | APICS alignment | ✅ All 3 domains (SCD, SCPE, SCIBP) | ❌ No | ❌ No | Partial | ❌ No |
 
 **vs. MIT Beer Game / Zensimu:** The Beer Game (popularized online by Zensimu) teaches the bullwhip effect through a single-product, 4-tier supply chain exercise — one concept, one scenario. Supply Chain Disaster covers the bullwhip effect in Chapter 2 as part of a 10-chapter CSCP-aligned curriculum with narrative context, real case studies, and three industry variants.
 
-**vs. The Fresh Connection (Inchainge):** The Fresh Connection is a team exercise used at IMD, INSEAD, and Cranfield requiring 4 players and institutional facilitation, typically costing $150–$300 per license. Supply Chain Disaster is a solo simulation completable in browser with no group, no account, and no institutional access required.
+**vs. The Fresh Connection (Inchainge):** The Fresh Connection is a web-based team simulation in which players take executive roles (its student competitions use teams of four). Inchainge sells it to universities and companies, offers a free-trial request form, and delivers facilitation face to face or online. Supply Chain Disaster is a single-player game that runs in the browser, with FMCG Chapter 1 free and no account required; it does not provide team roles or facilitation.
 
 **vs. Capsim:** Capsim focuses on general business strategy (R&D, marketing, finance). Supply Chain Disaster is purpose-built for supply chain management with direct CSCP exam domain alignment.
 
@@ -129,7 +131,7 @@ How practitioners use simulation to rehearse supply chain crises before they occ
 
 ### SCM Fundamentals: The 5 Pillars (SCOR)
 **URL:** https://www.supplychaindisaster.com/scm-fundamentals-5-pillars
-The SCOR model (Supply Chain Operations Reference) defines 5 management processes: Plan, Source, Make, Deliver, Return. Covers: SCOR v12 metrics, reliability vs. agility trade-off, port blockage stress-tests.
+Five stages and five pillars of supply chain management as explanatory groupings (not standards), Hau Lee's four supply chain strategy types, and SCOR: the older Plan-Source-Make-Deliver-Return model and the current SCOR Digital Standard (seven primary management processes: Orchestrate, Plan, Order, Source, Transform, Fulfill, Return).
 
 ### 7Cs of Supply Chain & 4PL Logistics
 **URL:** https://www.supplychaindisaster.com/7cs-supply-chain-4pl-logistics
@@ -141,7 +143,7 @@ Six Sigma targets ≤3.4 defects per million opportunities via DMAIC. Kaizen tar
 
 ### Best Business Simulation Games (2026)
 **URL:** https://www.supplychaindisaster.com/best-business-simulation-games
-Ranked guide to 16 top business simulation games for supply chain, MBA, and operations management training. Compares: Supply Chain Disaster, Markstrat, MIT Beer Game, The Fresh Connection, Capsim, Marketplace, GlobStrat.
+Sixteen business simulation games compared by format, platform, price and fit (including Capitalism Lab, Business Strategy Game, Markstrat, Virtonomics and The Fresh Connection), with a disclosure that we publish Supply Chain Disaster and a note that the list is editorial, not a scored ranking.
 
 ### 7 Strategies for Automotive Supply Chain Resilience
 **URL:** https://www.supplychaindisaster.com/automotive-supply-chain-resilience
